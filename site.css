@@ -24,6 +24,12 @@ dl.howto > dd {
   margin-bottom: 10px;
 }
 
+/* A "steps" list is similar. */
+ol.steps > li {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 /* "Facts" lists show a group of related items, similar to "howto" lists.
  */
 dl.facts > dt {

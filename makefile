@@ -56,7 +56,7 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/study.html emacs/tutorial.html emacs/vm+qmail.html
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
 linux-pages = linux/index.html linux/tux-small.png \
-	linux/antispam.html linux/backup.html linux/backup.pl.html \
+	linux/antispam.html linux/backup.html \
 	linux/cl-xml-notes.html linux/disk-upgrade.html \
 	linux/ether.html linux/striped-blue.png linux/striped-green.png \
 	linux/striped-brown.png linux/striped-orange.png \

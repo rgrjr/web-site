@@ -1,23 +1,26 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> <head>
+<html>
+<head>
 <title>Linux Hard Disk Upgrade: An Experience</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
-<body bgcolor=white>
+<body>
 <h1>Linux Hard Disk Upgrade: An Experience</h1>
 
-<p><a href="/"><tt>Home</tt></a> : <a href="">Linux resources</a> : Hard
-Disk Upgrade
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : Hard Disk Upgrade
 <hr>
 
-<p>The following notes recount my March 2001 experience with upgrading the
-hard drive on my two-year-old cheapo Linux box.  This became
-something of a major project, because it also involved repartitioning
-the disk and doing a memory upgrade while I was at it.  It also turned
-out to be somewhat harrowing, because, despite precautions, I screwed up
-badly enough so that the system wouldn't boot up.  Twice.
+<p>The following notes recount my March 2001 experience with upgrading
+the hard drive on my cheapo Linux box, which was then two years old.
+This turned into a major project, because it also involved
+repartitioning the disk and doing a memory upgrade while I was at it.
+It also turned out to be somewhat harrowing, because, despite
+precautions, I screwed up badly enough so that the system wouldn't boot
+up.  Twice.
 
-<p>Nevertheless, it was well worth the trouble.  My system seems much
+<p>Nevertheless, it was well worth the trouble.  The system seems much
 faster because it pages much less, and seems to page faster when it
 needs to (though some of that is undoubtedly due to the simultaneous
 memory upgrade).  I also have tons more disk space on which to put
@@ -29,9 +32,10 @@ usefully divided for the way I do backups.
 The <a href="#strategy">first section</a> gives an overview of what I
 intended to do, the <a href="#steps">second</a> consists of the detailed
 step-by-step instructions I wrote out for myself (in order to ensure
-that I didn't goof it up), and the <a href="#tales">final section</a>
-recounts the lessons I learned the hard way, and includes a postscript,
-of sorts.
+that I didn't goof it up), plus a little <a
+href="#hindsight">hindsight</a>, and the <a href="#tales">final
+section</a> recounts the lessons I learned the hard way, and includes a
+postscript of sorts.
 
 <h2>Table of contents</h2>
 
@@ -45,17 +49,21 @@ of sorts.
 		<li> <a href="#repartition">New partitions</a>
 	      </ol>
 	 <li> <a href="#steps">Customized upgrade procedure</a>
+	      <ol>
+		<li> <a href="#hindsight">If I had to do it all over again</a>
+	      </ol>
 	 <li> <a href="#tales">Cautionary tales</a>
 	      <ol>
 		<li> <a href="#oops1">Never do more than one thing at a time</a>
 		<li> <a href="#oops2">Count your cylinders carefully</a>
 		<li> <a href="#ps">When disk errors are not disk errors: a postscript</a>
+		<li> <a href="#ps2">Another one bites the dust</a>
 	      </ol>
        </ol>
 </ol>
 <!-- hhmtoc end -->
 
-<a name = strategy>
+<a name="strategy">
 <h2>Upgrade strategy</h2>
 
 Not only did I need more space, I needed to split the space up so that
@@ -75,23 +83,22 @@ Units = cylinders of 8064 * 512 bytes
 </pre>
 </blockquote>
 On this disk, <tt>/dev/hda5</tt> is <tt>/boot</tt>, and
-<tt>/dev/hda6</tt> is the root partition.
-Virtually all files lived together in
-the 2G root partition, which had several disadvantages:
+<tt>/dev/hda6</tt> is the root partition.  Virtually all files lived
+together in the 2G root partition, which had several disadvantages:
 <ol>
   <li> It makes it difficult to do small incremental backups.  If I
        install a new software package (for instance, Allegro Common Lisp
        version 6.0, which is 126MB), that will immediately appear on the
        next incremental backup.  This is silly, because if the disk
-       dies, it would be just as easy to re-install as to restore from
+       dies, it would be almost as easy to re-install as to restore from
        backup.  For this reason, I have <tt>/usr/local</tt> on a large
        partition of its own.
   <li> Several times I have had to repair the root partition because it
-       wasn't unmounted cleanly.  (Usually this is my fault for
-       panicking too soon, and assuming the system is hung.)
-       <tt>e2fsck</tt> warns about "severe filesystem damage" if you run
-       it on a mounted partition, so keeping the root partition small
-       and stable makes this much less likely.
+       wasn't unmounted cleanly.  (This was my fault for panicking too
+       soon, and assuming the system had crashed.)  <tt>e2fsck</tt>
+       warns about "severe filesystem damage" if you run it on a mounted
+       partition, so keeping the root partition small and stable makes
+       this much less likely.
 </ol>
 
 <p>Another disadvantage of this setup is that the swap partition is
@@ -101,25 +108,27 @@ relatively slowly past the heads.  This is the slowest part of the disk
 to read and write, not only because it takes longer for a sector to be
 read, but because there are fewer sectors per cylinder, so the space
 must be spread out over more cylinders, leading to more seeks.
-Accordingly, I wanted to move the swap partition as close to the start
-of the disk as I could.
+Accordingly, I wanted to move the swap partition closer to the start of
+the disk.
 
-<a name = repartition>
+<a name="repartition">
 <h3>New partitions</h3>
 
-<p>Here's how I planned it:
+<p>I bought a used 30G drive from <a
+href="http://www.pcsforeveryone.com/">PCs for Everyone</a>, and planned
+to divide it up as follows:
 <blockquote>
 <pre>
-partition  size	blocks	what
-/dev/hdb1  1G		DOS
-/dev/hdb5  20M	  7929	/boot
-/dev/hdb6  300M		swap
-/dev/hdb7  1G	 62389	/
-/dev/hdb8  3G	195476	/home
-/dev/hdb9  5G	329336	/usr/local
-/dev/hdb10 2G	622439	/usr
-/dev/hdb11 2G	 17698	/var
-Total:	   14.32G
+partition    size      blocks    what
+/dev/hdb1      2G                DOS
+/dev/hdb5     20M        7929    /boot
+/dev/hdb6    300M                swap
+/dev/hdb7      1G       62389    /
+/dev/hdb8      3G      195476    /home
+/dev/hdb9      5G      329336    /usr/local
+/dev/hdb10     2G      622439    /usr
+/dev/hdb11     2G       17698    /var
+Total:        15.32G
 </pre>
 </blockquote>
 Notes:
@@ -127,17 +136,31 @@ Notes:
   <li> The partition names are shown as <tt>/dev/hdb<i>i</i></tt>,
        because that's where I thought the new drive would be when
        installed using the CDROM cable (turns out I was wrong).
+  <li> The "DOS" partition was the original boot partition, which I kept
+       for no good reason.  I was thinking that it might be useful to
+       have an alternative way of booting the system, but I later turned
+       this into a <tt>/shared</tt> partition without ever having tried
+       it.  (I know now that booting Windows on any but the original
+       hardware on which it was installed is usually difficult to
+       impossible, so it probably wouldn't have worked.)  In any case,
+       the original owner of this disk is lucky that I was never curious
+       enough to go ploughing through his old files.
   <li> The block counts are from the actual usage on the original disk,
        and were computed by doing <tt>"du&nbsp;-s"</tt> recursively.
-  <li> Based on the block counts, the partition contents (the part of
-       the file structure shown in the "what" column) were chosen to
-       reflect common patterns of file usage (i.e. scratch stuff in
-       <tt>/var</tt>, important stuff in <tt>/home</tt>, various kinds
-       of code development in <tt>/usr/local</tt>, etc.).
   <li> Given the partition contents, the sizes in the second column were
        chosen to reflect probable future growth patterns.
 </ul>
-Notice that I'm only using half the disk . . .
+
+The partition contents (the part of the file structure shown in the
+"what" column) were chosen to reflect common patterns of file usage
+(i.e. ephemeral stuff like system logs in <tt>/var</tt>, important stuff
+in <tt>/home</tt>, various kinds of code development in
+<tt>/usr/local</tt>, etc.).  This was driven by my backup strategy; I
+wanted to be able to back up <tt>/home</tt> frequently, the root
+filesystem infrequently, and everything else at intermediate frequencies
+that changed depending on usage, all independently of each other.
+
+<p>Notice that I'm still only using slightly more than half the disk . . .
 
 <p>As implemented (according to <tt>"fdisk&nbsp;-l"</tt>):
 <blockquote>
@@ -158,7 +181,8 @@ Units = cylinders of 16065 * 512 bytes
 /dev/hda12         2001      2261   2096451   83  Linux
 </pre>
 </blockquote>
-The first four partitions are special; they are physical partitions,
+The first four partitions of any IDE drive (i.e. hda1 through hda4) are
+special; they are physical partitions,
 whose location is specified on the MBR.  I left the first partition
 untouched, and the third and fourth are not used (this appears to be the
 convention).  <tt>/dev/hda2</tt> is a special "extended" partition that
@@ -168,14 +192,14 @@ rate); the Linux partitions appear as logical partitions within it.
 woe</a> for how and why it was created.
 
 <p>[I have since given <tt>/dev/hda6</tt> an <tt>ext2</tt> file system,
-and mounted it as <tt>/scratch</tt>.  I use it for large things that
-don't need to be backed up, such as 250MB of <a
+and mounted it as <tt>/scratch</tt>; this partition is <i>never</i>
+backed up.  I use it for such things as 250MB of <a
 href="howto.html#squid">Squid Cache</a> space, and as a holding area for
-backup files waiting to be <a href="howto.html#cd-r">cut to CD</a>.  --
+backup files waiting to be <a href="cd-burning.html">cut to CD</a>.  --
 rgr, 7-Jul-02.]
 
 <p>Here is how <tt>df</tt> reports the state of the mounted filesystem
-partitions:
+partitions on the new disk:
 <blockquote>
 <pre>
 Filesystem           1k-blocks      Used Available Use% Mounted on
@@ -188,70 +212,66 @@ Filesystem           1k-blocks      Used Available Use% Mounted on
 </pre>
 </blockquote>
 
-<a name = steps>
+<a name="steps">
 <h2>Customized upgrade procedure</h2>
 
 This procedure is heavily based on the Linux <a
 href="http://www.linuxdoc.org/HOWTO/mini/Hard-Disk-Upgrade/">
-Hard-Disk-Upgrade mini-HOWTO</a> (a text version of which will be in the
-<tt> /usr/doc/HOWTO/mini/Hard-Disk-Upgrade </tt> file on a Red Hat system
-if you have the "howto" RPM installed), plus information from other
-HOWTOs.  It is customized for my configuration (and was later corrected
+Hard-Disk-Upgrade mini-HOWTO</a>, plus information from other HOWTOs.
+(A text version of this "howto" can be found in the
+<tt>/usr/share/doc/howto/en/txt/Hard-Disk-Upgrade.gz</tt> file on a SuSE
+system if you have the "howto" RPM installed; it was actually in
+<tt>/usr/doc/HOWTO/mini/Hard-Disk-Upgrade</tt> on my original Red Hat
+system).  It is customized for my configuration (and was later corrected
 based on experience), and may or may not work for yours.  In any case,
 the experience of reading through and understanding the
 Hard-Disk-Upgrade mini-howto is probably more important than the actual
 list of steps themselves.  Your best option is probably to use this as
 an example for comparison purposes as you go through the step-writing
-process yourself.
+process yourself.  (But first you should read the <a
+href="#hindsight">If I had to do it all over again</a> subsection, since
+that approach is likely to be simpler.)
 
-<ol>
+<ol class="steps">
   <li> Do the standard end-of-month upgrade tasks.
 
-  <p>
   <li> Logout and go to single-user mode (<tt>"init&nbsp;S"</tt>).
 
-  <p>
-  <li> Do the final pre-upgrade <a href="backup.html#strategy">system
-       backup</a>.
+  <li> Do the final pre-upgrade <a href="backup.html">system backup</a>.
 
-  <p>
   <li> Shutdown, power off (<tt>"shutdown&nbsp;-h&nbsp;now"</tt>).
 
-  <p>
   <li> Install the new memory module.
 
-  <p>
-  <li> Install the new disk as slave (seems to be the default) using the
-       CDROM slot and cable.  It was easiest to take the CDROM out to do
-       this; then the new disk could just lie in the space thus vacated.
-       Cabling and jumpering turned out to be trivial to figure out;
-       both old and new drives were made by Seagate, had almost
-       identical packaging, and they and the CDROM drive had power,
-       jumper, and data connections in the same locations.  For some
-       reason, the controller and/or driver decided the new disk was
-       <tt>/dev/hdd</tt> instead of <tt>/dev/hdb</tt>, as I had
-       expected; for all I know this might depend on how the mainboard
-       is wired.
+  <li> Install the new disk as slave using the CDROM slot and cable.  It
+       was easiest to take the CDROM out to do this; then I could just
+       put the new disk in the space thus vacated.  Cabling and
+       jumpering turned out to be trivial to figure out; both old and
+       new drives were made by Seagate, had almost identical packaging,
+       and they and the CDROM drive had power, jumper, and data
+       connections in the same locations.  (Since then, all IDE devices
+       I've ever seen have looked almost identical, especially from
+       behind.)  Because I wired it up as the slave on the second IDE
+       port, Linux addressed the new disk as <tt>/dev/hdd</tt>.  In hind
+       sight, since I had removed the CD drive anyway, it would have
+       been easier to install the new disk as the second master
+       (<tt>/dev/hdc</tt> to Linux), since then I wouldn't have needed
+       to rejumper it when reinstalling as <tt>/dev/hda</tt>.
 
-  <p>
   <li> Reboot into single-user mode (<tt>"linux&nbsp;single"</tt> at the
        LILO prompt).  <a href="#oops1">[Oops; didn't boot.]</a>
 
-  <p>
   <li> Run <tt>tripwire</tt> in verification mode.  Don't bother
        building a new database; moving partitions will just screw it up
        anyway.
 
-  <p>
   <li> Use <tt>cfdisk</tt> to build new partitions on <tt>/dev/hdd</tt>.
-       Since I bought a used disk, it had already been partitioned,
-       apparently for Windows NT, so all I had to do is delete what was
-       there, then add the ones I wanted.  Otherwise, I probably would
-       have needed to supply the <tt>-z</tt> option
+       Since the disk was used, I had to delete some of what was there,
+       then add the ones I wanted.  Otherwise, I probably would have
+       needed to supply the <tt>-z</tt> option
        (i.e. <tt>"cfdisk&nbsp;-z&nbsp;/dev/hdd"</tt>), at least to start
        off.
 
-  <p>
   <li> Reboot into single-user mode again.  (After saving the new
        partition structure, <tt>cfdisk</tt> says the following on exit:
        <blockquote>
@@ -261,15 +281,15 @@ process yourself.
        This may be obsolete, as <tt>"fdisk&nbsp;-l"</tt> showed the new
        information immediately.  But I didn't take chances.)
 
-  <p>
   <li> Use <tt>"mke2fs&nbsp;-c&nbsp;/dev/hdd<i>i</i>"</tt> to build each
        of the Linux file systems.  This actually took much longer than
        copying the files, which only involved reading 1.1GB from one
        disk and writing it out to the other.  <tt>"mke2fs&nbsp;-c"</tt>
        reads every sector of the new partition to check it for read
-       errors, so that required reading some 15G of non-data.
+       errors, so that required reading some 15G of non-data.  In hind
+       sight, I didn't need to do <tt>"-c"</tt>; hard drives have all
+       had built-in hard-error recovery for some time now.
 
-  <p>
   <li> Copy relevant directories as follows:
        <pre>
 	mkdir /new/home
@@ -277,13 +297,14 @@ process yourself.
 	(cd /home; tar cf - .) | (cd /new/home; tar xBfp -)
 	(cd /home; tar cf - .) | (cd /new/home; tar dBf -)
 </pre>
-       The first tar line copies, the second one compares.  Careful
-       about order of mounts due to directory nesting.
+       The first <tt>tar</tt> line copies, the second one compares.
+       Repeat for all partitions, being careful about the order of
+       mounts due to directory nesting.
 
-       <p> [<b>NB:</b> One must copy /usr and / differently, because we
-       don't want all subdirectories copied.  -- rgr, 17-Mar-01.]
+       <p> [<b>NB:</b> I had to copy <tt>/usr</tt> and <tt>/</tt>
+       differently in order to avoid copying all subdirectories.  --
+       rgr, 17-Mar-01.]
 
-  <p>
   <li> Just for the sake of paranoia, make sure the new partitions are
        still in good order:
        <pre>
@@ -291,26 +312,25 @@ process yourself.
 	e2fsck -f /dev/hdd9
 </pre>
 
-  <p>
   <li> Maybe switch to new /home partition?
        <pre>
 	mv /home /old-home
 	mkdir /home
 	mount -t ext2 /dev/hdd9 /home
        </pre>
-       This would allow a certain amount of testing before punting the
-       old drive . . .
+       This allows a certain amount of testing before punting the old
+       drive.  [I don't remember whether I did this or not, but it's
+       kinda silly; I never actually threw the old drive away, so the
+       files are still available.  -- rgr, 23-Dec-04.]
 
-  <p>
   <li> Use <tt>"mkswap&nbsp;-c&nbsp;/dev/hdd7"</tt> to make the new swap
        partition.
 
-  <p>
   <li> Modify <tt>/new/etc/fstab</tt> to reflect the new partitioning,
-       so that Linux will mount the right things in the right places
-       when it starts up.  This requires changing the first three lines
-       to reflect the new partition numbers, and adding four new lines
-       for the four new partitions.
+       so that Linux on the new drive will mount the right things in the
+       right places when it starts up.  For me, this required changing
+       the first three lines to reflect the new partition numbers, and
+       adding four new lines for the four new partitions.
 
        <p>Old:
        <pre>
@@ -328,19 +348,23 @@ process yourself.
     /dev/hda9        /home          ext2    defaults        1 2
     /dev/hda7        swap           swap    defaults        0 0
 </pre>
-       Note that these are all still <tt>/dev/hda<i>i</i></tt>, and not
-       <tt>/dev/hdd<i>i</i></tt>, because the new drive will be
-       installed as <tt>/dev/hda</tt> before we need this
+       Note that these are all still described as partitions of
+       <tt>/dev/hda</tt>, and not of <tt>/dev/hdd</tt>, because the new
+       drive will be installed as <tt>/dev/hda</tt> before we need this
        <tt>fstab</tt>.
 
-  <p>
   <li> Make a new configuration file to tell LILO how to install itself
        on the new disk structure, and run <tt>lilo</tt>.  (For clarity,
        "LILO" refers to the LInux LOader as a whole, and <tt>"lilo"</tt>
-       is the binary that runs under Linux to install LILO.)  To do
-       this, create a new file, <tt>/etc/lilo.conf.new</tt> for example,
-       with the following contents, modified appropriately for your
-       configuration.  Do <b>not</b> replace your current
+       is the binary that runs under Linux to install LILO.  If you are
+       using the GRUB boot loader, you will need to do something
+       different; see the "GRUB(8)" <tt>man</tt> page.  Unfortunately, I
+       don't have specific instructions, but I suspect this will be
+       easier with GRUB.)
+
+       <p>To do this, create a new file, <tt>/etc/lilo.conf.new</tt> for
+       example, with the following contents, modified appropriately for
+       your configuration.  Do <b>not</b> replace your current
        <tt>/new/etc/lilo.conf</tt> file, as this will probably only need
        small changes (<a href="#lilo2">see below</a>).
        <pre>
@@ -365,10 +389,9 @@ process yourself.
                               # run fsck.
        </pre>
        <b>Note:</b> In this configuration file, the disk is referred to
-       as <tt>/dev/hdd</tt> and the file names of files on its boot
-       partition are referred to as <tt>/new/boot/</tt> because
-       <tt>lilo</tt> needs to access the disk <b>now</b> to set it up
-       for booting later.
+       as <tt>/dev/hdd</tt> and the names of files on its boot partition
+       use <tt>/new/boot/</tt> because <tt>lilo</tt> needs to access the
+       disk <b>as it is now</b> to set it up for booting later.
 
        <p>Once you have this file set up, do
        <tt>"lilo&nbsp;-C&nbsp;/etc/lilo.conf.new</tt> to get LILO to
@@ -378,7 +401,6 @@ process yourself.
        href="http://www.linuxdoc.org/HOWTO/mini/Hard-Disk-Upgrade/">
        Hard-Disk-Upgrade mini-HOWTO</a>.]
 
-  <p>
   <li> At this point, everything of value (that is accessible to Linux)
        has been copied off the old drive, and the new drive is ready to
        take its place.  This would be a good time to destroy any
@@ -386,18 +408,14 @@ process yourself.
        private key databases, correspondence with friends and lovers,
        Swiss bank account numbers, etc.
 
-  <p>
   <li> Shutdown, power off (<tt>"shutdown&nbsp;-h&nbsp;now"</tt>).
 
-  <p>
-  <li> Remove old drive, rejumper new drive as master and install,
-       reinstall CDROM as before.
+  <li> Remove old drive, rejumper new drive as master and install in its
+       place, reinstall CDROM as before.
 
-  <p>
   <li> With fingers crossed, reboot in single user mode.  <a
        href="#oops2">[Oops again.]</a>
 
-  <p>
   <li> Run <tt>tripwire</tt> to rebuild the database.  The
        <tt>tw.config</tt> file will need updating due to the
        partitioning, since <tt>tripwire</tt> never crosses partition
@@ -405,29 +423,95 @@ process yourself.
        verifying; you've already done that, and the new inodes will all
        be different anyway.
 
-  <p>
-  <li> Go to multi-user mode (<tt>"init&nbsp;3"</tt>).  Verify that all
+  <li> Go to multi-user mode (<tt>"init&nbsp;5"</tt>).  Verify that all
        servers come up properly.
 
-  <p>
-  <a name = lilo2>
+  <a name="lilo2">
   <li> Update the original <tt>/etc/lilo.conf</tt> to refer to the
        correct root partition on the new disk, and rerun <tt>lilo</tt>
        (but this time you don't need the <tt>"-C"</tt> argument).
        Aren't you glad you kept the original?
 
-  <p>
-  <li> Do <a href="backup.html#strategy">full dumps</a> of all
-       partitions.  (The contents of <tt>/boot</tt> haven't changed, but
-       the inodes have, which might make a difference to <a
-       href="http://dump.sourceforge.net/"><tt>dump</tt></a>, so redump
-       it anyway.)
+  <li> Do <a href="backup.html">full dumps</a> of all partitions.  (The
+       contents of <tt>/boot</tt> haven't changed, but the inodes have,
+       which makes a difference to <a
+       href="http://dump.sourceforge.net/"> <tt>dump</tt></a>, so it
+       needs to be dumped anyway.)
 
-  <p>
   <li> Heave a great sigh of relief.
 </ol>
 
-<a name = tales>
+And you can bet I did just that.
+
+<a name="hindsight">
+<h3>If I had to do it all over again</h3>
+
+With a great deal of hindsight (writing in December of 2004), I have
+realized that there is a much easier way to do a disk upgrade.  This is
+especially true now that the installers that come with modern Linux
+distros are much cleverer about partitioning.  So here's an outline of
+what I would do today:
+
+<ol class="steps">
+  <li> Pick up the installation CDs for the latest version of my
+       preferred distro, possibly at the same time as picking up the new
+       disk.
+
+  <li> Perform backups as before, but don't bother upgrading OS
+       software.  You may want to print a copy of your
+       <tt>/etc/fstab</tt> for reference, so that you know which
+       partitions were mounted where (see step 4).
+
+  <li> Re-install the old disk as the slave device on the second IDE
+       controller (<tt>/dev/hdd</tt>) using the same cable as the CD
+       drive, and install the new disk in its place (master on the first
+       IDE controller, <tt>/dev/hda</tt>).  Don't remove the CD drive;
+       this is their permanent new configuration.
+
+  <li> Use the installation CDs to partition the new drive and do a
+       fresh OS installation on it.  When partitioning, the installer
+       should detect <tt>/dev/hdd</tt> and give you an opportunity to
+       mount its partitions in the new filesystem.  I recommend
+       <tt>/mnt/old</tt> for the original root partition mount point,
+       and then mount any other partitions in the correct relative
+       place, e.g. <tt>/mnt/old/home</tt> for the old <tt>/home</tt>
+       partition.  In any case, you should <b>not</b> pick mount points
+       that will receive parts of the new OS (e.g. <tt>"/usr"</tt>).
+
+  <li> Finish the OS installation normally.  You needn't worry too much
+       about getting the configuration right just yet, since you can use
+       the old configs as a starting point after you're done.
+
+  <li> Copy data from the old drive to the new one, e.g. from
+       <tt>/mnt/old/home</tt> to <tt>/home</tt>, as above.  You need not
+       move it all if you are planning to keep using the old drive where
+       it is.  Be careful not to overwrite any part of the new OS with
+       files from the old one.
+
+  <li> If you are using <tt>dump/restore</tt> for <a href="backup.html">
+       system backups</a>, you will need to create new full dumps of the
+       moved partition(s) in their new location(s), as <tt>dump</tt>
+       won't be able to make new incrementals relative to the old full
+       dumps.
+</ol>
+
+<p>Voila; you are done already, and you didn't even have to do any more
+reboots than it took for the OS installation.  You now have two choices:
+<ol>
+  <li> You can keep the old drive in place, and continue to use it.  A
+       second disk drive is an ideal place for temporary storage of
+       backup dumps from the main disk.
+  <li> If you decide to remove the old disk, don't forget to remove the
+       <tt>/dev/hdd</tt> mount points from <tt>/etc/fstab</tt>, and
+       ensure that the new OS doesn't need anything on it.
+</ol>
+Either way, the old disk can still serve as a replacement boot drive if
+the new disk dies for any reason.  In the first case, you may want to
+reinstall the boot loader on the old drive so that it can boot as
+<tt>/dev/hdd</tt>; this has the added advantage that you don't have to
+fiddle with recabling the disks if you need it.
+
+<a name="tales">
 <h2>Cautionary tales</h2>
 
 The upgrade procedure detailed above worked, I suppose you could say,
@@ -448,7 +532,7 @@ because of the chance that I may be able to save others some amount of
 aggravation.  May you have better luck than I did in avoiding the
 "stupid rays."
 
-<a name = oops1>
+<a name="oops1">
 <h3>Never do more than one thing at a time</h3>
 
 When I tried to boot after shuffling all that hardware around, I was
@@ -523,21 +607,23 @@ can <i>test</i> one thing at a time.  At least I only wasted an hour or
 two, if you exclude having dinner ruined for being bummed about my
 broken system.
 
-<a name = oops2>
+<a name="oops2">
 <h3>Count your cylinders carefully</h3>
 
 Disk configuration reeks of deceit.  The drive lies about its C/H/S
 configuration to the BIOS, and the BIOS lies to the operating system,
-either by passing on what the disk said, or possibly by embellishing a
-little.  To cap it all off, the very notion of C/H/S addressing is
-obsolete; it doesn't even apply to modern disk drives, which have
+either by passing on whatever tall tale the disk provided, or possibly
+by embellishing a little along the way.
+To cap it all off, the very notion of C/H/S addressing is
+obsolete; it doesn't even apply to modern disk drives, which are
+designed with
 variable numbers of sectors per track, depending upon the cylinder
 address.  Modern drives use what is known as LBA addressing, in which
 sectors are numbered sequentially from 0 to umpty-million.  However, the
 age-old BIOS design requires C/H/S addressing, with a hardwired 24-bit
 format that only allocates 10 bits for the cylinder field.  Hence, the
 need to exaggerate the number of heads and sectors in order to report no
-more than 1024 cylinders.  Operating systems that work through the BIOS
+more than 1023 cylinders.  Operating systems that work through the BIOS
 are therefore limited to 8.5GB.  This is just the tip of the iceberg;
 further sorry details can be found in the <a
 href="http://www.linuxdoc.org/HOWTO/mini/Large-Disk/"> Large-Disk
@@ -598,7 +684,7 @@ different notion of geometry, then it might be using cylinder indices
 that were at least a factor of two greater.  Sure enough, the original
 layout (<a href="#strategy">see above</a>) was reported using 128 heads
 instead of 255.  And, though <tt>lilo</tt> normally warns if it tries to
-install things beyond the 1024-cylinder limit, it would have no way of
+use files beyond the 1024-cylinder limit, it would have no way of
 knowing that the BIOS was using different geometry.
 
 <p>So then I did the wrong thing:  I moved the partition.  Since the
@@ -659,7 +745,7 @@ ancient operating systems and their obsolete protocols,"</i> but this is
 hardly possible.  Perhaps a better one would be <i>"Nobody is completely
 unaffected by the Wintel monopoly."</i>
 
-<a name = ps>
+<a name="ps">
 <h3>When disk errors are not disk errors: a postscript</h3>
 
 Once installed, my new disk ran without any sort of trouble for more
@@ -677,8 +763,8 @@ couldn't do anything with it.  Although it looked normal, and emacs and
 X11 both seemed to work fine, whenever I did something that required
 forking (e.g. trying to start something new in an emacs subshell), emacs
 would hang, and I couldn't get it back no matter what I tried.
-Attempting to start a new shell via <tt>ssh</tt> was completely
-fruitless.
+Attempting to start a new shell by connecting from another machine via
+<tt>ssh</tt> was completely fruitless.
 
 <p>After rebooting, I looked at <tt>/var/log/messages</tt>, and found a
 number of wierd entries from early that morning, starting with the
@@ -720,7 +806,7 @@ kept giving me scores of really outrageous problems, things such as ref
 counts in the billions, that couldn't possibly be even close to being
 correct.  It seemed conceivable that there could be a handful of such
 errors on a partition, if part of an inode sector had been destroyed by
-a bad pointer before writing, but for the list to go on and on like this
+a bad pointer before writing, but for the list to go on and on like that
 just didn't seem reasonable.  It occurred to me that the boot disk I was
 using was made with kernel version 2.2.5 (the one shipped with Red Hat
 6.0), but I was running 2.2.19 with updated ext2 filesystem tools, so
@@ -737,10 +823,10 @@ utterly.
 -- time for a coffee break and some cool-headed thinking.  I grabbed
 several sheets of paper and a pen (being a computer guy, I don't usually
 run around with pens or pencils in my pockets), and lit out for our
-local <a href="http://www.carberrys.com/">Carberry's</a> cafe.  I needed
-to scope out my options, because whatever I did, getting the system back
-up would probably be painful and time-consuming, and I only wanted to go
-through it once.
+local <a href="http://www.carberrys.com/">Carberry's bakery and
+cafe</a>.  I needed to scope out my options, because whatever I did,
+getting the system back up would probably be painful and time-consuming,
+and I only wanted to go through it once.
 
 <p>By then it had dawned on me that the kernel version thing couldn't
 explain all the errors I was seeing, and that the most likely
@@ -748,9 +834,9 @@ explanation for all the symptoms I had seen -- indeed, the only
 reasonable one -- was that my disk had Alzheimer's, of a sort.  (This
 was also incorrect, as it turned out, but at least it gave me something
 concrete to work on.)  With some physical and mental space between me
-and the computer, plus the welcome distraction of coffee and a scone, I
-began to plan what I could do to get my data (and my sense of normalcy)
-back.
+and the computer, plus the welcome distraction of coffee and a scone
+(Carberry's makes awesome maple-oatmeal scones, BTW), I began to plan
+what I could do to get my data (and my sense of normalcy) back.
 
 <p>The following is a rendering of my notes from that Monday morning
 session:
@@ -827,8 +913,8 @@ is what I tried:
 
 <blockquote>
 <ol>
-  <li> Replaced the new drive (the broken one) with my original 3Gig
-       hard drive, and booted off of that.
+  <li> Replaced the new drive (the broken one) with my original 3
+       gigabyte hard drive, and booted off of that.
   <li> Pulled the relevant backup files for the new root partition from
        CD, and put them on the old drive.  This was in case I had in
        fact trashed the root partition.
@@ -851,8 +937,8 @@ two weeks before they could even look at my disk problem.  I must have
 blanched at the prospect of being without my computer, the "main server"
 for my life and livelihood, for all of two weeks.  After some
 back-and-forth, we came up with an alternative plan: He could attach a
-300-watt supply (even though that was too big to install properly within
-the enclosure), after which I would be able to continue flogging the
+300-watt supply, even though that was too big to install properly within
+the enclosure, after which I would be able to continue flogging the
 disk problem.  When a new 145-watt supply came in, he said he'd give me
 a call, and I could return the old one under their 14-day refund policy
 and replace it with something that would fit the box.  Since this seemed
@@ -860,7 +946,7 @@ the only path to getting my machine up in any sort of reasonable time, I
 readily agreed, and after executing the sale, he popped out the old
 supply and hooked up the new one, leaving it trailing wires out the back
 of the box.  (Even though this was a 3-year-old machine, PCs for
-Everyone has a lifetime labor warrantee.)  I left my name and phone
+Everyone has a lifetime labor warranty.)  I left my name and phone
 number so he could give me a call when the 145-watt units came in, and
 carefully carried my Dr. Frankenstein PC back to the car.
 
@@ -893,6 +979,7 @@ made to the new drive, undoing the partition renaming.)
 
 <p>Sure enough, it worked.  The system booted properly, all services
 came up without problems, and has been working flawlessly since then.
+(Well, <a href="#ps2">more or less flawlessly</a>.)
 
 <p>For consistency, perhaps I ought to conclude with a moral that
 summarizes what I learned from the experience.  Certainly, the lesson I
@@ -905,19 +992,67 @@ willing to forego orginality, we could use <i>"It ain't over until the
 fat lady sings."</i> But I'll understand if you're unwilling.
 
 <p>There's actually slightly more to the tale -- the subsequent
-de-frankensteinification of my system.
-[finish getting new PS & CD, returning PS.  -- rgr, 10-Jul-02.]
+de-frankensteinification of my system.  This took longer than expected,
+partly because the guy from PCfE never called, but I would up getting
+the new power supply and swapping it for the Franko-monster without
+incident.  I also got <a href="cd-burning.html">a new CD-burner</a> at
+the same time.
 
 <p>So perhaps a good moral would be, <i>"Choose your hardware supplier
 carefully."</i>  Kudos to <a href="http://www.pcsforeveryone.com/">PCs
 for Everyone</a> for taking such good care of an old (and not
 particularly rich) customer.
 
+<a name="ps2">
+<h3>Another one bites the dust</h3>
+
+Unfortunately, this power supply lasted slightly less than two years.
+On 19 June 2004, the system crashed, wouldn't reboot, and couldn't even
+be booted via the rescue CD (I had upgraded to SuSE 8.1 in the mean
+time).  At that point I wasn't sure what was wrong, but the next morning
+it wouldn't even power up -- no BIOS beeps or anything -- so I knew it
+had to be a hardware problem.  This time I was better prepared, as I had
+bought a new desktop machine only a few months before, and was able to
+put it into service over a period of several days.  This involved
+creating new partitions, restoring files from backup, and rebuilding,
+installing, and configuring the necessary servers, so it was not
+straightforward.  Still, it wasn't as hard as it could have been; the
+new system runs SuSE 9.0, which has such things as <tt>xntpd</tt>
+pre-installed, and I had already been using the <a
+href="http://httpd.apache.org/">Apache 2 Web server</a> on this machine
+to test and preview my Web site.  The biggest headache was getting mail
+service to work again, as I had to recompile and install <a
+href="qmail.html"> <tt>qmail</tt></a> and <a href="howto.html#ezmlm">
+<tt>ezmlm</tt></a>.  Since then I have learned that RPMs are available
+(at least for <tt>qmail</tt>), which might have made the job much
+easier.
+
+<p>Once I had the spare system in place, I was in much less of a hurry
+to get the old system fixed, so I didn't take it in for servicing until
+about a month later.  The previous winter, two older systems at work had
+failed with what appeared to be the same symptoms, and both turned out
+to be due to bad processor chips; the CPUs had fried themselves, and one
+had also taken out its motherboard.  Based on this experience, I was
+expecting a repair bill of at least a hundred dollars, so I was relieved
+to learn that it was only the stupid power supply (again), and the bill
+only came to $51.45.  But I was lucky they had the right unit; as it
+was, I just managed to snag the last one that <a
+href="http://www.pcsforeveryone.com/">PCs for Everyone</a> had in stock.
+It seems that they had recently decided to discontinue this model on
+account of unreliability.
+
+<p>So if the new power supply is similarly short-lived, I can look
+forward to another such failure in the summer of 2006, at which time I
+may have to get rid of the machine.  But even if so, I will have gotten
+my money's worth; the system will have lasted more than seven years in
+that case, and even with the cost of repairs and the monitor thrown in,
+it works out to about $12/month, which is pretty darn good.  My
+high-speed Internet connection costs four times as much.
+
 <p>
 <hr>
-<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+<address><a href="/bob/contact.html">Bob Rogers
     <tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
-<!-- hhmts start -->
-Last modified: Sun Apr 27 21:21:36 EDT 2003
-<!-- hhmts end -->
-</body> </html>
+$Id$
+</body>
+</html>
