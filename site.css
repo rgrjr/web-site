@@ -3,7 +3,9 @@
  * Created.  -- rgr, 30-Aug-03.
  */
 
-html {
+body {
+  color: black;
+  font-family: helvetica, sans-serif;
   margin: 10px;
   background: #EFF;
 }
