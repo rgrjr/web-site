@@ -5,9 +5,9 @@
 # make INSTALL_OPTS=--noinstall install
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
-web-page-root = /usr/local/aolserver/servers/rgrjr/pages
 # [suse standard location (since 8.1 anyway).  -- rgr, 29-May-04.]
-# web-page-root = /srv/www/htdocs
+# make web-page-root=/srv/www/htdocs install
+web-page-root = /usr/local/aolserver/servers/rgrjr/pages
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
@@ -35,7 +35,8 @@ ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
 linux-pages = linux/index.html linux/tux-small.png \
 	linux/backup.html linux/backup.pl.html \
 	linux/cl-xml-notes.html linux/disk-upgrade.html linux/ether.html \
-	linux/gconf.html linux/howto.html linux/ntp.html linux/xml.html
+	linux/gconf.html linux/howto.html linux/ntp.html linux/tmda.html \
+	linux/xml.html
 security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/firewall.html linux/security/old-xauth.html \
 	linux/security/ssh.html linux/security/xauth.html \

@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Bob: Linux: TMDA</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body bgcolor=white>
+<h1>TMDA notes</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : TMDA
+<hr>
+
+<p>Notes on using <a href="http://tmda.net/">TMDA (Tagged Message
+Delivery Agent)</a> for reducing spam.  [just started this.  -- rgr,
+10-Jun-04.]
+
+<dl class="howto">
+  <dt> Confirmation by bounces.
+  <dd> The <a
+       href="http://mla.libertine.org/tmda-users/2004-02/msg00057.html">
+       "Sneaky spam" thread</a> of 3-Feb-2004 on the <a
+       href="http://tmda.net/lists/listinfo/tmda-users">tmda-users</a>
+       list gives a detailed analysis of a particular case where this
+       happened.  In a nutshell, the problem is due to ISPs with
+       mis-configured mailers that send bounces to the "Reply-To:"
+       address; if a spammer uses a forged envelope sender address
+       belonging to that ISP, the bounce message will be accepted as a
+       confirmation.  Another message in the thread points to <a
+       href="http://tmda.net/faq.cgi?req=show&file=faq01.013.htp"> FAQ
+       1.3</a> (which has workarounds) and <a
+       href="http://tmda.net/faq.cgi?req=show&file=faq07.002.htp"> FAQ
+       7.2</a>
+</dl>
+
+<h3>Other links</h3>
+
+<ul>
+  <li> <a href="http://tmda.net/faq.cgi">TMDA FAQ</a>
+</ul>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>
