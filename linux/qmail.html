@@ -46,7 +46,7 @@ Internet"</a>, and I'm not surprised.
 Here is how to:
 
 <dl class="howto">
-  <dt> Find out what's currently waiting to be delivered:
+  <dt> Find out what's currently waiting to be delivered
   <dd> Run <tt>qmail-qread</tt> (as root).  The output will look
        something like this:
        <pre>
@@ -69,12 +69,12 @@ Here is how to:
        have appeared for those deliveries.  In <tt>qmail</tt>, all
        deliveries are made independently, even when the same message has
        multiple recipients at the same destination server.
-  <dt> Find files in the queue:
+  <dt> Find files in the queue
   <dd> Do <tt>"find /var/qmail/queue -type f"</tt> to find all queued
        message files.
-  <dt> Force a bounce:
+  <dt> Force a bounce
   <dd> To force a bounce, you need to make its "info" file older than
-       the maximume queue lifetime (in the
+       the maximume queue lifetime (expressed in seconds in
        <tt>/var/qmail/control/queuelifetime</tt>, or 7 days if not
        present).  For a message with id 206850, this can be done as
        follows:
@@ -85,16 +85,16 @@ Here is how to:
        href="http://cr.yp.to/qmail/faq/admin.html#rejuvenate"> "How do I
        rejuvenate a message?"</a> FAQ item.  (To "rejuvenate," just
        leave off the <tt>"-d&nbsp;'8&nbsp;days&nbsp;ago'"</tt> part.)
-  <dt> Force redelivery attempts:
+  <dt> Force redelivery attempts
   <dd> Do <tt>"kill&nbsp;-ALRM"</tt> on the qmail-send process to force
        redelivery for all queued messages.  Alternatively,
        <tt>"/etc/init.d/qmail&nbsp;redeliver"</tt> will do this for
        you.  (See also the <tt>/root/bin/qmail-redeliver</tt> and
        <tt>/root/bin/qmail-restart</tt> scripts).
-  <dt> Restart after a network outage:
+  <dt> Restart after a network outage
   <dd> Run <tt>qmail-tcpok</tt> to get <tt>qmail</tt> to reexamine its
        notion of which hosts are responding.  -- rgr, 13-Mar-00.
-  <dt> Get around SPAM/relay blockers via <tt>smtproutes</tt>:
+  <dt> Get around SPAM/relay blockers via <tt>smtproutes</tt>
   <dd> When I get a bounce message that looks something like this:
        <pre>
     &lt;abuse@morning.ru&gt;:
@@ -129,7 +129,27 @@ Here is how to:
        whenever their servers are unavailable.  Note that it is not
        necessary to restart the server after changing this file, as
        <tt>qmail-remote</tt> is forked anew for each remote delivery.
-  <dt> Flush double-bounces.
+
+  <dt> Limit the queue lifetime of bounce messages
+  <dd> Changing the <tt>/var/qmail/control/queuelifetime</tt> variable
+       would affect the retry lifetime of all messages, which is
+       undesirable.  Instead, I use the following crontab entry, which
+       runs twice a day, and only affects bounces:
+       <pre>
+    # Flush bounce messages older than two days.  These are invariably bounces
+    # to fictitious return addresses for spam sent to retired or filtered
+    # local addresses.  -- rgr, 13-Oct-03.
+    10 0,12 * * *	find /var/qmail/queue/info -type f -mtime +2 -size 2c | xargs -r touch -d '8 days ago'
+</pre>
+       This finds all bounces
+       (<tt>"-type&nbsp;f&nbsp;-size&nbsp;2c"</tt>) that are more than
+       two days old (<tt>"-mtime&nbsp;+2"</tt>) and applies the "Force a
+       bounce" recipe from above to make it look like the messages are
+       eight days old; these messages will be bounced the next time the
+       system gets around to retrying them.  Bounces will therefore only
+       be retried for two to three days.
+
+  <dt> Record double-bounces
   <dd> These are caused by bounces (usually spam addressed to invalid
        addresses) where the envelope return address is also invalid.  I
        used to look at all of these myself, but that got to be too much
@@ -154,31 +174,30 @@ Here is how to:
        This will cause the <tt>/var/qmail/alias/doublebounces.log</tt>
        to fill up with lines like this, one per bounce:
        <pre>
-    2004-06-06-05:37:33 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
-    2004-06-06-05:37:32 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
-    2004-06-06-05:37:33 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
-    2004-06-06-06:21:10 From: "Russ" &lt;s0ftwarre4allprocuring@care2.com&gt;
-    2004-06-06-06:54:07 From: Gina Smearsun &lt;rogers-sns@myjalapi.com&gt;
-    2004-06-06-09:19:21 From: "Watches for you" &lt;rcsmz@hotmail.com&gt;
-    2004-06-06-09:23:31 From: "Lauri Hernandez" &lt;l.hernandezng@correo.de&gt;
-    2004-06-06-09:23:31 From: "Lauri Hernandez" &lt;l.hernandezng@correo.de&gt;
-    2004-06-06-11:00:52 From: "Madrid" &lt;zvtmlm@mail15.com&gt;
-    2004-06-06-11:11:09 From: Bob Rogers &lt;rogers-netatalk@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
-    2004-06-06-11:11:10 From: Bob Rogers &lt;rogers-navel@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
-    2004-06-06-11:11:10 From: Bob Rogers &lt;rogers-ilisp@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
+    2004-06-06-05:37:33 From: "Mark Forrest" &lt;m_forrest_ad <i>at</i> hotmail.com&gt;
+    2004-06-06-05:37:32 From: "Mark Forrest" &lt;m_forrest_ad <i>at</i> hotmail.com&gt;
+    2004-06-06-05:37:33 From: "Mark Forrest" &lt;m_forrest_ad <i>at</i> hotmail.com&gt;
+    2004-06-06-06:21:10 From: "Russ" &lt;s0ftwarre4allprocuring <i>at</i> care2.com&gt;
+    2004-06-06-06:54:07 From: Gina Smearsun &lt;rogers-sns <i>at</i> myjalapi.com&gt;
+    2004-06-06-09:19:21 From: "Watches for you" &lt;rcsmz <i>at</i> hotmail.com&gt;
+    2004-06-06-09:23:31 From: "Lauri Hernandez" &lt;l.hernandezng <i>at</i> correo.de&gt;
+    2004-06-06-09:23:31 From: "Lauri Hernandez" &lt;l.hernandezng <i>at</i> correo.de&gt;
+    2004-06-06-11:00:52 From: "Madrid" &lt;zvtmlm <i>at</i> mail15.com&gt;
+    2004-06-06-11:11:09 From: Bob Rogers &lt;rogers-netatalk@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke <i>at</i> collegebeat.com&gt;
+    2004-06-06-11:11:10 From: Bob Rogers &lt;rogers-navel@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke <i>at</i> collegebeat.com&gt;
+    2004-06-06-11:11:10 From: Bob Rogers &lt;rogers-ilisp@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke <i>at</i> collegebeat.com&gt;
 </pre>
-       The last three are bounced confirmation messages from TMDA for
-       incoming spam, which TMDA sends with an empty return address (as
-       if they were already bounces, which in a way they are).  The
-       "rogers-foo" addresses are retired mailing list addresses to
-       which the spam was addressed; these are used as the "From:"
-       address for the confirmation message, and the other address is
-       the original spam "From:" header in the quoted message.
-       [need TMDA link.  -- rgr, 6-Jun-04.]
-       Note the duplicates sent at almost the same time to multiple
-       addresses at my domain.  Periodically, I rotate
-       <tt>/var/qmail/alias/doublebounces.log</tt>, as I get these at
-       the rate of about 40 per day.
+       The last three are for confirmation messages from <a
+       href="/bob/tmda.html">TMDA</a> for <a href="antispam.html">
+       incoming spam</a>; TMDA makes them look like bounces (which in a
+       way they are), so <tt>qmail</tt> double-bounces them when the
+       return address fails.  The <tt>"rogers-foo"</tt> addresses are
+       ones I once used to subscribe to mailing lists; the spam was
+       addressed to these, so they are used as the "From:" address for
+       the confirmation message, and the other address is the original
+       spam "From:" header in the quoted message.  Note the duplicates
+       sent at almost the same time to multiple addresses at my domain;
+       this is characteristic of high-volume spammers.
 </dl>
 
 Other <tt>qmail</tt> resources:
