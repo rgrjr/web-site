@@ -6,6 +6,8 @@
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
 web-page-root = /usr/local/aolserver/servers/rgrjr/pages
+# [suse standard location (since 8.1 anyway).  -- rgr, 29-May-04.]
+# web-page-root = /srv/www/htdocs
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
@@ -30,7 +32,8 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
 	emacs/study.html emacs/tutorial.html emacs/vm+qmail.html
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
-linux-pages = linux/index.html linux/backup.html linux/backup.pl.html \
+linux-pages = linux/index.html linux/tux-small.png \
+	linux/backup.html linux/backup.pl.html \
 	linux/cl-xml-notes.html linux/disk-upgrade.html linux/ether.html \
 	linux/gconf.html linux/howto.html linux/ntp.html linux/xml.html
 security-pages = linux/security/index.html linux/security/check-logs.html \
