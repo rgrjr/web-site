@@ -8,6 +8,11 @@ INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 # [suse standard location (since 8.1 anyway).  -- rgr, 29-May-04.]
 # make web-page-root=/srv/www/htdocs install
 web-page-root = /usr/local/aolserver/servers/rgrjr/pages
+# [aolserver location (not yet configured for suse).  -- rgr, 15-Jun-04.]
+cgi-root = /usr/local/aolserver/servers/rgrjr/modules
+cgi-bin = ${cgi-root}/cgi
+cgi-lib-perl = ${cgi-root}/lib/perl
+
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
@@ -79,10 +84,14 @@ find-id:
 # directly to the active pageroot will not be lost.  -- rgr, 3-Mar-04.
 check-install-dir:
 	test -d ${web-page-root} || exit 123
-install:	check-install-dir
+install:	check-install-dir install-pages install-cgi
+install-pages:
 	for file in ${all-pages}; do \
 	    ${INSTALL} $$file ${web-page-root}/$$file; \
 	done
+install-cgi:
+	${INSTALL} climbing/Weather.pm ${cgi-lib-perl}
+	${INSTALL} -m 755 climbing/weather.cgi ${cgi-bin}/weather
 # this assumes that *all* differences are due to changes in the active pageroot
 # that need to be moved here.  any local changes will be lost, unless they've
 # already been checked into the CVS repository.
