@@ -2,14 +2,15 @@
 <html>
 <head>
 <title>Bob: Linux: Notes on GConf</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
 <body bgcolor=white>
 <h2>Notes on GConf</h2>
 
-<i>The following is based on feedback I sent to SuSE after debugging
-some GConf-over-NFS problems that may or may not be specific to recent
-SuSE distributions.  See also the <a
+<i>The following is based on feedback I sent to SuSE after experiencing
+some GConf-over-NFS problems at home that may or may not be specific to
+the particular SuSE distributions involved.  See also the <a
 href="http://www.gnome.org/projects/gconf/">GConf configuration
 system</a> page, which is where I started (as the error popups told me).
 -- rgr, 24-Apr-04.</i>
@@ -18,13 +19,15 @@ system</a> page, which is where I started (as the error popups told me).
 GConf
 <hr>
 
+<h3>Problems in my home configuration</h3>
+
 <p>I had two problems getting GConf to work over NFS using the following
 configuration:
 
 <dl>
   <dt> Client:
   <dd> <ul>
-	 <li> SuSE 9.0 (not updated).
+	 <li> SuSE 9.0 (fresh install, with no subsequent updates).
 	 <li> running Gnome apps, e.g. <tt>gnumeric</tt>.
 	 <li> gconf-1.0.9-546
 	 <li> nfs-utils-1.0.6-6
@@ -88,12 +91,37 @@ to fix it there.  Then I got:
 Creating this directory on the client (again, as root) got me to the
 point where I could start <tt>gnumeric</tt> without warnings.
 
+<h3>Problems at work</h3>
+
+<p>At work I had the same <tt>/etc/opt/gnome/gconf/1/path</tt> faiiure,
+and similar NFS locking problems, on a slightly different configuration:
+
+<dl>
+  <dt> Client:
+  <dd> <ul>
+	 <li> SuSE 9.0 (fully updated after upgrading from 8.1).
+	 <li> gconf-1.0.9-546 (same as above).
+	 <li> nfs-server (version from 9.0 distro)
+       </ul>
+  <dt> Server:
+  <dd> <ul>
+	 <li> SuSE 8.1 (minimal updates):
+	 <li> exports my <tt>/home</tt> directory.
+	 <li> nfs-utils-1.0.1-109
+       </ul>
+</dl>
+
+The key difference is that the client had nfs-server installed, and not
+nfs-utils, and nfs-utils is what provides the <tt>nfslock</tt> service
+on the client.  (I assume this is a byproduct of upgrading, rather than
+doing a fresh install.)  Uninstalling nfs-server (which conflicts with
+nfs-utils), installing nfs-utils, and doing
+<tt>"/etc/init.d/nfslock&nbsp;start"</tt> fixed the problem.
+
 <p>
 <hr>
 <address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
-<!-- hhmts start -->
-Last modified: Sat Apr 24 23:10:56 EDT 2004
-<!-- hhmts end -->
+$Id$
 </body>
 </html>
