@@ -3,15 +3,16 @@
 # $Id$
 
 web-page-root = /usr/local/aolserver/servers/rgrjr/pages
+# [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
 serious-pages = ${emacs-pages} ${ilisp-pages} ${clim-pages} \
 		${linux-pages} ${security-pages} ${perl-pages}
-top-pages = index.html site.css hits.html visitors.html
+top-pages = index.html site.css hits.html visitors.html robots.txt \
+		random/doubleclick.png
 bob-pages = bob/index.html bob/contact.html bob/damon-mahler.html \
 		bob/gimp-toc.html bob/resume-extra.html bob/resume.html
-girls-pages = bob/anna/index.html \
-		 bob/liz/index.html bob/liz/pic-preview.html
+girls-pages = bob/anna/index.html bob/liz/index.html bob/liz/pic-preview.html
 climbing-pages = climbing/index.html climbing/crow-hill.html \
 	climbing/directions.html climbing/lists.html climbing/to-room-6.html \
 	climbing/tuesday-night.html climbing/tuesday-night-2000.html \
@@ -41,6 +42,14 @@ compare:
 		diff -u $$file ${web-page-root}/$$file; \
 	    fi; \
 	done
+
+full-compare:
+	(cd ${web-page-root}; find . -type f) \
+	    | grep -Ev '~$$|/(pics|molly|icancad)/' > pageroot-files.tmp
+	for file in `cat pageroot-files.tmp`; do \
+	    cmp $$file ${web-page-root}/$$file; \
+	done
+	rm pageroot-files.tmp
 
 # this assumes that *all* differences are due to local changes that need to be
 # installed into the active pageroot.  any changes made directly to the active
