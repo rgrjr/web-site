@@ -6,8 +6,8 @@
 <body bgcolor=white>
 <h2>System backup</h2>
 
-<p><a href="/"><tt>Home</tt></a> : <a href="">Linux resources</a> : <a
-href="howto.html">"Howto"</a> : Backup
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : <a href="howto.html">"Howto"</a> : Backup
 <hr>
 
 <h3>Table of contents</h3>
@@ -17,7 +17,7 @@ href="howto.html">"Howto"</a> : Backup
   <li> System backup
        <ol>
 	 <li> Table of contents
-	 <li> <a href="#fs">A word about file systems</a>
+	 <li> <a href="#dump-vs-tar"><tt>dump</tt> vs. <tt>tar</tt></a>
 	 <li> <a href="#dump-backups">Making backups with <tt>dump</tt></a>
 	      <ol>
 		<li> <a href="#perl-script">The <tt>backup.pl</tt> perl script</a>
@@ -32,37 +32,64 @@ href="howto.html">"Howto"</a> : Backup
 </ol>
 <!-- hhmtoc end -->
 
-<a name="fs">
-<h3>A word about file systems</h3>
+<a name="dump-vs-tar">
+<h3><tt>dump</tt> vs. <tt>tar</tt></h3>
 
-So far, I have only used the standard, tried-and-true <tt>ext2</tt> file
-system.  I am beginning to have experience with <a
-href="http://www.namesys.com/">ReiserFS</a>, which appears to be faster
-and more reliable than <tt>ext2</tt>, but prefer not to use it on my
-home system, because <a href="http://dump.sourceforge.net/">
-<tt>dump</tt></a> doesn't understand ReiserFS partitions.  (I know
-nothing about <tt>ext3</tt>, successor to <tt>ext2</tt>, except that
-<tt>dump</tt> supports it.)
+<p>There are two "entry-level" backup options for Linux and Unix
+systems in general:
+<ol>
+  <li> The standard Unix <tt>tar</tt> utility.  This is <a
+       href="http://www.gnu.org/directory/GNU/tar.html"> GNU
+       <tt>tar</tt></a> in free implementations (and even some other
+       Unix flavors), and is the easiest tool for making complete
+       backups of particular directories.
+  <li> The traditional Unix <tt>dump</tt> and <tt>restore</tt> programs.
+       Most Linux systems come with the <a
+       href="http://dump.sourceforge.net/"> <tt>dump/restore</tt>
+       implementation for ext2/ext3</a>, but these are the traditional
+       names for the backup programs in Unix, so
+       <tt>"man&nbsp;dump"</tt> will almost always come up with
+       something on any Unix system.  <tt>dump</tt> can only operate on
+       a whole partition at a time, but it features incremental backup
+       capability, so you only need to back up what's changed.
+</ol>
+
+<p>For the most part, I use the standard, tried-and-true <tt>ext2</tt>
+file system, and its successor <tt>ext3</tt>.  I have some experience
+with <a href="http://www.namesys.com/">ReiserFS</a>, which appears to be
+faster than <tt>ext2/3</tt> (and more reliable than <tt>ext2</tt>), but
+still prefer <tt>ext3</tt>, because <a
+href="http://dump.sourceforge.net/"> <tt>dump</tt></a> doesn't
+understand ReiserFS, and there appears to be no good incremental backup
+solution for ReiserFS.  (The word on the street is to use <a
+href="http://www.gnu.org/directory/GNU/tar.html"> GNU <tt>tar</tt></a>
+for Reiser partitions, but I've never been able to <tt>tar</tt> to make
+incremental backups correctly.)  So, I use ReiserFS only for those
+partitions I don't plan to back up regularly.
+
+<p>Making the backup is only half of the problem; the dump file also
+needs to be verified by comparing the contents with the original disk
+data.  This is not as essential as it was in the bad old days, when
+media were much less reliable, and hardware was much less clever about
+dealing with media failures.  In fact, I've never yet found a corrupted
+backup file during verification.  However, I've heard enough horror
+stories of people not finding out that their backups were unreadable
+until they needed them, so I don't consider the backup complete until
+it's been verified in its final location.
 
 <a name='dump-backups'>
 <h3>Making backups with <tt>dump</tt></h3>
 
-<p>[need intro.  -- rgr, 8-Jan-03.]
+<p>[need a discussion of backup levels here?  -- rgr, 10-Jan-04.]
 
-<p>Making the backup is only half of the project; they also need to be
-verified by using <tt>restore</tt> to compare the dump file contents
-with the original disk data.  [this is not as essential as it was in the
-bad old days, when media were much less reliable, and hardware was much
-less clever about dealing with media failures.  -- rgr, 8-Jan-03.]
-
-<p>Both of the following scripts (Perl and <tt>csh</tt>) call
-<tt>dump</tt> to create backup files using the same naming convention,
-and then verify the file using <tt>restore</tt>.  Initially, I wrote the
-<a href="#script">shell script version</a> first, then recoded it into
-Perl when I needed to add sufficient functionality that I found the
-shell syntax too confining.  The <a href="#perl-script">
-<tt>backup.pl</tt> Perl script</a> has a number of extra features, plus
-changed defaults that make it more convenient to use for CD-ROM dumps.
+<p>Both of the following scripts call <tt>dump</tt> to create backup
+files using the same naming convention, and then verify the file using
+<tt>restore</tt>.  Initially, I wrote the <a href="#script">shell script
+version</a> first, then recoded it into Perl when I needed to add
+sufficient functionality that I found the shell syntax too confining.
+The <a href="#perl-script"> <tt>backup.pl</tt> Perl script</a> has a
+number of extra features, plus changed defaults that make it more
+convenient to use for CD-ROM dumps.
 
 <a name='perl-script'>
 <h4>The <tt>backup.pl</tt> perl script</h4>
@@ -189,14 +216,14 @@ it executable, and you're ready to roll.
 <a name=strategy>
 <h4>Backup strategy</h4>
 
-<p>The current backup strategy is:
+<p>The basic strategy is as follows:
 <ol>
-  <li> Full backup (level 0) is done quarterly, on or shortly after the
-       first of the quarter.  These are created manually, and are always
-       written to CD.
+  <li> Full backup (level 0) is done quarterly, usually on the first
+       weekend of the quarter.  These are created manually, and written
+       to CD.
   <li> Backups of the <tt>/home</tt> partition are created automatically
-       every night via cron jobs, and then saved manually the next
-       morning.  The relevant <tt>crontab</tt> entries look like this:
+       every night via cron jobs.  The <tt>crontab</tt> entries for the
+       full schedule look like this:
        <a name='cron-backup'>
        <pre>
 # Backups.
@@ -212,13 +239,23 @@ it executable, and you're ready to roll.
        Note how a consolidated backup (level 1) is done once a week, on
        Sunday morning, and the dailies are done according to <a
        href="#inc-levels">the backup schedule described below</a>.
+  <li> The actual home schedule omits the Monday, Wednesday, and Friday
+       backups, so I move the dump files to CD on Tuesday, Thursday,
+       Saturday, and Sunday.
+  <li> The backup schedule at work is similar, except that I do a level
+       1 backup on Saturday, and nothing on Sunday.  Backups of the main
+       RAID partitions are made to a separate disk, and then copied to
+       another system via the <tt>vacuum.pl</tt> script.  [need link.
+       -- rgr, 11-Jan-04.]
   <li> Backups of other partitions are usually done manually on Sundays.
        Many partitions change only when upgraded, <tt>/boot</tt> and
        <tt>/usr</tt> in particular, so they don't always need to be
        backed up.  I usually skip a partition if the dump would be less
        than a megabyte.
-  <li> Most dump files (all except for the <tt>/home</tt> backups noted
-       above) are written to a Zip disk if small enough, else to a CD.
+  <li> All dump files are written to CD using the <tt>cd-dump.pl</tt>
+       script.  [need link.  -- rgr, 11-Jan-04.]  (I used to write the
+       small ones to a Zip disk, but my Zip performance went south when
+       I upgraded to SuSE 8.1, so that became too time-consuming.)
 </ol>
 
 <p>I try to schedule system upgrades and <a href="#mac-backup">Macintosh
@@ -239,18 +276,12 @@ dump levels:
     3 2 5 4 7 6 9 8 9 9 ...
 </pre>
 These are for daily backups, which is the absolute minimum period for a
-workgroup server in a "real" business installation.  Once I had the
-process fully automated, I tried doing them daily, but that got to be
-excessive; I don't generate as much stuff as an office full of people.
-I still have the <a href="#cron-backup">relevant <tt>crontab</tt>
-entries</a> in place for daily backups, but only copy the level 1, 2, 4,
-and 6 dumps to other media.  Four dumps a week is plenty of coverage for
-me, and copying even those manually is enough of a pain.  So I am
-effectively back to doing backups four times a week.  I do keep the
-level 3, 5, and 7 dumps around for a while on my <tt>/scratch</tt>
-partition, which doesn't protect against a catastrophic disk hardware
-failure, but would save me a day of lossage in case of irrecoverable
-file system corruption on the <tt>/home</tt> partition.
+workgroup server in an office environment.  Once I had the process fully
+automated, I tried doing them daily, but that got to be excessive; I
+don't generate as much stuff as an office full of people.  Consequently,
+I only do the level 1, 2, 4, and 6 dumps in the <a href="#cron-backup">
+<tt>crontab</tt> schedule</a> above.  Four dumps a week is plenty of
+coverage for me -- and copying even those manually keeps be busy enough.
 
 <a name='backup-log'>
 <h4>Backup log file</h4>
@@ -269,9 +300,6 @@ takes only a minute or two.
 
 <a name = tar-backups>
 <h3>Making <tt>tar</tt> backups</h3>
-
-<p>[This is not as versatile as <tt>dump</tt>, as incrementals are
-harder, so I don't use it any more.  -- rgr, 1-Feb-02.]
 
 <p>To do a complete <tt>tar</tt> backup (onto an existing Zip ext2fs
 disk), use the <tt>~rogers/linux/backup/backup-home</tt> script, which
@@ -338,6 +366,6 @@ Jan to use my Linux box as a file server . . .
 <address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
 <!-- hhmts start -->
-Last modified: Sun Apr 27 21:19:22 EDT 2003
+Last modified: Sun Jan 11 13:48:47 EST 2004
 <!-- hhmts end -->
 </body> </html>
