@@ -1,19 +1,18 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html> <head>
 <title>emacs cheat sheet</title>
+<style src="../site.css" type="text/css">
 </head>
 
-<body bgcolor=white>
+<body>
 
 <h2>Emacs Cheat</h2>
 
-(<a href="http://www.primenet.com/~cohen/emacs_cheat.html">original
-version</a> by <a href="mailto: cohen@primenet.com">David Cohen</a>)
-<br>(revised by <a href="mailto:rogers@darwin.bu.edu">Bob Rogers</a>)
+(original version by David Cohen)
+<br>(revised by <a href="http://rgrjr.dyndns.org/">Bob Rogers</a>)
 
-<p><a href="http://bootcamp.arsdigita.com/pvt/home.tcl">Your
-Workspace</a> : <a href="study.html">Bootcamp preparation</a> : <a
-href=""> Emacs tips</a> : Cheat sheet
+<p><a href="/"><tt>Home</tt></a> : <a href="study.html">Bootcamp
+preparation</a> : <a href="./"> Emacs tips</a> : Cheat sheet
 <hr>
 
 <p>
@@ -23,6 +22,7 @@ UNDO: <tt>C-_</tt> ("control underscore")
 <br>Find (or Create) file: <tt>C-x&nbsp;C-f</tt>
 <br>Save file: <tt>C-x&nbsp;C-s</tt>
 <br>Exit Emacs: <tt>C-x&nbsp;C-c</tt>
+<br>Quit (i.e. interrupt) command: <tt>C-g</tt>
 </font>
 </center>
 
@@ -113,29 +113,41 @@ UNDO: <tt>C-_</tt> ("control underscore")
 	   </tr>
 	   <tr>
 	     <td valign=top><tt>C-SPC</tt></td>
-	     <td valign=top>Mark start of block</td>
+	     <td valign=top>Mark one end of region</td>
 	   </tr>
 	   <tr>
 	     <td valign=top><tt>C-w</tt></td>
-	     <td valign=top>Cut (after you do Mark and move to end)</td>
+	     <td valign=top>Cut (after you Mark and move to other
+		  end)
+	     </td>
 	   </tr>
 	   <tr>
 	     <td valign=top><tt>M-w</tt></td>
-	     <td valign=top>Copy (after you do Mark and move to
-		  end)</td>
+	     <td valign=top>Copy (after you Mark and move to other
+		  end)
+	     </td>
 	   </tr>
 	   <tr>
 	     <td valign=top><tt>C-y</tt></td>
 	     <td valign=top>Yank (paste) most recently killed (cut or
-		  copied); under some window managers, will use text
-		  currently selected in another application</td>
+		  copied); will also use text currently selected in
+		  another application.
+	     </td>
 	   </tr>
 	   <tr>
 	     <td valign=top><tt>M-y</tt></td>
 	     <td valign=top>Next most recently killed (do <tt>C-y</tt>
 		  first, repeat <tt>M-y</tt> to cycle thru all)</td>
 	   </tr>
-	 </table>
+	   <tr>
+	     <td valign=top colspan=2>
+		  <i>[I used to know a trick to make cut/copy/paste
+		  behave as it does in Macintosh (and later Windows)
+		  applications, but I've forgotten how to enable it.  --
+		  rgr, 30-Apr-04.]</i>
+	     </td>
+	   </tr>
+         </table>
     </td>
   </tr>
 
@@ -328,13 +340,13 @@ UNDO: <tt>C-_</tt> ("control underscore")
 [This is from the <a href="">Emacs tips</a> page.]
 
 <ul>
-  <li> <a href="http://www.primenet.com/~cohen/emacs_cheat.html"> Dave
-       Cohen's original emacs cheat sheet</a>, written by an alumnus of
-       the August bootcamp.
+  <li> Dave Cohen's original emacs cheat sheet at
+       <tt>http://www.primenet.com/~cohen/emacs_cheat.html</tt> <i>(dead
+       link)</i>, written by an alumnus of the August bootcamp.
   <li> <a href="tutorial.html">Tutorial outline</a> for the tutorial
        presented at bootcamp on 4-Oct-99.
   <li> <a
-       href="http://www.tc.cornell.edu/Edu/Tutor/Basics/emacs/emacsis.great">
+       href="http://www.pdc.kth.se/training/Tutor/Basics/emacs/emacsis.great">
        <tt>emacsis.great</tt> tutorial page</a> (not hypertext), with a
        topical command summary at the bottom.  This is very dense, and
        covers a lot of ground.
@@ -348,10 +360,6 @@ UNDO: <tt>C-_</tt> ("control underscore")
        version within emacs is not hypertext, but it's all on one page,
        and you can use <tt>C-s</tt> (incremental search) to find things
        of interest.
-  <li> <a href="http://www.refcards.com/about/emacs.html">
-       <tt>www.refcards.org</tt></a> has an information-rich emacs
-       reference card (which doesn't seem to want to print on printers
-       of vintage 1995 or earlier).
 </ul>
 
 <p>
@@ -359,6 +367,6 @@ UNDO: <tt>C-_</tt> ("control underscore")
 <address><a href="mailto:rogers@darwin.bu.edu">Bob Rogers
 	<tt>&lt;rogers@darwin.bu.edu&gt;</tt></a></address>
 <!-- hhmts start -->
-Last modified: Sun Aug 27 20:53:16 EDT 2000
+Last modified: Fri Apr 30 23:16:32 EDT 2004
 <!-- hhmts end -->
 </body> </html>
