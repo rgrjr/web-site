@@ -35,7 +35,7 @@ resources</a> : <a href="howto.html">"Howto"</a> : Backup
 		<li> <a href="#perl-script">The <tt>backup.pl</tt> perl script</a>
 		<li> <a href="#script">The <tt>backup</tt> shell script</a>
 	      </ol>
-	 <li> <a href="#tar-backups">Making <tt>tar</tt> backups</a>
+	 <li> <a href="#vacuum.pl">Copying <tt>dump</tt> files with <tt>vacuum.pl</tt></a>
 	 <li> <a href="#mirroring">Notes on mirroring backups</a>
 	 <li> <a href="#mac-backup">Backing up Jan's Macintosh</a>
 	 <li> <a href="#ack">Acknowledgements</a>
@@ -73,15 +73,15 @@ requires no manipulation of offline media.
 generally) tend to provide either archival or mirroring, but not both.
 They are:
 <ol>
-  <li> The standard Unix <tt>tar</tt> utility.  This is <a
+  <li> <b>The standard Unix <tt>tar</tt> utility.</b> This is <a
        href="http://www.gnu.org/directory/GNU/tar.html"> GNU
        <tt>tar</tt></a> in free implementations (and even some other
        Unix flavors), and is the easiest tool for archiving particular
        directories.  It has the distinct advantage of being supremely
        portable; "tar" format can be read by all other Unix systems, and
        even by DOS/Windows and Macintosh.
-  <li> The traditional Unix <tt>dump</tt> and <tt>restore</tt> programs.
-       Most Linux systems come with the <a
+  <li> <b>The traditional Unix <tt>dump</tt> and <tt>restore</tt>
+       programs.</b> Most Linux systems come with the <a
        href="http://dump.sourceforge.net/"> <tt>dump/restore</tt>
        implementation for ext2/ext3</a>, but these are the traditional
        names for the archival backup programs in Unix, so
@@ -89,7 +89,7 @@ They are:
        something on any Unix system.  <tt>dump</tt> can only operate on
        a whole partition at a time, but it features incremental backup
        capability, so you only need to back up what's changed.
-  <li> The <tt>rsync</tt> program.  Unlike <tt>tar</tt> or
+  <li> <b>The <tt>rsync</tt> program.</b> Unlike <tt>tar</tt> or
        <tt>dump</tt>, <a href="http://rsync.samba.org/">
        <tt>rsync</tt></a> is designed to mirror the content of directory
        trees over the network, is quite clever about only transferring
@@ -270,15 +270,16 @@ by backing up the files used by a relational database management system
 may be in different stages of being written to disk for each table, so
 the backup might be inconsistent even if it could be done
 instantaneously.  There are really only two choices for archival backup
-of a database:  Stop the RDBMS server during the backup, or use a
-database client backup program (e.g. <tt>mysqldump</tt> for the <a
+of a database:  Stop the RDBMS server completely
+(e.g. <tt>"/etc/init.d/mysql&nbsp;stop"</tt>) during the backup, or use
+a database client backup program (e.g. <tt>mysqldump</tt> for the <a
 http="http://www.mysql.com/">MySQL system</a>).
 
 <p>For similar reasons, backing up more than once a day is probably not
 worth the bother.  The only predictable period during the day when the
 file system is highly unlikely to change is during the night when all
-users are asleep.  And doing more than one backup during this period
-would be pointless.
+users are asleep.  And, for just those reasons, doing more than one
+backup during this period would be pointless.
 
 <a name='cron-backup'>
 <h3>Automated backups with <tt>cron</tt></h3>
@@ -310,9 +311,10 @@ as an office full of people, and I still had to copy the backups to
 offline storage manually.  Consequently, I only did the level 1, 2, 4,
 and 6 dumps in the <a href="#cron-backup"> <tt>crontab</tt> schedule</a>
 above.  Then I got a new machine (in March 2004), which made it possible
-to copy all dumps automatically to the disk on the new machine, so now
-[finish.  -- rgr, 25-May-04.]
+to copy all dumps automatically to the disk on the new machine.
 
+<p>
+<hr>
 <a name='dump-backups'>
 <h2>Making backups with <tt>dump</tt></h2>
 
@@ -321,13 +323,43 @@ file system, and its successor <tt>ext3</tt>.  I have some experience
 with <a href="http://www.namesys.com/">ReiserFS</a>, which appears to be
 faster than <tt>ext2/3</tt> (and more reliable than <tt>ext2</tt>), but
 still prefer <tt>ext3</tt>, because <a
-href="http://dump.sourceforge.net/"> <tt>dump</tt></a> doesn't
-understand ReiserFS, and there appears to be no good incremental backup
-solution for ReiserFS.  (The word on the street is to use <a
-href="http://www.gnu.org/directory/GNU/tar.html"> GNU <tt>tar</tt></a>
-for Reiser partitions, but I've never been able to <tt>tar</tt> to make
-incremental backups correctly.)  So, I use ReiserFS only for those
+href="http://dump.sourceforge.net/"> <tt>dump</tt> and
+<tt>restore</tt></a> don't understand ReiserFS, and there appears to be
+no good incremental backup solution for ReiserFS.  (The word on the
+street is to use <a href="http://www.gnu.org/directory/GNU/tar.html">
+GNU <tt>tar</tt></a>, but I've never been able to get <tt>tar</tt> to
+make usable incremental backups.)  So, I use ReiserFS only for those
 partitions I don't plan to back up.
+
+<p>An interesting characteristic of <tt>dump</tt> is that it accesses
+the raw device file (i.e. <tt>/dev/hda5</tt>) instead of going through
+the file system interface.  This can cause problems with freshly-written
+files that have been cached in RAM; <tt>dump</tt> will copy an older
+version of the file data to the backup medium, and verification with
+<tt>restore</tt> will duly report differences in these files (since
+<tt>restore</tt> <i>does</i> use the higher-level interface and sees the
+cached data).  Sometimes, the files reported as being different won't
+have been touched for hours.  The issue is brought up in the
+"<tt>dump/restore</tt>: Not Recommended!" section of the <a
+href="http://www.redhat.com/docs/manuals/linux/RHL-8.0-Manual/admin-primer/s1-disaster-backups.html">
+Chapter 8. Planning for Disaster</a> page of <a
+href="http://www.redhat.com/docs/manuals/linux/RHL-8.0-Manual/admin-primer/">
+The Official Red Hat Linux System Administration Primer</a> for Red Hat
+Linux 8.0, and rebutted on the <a
+href="http://dump.sourceforge.net/isdumpdeprecated.html">"Is dump really
+deprecated?"</a> page of the <a
+href="http://dump.sourceforge.net/">Dump/restore utilities</a> project.
+My personal opionion is that it is buggy of Linux to leave file data
+cached in RAM for hours, especially on an idle system; there is no
+benefit to doing so, but there is risk of data lossage if the UPS dies
+(or the chip melts, or whatever), and this is independent of any backup
+system.  In any case, as discussed in the <a href="#timing">"Backup
+timing"</a> section, there is little you can do about data that is
+changing during the backup, so the Linux caching issue is a difference
+in magnitude, not in size.  If you really care, you can always remount
+the file system read-only before creating a backup.  (I've been meaning
+to experiment with this myself, but it hasn't been a high enough
+priority.)
 
 <p>Both of the following scripts call <tt>dump</tt> to create backup
 files using the same naming convention, and then verify the file using
@@ -443,8 +475,8 @@ where
        a Zip100 disk.
   <dt> <b><i>partition</i></b>
   <dd> is the partition to be backed up, and defaults to
-       <tt>/dev/hda9</tt> for the <tt>/home</tt> partition [on my disk,
-       anyway].
+       <tt>/dev/hda9</tt> for the <tt>/home</tt> partition (on my disk,
+       anyway).
   <dt> <b><i>dumplevel</i></b>
   <dd> is the backup level, a single digit.  0 is for a full backup, 1
        for most inclusive incremental, 9 for least inclusive incremental
@@ -465,15 +497,29 @@ it executable, and you're ready to roll.
        section</a> of the Perl script writeup, above.
 </ol>
 
-<a name = tar-backups>
-<h2>Making <tt>tar</tt> backups</h2>
+<a name="vacuum.pl">
+<h2>Copying <tt>dump</tt> files with <tt>vacuum.pl</tt></h2>
 
-<p>To do a complete <tt>tar</tt> backup (onto an existing Zip ext2fs
-disk), use the <tt>~rogers/linux/backup/backup-home</tt> script, which
-does <tt>"mount&nbsp;/mnt/zip"</tt> if needed and then creates a tar
-file full backup of the <tt>~rogers/</tt> tree in the
-<tt>/mnt/zip/backups/</tt> directory, comparing it when done.
+<tt>vacuum.pl</tt> copies dump files from place to place, being careful
+to copy only current backups, and paranoid about network corruption.
+Usage for this is
+<pre>
+    vacuum.pl [--test] [--verbose] [--usage|-?] [--help]
+              [--from=&lt;source-dir&gt;] [--to=&lt;dest-dir&gt;]
+              [--mode=(mv|cp)] [--prefix=&lt;tag&gt;] [--min-free-left=&lt;size&gt;]
+</pre>
+See <a href="vacuum.pl.html">the <tt>vacuum.pl</tt> <tt>man</tt>
+page</a> for argument descriptions, and other details.
 
+<p><b>Downloading:</b>
+
+<p>The <a href="vacuum.pl"> <tt>vacuum.pl</tt> Perl script</a>.  This
+script is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  Download into <tt>/usr/local/bin/</tt>,
+make it executable, and you're ready to roll.
+
+<p>
+<hr>
 <a name="mirroring">
 <h2>Notes on mirroring backups</h2>
 
