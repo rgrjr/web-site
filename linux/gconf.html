@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Bob: Linux: Notes on GConf</title>
+</head>
+
+<body bgcolor=white>
+<h2>Notes on GConf</h2>
+
+<i>The following is based on feedback I sent to SuSE after debugging
+some GConf-over-NFS problems that may or may not be specific to recent
+SuSE distributions.  See also the <a
+href="http://www.gnome.org/projects/gconf/">GConf configuration
+system</a> page, which is where I started (as the error popups told me).
+-- rgr, 24-Apr-04.</i>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="./">Linux resources</a> :
+GConf
+<hr>
+
+<p>I had two problems getting GConf to work over NFS using the following
+configuration:
+
+<dl>
+  <dt> Client:
+  <dd> <ul>
+	 <li> SuSE 9.0 (not updated).
+	 <li> running Gnome apps, e.g. <tt>gnumeric</tt>.
+	 <li> gconf-1.0.9-546
+	 <li> nfs-utils-1.0.6-6
+       </ul>
+  <dt> Server:
+  <dd> <ul>
+	 <li> SuSE 8.1 (minimal updates):
+	 <li> exports my <tt>/home</tt> directory.
+	 <li> gconf-1.0.9-208
+	 <li> nfs-utils-1.0.1-109
+       </ul>
+</dl>
+
+<h4>Problem 1:  <tt>/etc/hosts.allow</tt> entry required for
+<tt>statd</tt> on client</h4>
+
+I skipped the <a
+href="http://portal.suse.com/sdb/en/2003/08/cihlarov_gnome-nfs.html">
+<tt>http://portal.suse.com/sdb/en/2003/08/cihlarov_gnome-nfs.html</tt></a>
+page workaround (besides not finding it in time) because I wanted a
+single shared state for all machines, taking the lockd route instead.
+After some trial and error, I discovered that I needed to add the line:
+<pre>
+	statd : nfs-server-host-name : ALLOW
+</pre>
+to the <tt>/etc/hosts.allow</tt> file on the client.  Seems to me this
+ought to be documented somewhere.
+
+<h4>Problem 2:  Missing/misspelled directories on client</h4>
+
+Once the above problem was solved, I got the following error:
+
+<pre>
+    rogers@alp&gt; gconf-sanity-check-1
+    Please contact your system administrator to resolve the following problem:
+    Could not resolve the address
+    "xml:readonly:/etc/opt/gnome/gconf/gconf.xml.mandantory" in the
+    configuration file "/etc/opt/gnome/gconf/1/path": Failed: 
+     Could not make directory
+     `/etc/opt/gnome/gconf/gconf.xml.mandantory': Permission denied 
+    rogers@alp&gt; 
+</pre>
+
+This was fixed by symlinking
+<tt>/etc/opt/gnome/gconf/gconf.xml.mandantory</tt> (note misspelling) to
+<tt>/etc/opt/gnome/gconf/gconf.xml.mandatory</tt> on the client (as
+root, of course).  Since then, I determined that the misspelling lies in
+the <tt>/etc/opt/gnome/gconf/1/path</tt> file, so I'm sure you'll want
+to fix it there.  Then I got:
+
+<pre>
+    rogers@alp&gt; gconf-sanity-check-1
+    Please contact your system administrator to resolve the following problem:
+    Could not resolve the address
+    "xml:readonly:/etc/opt/gnome/.gconf" in the configuration file
+    "/etc/opt/gnome/gconf/1/path": Failed:
+     Could not make directory `/etc/opt/gnome/.gconf': Permission denied
+    rogers@alp&gt; gconf-sanity-check-1
+</pre>
+
+Creating this directory on the client (again, as root) got me to the
+point where I could start <tt>gnumeric</tt> without warnings.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sat Apr 24 23:10:56 EDT 2004
+<!-- hhmts end -->
+</body>
+</html>
