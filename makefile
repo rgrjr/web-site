@@ -12,7 +12,7 @@ home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
 serious-pages = ${emacs-pages} ${ilisp-pages} \
 		${linux-pages} ${security-pages} ${perl-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
-		random/doubleclick.png
+		change-history.html random/doubleclick.png
 bob-pages = bob/index.html bob/contact.html bob/damon-mahler.html \
 		bob/gimp-toc.html bob/resume-extra.html bob/resume.html
 girls-pages = bob/anna/index.html bob/anna/anna-thumbnail-1.jpg \
@@ -38,7 +38,10 @@ security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/alerts/index.html
 perl-pages = perl/index.html perl/sub-memory-leak.html
 
-all:
+all:	change-history.html
+
+change-history.html:	change-history-template.html
+	./cvs-chrono-log.pl $^ > $@
 
 compare:
 	for file in ${all-pages}; do \
@@ -54,6 +57,9 @@ full-compare:
 	    cmp $$file ${web-page-root}/$$file; \
 	done
 	rm pageroot-files.tmp
+
+find-id:
+	find . -name '*.html' | xargs fgrep -l site.css | xargs fgrep '$$Id:'
 
 # note that install.pl installs only when it sees a difference, and makes
 # numbered backups of the original versions.  that way, any changes made
