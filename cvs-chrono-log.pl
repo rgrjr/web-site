@@ -21,7 +21,7 @@ my $n_days_ago = 90;
 my $start_date = time2str($date_format_string, time-24*3600*$n_days_ago);
 my $web_root;
 for my $dir (qw(/usr/local/aolserver/servers/rgrjr/pages /srv/www/htdocs)) {
-    $web_root = $dir
+    $web_root = $dir, last
 	if -d $dir;
 }
 warn "$0:  No web root.\n"
