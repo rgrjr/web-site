@@ -633,26 +633,27 @@ Here is how to:
        Krasnoyarsk, Russia</a> has their MTA set up to query the <a
        href="http://www.five-ten-sg.com/"> 510 Software Group</a> about
        whether it should allow connections from any given IP address;
-       since they know that <tt>66.31.0.0/16</tt> is an AT&amp;T
-       Broadband Northeast customer IP netblock, they classify it as the
-       equivalent to a dial-in line, and tell Morningstar to refuse.
-       Rather than bother the 510 folks to have them stop blocking my IP
-       (which is not really fixed in any case), I just added the
-       following line to the <tt>/var/qmail/control/smtproutes</tt>
-       file:
+       since they know that <tt>66.31.0.0/16</tt> is a <a
+       href="http://www.comcast.net/">Comcast</a> residential customer
+       IP netblock, they classify it as the equivalent to a dial-in
+       line, and tell Morningstar to refuse.  Rather than bother the 510
+       folks to have them stop blocking my IP (which is not really fixed
+       in any case), I just added the following line to the
+       <tt>/var/qmail/control/smtproutes</tt> file:
        <pre>
-    morning.ru:mail.attbi.com
+    morning.ru:smtp.comcast.net
 </pre>
        This tells my machine to relay mail for the <tt>morning.ru</tt>
-       domain through <tt>mail.attbi.com</tt> (which will do this for me
-       because I am a customer).  This is becoming necessary for more
-       and more ISPs as they get more sophisticated about blocking SPAM;
-       someday I may have to route everything through AT&amp;T, though
-       that would force me to change
-       <tt>/var/qmail/control/smtproutes</tt> when this server goes
-       down.  Note that it is not necessary to restart the server after
-       changing this file, as <tt>qmail-remote</tt> is forked anew for
-       each remote delivery.
+       domain through <tt>smtp.comcast.net</tt> (which will do this for
+       me because I am a customer on their network).  This indirect
+       routing trick is becoming necessary for more and more ISPs as
+       they get more sophisticated about blocking SPAM; someday I may
+       have to route everything through <a
+       href="http://www.comcast.net/">Comcast</a>, though that would
+       force me to change <tt>/var/qmail/control/smtproutes</tt>
+       whenever their servers are unavailable.  Note that it is not
+       necessary to restart the server after changing this file, as
+       <tt>qmail-remote</tt> is forked anew for each remote delivery.
 </dl>
 
 Other <tt>qmail</tt> resources:
@@ -1443,6 +1444,6 @@ given <a href="backup.html">its own page.</a> -- rgr, 7-Aug-01.]
 <address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
 <!-- hhmts start -->
-Last modified: Sun Aug 31 10:53:13 EDT 2003
+Last modified: Sun Aug 31 16:52:54 EDT 2003
 <!-- hhmts end -->
 </body> </html>
