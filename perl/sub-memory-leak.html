@@ -1,13 +1,18 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html> <head>
 <title>Bob Rogers: The problem with Perl subs</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
-<body bgcolor=white>
+<body>
 <h1>The problem with Perl subs</h1>
 
 <p><a href="/"><tt>Home</tt></a> : <a href="./">Perl</a> : Subs
 <hr>
+
+<p><i>Note:  This was written on 13-Dec-2002; it started out as a bug
+report, until I learned that the "bug" was a well-known design flaw in
+perl memory management.  -- rgr, 8-Jan-05.]</i>
 
 <h2>Introduction</h2>
 
@@ -179,12 +184,11 @@ old comment in front of it says that it is disabled because it has bugs.
 So it may be that the Perl community has decided to live with scratchpad
 memory lossage . . .
 
-<p>
-http://archive.develooper.com/perl5-porters@perl.org/msg62175.html
-http://www.google.com/search?q=cache:scZAokHDfSYC:www.perl.com/pub/a/2001/03/p5pdigest/THISWEEK-20010312.html+perl+scratchpad+memory+leak&hl=en&ie=UTF-8
+<p><i>[somewhat later . . .]</i>
 
-<p>Perl 5.003 Changes (e.g.
-http://www.mit.edu/afs/athena/contrib/perl5/src/perl5.003/Changes):
+<p>I did find that <a
+href="http://www.mit.edu/afs/athena/contrib/perl5/src/perl5.003/Changes">
+Perl 5.003 Changes</a> includes the following:
 
 <blockquote>
 <pre>
@@ -198,15 +202,45 @@ Files patched: op.c sv.c toke.c
 </pre>
 </blockquote>
 
-So it looks like I need to recode the thing again, this time in terms of
+<p>And a message from Dave Mitchell
+<tt>&lt;davem&nbsp;<i>at</i>&nbsp;fdgroup.co.uk&gt;</tt> to
+<tt>&lt;perl5-porters&nbsp;<i>at</i>&nbsp;perl.org&gt;</tt> (among
+others) on 8-Aug-01 titled <a
+href="http://archive.develooper.com/perl5-porters@perl.org/msg62175.html">
+Re: [ID 20010807.013] Garbage collection and/or memory leak problem in
+perl5</a> explains that scratchpads are created for each occurrence of
+an operator, and even quotes the same <tt>pad_reset</tt> comment.  This
+ought to explain the memory usage patterns shown above (though I haven't
+tried to verify that).
+
+<p>Finally, the section of <a
+href="http://www.perl.com/pub/a/2001/03/p5pdigest/THISWEEK-20010312.html">
+This Week on p5p 2001/03/12</a> titled "CvOUTSIDE" (scroll down a page
+or two to the third section) explains that subs within subs necessarily
+have circular refcounts.  It describes this as "Alan's Great Subroutine
+Memory Leak (the problem with sub x { sub {} })".  [At the time, I found
+a good page that describes this problem, but I can't find it now.  --
+rgr, 8-Jan-05.]
+
+<p>So it looks like I need to recode the thing again, this time in terms of
 Perl objects.  Fortunately, that seems like a good thing to do in any
 case.
 
+<p><i>[much later . . .]</i>
+
+<p>Well, I did rewrite my application in terms of perl objects, and it
+did indeed turn out to be all for the good.  However, I still often want
+to use closures for various purposes, e.g. for passing to
+<tt>Getopt::Long</tt>, and it irks me that this makes the object and
+everything it contains "permanent."  At least for <tt>Getopt::Long</tt>
+purposes, the objects that are affected are top-level ones that tend to
+live until the script exits anyway, so the loss is not appreciable.  --
+rgr, 8-Jan-05.
+
 <p>
 <hr>
-<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+<address><a href="/bob/contact.html">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
-<!-- hhmts start -->
-Last modified: Fri Dec 13 21:54:13 EST 2002
-<!-- hhmts end -->
-</body> </html>
+$Id$
+</body>
+</html>

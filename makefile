@@ -104,6 +104,12 @@ full-compare:
 find-id:
 	find . -name '*.html' | xargs fgrep -l site.css | xargs fgrep '$$Id:'
 
+find-pages-to-update:
+	find . -name '*.html' | sort > html-files.text
+	fgrep -l site.css `cat html-files.text` > updated-files.text
+	comm -3 html-files.text updated-files.text 
+	# rm -f html-files.text updated-files.text
+
 # note that install.pl installs only when it sees a difference, and makes
 # numbered backups of the original versions.  that way, any changes made
 # directly to the active pageroot will not be lost.  -- rgr, 3-Mar-04.
@@ -130,5 +136,6 @@ reverse-install:
 
 clean:
 	rm -f comment.text change-history.html new-hits.html older-hits.html
+	rm -f html-files.text updated-files.text
 wc:
 	wc ${all-pages}
