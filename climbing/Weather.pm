@@ -6,11 +6,11 @@ package Weather::Thing;
 # Base class for weather objects.
 
 sub new {
-    my $self = shift;
-    my $class = ref($self) || $self;
+    my $class = shift;
 
-    $self = bless {} => $class;
+    my $self = bless({}, $class);
     $self->shared_initialize(@_);
+    $self;
 }
 
 sub shared_initialize {
@@ -50,6 +50,67 @@ sub zone_equal_p {
      # && $zone1->cities eq $zone1->cities
      && $zone1->date eq $zone2->date
      && $zone1->weather_report eq $zone2->weather_report);
+}
+
+sub new_from_data {
+    my ($class, $zone_codes, $zone_data, $line_number) = @_;
+    $class = ref($class) || $class;
+    $line_number ||= 0;
+
+    # warn("[new_from_data at $line_number, size ", length($zone_data), ".]\n");
+    # die $zone_data;
+    my ($header, $data) = split(/\n\n/, $zone_data, 2);
+    my @header_lines = split("\n", $header);
+    my $date = pop(@header_lines);
+    my ($prefix, $blather, $cities)
+	= split(/including the (cities|city) of/i,
+		join("\n", @header_lines));
+    if (! $cities) {
+	# warn "[failed on '$header']\n";
+	return;
+    }
+    $cities =~ s/\n//g;
+    $cities =~ s/^\.+//;
+    $prefix =~ s/\n/ /g;
+    $class->new(cities => [ split(/\.+/, $cities) ],
+		date => $date,
+		zone_codes => $zone_codes,
+		location_description => $prefix,
+		weather_report => $data);
+}
+
+sub parse_zone_data {
+    my ($class, $source) = @_;
+
+    open(IN, $source) or die;
+    # $self->_parse_zone_data(join('', <IN>));
+    my $zone_data = '';
+    my $zone_codes;
+    my $line_number = 1;
+    my $result;
+    while (! $result && defined(my $line = <IN>)) {
+	chomp($line);
+	$line =~ s/\r//g;
+	if ($line =~ /^\w\wZ\d\d\d[->]/) {
+	    $zone_codes = $line;
+	}
+	elsif ($line eq '$$') {
+	    $result = $class->new_from_data($zone_codes, $zone_data, 
+					    $line_number)
+		if $zone_data;
+	    $zone_codes = $zone_data = '';
+	}
+	elsif ($zone_codes) {
+	    $zone_data .= "$line\n";
+	}
+	$line_number++;
+    }
+    close(IN);
+    $result ||= $class->new_from_data($zone_codes, $zone_data, $line_number)
+	# this is in case we see EOF before $$.  [but that may mean the file has
+	# been truncated.  -- rgr, 22-Aug-04.]
+	if $zone_data;
+    $result;
 }
 
 sub _match_city_p {
@@ -138,31 +199,15 @@ sub find_matching_zone_reports {
 sub _process_zone {
     my ($self, $zone_codes, $zone_data, $line_number) = @_;
 
-    # warn("[process_zone at $line_number, size ", length($zone_data), ".]\n");
+    # warn("[_process_zone at $line_number, size ", length($zone_data), ".]\n");
     # die $zone_data;
-    my ($header, $data) = split(/\n\n/, $zone_data, 2);
-    my @header_lines = split("\n", $header);
-    my $date = pop(@header_lines);
-    my ($prefix, $blather, $cities)
-	= split(/including the (cities|city) of/i,
-		join("\n", @header_lines));
-    if (! $cities) {
-	# warn "[failed on '$header']\n";
-	return;
-    }
-    $cities =~ s/\n//g;
-    $cities =~ s/^\.+//;
-    $prefix =~ s/\n/ /g;
     my $zones = $self->zones;
     $self->zones($zones = [])
 	unless $zones;
-    my $new_zone = new Weather::Zone
-	 (cities => [ split(/\.+/, $cities) ],
-	  date => $date,
-	  zone_codes => $zone_codes,
-	  location_description => $prefix,
-	  weather_report => $data);
-    push(@$zones, $new_zone);
+    my $new_zone = Weather::Zone->new_from_data($zone_codes, $zone_data,
+						$line_number);
+    push(@$zones, $new_zone)
+	if $new_zone;
     $new_zone;
 }
 
