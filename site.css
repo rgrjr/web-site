@@ -3,6 +3,11 @@
  * Created.  -- rgr, 30-Aug-03.
  */
 
+html {
+  margin: 10px;
+  background: #EFF;
+}
+
 /* A "howto" <DL> list shows a group of related operational recipes, identified
  * by a <DT> phrase describing what's being accomplished.  We put the <DT>
  * content in bold, and set the <DD> content off as a paragraph.  [Maybe we

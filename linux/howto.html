@@ -1,11 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
-<title>Local "howto" information</title>
-<style src="howto.css" type="text/css">
+<title>Bob Rogers: Local "howto" information</title>
+<style src="../site.css" type="text/css">
 </head>
 
-<body bgcolor=white>
+<body>
 <h1>Local "howto" information</h1>
 
 <p><a href="/"><tt>Home</tt></a> : <a href="">Linux resources</a> : "Howto"
@@ -16,11 +16,6 @@ and software.  Some of it is general, but some is very specific to my
 configuration, so it may break for yours; use caution when trying any of
 this stuff.
 
-<p><b>See also:</b>
-<ul>
-  <li> <a href="backup.html">System backup</a>
-</ul>
-
 <h2>Table of contents</h2>
 
 <!-- hhmtoc start -->
@@ -30,16 +25,6 @@ this stuff.
 	 <li> Table of contents
 	      <ol>
 		<li> <a href="#glossary">Terminology</a>
-	      </ol>
-	 <li> <a href="#apps">Applications</a>
-	      <ol>
-		<li> <a href="#lisps">Alternative lisps</a>
-		<li> <a href="#emacs">emacs</a>
-		     <ol>
-		       <li> <a href="#vm-bindings">Useful VM bindings</a>
-		       <li> <a href="#ild-bindings">ILD bindings</a>
-		       <li> <a href="#diff">Unified <tt>diff</tt></a>
-		     </ol>
 	      </ol>
 	 <li> <a href="#network">Networking</a>
 	      <ol>
@@ -82,6 +67,10 @@ this stuff.
 		<li> <a href="#zip">Zip drive</a>
 		<li> <a href="#floppy">Floppy disk</a>
 	      </ol>
+	 <li> <a href="#apps">Applications</a>
+	      <ol>
+		<li> <a href="#lisps">Alternative lisps</a>
+	      </ol>
        </ol>
 </ol>
 <!-- hhmtoc end -->
@@ -90,7 +79,7 @@ this stuff.
 <h3>Terminology</h3>
 
 In what follows, I've tried to use the following words consistently:
-<ul>
+<ul class="facts">
   <li> <b>Hard drive</b> means just that, though I have a tendency to
        say "disk" instead.  Back when I was introduced to magnetic
        storage, floppies were quite new, so "disk" without qualification
@@ -102,101 +91,6 @@ In what follows, I've tried to use the following words consistently:
   <li> <b>CD</b> covers the fourth kind of disk, though I will sometimes
        use "CD-R disk" when trying to be more specific.
 </ul>
-
-<p>
-<hr>
-<p>
-<a name = apps>
-<h2>Applications</h2>
-
-<a name = lisps>
-<h3>Alternative lisps</h3>
-
-<p>CLISP on the <tt>http://clisp.cons.org/~haible/clisp.html</tt> page.
--- rgr, 6-Nov-98.  Version 18 of cmu-cl is available from the <a
-href="http://www.cons.org/cmucl/">
-<tt>http://www.cons.org/cmucl/</tt></a> page.  Version 17 still exists
-in the ftp://ftp.cs.cmu.edu/afs/cs.cmu.edu/project/clisp/release/
-directory; see the
-http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/impl/cmucl/0.html
-page.  LispWorks now sold by <a
-href="http://www.xanalys.com/">"Xanalys"</a> but appears moribund.  --
-rgr, 21-Apr-00.
-
-<a name=emacs>
-<h3>emacs</h3>
-
-<p>To configure emacs so that it installs correctly in the standard
-Linux places, use
-<pre>
-	./configure i586-pc-linux-gnu --prefix=/usr
-</pre>
-Without the <tt>"--prefix=/usr"</tt>, it goes into <tt>/usr/local</tt>
-instead.  And afterwards, do
-<pre>
-	chown -R rogers.rogers /usr/share/emacs/20.7
-	chmod -R g-w /usr/share/emacs/20.7
-</pre>
-in order to fix up the elisp tree.  -- rgr, 7-Jul-00.
-
-<a name = vm-bindings>
-<h4>Useful VM bindings</h4>
-
-<pre>
- M-g - go to numbered message (uses prefix arg or prompts in minibuffer)
-
-   r - reply (only to the sender of the message)
-   R - reply with included text from the current message
- M-r - extract and resend bounced message
-   f - followup (reply to all recipients of message)
-   F - followup with included text from the current message
-   z - forward the current message
-
-   s - save current message in a folder (appends if folder already exists)
-   w - write current message to a file without its headers (appends if exists)
-   G - sort messages, prompts for fields to sort by
-   S - save entire folder to disk, does not expunge
-   A - save unfiled messages to their vm-auto-folder-alist specified folders
-   # - expunge deleted messages (without saving folder)
-   q - quit VM, deleted messages not expunged, folder is
-       saved if modified [buffer deleted]
-   x - exit VM with no change to the folder [buffer deleted]
-</pre>
-
-<a name = ild-bindings>
-<h4>ILD bindings</h4>
-
-See also the /usr/share/emacs/ilisp-5.9.3/ild.el source.
-
-<pre>
-    Keystroke c-u? What it does
-
-    m-a            Abort
-    m-c            Continue
-    c-m-n     *    Next stack frame
-    c-m-p     *    Previous stack frame
-    c-c <          Top stack frame
-    c-c >          Bottom stack frame
-    m-b            Backtrace
-    c-m-d          Display all locals
-    c-m-l     *    Display particular local
-    c-c r          Return
-    c-m-r          Retry
-    c-x t          Trap on exit
-    c-c L          Select Lisp interaction buffer
-    c-z c-s        Sets compiler options for maximally debuggablity
-    c-z c-f        Sets compiler options for fastest but least debuggable code
-</pre>
-
-<a name = diff>
-<h4>Unified <tt>diff</tt></h4>
-
-Use this for distributing or submitting patches to a given version of a
-system.
-<pre>
-    diff -uNr original/ new/ > something-or-other.patch
-</pre>
-See also the <tt>info</tt> section titled "diff -> Making Patches".
 
 <p>
 <hr>
@@ -243,10 +137,6 @@ Sources for these diagnostics (plus a copy of the FAQ) are in the <tt>
        links).  See also the <a href="security/firewall.html">
        <b><tt>ipchains</tt> firewall script</b></a> page.
 </ul>
-
-<p>Domain hackery:  ipmasqadm RPM package, then add port forwarding
-(probably only needed for running servers from the internal network).
-See http://www.hiway.net/ domain pointer service.
 
 <a name = boot-recovery>
 <h3>If the network doesn't come up after booting</h3>
@@ -1091,11 +981,11 @@ reference.  Do <tt>"mkisofs --help"</tt> if you want to see all options.
 <dl>
   <dt> <b>-C <i>last_sess_start,next_sess_start</i></b>
   <dd> Used for the second or subsequent session of a multi-session
-       disk.  <tt><i>last_sess_start</i></tt> is the sector number of
-       the first sector in the last session of the disk to which you
+       CD.  <tt><i>last_sess_start</i></tt> is the sector number of
+       the first sector in the last session of the CD to which you
        wish to append, and <tt><i>next_sess_start</i></tt> is the
        starting sector number of the new session.  These numbers may be
-       retrieved from the disk via
+       retrieved from the CD via
        <tt>"cdrecord&nbsp;-msinfo&nbsp;..."</tt> [Not clear why this
        needs to be specified if <tt>"-M&nbsp;<i>device</i>"</tt> is also
        specified.  -- rgr, 20-Oct-02.]
@@ -1108,11 +998,11 @@ reference.  Do <tt>"mkisofs --help"</tt> if you want to see all options.
        <a name="mkisofs-dash-M">
   <dt> <b>-M ( <i>filename</i> | <i>device</i> )</b>
   <dd> Specifies an existing ISO9660 image to be merged in second or
-       subsequent session of a multi-session disk, where
+       subsequent session of a multi-session CD, where
        <tt><i>path</i></tt> is file name and <tt><i>device</i></tt> is a
        <tt>cdrecord</tt> "SCSI device specifier," e.g. <tt>"1,0,0"</tt>.
        If you do not specify this option, then all earlier sessions will
-       seem to have vanished from the augmented disk.
+       seem to have vanished from the augmented CD.
   <dt> <b>-max-iso9660-filenames</b>
   <dd> allows 37-char names (by flushing the widely-ignored version
        number feature).
@@ -1133,13 +1023,13 @@ The rest of the line consists of at least one directory name.
 <p>Here is a useful subset of <tt>cdrecord</tt> options:
 <dl>
   <dt> <b>-msinfo</b>
-  <dd> Read the session addresses from an existing multisession disk;
+  <dd> Read the session addresses from an existing multisession CD;
        the result is suitable for passing to the <a
        href="#mkisofs-dash-C"><tt>cdrecord</tt> <tt>-C</tt> option</a>,
        and should look something like <tt>"81114,123094"</tt>.  When the
-       second number approaches 700&nbsp;000, then the disk is getting
+       second number approaches 700&nbsp;000, then the CD is getting
        pretty full.  [Note that <tt>df</tt> seems to report the free
-       space for multi-session disks incorrectly.  On the other hand,
+       space for multi-session CDs incorrectly.  On the other hand,
        I'm running the version that came with Red Hat 6.0, which is now
        more than 2.5 years old.  -- rgr, 20-Oct-02.]
   <dt> <b>-multi</b>
@@ -1277,7 +1167,7 @@ The rest of the line consists of at least one directory name.
 	 <li> <tt>cdrecord</tt> options: On <em>all but the last</em>
 	      session, you must specify the <tt>-multi</tt> option.  If
 	      you omit <tt>-multi</tt>, then that will be the last
-	      session on the disk.  On the second and all subsequent
+	      session on the CD.  On the second and all subsequent
 	      sessions, you must also specify <tt>-waiti</tt> if piping
 	      <tt>mkisofs</tt> output directly into <tt>cdrecord</tt>.
 	      (Including <tt>-waiti</tt> for the first session doesn't
@@ -1288,14 +1178,14 @@ The rest of the line consists of at least one directory name.
        <blockquote>
        The fixation will be done in a way that allows the CD-Recorder to
        append additional sessions later.  This is done by generating a
-       TOC with a link to the next program area.  The disk thus written
+       TOC with a link to the next program area.  The CD thus written
        is not 100% compatible to manufactured CDs.
        </blockquote>
        [From the version 1.10 description of <tt>"-multi"</tt>, edited
        slightly for readability.  -- rgr, 20-Oct-02.]
 
        <p>For example, here's a first session being written to a blank
-       disk in the drive at logical address <tt>"1,0,0"</tt>:
+       CD in the drive at logical address <tt>"1,0,0"</tt>:
        <pre>
        mkisofs /scratch/backups/2003Q1a | cdrecord -dev=1,0,0 -speed=8 -multi -
 </pre>
@@ -1316,7 +1206,8 @@ The rest of the line consists of at least one directory name.
        able to change its contents.
 
        <p>First, you need to put the CD in the drive (but don't mount
-       it), and then copy the raw CD image onto a disk file:
+       it), and then copy the raw CD image onto a file on the hard
+       drive:
        <pre>
        dd if=/dev/cdrom of=/scratch/backups/cd-image.iso9660
 </pre>
@@ -1447,9 +1338,29 @@ given <a href="backup.html">its own page.</a> -- rgr, 7-Aug-01.]
 
 <p>
 <hr>
+<p>
+<a name = apps>
+<h2>Applications</h2>
+
+<a name = lisps>
+<h3>Alternative lisps</h3>
+
+<p>CLISP on the <tt>http://clisp.cons.org/~haible/clisp.html</tt> page.
+-- rgr, 6-Nov-98.  Version 18 of cmu-cl is available from the <a
+href="http://www.cons.org/cmucl/">
+<tt>http://www.cons.org/cmucl/</tt></a> page.  Version 17 still exists
+in the ftp://ftp.cs.cmu.edu/afs/cs.cmu.edu/project/clisp/release/
+directory; see the
+http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/impl/cmucl/0.html
+page.  LispWorks now sold by <a
+href="http://www.xanalys.com/">"Xanalys"</a> but appears moribund.  --
+rgr, 21-Apr-00.
+
+<p>
+<hr>
 <address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
 <!-- hhmts start -->
-Last modified: Mon Sep  1 16:59:00 EDT 2003
+Last modified: Sun Apr 25 18:17:36 EDT 2004
 <!-- hhmts end -->
 </body> </html>

@@ -31,8 +31,7 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
 linux-pages = linux/index.html linux/backup.html linux/backup.pl.html \
 	linux/cl-xml-notes.html linux/disk-upgrade.html linux/ether.html \
-	linux/gconf.html \
-	linux/howto.html linux/howto.css linux/ntp.html linux/xml.html
+	linux/gconf.html linux/howto.html linux/ntp.html linux/xml.html
 security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/firewall.html linux/security/old-xauth.html \
 	linux/security/ssh.html linux/security/xauth.html \
