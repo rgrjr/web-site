@@ -1,13 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> <head>
+<html>
+<head>
 <title>Bob Rogers: Ethernet CAT5 Cheat Sheet</title>
+<link href="site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
-<body bgcolor=white>
+<body>
 <h3>Ethernet CAT5 Cheat Sheet</h3>
 
-<p><a href="/"><tt>Home</tt></a> : <a href="">Linux resources</a> : <a
-href="howto.html">"Howto"</a> : CAT5 Cheat Sheet
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : <a href="howto.html">"Howto"</a> : CAT5 Cheat Sheet
 <hr>
 
 <p>Pins are numbered consecutively in order (1 to 8) when looking at the
@@ -17,8 +19,7 @@ of a connector (facing the end with the contacts up).  (The difference
 is because you have to rotate the connector 180 degrees around the
 vertical axis in order to plug it in to the jack.)
 
-<p>
-Wire color coding and pin assignments for 10baseT and derived standards:
+<p>Wire color coding and pin assignments for 10Base-T and 100Base-Tx:
 <blockquote>
 <table border=2>
   <tr>
@@ -56,63 +57,80 @@ Wire color coding and pin assignments for 10baseT and derived standards:
 [The color code was cribbed from the "cheat sheet" sticker on the inside
 of a jack; I am assuming these pin assignments are standard.  Several
 manufacturers of Category 5 (Cat5) cable use these same colors, so at
-least the color code is conventional.  -- rgr, 6-Jul-01.]
-[But see the <a href="http://thebestpins.com/Default.asp?Pg=Cat5Cable">
-"EIA/TIA 568A & 568B Standard"</a> page, which interchanges white/blue
-and blue.  -- rgr, 1-Jul-03.]
-
-<p>[Note that 100baseT uses all four pairs.  -- rgr, 1-Jul-03.]
+least the color code is conventional.  -- rgr, 6-Jul-01.]  [But see the
+<a href="http://thebestpins.com/Default.asp?Pg=Cat5Cable"> "EIA/TIA 568A
+& 568B Standard"</a> page, which interchanges white/blue and blue.  --
+rgr, 1-Jul-03.]  [See also the <a
+href="http://www.null-modem.com/RJ-45.htm"> <tt>null-modem.com</tt> RJ45
+page</a>, which swaps green and orange.  -- rgr, 15-Jun-04.]
 
 <p>So for crimping a connector, put the colors in the following order,
-from left to right looking into the *back* of the connector (the cable
-end, with the contacts up):
+from left to right looking into the <b>back</b> of the connector (the
+cable end, with the contacts up):
 
 <blockquote>
 <table borderwidth=2>
   <tr>
     <th> Pin </th>
     <th> Straight </th>
+    <td> &nbsp; </td>
     <th> Crossover </th>
   </tr>
   <tr>
     <td> 1</td>
-    <td> white/orange</td>
-    <td> white/green </td>
+    <td style="font-weight: bold; background: url('striped-orange.png');">
+	 white/orange</td>
+    <td> &nbsp; </td>
+    <td style="font-weight: bold; background: url('striped-green.png');">
+	 white/green </td>
   </tr>
   <tr>
     <td> 2</td>
-    <td> orange</td>
-    <td> green</td>
+    <td style="font-weight: bold; background: #FFAF65;"> orange</td>
+    <td> &nbsp; </td>
+    <td style="font-weight: bold; background: #65FF9E;"> green</td>
   </tr>
   <tr>
     <td> 3</td>
-    <td> white/green</td>
-    <td> white/orange</td>
+    <td style="font-weight: bold; background: url('striped-green.png');">
+	 white/green</td>
+    <td> &nbsp; </td>
+    <td style="font-weight: bold; background: url('striped-orange.png');">
+	 white/orange</td>
   </tr>
   <tr>
     <td> 4</td>
-    <td> white/blue</td>
-    <td> white/blue</td>
+    <td style="font-weight: bold; background: url('striped-blue.png');">
+	 white/blue</td>
+    <td> &nbsp; </td>
+    <td style="font-weight: bold; background: url('striped-blue.png');">
+	 white/blue</td>
   </tr>
   <tr>
     <td> 5</td>
-    <td> blue</td>
-    <td> blue</td>
+    <td style="font-weight: bold; background: #00E1FF;"> blue</td>
+    <td> &nbsp; </td>
+    <td style="font-weight: bold; background: #00E1FF;"> blue</td>
   </tr>
   <tr>
     <td> 6</td>
-    <td> green</td>
-    <td> orange</td>
+    <td style="font-weight: bold; background: #65FF9E;"> green</td>
+    <td> &nbsp; </td>
+    <td style="font-weight: bold; background: #FFAF65;"> orange</td>
   </tr>
   <tr>
     <td> 7</td>
-    <td> white/brown</td>
-    <td> white/brown</td>
+    <td style="font-weight: bold; background: url('striped-brown.png');">
+	 white/brown</td>
+    <td> &nbsp; </td>
+    <td style="font-weight: bold; background: url('striped-brown.png');">
+	 white/brown</td>
   </tr>
   <tr>
     <td> 8</td>
-    <td> brown</td>
-    <td> brown</td>
+    <td style="font-weight: bold; background: #B7885B;"> brown</td>
+    <td> &nbsp; </td>
+    <td style="font-weight: bold; background: #B7885B;"> brown</td>
   </tr>
 </table>
 </blockquote>
@@ -121,15 +139,13 @@ Note that for a crossover cable you want to install exactly <b>one</b>
 connector with a crossover, and the other one normally ("straight"); if
 both connectors are crossed over, the result is equivalent to a straight
 cable.  [Note that crossover cables are not always needed with modern
-equipment, since the most recent hubs and switches seem to autodetect
-whether a crossover should have been used, and compensate accordingly.
--- rgr, 1-Jul-03.]
+equipment; many recent hubs and switches autodetect how the lines are
+being used, and compensate accordingly.  -- rgr, 1-Jul-03.]
 
 <p>
 <hr>
 <address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
-<!-- hhmts start -->
-Last modified: Tue Jul  1 18:15:31 EDT 2003
-<!-- hhmts end -->
-</body> </html>
+$Id$
+</body>
+</html>
