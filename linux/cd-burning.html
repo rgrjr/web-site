@@ -12,6 +12,23 @@
 resources</a> : <a href="howto.html">"Howto"</a> : Burning CDs
 <hr>
 
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Burning CDs
+       <ol>
+	 <li> Table of contents
+	 <li> General notes
+	 <li> <a href="#options">Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options</a>
+	 <li> <a href="#howto">CD-R how-to</a>
+	 <li> <a href="#cd-dump.pl">Burning CDs with <tt>cd-dump.pl</tt></a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<h3>General notes</h3>
+
 <p>
 <ul>
   <li> My current CD-RW/DVD-ROM is an <a href="http://www.lge.co.kr/">
@@ -319,6 +336,41 @@ The rest of the line consists of at least one directory name.
        See the "THE LOOP DEVICE" section of the <tt>mount</tt>
        <tt>man</tt> page for more details.
 </dl>
+
+<a name="cd-dump.pl">
+<h3>Burning CDs with <tt>cd-dump.pl</tt></h3>
+
+<tt>cd-dump.pl</tt> is a utility that uses <code>mkisofs</code> and
+<code>cdrecord</code> to burn files and/or directories to CD.  (Despite
+the name, they need not be "dump" files.)  File integrity is verified
+after burning and, if the data on the CD is good, the input files are
+moved to "written" directory.
+
+<p>Usage for this is
+<pre>
+    cd-dump.pl [--help] [--man] [--verbose] [--test] 
+               [--dev=x,y,z ] [--[no]mount] [--max-iso9660-filenames]
+               [--relaxed-filenames] [-V=&lt;volname&gt;] [--speed=n]
+               [--to-write-subdir=&lt;directory&gt;] [--written-subdir=&lt;directory&gt;] 
+</pre>
+See <a href="cd-dump.pl.html">the <tt>cd-dump.pl</tt> <tt>man</tt>
+page</a> for argument descriptions, and other details.
+
+<p><b>Downloading:</b>
+
+<p>You will need two things:
+<ol>
+  <li> The <a href="cd-dump.pl"> <tt>cd-dump.pl</tt> Perl script</a>.
+       Download this into a <tt>$PATH</tt> directory
+       (e.g. <tt>/usr/local/bin</tt>) and make it executable.
+  <li> The <a href="rename-into-tree.pm"> <tt>rename-into-tree.pm</tt>
+       Perl module</a>.  Put this in a Perl <tt>@INC</tt> directory
+       (e.g. <tt>/usr/lib/perl5/site_perl</tt>).
+</ol>
+Both of these files contain free software; you may redistribute and/or
+modify them under the same terms as Perl itself.  If you only intend to
+run <tt>cd-dump.pl</tt> as root, you can put both files in the
+<tt>/root/bin</tt> directory.
 
 <p>
 <hr>

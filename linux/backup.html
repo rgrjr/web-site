@@ -14,9 +14,6 @@ resources</a> : <a href="howto.html">"Howto"</a> : Backup
 
 <h2>Table of contents</h2>
 
-<p>[Note:  This page is still in the process of being updated.  -- rgr,
-29-May-04.]
-
 <!-- hhmtoc start -->
 <ol>
   <li> System backup
@@ -35,8 +32,12 @@ resources</a> : <a href="howto.html">"Howto"</a> : Backup
 		<li> <a href="#perl-script">The <tt>backup.pl</tt> perl script</a>
 		<li> <a href="#script">The <tt>backup</tt> shell script</a>
 	      </ol>
-	 <li> <a href="#vacuum.pl">Copying <tt>dump</tt> files with <tt>vacuum.pl</tt></a>
-	 <li> <a href="#mirroring">Notes on mirroring backups</a>
+	 <li> <a href="#vacuum.pl">Copying dump files with <tt>vacuum.pl</tt></a>
+	 <li> <a href="#mirroring">Notes on mirroring backup</a>
+	      <ol>
+		<li> <a href="#web-mirror">Mirroring case history 1:  Web server content</a>
+		<li> <a href="#disk-mirror">Mirroring case history 2:  Full disk copy</a>
+	      </ol>
 	 <li> <a href="#mac-backup">Backing up Jan's Macintosh</a>
 	 <li> <a href="#ack">Acknowledgements</a>
        </ol>
@@ -50,7 +51,7 @@ resources</a> : <a href="howto.html">"Howto"</a> : Backup
 recovery: You want to ensure that your files will survive all hardware
 failures that Murphy's Law might conceivably throw at you.  All backup
 technologies meet this goal by making a copy, but there are really two
-kinds of copying, with distinct characteristics:  Archival, and
+kinds of copies, with distinct recovery characteristics:  Archival, and
 mirroring.
 
 <p><b>Archival</b> backup gives you the ability to travel through time:
@@ -64,10 +65,10 @@ such as CD-R (or CD-RW), Zip, etc.
 <p><b>Mirroring</b> backup gives you immediate access to the most recent
 copy of your data; if you deleted that important file just this morning,
 then it's a snap to go get it from the backup drive, without any
-searching.  (If you deleted it two days ago, chances are that you're
-already out of luck.)  At a minimum, mirroring only requires a spare
-disk of comparable size, and is easy to automate completely, as it
-requires no manipulation of offline media.
+searching.  On the other hand, if you deleted it before the last
+mirroring operation, you are completely out of luck.  At a minimum,
+mirroring only requires a spare disk of comparable size, and is easy to
+automate completely, as it requires no manipulation of offline media.
 
 <p>The three "entry-level" backup options for Linux (and Unix systems
 generally) tend to provide either archival or mirroring, but not both.
@@ -139,13 +140,14 @@ Level 0 is therefore the most comprehensive, and level 9 is the most
 "incremental."  At this point, some additional terminology is in order:
 <ul>
   <li> A <b>full backup dump</b> is a complete snapshot of the state of
-       the filesystem at the time the backup was made.  Full dumps are
-       defined to be at level 0.
-  <li> A <b>consolidated backup dump</b> is a snapshot made at a later
-       time that only contains those files that have changed since the
-       last full dump.  Consolidated dumps are always at level 1, and
-       are usually made weekly.  When these get to be too large, then
-       it's time for a new full dump.
+       some portion of the filesystem at the time the backup was made.
+       Full dumps are defined to be at level 0.
+  <li> A <b>consolidated backup dump</b> is a snapshot made <i>of the
+       same portion of the filesystem</i> at a later time that only
+       contains those files that have changed since the last full dump.
+       Consolidated dumps are always at level 1, and are usually made
+       weekly.  When these get to be too large, then it's time for a new
+       full dump.
   <li> <b>Incremental dumps</b> have levels between 2 and 9 inclusive,
        and are usually made daily.  A given incremental may or may not
        reach all the way back to the last consolidated backup, but it
@@ -154,7 +156,8 @@ Level 0 is therefore the most comprehensive, and level 9 is the most
 
 <p>In order to reduce the number of incrementals required, one can use
 the "modified Tower of Hanoi algorithm" described in the <tt>dump</tt>
-manpage, which prescribes the following sequence of dump levels:
+manpage, which prescribes the following sequence of incremental dump
+levels (after having made a full or consolidated dump):
 <pre>
     3 2 5 4 7 6 9 8 9 9 ...
 </pre>
@@ -169,7 +172,7 @@ delete that" syndrome.
 <p>In any case, this multilevel backup system turns out to be quite
 effective in reducing the size of backups; even after a month, a
 consolidated dump can be only about 20% of the size of the full dump,
-and the incrementals only 3 to 5%.
+and the daily incrementals only 3 to 5%.
 
 <a name="frequency">
 <h3>Backup frequency</h3>
@@ -498,7 +501,7 @@ it executable, and you're ready to roll.
 </ol>
 
 <a name="vacuum.pl">
-<h2>Copying <tt>dump</tt> files with <tt>vacuum.pl</tt></h2>
+<h2>Copying dump files with <tt>vacuum.pl</tt></h2>
 
 <tt>vacuum.pl</tt> copies dump files from place to place, being careful
 to copy only current backups, and paranoid about network corruption.
@@ -518,21 +521,52 @@ script is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  Download into <tt>/usr/local/bin/</tt>,
 make it executable, and you're ready to roll.
 
+<p>For another useful tool for manipulating backups, see the <a
+href="cd-burning.html#cd-dump.pl">Burning CDs with
+<tt>cd-dump.pl</tt></a> section.
+
 <p>
 <hr>
 <a name="mirroring">
-<h2>Notes on mirroring backups</h2>
+<h2>Notes on mirroring backup</h2>
 
-At work, I use <a href="http://rsync.samba.org/"> <tt>rsync</tt></a> to
+The weakness of mirroring backup is that it only gives you a single
+archival time point from which to recover.  Of course, this assumes that
+you only make a single mirrored copy; multiple copies could get quite
+expensive, so it's not surprising that I've never heard of anyone who
+has actually done multiple mirrored copies, except possibly for Web
+content.
+
+<p>The key parameter for mirroring backup is therefore the backup
+frequency, which involves a tradeoff in the two different kinds of
+recovery capability <a href="#dump-vs-tar">discussed above</a>.  If you
+back up more frequently, then you will lose less in the event of a
+catastrophic failure (i.e. a disk crash), but you will also have less
+time in which to recover from file corruption or accidental deletion.
+The extremum of frequent backup is provided by RAID 0, in which backup
+is transparent and so frequent as to be effectively instantaneous, and
+recovery from single-disk failure is likewise transparent, but there is
+no archival history whatsoever.  Having RAID is not the same as having a
+backup!
+
+<p>Another example of continuous mirroring backup is database
+replication.  A full discussion of replication is beyond the scope of
+this page, but note that the same caution applies:  Just because your
+database is replicated doesn't mean that it's backed up!
+
+<a name="web-mirror">
+<h3>Mirroring case history 1:  Web server content</h3>
+
+<p>At work, I use <a href="http://rsync.samba.org/"> <tt>rsync</tt></a> to
 mirror the intranet Web server content.  The primary server runs the
 following <tt>cron</tt> job every morning at 01:55:
 <pre>
     rsync -e ssh -a /srv/www/htdocs /srv/www/cgi-bin rome:/srv/www
 </pre>
 The <tt>-a</tt> switch requests archival copying; according to the
-manual page, <tt>-a</tt> "... is a quick way of saying you want
-recursion and want to preserve almost everything."  This command copies
-the contents of the <tt>/srv/www/htdocs</tt> and
+manual page, the <tt>-a</tt> option "... is a quick way of saying you
+want recursion and want to preserve almost everything."  This command
+copies the contents of the <tt>/srv/www/htdocs</tt> and
 <tt>/srv/www/cgi-bin</tt> directory trees on the primary server into the
 same locations on <tt>rome</tt>, the standby server.  That way, I only
 need to update the primary server; the standby server is always ready to
@@ -548,6 +582,9 @@ server and the public key on the standby server.  As a result, no
 password is needed, and the strong encryption techniques used by
 <tt>ssh</tt> are robust enough to permit mirroring to be done securely
 over the public Internet.
+
+<a name="disk-mirror">
+<h3>Mirroring case history 2:  Full disk copy</h3>
 
 <p><tt>rsync</tt> can also be used for disk-to-disk copying within a
 single system.  Here is how Anthony DiSante describes his backup system,
@@ -580,6 +617,12 @@ so <tt>rsync</tt> would figure that out and would only transfer the
 differences.  Based on my experience, a full dump of 172GB
 (uncompressed) would require 11 hours to transmit over a local 100BaseT
 connection, so dealing with archival dumps of this size would be a pain.
+
+<p>Also, since the backup drive is removed after update, this setup can
+be extended to use two or more identically-configured external drives,
+which are updated in rotation.  This requires no more effort than for a
+single drive, but begins to provide some archival history, for those who
+can afford the additional hardware.
 
 <a name = mac-backup>
 <h2>Backing up Jan's Macintosh</h2>
