@@ -59,7 +59,9 @@ full-compare:
 # note that install.pl installs only when it sees a difference, and makes
 # numbered backups of the original versions.  that way, any changes made
 # directly to the active pageroot will not be lost.  -- rgr, 3-Mar-04.
-install:
+check-install-dir:
+	test -d ${web-page-root} || exit 123
+install:	check-install-dir
 	for file in ${all-pages}; do \
 	    ${INSTALL} $$file ${web-page-root}/$$file; \
 	done
