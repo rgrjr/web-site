@@ -117,6 +117,7 @@ install-pages:	change-history.html
 install-cgi:
 	${INSTALL} climbing/Weather.pm ${cgi-lib-perl}
 	${INSTALL} -m 755 climbing/weather.cgi ${cgi-bin}/weather
+	${INSTALL} -m 755 ra.cgi ${cgi-bin}/bob
 # this assumes that *all* differences are due to changes in the active pageroot
 # that need to be moved here.  any local changes will be lost, unless they've
 # already been checked into the CVS repository.
