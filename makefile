@@ -2,11 +2,14 @@
 #
 # $Id$
 
+# INSTALL_OPTS=--noinstall
+INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
+
 web-page-root = /usr/local/aolserver/servers/rgrjr/pages
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
-serious-pages = ${emacs-pages} ${ilisp-pages} ${clim-pages} \
+serious-pages = ${emacs-pages} ${ilisp-pages} \
 		${linux-pages} ${security-pages} ${perl-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
 		random/doubleclick.png
@@ -14,10 +17,11 @@ bob-pages = bob/index.html bob/contact.html bob/damon-mahler.html \
 		bob/gimp-toc.html bob/resume-extra.html bob/resume.html
 girls-pages = bob/anna/index.html bob/anna/anna-thumbnail-1.jpg \
 	bob/liz/index.html bob/liz/lizzie-at-2-tn.jpg bob/liz/pic-preview.html
-climbing-pages = climbing/index.html climbing/crow-hill.html \
-	climbing/directions.html climbing/lists.html climbing/to-room-6.html \
+climbing-pages = climbing/index.html climbing/directions.html \
+	climbing/lists.html \
 	climbing/tuesday-night.html climbing/tuesday-night-2000.html \
-	climbing/tuesday-night-2001.html climbing/tuesday-night-2002.html
+	climbing/tuesday-night-2001.html climbing/tuesday-night-2002.html \
+	climbing/tuesday-night-2003.html
 # [these still exist, but are obsolete.  -- rgr, 30-Aug-03.]
 # climbing/br-web-review.html climbing/br-work-flow.html
 emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
@@ -25,7 +29,6 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
 	emacs/study.html emacs/tutorial.html emacs/vm+qmail.html
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
-clim-pages = free-clim/index.html free-clim/ex-0306-4.html
 linux-pages = linux/index.html linux/backup.html linux/backup.pl.html \
 	linux/cl-xml-notes.html linux/disk-upgrade.html linux/ether.html \
 	linux/howto.html linux/howto.css linux/ntp.html linux/xml.html
@@ -52,17 +55,12 @@ full-compare:
 	done
 	rm pageroot-files.tmp
 
-# this assumes that *all* differences are due to local changes that need to be
-# installed into the active pageroot.  any changes made directly to the active
-# pageroot will be irretrievably lost.  -- rgr, 30-Aug-03.
+# note that install.pl installs only when it sees a difference, and makes
+# numbered backups of the original versions.  that way, any changes made
+# directly to the active pageroot will not be lost.  -- rgr, 3-Mar-04.
 install:
 	for file in ${all-pages}; do \
-	    if ! cmp -s $$file ${web-page-root}/$$file; then \
-		echo Installing $$file as ${web-page-root}/$$file; \
-		rm -f ${web-page-root}/$$file; \
-		cp -p $$file ${web-page-root}/$$file; \
-		chmod 444 ${web-page-root}/$$file; \
-	    fi; \
+	    ${INSTALL} $$file ${web-page-root}/$$file; \
 	done
 # this assumes that *all* differences are due to changes in the active pageroot
 # that need to be moved here.  any local changes will be lost, unless they've
