@@ -2,7 +2,7 @@
 #
 # $Id$
 
-# INSTALL_OPTS=--noinstall
+# make INSTALL_OPTS=--noinstall install
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
 web-page-root = /usr/local/aolserver/servers/rgrjr/pages
