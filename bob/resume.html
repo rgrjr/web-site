@@ -1,56 +1,20 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html> <head>
 <title>Robert G. Rogers Jr: Resume</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
 <body bgcolor=white>
 <h1>Robert G. Rogers Jr</h1>
 
 <p><a href="/"><tt>Home</tt></a> : <a href="/bob/">Stuff about me</a> :
-Resume
+Resume (summary)
 <hr>
-<!-- hhmtoc start -->
-<ol>
-  <li> Robert G. Rogers Jr
-       <ol>
-	 <li> Contact information
-	 <li> Objectives
-	 <li> <a href="#expertise">Summary of Expertise</a>
-	 <li> <a href="#employment">Employment history</a>
-	 <li> <a href="#pubs">Publications</a>
-	 <li> <a href="#education">Education</a>
-	 <li> <a href="#personal">Other projects</a>
-       </ol>
-</ol>
-<!-- hhmtoc end -->
 
-<h2>Contact information</h2>
-
-<blockquote>
-<table>
-  <tr>
-    <td> Email: </td>
-    <td> Bob Rogers <tt>&lt;rogers <i>at</i> rgrjr.dyndns.org&gt;</tt>
-    </td>
-  </tr>
-  <tr>
-    <td> Telephone: </td>
-    <td> 781-646-9215 </td>
-  </tr>
-  <tr>
-    <td valign=top> Post: </td>
-    <td> 50 Foster Street<br>
-	 Arlington MA 02474
-    </td>
-  </tr>
-</table>
-</blockquote>
-
-<h2>Objectives</h2>
-
-<font size=+1>Seeking a position as a technical lead or major
-contributor on a small to medium-sized software development project,
-preferably one that is multidisciplinary.</font>
+<p><i>[This is the abbreviated version; I got tired of getting spammed
+by head-hunters who couldn't be bothered even to skim it well enough to
+know that I wasn't at all what they were looking for.  Besides, the full
+version had fallen out of date.  -- rgr, 25-Dec-04.]</i>
 
 <a name = expertise>
 <h2>Summary of Expertise</h2>
@@ -60,276 +24,76 @@ preferably one that is multidisciplinary.</font>
   <dd>
        <dl>
 	 <dt> Interests
-	 <dd> Applying object-oriented technology to rationalize the
-	      design of large software systems.
-	 <dd> User-customizable user interfaces.
-	 <dd> System and network security.
-	 <dd> Reliable network services.
+	 <dd>
+	      <ul>
+		<li> Applying object-oriented technology to rationalize
+		     the design of large software systems.
+		<li> System and network security.
+	      </ul>
 
 	 <dt> Systems
-	 <dd> Linux (e.g. <a href="/">my home box</a>), some Solaris,
-	      SunOS, Tru64 Unix (aka Digital Unix, OSF1).
+	 <dd> Linux, Solaris, SunOS, Tru64 Unix.
+	 <dd> Five years sysadmin experience with Linux, and a
+	      smattering with the others.
 
 	 <dt> Languages (fluent)
-	 <dd> Common Lisp, Common Lisp Interaction Manager (CLIM)
-	 <dd> perl (including CGI)
-	 <dd> emacs lisp
-
-	 <dt> Languages (proficient)
-	 <dd> C, SQL, Unix shell
-
-	 <dt> Languages (historic)
-	 <dd> Basic, Fortran, PL/1, COBOL, various assemblers
+	 <dd> Fluent:  Common Lisp, Perl, emacs lisp.
+	 <dd> Proficient:  C, SQL, Unix shell.
+	 <dd> Historic:  Basic, Fortran, PL/1, COBOL, various
+	      assemblers.
        </dl>
   <dt> <b>Bioinformatics</b>
   <dd>
        <dl>
 	 <dt> Interests
-	 <dd> Protein structure modeling.
-	 <dd> I have long been fascinated by evolution, particularly
-	      early molecular evolution and the emergence of life.
+	 <dd>
+	      <ul>
+		<li> Protein structure modeling.
+		<li> I have long been fascinated by evolution,
+		     particularly early molecular evolution and the
+		     emergence of life.
+	      </ul>
 
 	 <dt> Experience
+	 <dd> Two years experience in writing software to automate oligo
+	      design for PCR of various sorts.
 	 <dd> Experienced with manipulation of the <a
 	      href="http://www.rcsb.org/">Protein Data Bank</a> format
 	      for publishing protein structures (see the <a
 	      href="http://bmerc-www.bu.edu/needle-doc/new/atom-format.html">
 	      <tt>http://bmerc-www.bu.edu/needle-doc/new/atom-format.html</tt>
 	      </a> page, for example).
-	 <dd> Experienced with sequence data manipulation tools
-	      (e.g. search and alignment).
+	 <dd> Experienced with using and extending sequence data
+	      manipulation tools (e.g. search and alignment).
        </dl> 
 </dl>
-
-<a name = employment>
-<h2>Employment history</h2>
-
-<p><b><a href="http://www.esstech.com/">ESS Technology</a></b>,
-Kelowna&nbsp;BC Design Centre (satellite office), May-01 to Mar-02.
-<ul>
-  <li> Continued development of the <a
-       href="http://rgrjr.dyndns.org/icancad/">ICanCAD</a> schematic
-       editor, bringing it to full schematic editing functionality.
-       ICanCAD is focused on mixed-signal IC circuit design (i.e. both
-       analog and digital signals are "mixed" on the same integrated
-       circuit).  ICanCAD 0.2.0 boasts the following features:
-       <ul>
-	 <li> Rich visual feedback during schematic entry.
-	 <li> An "Undo/Redo" stack of arbitrary depth.
-	 <li> Support for parameter passing from hierarchical parent to
-	      child.  A single schematic can thus be used to represent a
-	      whole family of layouts that share a common circuit
-	      topology.
-	 <li> A special <a href="/icancad/schematic.html#wires">"speed
-	      wiring hack"</a> for wiring many series connections with a
-	      single click.
-	 <li> Plus a number of other special features to speed design
-	      entry.
-       </ul> 
-       Release 0.2.0 consists of nearly 27K lines of Common Lisp source,
-       plus 10K lines of HTML documentation.
-  <li> Extended the <a href="/emacs/">Discus</a> package (<a
-       href="#bu-discus">see below</a>) to support secure symmetric
-       directory mirroring via <a href="http://rsync.samba.org/">
-       <tt>rsync</tt></a> or <a
-       href="http://www.openbsd.org/cgi-bin/man.cgi?query=scp">
-       <tt>scp</tt></a>.
-  <li> Built my own office network (wiring, hardware, and software) to
-       support a dual boot Linux/Windows PC and an AlphaStation DS10
-       running Tru64 Unix, with the virtual <a
-       href="http://stony-brook.scrc.symbolics.com/www/">Open Genera
-       2.0</a> system on top of Tru64.  The network has four computers
-       running a total of five operating systems (six, if you count Red
-       Hat Linux as distinct from SuSE Linux).  The main machine runs
-       number of <a
-       href="http://rgrjr.dyndns.org/linux/howto.html#servers">
-       servers</a> to support the various satellite machines (<a
-       href="#linux">details below</a>).
-  <li> Studied Virtual Private Network (VPN) technologies, especially <a
-       href="http://www.freeswan.org/">FreeS/WAN</a>.
-  <li> Provided Linux, X11, and OpenSSH support to Kelowna and the
-       Fremont CA headquarters.
-</ul>
-
-<p><b><a href="http://bmerc-www.bu.edu/">BioMolecular Engineering
-Research Center</a></b> (BMERC), Boston University, Feb-94 to May-01.
-<ul>
-  <li> <a href="http://bmerc-www.bu.edu/psa/">Protein Structure Analysis
-       (PSA) server</a> for protein structure prediction using designed
-       Hidden Markov Models (HMMs); nearly 40&nbsp;000 protein structure
-       predictions have been made since Fall 1994.  Designed and wrote
-       the mail server in <a
-       href="http://www.cs.indiana.edu/elisp/elisp-intro.html"> emacs
-       lisp</a> as a front end to a structure analysis tool written by
-       <a href="http://www.jvwhite.com/">J.&nbsp;V. White</a> and
-       C.&nbsp;M. Stultz in the <a href="http://www.mathworks.com/">
-       Matlab language</a>.  Took over maintenance of the <a
-       href="http://bmerc-www.bu.edu/psa/request.htm">Web interface</a>
-       in early 1998.  Assumed front-line responsibility for maintaining
-       the Matlab code in late 1999 (and wrote a dot-m-file parser in
-       Common Lisp in order to analyze the code).  Consists of 6.3K
-       lines of emacs lisp (the server proper), 1.7K lines of perl
-       (server support and CGI interface), 4.6K lines of Matlab .m
-       files, and a few hundred lines of miscellaneous shell scripts.
-  <li> Codeveloper of the <tt>needle</tt> protein structure prediction
-       toolkit.  42K lines of Common Lisp (the majority of which was
-       originally designed and written by <a
-       href="http://www.ics.uci.edu/~rickl/">Richard H. Lathrop</a>),
-       plus 2K lines of C.
-  <li> Wrote the <a
-       href="http://bmerc-www.bu.edu/needle-doc/"><tt>needle</tt> tools
-       software</a> suite for manipulation of and extraction of
-       statistics from entries in the <a
-       href="http://www.rcsb.org/">Protein Data Bank</a>, a flat-file
-       protein structure database; used as support software for
-       <tt>needle</tt>.  7.7K lines of perl, 9K lines of C, 600 lines of
-       <tt>csh</tt> scripts, and 13.8K lines of HTML documentation.
-       (Much of the C code was inherited, but has been completely
-       rewritten in the process of extension.)  The source code for all
-       scripts (perl and <tt>csh</tt>) is browsable at <a
-       href="http://bmerc-www.bu.edu/information/script_frame.html">
-       <tt>http://bmerc-www.bu.edu/information/script_frame.html</tt></a>.
-       See also <a
-       href="http://bmerc-www.bu.edu/needle-doc/new/perl-sub-doc.html">
-       <tt>http://bmerc-www.bu.edu/needle-doc/new/perl-sub-doc.html</tt></a>.
-
-       <a name=bu-discus>
-  <li> Wrote the <a href="/emacs/">Discus</a> package for symmetric
-       directory mirroring via FTP.  Discus consists of 5K lines of
-       emacs lisp, and has been used to support the distributed
-       development of <tt>needle</tt> since 1994.
-  <li> Designated site <a
-       href="http://www.gnu.org/software/emacs/emacs.html">emacs</a>
-       wizard.  Responsible for emacs upgrades on the three principal
-       BMERC system types (SunOS 4.1.4, Solaris 7, Tru64 4.0).  Wrote
-       more than 10K lines of emacs lisp to support HTML editing and
-       various other uses, some of which is published as <a
-       href="http://bmerc-www.bu.edu/needle-doc/emacs/rgr-hacks.html">
-       <tt>rgr-hacks</tt></a>.
-  <li> Assisted our sysadmin while she installed <a
-       href="http://www.umich.edu/~rsug/netatalk/">
-       <tt>netatalk</tt></a> on two Solaris servers.  Designer and
-       principal implementer of our site-wide <a
-       href="http://www.qmail.org/"> <tt>qmail</tt></a> upgrade
-       strategy.  Advisor on security issues; shock-trooper on security
-       emergencies, such as the <a
-       href="http://www.cert.org/advisories/CA-2000-13.html">
-       <tt>wu-ftpd</tt> "SITE EXEC" fiasco</a>.
-</ul>
-
-<p><b>Silicon Analog Systems</b>, Kelowna BC, Canada, part-time
-consulting during Jan-00 through Mar-01.
-<ul>
-  <li> Developed <a href="/icancad/">a prototype analog IC CAD
-       system</a> in Common Lisp.  After seven weeks (FTE) of design and
-       implementation work as of Mar-01, ICanCAD 0.1.3 consists of about
-       9K lines of Common Lisp and 3400 lines of HTML documentation.
-       ICanCAD 0.1.3 is capable of viewing existing schematics (produced
-       by a legacy CAD system), and is starting to show some limited
-       editing functionality.  Work has been done on producing <a
-       href="http://edif-tc.cs.man.ac.uk/">EDIF Version 2&nbsp;0&nbsp;0
-       Level 0</a> output, but a complete implementation requires <a
-       href="/icancad/busses.html">full electrical connectivity
-       semantics</a>.  ICanCAD runs on <a
-       href="http://www.franz.com/">Allegro Common Lisp</a> using CLIM
-       graphics, and on <a href="http://www.cons.org/cmucl/">CMU Common
-       Lisp</a> (without graphics).
-</ul>
-
-<p><b>ArsDigita Web/Database Bootcamp</b>, Westwood MA, Oct-99.
-<ul>
-  <li> Principal TA for the three-week Web/Database Developers' Bootcamp
-       offered by ArsDigita at that time.  This was a shorter version of
-       the MIT course taught by <a
-       href="http://philip.greenspun.com/">Philip Greenspun</a>, the
-       ArsDigita founder.  (I had just taken this bootcamp myself in
-       Aug-99.)  ArsDigita was acquired by <a
-       href="http://www.redhat.com/">Red Hat</a> in <a
-       href="http://www.masshightech.com/displayarticledetail.asp?Art_ID=54496">
-       February 2002</a>.
-  <li> I gave brief seminars on basic <a
-       href="http://www.gnu.org/software/emacs/emacs.html">emacs</a>
-       usage and <a href="http://www.scriptics.com/">Tcl</a> regular
-       expressions, and helped people design and debug their Tcl, SQL,
-       and HTML as they worked their way through the problem sets.
-  <li> Wrote some <a
-       href="http://bmerc-www.bu.edu/needle-doc/emacs/">emacs help
-       pages</a>, plus general <a
-       href="http://bmerc-www.bu.edu/needle-doc/emacs/study.html">
-       pre-Bootcamp study materials</a>.
-</ul>
-
-<p><a href="http://www.analogdevices.com/"><b>Analog Devices</b></a>,
-Linear Signal Processing (LSP) division, Wilmington MA, Jan-86 through
-May-92.
-<ul>
-  <li> Janus CAD system for mixed-signal IC design and layout.
-       Contributed extensively to the layout and simulation interface
-       subsystems; rewrote the common UI and library management
-       components.  The system as a whole was roughly 150K lines of
-       Zetalisp/Common&nbsp;Lisp using Flavors (an object-oriented
-       language extension) on <a
-       href="http://www.symbolics.com/">Symbolics</a> Lisp Machines.
-       Software was internally distributed within Analog.
-  <li> "New Janus" CAD system (the next-generation version of Janus).
-       Roughly 80K lines of Common Lisp using Flavors/CLOS (more OO
-       extensions) and CLIM (Lisp GUI toolkit) developed on Symbolics
-       and ported to Sun Sparcstations running Allegro Common Lisp.
-       Architect, project technical leader, and principal implementor.
-  <li> Designated Lisp Machine wizard and sysadmin (backup sysadmin
-       after 1989).
-</ul>
-
-<p><b>QCAD Systems, Inc.</b> (CAD startup company), Cupertino CA, Sep-84
-through Mar-85.
-<ul>
-  <li> Contributed to the QParser project, a parser-generator toolkit
-       for MS-DOS.
-  <li> Codeveloper of QTools, a DOS command-line toolkit, inspired by
-       Unix.
-  <li> Proud owner of 40K shares of founder's wallpaper.
-</ul>
-
-<p><b>Hewlett Packard Design Aids</b> (HPDA), subsequently incorporated
-into the Engineering Productivity Division (EPD), <a
-href="http://www.hp.com/">Hewlett Packard Company</a>, Cupertino CA,
-Aug-80 through Aug-84.
-<ul>
-  <li> HPIGS (CAD system for IC layout).  Contributor.
-  <li> Data Path Generator project.  Contributor and designated Lisp
-       Machine wizard.
-</ul>
 
 <a name = pubs>
 <h2>Publications</h2>
 
-<dl compact>
+<dl compact="compact">
   <dt>[1]</dt>
   <dd> M. Cline, K. Karplus, R.&nbsp;H. Lathrop, T.&nbsp;F. Smith,
        R.&nbsp;G. Rogers&nbsp;Jr., D. Haussler.  Information-theoretic
        dissection of pairwise contact potentials.  <em>Proteins:
        Structure, Function and Genetics</em>.  [Revised draft
        submitted.]
-       <p>
   <dt>[2]</dt>
   <dd> J. Bienkowska, H. He, R.&nbsp;G. Rogers Jr., and L. Yu.  Bayesian
        approach to protein fold recognition: building protein structural
        models from bits and pieces.  Chapter in Igor Tsigelny, editor,
        <em>Protein Structure Prediction: Bioinformatics approach</em>,
        2002, pages 43-84.  [In press.]
-       <p>
   <dt>[3]</dt>
   <dd> J.&nbsp;R. Bienkowska, L.&nbsp;H. Yu, R.&nbsp;G. Rogers Jr.,
        S. Zarakhovich, and T.&nbsp;F. Smith.  Protein fold recognition
        by total alignment probability.  <em>Proteins: Structure,
        Function and Genetics</em>, 40:451-462, 2000.
-       <p>
   <dt>[4]</dt>
   <dd> J.&nbsp;R. Bienkowska, R.&nbsp;G. Rogers Jr., and
        T.&nbsp;F. Smith.  Eliminating superfluous neighbor pairs while
        threading fold models.  In <em>Pacific Symposium on Biocomputing
        2000</em>, January 2000.
-       <p>
   <dt>[5]</dt>
   <dd> J.&nbsp;R. Bienkowska, R.&nbsp;G. Rogers Jr., and
        T.&nbsp;F. Smith.  A method for optimal design of a threading
@@ -338,18 +102,15 @@ Aug-80 through Aug-84.
        Annual International Conference on Computational Molecular
        Biology</em>, pages 25-32, Lyon, France, April 1999. ACM Press
        New York NY.
-       <p>
   <dt>[6]</dt>
   <dd> J.&nbsp;R. Bienkowska, R.&nbsp;G. Rogers Jr., and
        T.&nbsp;F. Smith.  Performance of threading scoring function
        designed using a new optimization method.  <em>Journal of
        Computational Biology</em>, 6(3):299-311, 1999.
-       <p>
   <dt>[7]</dt>
   <dd> J.&nbsp;R. Bienkowska, R.&nbsp;G. Rogers Jr., and
        T.&nbsp;F. Smith.  Filtered neighbors threading.  <em>Proteins:
        Structure, Function and Genetics</em>, 1999.
-       <p>
   <dt>[8]</dt>
   <dd> R.&nbsp;H. Lathrop, R.&nbsp;G. Rogers Jr., J.&nbsp;R. Bienkowska,
        B.&nbsp;K.&nbsp;M. Bryant, L.&nbsp;J. Buturovic,
@@ -358,25 +119,21 @@ Aug-80 through Aug-84.
        Sequence-Structure Alignment," chapter in <em>Computational
        Methods in Molecular Biology</em>, Elsevier Press, Amsterdam,
        Netherlands, 227-283, 1998.
-       <p>
   <dt>[9]</dt>
   <dd> R.&nbsp;H. Lathrop, R.&nbsp;G. Rogers Jr., T.&nbsp;F. Smith, and
        J.&nbsp;V. White.  A bayes-optimal sequence-structure theory that
        unifies protein sequence-structure recognition and alignment.
        <em>Bull. Math. Biol.</em>, 60:1039-1071, 1998.
-       <p>
   <dt>[10]</dt>
   <dd> T.&nbsp;F. Smith, L.&nbsp;Lo Conte, J.&nbsp;Bienkowska,
        C.&nbsp;Gaitatzes, R.&nbsp;G. Rogers Jr., and R.&nbsp;H. Lathrop.
        Current limitations to protein threading approaches.
        <em>J. Comp. Biol.</em>, 4:217-225, 1997.
-       <p>
   <dt>[11]</dt>
   <dd> S.&nbsp;Das, L.&nbsp;H. Yu, C.&nbsp;Gaitatzes, R.&nbsp;Rogers,
        J.&nbsp;Freeman, J.&nbsp;Bienkowska, R.&nbsp;M. Adams,
        T.&nbsp;F. Smith, and J.&nbsp;Lindellen.  Biology's new rosetta
        stone.  <em>Nature</em>, 385:29-30, 1997.
-       <p>
   <dt>[12]</dt>
   <dd> T.&nbsp;F. Smith, L.&nbsp;Lo Conte, J.&nbsp;R. Bienkowska,
        R.&nbsp;G. Rogers Jr., C.&nbsp;Gaitatzes, and R.&nbsp;H. Lathrop.
@@ -385,81 +142,11 @@ Aug-80 through Aug-84.
        editors, <em>RECOMB97 Proceedings of the First Annual
        International Conference on Computational Molecular Biology</em>,
        New York, NY, January 1997. ACM Press.
-       <p>
-  <dt>[13]
-  <dd> W. Barrett, B. Rogers, R. Lathrop, and A. Kuchinsky.  An
-       extensible datapath generator.  In <em>IEEE International
-       Conference on Computer-Aided Design (ICCAD-83)</em>, IEEE
-       Computer Society, 1983, pp. 1-2.
 </dl>
-
-<a name = education>
-<h2>Education</h2>
-
-<p><a href="http://www.rpi.edu/"> <b>Rensselaer Polytechnic
-Institute</b></a>, Troy NY, Sep-76 through May-80.
-<ul>
-  <li> Studied Computer and Systems Engineering (undergrad; two courses
-       short of a BS).
-  <li> Worked as a part-time teaching assistant in the Center for
-       Interactive Computer Graphics (junior and senior years).
-  <li> Brother of the Alpha Phi Omega National Service Fraternity,
-       Epsilon Zeta chapter.
-</ul>
-
-<a name = personal>
-<h2>Other projects</h2>
-
-<a name=linux>
-<p><a href="/linux/"><b>Home Linux system</b></a>, Nov-99 to present.
-<ul>
-  <li> On my <a href="http://www.attbi.com/">cable modem</a> interface,
-       I run <a href="http://sourceforge.net/projects/aolserver/">
-       AOLserver</a> (the Web server that may have just handed you this
-       page), an <a href="/linux/ntp.html">NTP time server</a>, the <a
-       href="http://www.openssh.org/">OpenSSH</a> <tt>ssh2</tt> server,
-       and the <a href="http://www.qmail.org/"> <tt>qmail</tt></a> mail
-       transport agent (MTA).
-  <li> Additionally, on the internal interface I run a POP-3 server
-       (part of <tt>qmail</tt>), the <a
-       href="http://www.squid-cache.org/"> Squid Web Proxy Cache</a>,
-       the <a href="http://www.samba.org/">Samba</a> server for Windows,
-       NIS and NFS for the other Unix machines, and the <a
-       href="http://sourceforge.net/projects/netatalk/">
-       <tt>netatalk</tt> Apple File Protocol (AFP) server</a> for my
-       wife's Macintosh.  (She jokes that I'm her
-       ISP&nbsp;.&nbsp;.&nbsp;. but really I'm her whole IT department;
-       I also do her upgrades and backups.)
-  <li> In between the two interfaces, I wrote an <a
-       href="/linux/security/firewall.html"> <tt>ipchains</tt>
-       firewall</a> to keep them apart.
-  <li> Using the <a href="http://cr.yp.to/ezmlm.html">ezmlm</a> mailing
-       list manager, I currently run mailing lists for <a
-       href="/climbing/lists.html">rock climbing</a> and <a
-       href="/icancad/#list">ICanCAD</a>, and post security notes to a
-       mailing list of fellow Linux enthusiasts.
-  <li> Veteran of two <a href="http://www.xfree86.org/"> XFree86</a>
-       upgrades, two <a
-       href="http://www.gnu.org/software/emacs/emacs.html">emacs</a>
-       upgrades, a <a href="/linux/disk-upgrade.html">hard drive
-       upgrade</a>, and more Linux kernel upgrades than I can remember.
-</ul>
-
-<p><b>Other activities:</b>
-<ul>
-  <li> Avid climber and mountaineer since 1988.  I regularly help teach
-       the <a href="http://www.amcboston.org/comm/mountaineering/"> AMC
-       Boston Chapter Mountaineering Committee</a> rock- and
-       ice-climbing classes.
-  <li> Reader of science fiction.
-  <li> I also enjoy bicycling (touring, not competitive cycling) and
-       roller-blading.
-</ul>
 
 <p>
 <hr>
 <address>Bob Rogers <tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></address>
-<!-- hhmts start -->
-Last modified: Fri Apr 30 23:50:29 EDT 2004
-<!-- hhmts end -->
-</body> </html>
+$Id$
+</body>
+</html>
