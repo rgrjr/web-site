@@ -220,14 +220,8 @@ the nslookup output):
 <a name = logs>
 <h3>Server logs</h3>
 
-[this needs updating for suse 8.1.  log rotation is now controlled
-(mostly) by <tt>/etc/logrotate.d/syslog</tt>, which requires tweaking.
--- rgr, 13-May-03.]  [squid log rotation is controlled by
-<tt>/etc/logrotate.d/squid</tt>, instead of doing
-<tt>"squid&nbsp;-k&nbsp;rotate"</tt>; this also needed tweaking.  --
-rgr, 29-Jun-03.]
-
-<p>I have server logs scattered all over my hard drive:
+<p>The various servers I run keep their log files in the following
+places:
 <blockquote>
 <table>
   <tr> <th>What</th> <th>Where</th> </tr>
@@ -248,8 +242,9 @@ rgr, 29-Jun-03.]
   </tr>
   <tr>
     <td> <a href="#netatalk">netatalk</a></td>
-    <td> Uses syslog (<tt>/var/log/messages</tt>).  [The 1.6 release will have
-	 more logging options.  -- rgr, 29-Aug-02.]
+    <td> Uses syslog (<tt>/var/log/messages</tt>).  (The 1.6 release has
+	 more logging options, but SuSE 8.1 ships with netatalk 1.5.3.1,
+	 and I don't use it so much any more that it's worth upgrading.)
     </td>
   </tr>
   <tr>
@@ -267,15 +262,15 @@ rgr, 29-Jun-03.]
   <tr>
     <td> <a href="#squid">Squid</a></td>
     <td> <tt>cache.log</tt>, <tt>access.log</tt>, and <tt>store.log</tt>
-	 in <tt>/var/log/squid/</tt> when using the SuSE-built RPM
-	 version.  More about these below.
+	 in <tt>/var/log/squid/</tt>.  More about these <a
+	 href="#squid-log-file">below</a>.
     </td>
   </tr>
   <tr>
     <td> <a href="#samba">Samba</a></td>
-    <td> <tt>/usr/local/samba/log.nmb</tt> and
-	 <tt>/usr/local/samba/var/log.smbd</tt>.  Note that by default,
-	 SuSE is configured to keep a separate log file for each client
+    <td> <tt>/var/log/samba/log.nmb</tt> and
+	 <tt>/var/log/samba/log.smbd</tt>.  Note that by default, SuSE
+	 configures Samba to keep a separate log file for each client
 	 machine.
     </td>
   </tr>
@@ -283,7 +278,17 @@ rgr, 29-Jun-03.]
 </blockquote>
 
 Fortunately, the AOLserver, Squid, and Samba servers are the only ones
-that don't use the system logs.
+that don't use the system logs.  (And only AOLserver is outside the
+<tt>/var/log/</tt> tree, because it is the only server I still build
+from the tarball, rather than using the SuSE-provided RPM.)
+
+<p>[for suse 8.1, log rotation is now controlled (mostly) by
+<tt>/etc/logrotate.d/syslog</tt>, which requires tweaking.  -- rgr,
+13-May-03.]  [squid log rotation is controlled by
+<tt>/etc/logrotate.d/squid</tt>, instead of doing
+<tt>"squid&nbsp;-k&nbsp;rotate"</tt>; this also needed tweaking.  --
+rgr, 29-Jun-03.]  [need to write up tweaking notes, describe the
+logrotate package in outline.  -- rgr, 5-Jun-04.]
 
 <a name=nis>
 <h3>Network Information Service (NIS)</h3>
@@ -818,13 +823,18 @@ own.
        redirection</a>, but it only honors requests either for local
        pages, or requests that originate locally.
 
+       <a name="squid-log-file">
   <dt> Access log file
-  <dd> The access log is <tt>/usr/local/squid/logs/access.log</tt>; by
-       default this is in Squid's own internal format.  The
-       <tt> ~rogers/hacks/squid2std.pl </tt> script 
-       See <a
-       href="http://www.squid-cache.org/Doc/FAQ/FAQ-6.html#ss6.6">
-       Squid FAQ #6.6</a> for more details.
+  <dd> The access log is written to <tt>/var/log/squid/access.log</tt>
+       (if you use the SuSE RPM version; if installed from tarball, the
+       default log destination is <tt>/usr/local/squid/logs/</tt>).  By
+       default, the access log is written in Squid's own internal
+       format; the <tt>
+       ~rogers/projects/system/scripts/squid2std.pl</tt> script converts
+       this to the "standard" access log format used by Apache, etc.,
+       though without the "referer" field.  See <a
+       href="http://www.squid-cache.org/Doc/FAQ/FAQ-6.html#ss6.6"> Squid
+       FAQ #6.6</a> for details of Squid log format.
 </dl>
 
 <a name = ntpd>
