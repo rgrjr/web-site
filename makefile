@@ -21,7 +21,7 @@ climbing-pages = climbing/index.html climbing/crow-hill.html \
 # [these still exist, but are obsolete.  -- rgr, 30-Aug-03.]
 # climbing/br-web-review.html climbing/br-work-flow.html
 emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
-	emacs/emacs_cheat.html emacs/foo.html emacs/keyboard.html \
+	emacs/emacs_cheat.html emacs/keyboard.html \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
 	emacs/study.html emacs/tutorial.html emacs/vm+qmail.html
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
@@ -59,6 +59,7 @@ install:
 	for file in ${all-pages}; do \
 	    if ! cmp -s $$file ${web-page-root}/$$file; then \
 		echo Installing $$file as ${web-page-root}/$$file; \
+		rm -f ${web-page-root}/$$file; \
 		cp -p $$file ${web-page-root}/$$file; \
 		chmod 444 ${web-page-root}/$$file; \
 	    fi; \
