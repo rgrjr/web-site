@@ -2,7 +2,7 @@
 
 use strict;
 
-BEGIN { unshift(@INC, '/usr/local/aolserver/servers/rgrjr/modules/lib/perl'); }
+BEGIN { unshift(@INC, '/srv/www/lib/perl'); }
 
 use Weather;
 use CGI;

@@ -5,13 +5,16 @@
 # make INSTALL_OPTS=--noinstall install
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
-# [suse standard location (since 8.1 anyway).  -- rgr, 29-May-04.]
-# make web-page-root=/srv/www/htdocs install
-web-page-root = /usr/local/aolserver/servers/rgrjr/pages
-# [aolserver location (not yet configured for suse).  -- rgr, 15-Jun-04.]
-cgi-root = /usr/local/aolserver/servers/rgrjr/modules
-cgi-bin = ${cgi-root}/cgi
-cgi-lib-perl = ${cgi-root}/lib/perl
+# [suse standard locations (since 8.1 anyway).  -- rgr, 29-May-04.]
+server-root = /srv/www
+web-page-root=${server-root}/htdocs
+cgi-bin = ${server-root}/cgi-bin
+cgi-lib-perl = ${server-root}/lib/perl
+# [old aolserver locations.  -- rgr, 17-Jul-04.]
+# server-root = /usr/local/aolserver/servers/rgrjr
+# web-page-root = ${server-root}/pages
+# cgi-bin = ${server-root}/modules/cgi
+# cgi-lib-perl = ${server-root}/modules/lib/perl
 
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
