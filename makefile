@@ -75,16 +75,13 @@ change-history.html:	.
 	./cvs-chrono-log.pl change-history-template.html > $@
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
-new-hits.html:	/var/log/apache2/access_log.200412.log
-	../system/scripts/make-popular-pages.pl --top 20 --nosquid $^ > $@
-	cmp $@.old $@
-june-hits.html:	/var/log/apache2/access.tal.200406.log /var/log/apache2/access_log.200406.log
-	../system/scripts/make-popular-pages.pl --nosquid $^ > $@
-older-hits.html:
-	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200404.log > $@
-	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200403.log >> $@
-	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200402.log >> $@
-	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200401.log >> $@
+new-hits.html:	/var/log/apache2/access_log.200502.log \
+		/var/log/apache2/access_log.200501.log \
+		/var/log/apache2/access_log.200412.log \
+		/var/log/apache2/access_log.200411.log \
+		/var/log/apache2/access_log.200410.log \
+		/var/log/apache2/access_log.200409.log
+	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
 
 compare:
 	for file in ${all-pages}; do \
