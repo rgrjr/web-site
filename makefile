@@ -53,8 +53,8 @@ perl-pages = perl/index.html perl/sub-memory-leak.html
 
 all:	change-history.html
 
-change-history.html:	change-history-template.html
-	./cvs-chrono-log.pl $^ > $@
+change-history.html:	.
+	./cvs-chrono-log.pl change-history-template.html > $@
 
 new-hits.html:	/usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
 	../system/scripts/make-popular-pages.pl --nosquid $^ > $@
@@ -88,7 +88,7 @@ find-id:
 check-install-dir:
 	test -d ${web-page-root} || exit 123
 install:	check-install-dir install-pages install-cgi
-install-pages:
+install-pages:	change-history.html
 	for file in ${all-pages}; do \
 	    ${INSTALL} $$file ${web-page-root}/$$file; \
 	done

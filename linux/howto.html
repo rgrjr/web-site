@@ -249,7 +249,11 @@ places:
   </tr>
   <tr>
     <td> <a href="#ntpd"><tt>ntpd</tt></a></td>
-    <td> Uses syslog (<tt>/var/log/messages</tt>).</td>
+    <td> Writes to <tt>/var/log/ntp</tt> via syslog in the default
+	 configuration supplied by SuSE, but this is controlled by the
+	 "logfile" directive in <tt>/etc/ntpd.conf</tt>.  (The default
+	 tarball installation uses <tt>/var/log/messages</tt>).
+    </td> 
   </tr>
   <tr>
     <td> <a href="#aolserver">AOLserver</a></td>
@@ -432,12 +436,14 @@ client on a machine other than the server:
        Tools</a>, an overview with other links.
 </ul>
 
-<a name=qmail>
+<a name="qmail">
 <h3>The <tt>qmail</tt> mail transport agent</h3>
 
 <tt>qmail</tt> is excellent; it's the only server I haven't had to
-upgrade to fix security issues, and I've been running it for nearly
-three years now.  <tt>qmail</tt> now claims to be the <a
+upgrade to fix security issues, and I've been running it for more than
+four years now -- I first installed version 1.03 on 11-Feb-2000, and am
+still running the identical version (though I've had to recompile after
+upgrading the OS).  <tt>qmail</tt> now claims to be the <a
 href="http://www.qmail.org/top.html">"second most popular MTA on the
 Internet"</a>, and I'm not surprised.
 
@@ -505,7 +511,7 @@ Here is how to:
        See also the <a
        href="http://cr.yp.to/qmail/faq/admin.html#rejuvenate"> "How do I
        rejuvenate a message?"</a> FAQ item.  (To "rejuvenate," just
-       leave off the <tt>-d</tt> argument to <tt>touch</tt>.)
+       leave off the <tt>"-d&nbsp;'8&nbsp;days&nbsp;ago'"</tt> part.)
   <dt> Force redelivery attempts:
   <dd> Do <tt>"kill&nbsp;-ALRM"</tt> on the qmail-send process to force
        redelivery for all queued messages.  Alternatively,
@@ -550,6 +556,56 @@ Here is how to:
        whenever their servers are unavailable.  Note that it is not
        necessary to restart the server after changing this file, as
        <tt>qmail-remote</tt> is forked anew for each remote delivery.
+  <dt> Flush double-bounces.
+  <dd> These are caused by bounces (usually spam addressed to invalid
+       addresses) where the envelope return address is also invalid.  I
+       used to look at all of these myself, but that got to be too much
+       trouble since the spam volume started to explode in 2003.  I
+       currently do the following:
+       <ol>
+	 <li> Define the "dev-null" address by putting something along
+	      the following lines into the
+	      <tt>/var/qmail/alias/.qmail-dev-null</tt> file:
+	      <pre>
+    # The ultimate trash bin.  We must literally "cat" to /dev/null because
+    # qmail reports failure if we try to write /dev/null as an mbox file, 
+    # probably because it can't lock it exclusively.  -- rgr, 1-Oct-03.
+    # | cat > /dev/null
+    | echo `date '+%F-%T'` `grep -i '^From:' | fgrep -v 'MAILER-DAEMON@rgrjr.dyndns.org'` >> doublebounces.log
+</pre>
+	      It doesn't matter who owns this file, as long at it is
+	      world readable.
+	 <li> Put the address "dev-null" in
+	      <tt>/var/qmail/control/doublebounceto</tt>.
+       </ol>
+       This will cause the <tt>/var/qmail/alias/doublebounces.log</tt>
+       to fill up with lines like this, one per bounce:
+       <pre>
+    2004-06-06-05:37:33 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
+    2004-06-06-05:37:32 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
+    2004-06-06-05:37:33 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
+    2004-06-06-06:21:10 From: "Russ" &lt;s0ftwarre4allprocuring@care2.com&gt;
+    2004-06-06-06:54:07 From: Gina Smearsun &lt;rogers-sns@myjalapi.com&gt;
+    2004-06-06-09:19:21 From: "Watches for you" &lt;rcsmz@hotmail.com&gt;
+    2004-06-06-09:23:31 From: "Lauri Hernandez" &lt;l.hernandezng@correo.de&gt;
+    2004-06-06-09:23:31 From: "Lauri Hernandez" &lt;l.hernandezng@correo.de&gt;
+    2004-06-06-11:00:52 From: "Madrid" &lt;zvtmlm@mail15.com&gt;
+    2004-06-06-11:11:09 From: Bob Rogers &lt;rogers-netatalk@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
+    2004-06-06-11:11:10 From: Bob Rogers &lt;rogers-navel@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
+    2004-06-06-11:11:10 From: Bob Rogers &lt;rogers-ilisp@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
+</pre>
+       The last three are bounced confirmation messages from TMDA for
+       incoming spam, which TMDA sends with an empty return address (as
+       if they were already bounces, which in a way they are).  The
+       "rogers-foo" addresses are retired mailing list addresses to
+       which the spam was addressed; these are used as the "From:"
+       address for the confirmation message, and the other address is
+       the original spam "From:" header in the quoted message.
+       [need TMDA link.  -- rgr, 6-Jun-04.]
+       Note the duplicates sent at almost the same time to multiple
+       addresses at my domain.  Periodically, I rotate
+       <tt>/var/qmail/alias/doublebounces.log</tt>, as I get these at
+       the rate of about 40 per day.
 </dl>
 
 Other <tt>qmail</tt> resources:
