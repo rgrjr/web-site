@@ -12,7 +12,8 @@ home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
 serious-pages = ${emacs-pages} ${ilisp-pages} \
 		${linux-pages} ${security-pages} ${perl-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
-		change-history.html random/doubleclick.png
+		web-site.html site-map.html change-history.html \
+		random/doubleclick.png
 bob-pages = bob/index.html bob/contact.html bob/damon-mahler.html \
 		bob/gimp-toc.html bob/resume-extra.html bob/resume.html
 girls-pages = bob/anna/index.html bob/anna/anna-thumbnail-1.jpg \
@@ -80,5 +81,7 @@ reverse-install:
 	    fi; \
 	done
 
+clean:
+	rm -f comment.text change-history.html
 wc:
 	wc ${all-pages}
