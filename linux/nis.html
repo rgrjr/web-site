@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Bob Rogers: Local "howto" information: NIS</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h2>Network Information Service (NIS)</h2>
+
+<i>[This is somewhat out of date; I have currently disabled NIS, and
+only use it occasionally.  -- rgr, 18-Dec-04.]</i>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : <a href="howto.html">"Howto"</a> : NIS
+<hr>
+
+<p>After changing one of the configuration files
+(e.g. <tt>/etc/hosts</tt>), the NIS maps need to be rebuilt by doing
+<tt>make</tt> in the domain master directory.  For example, here's what
+I did after editing <tt>/etc/group</tt> to add a new group:
+<blockquote>
+<pre>
+rgrjr:~ # cd /var/yp
+rgrjr:/var/yp # make -f ../Makefile all
+Updating group.byname...
+Updating group.bygid...
+Updating netid.byname...
+rgrjr:/var/yp # 
+</pre>
+</blockquote>
+After this update, the new group was immediately available to
+<tt>ypmatch</tt> on all machines.  [I have no idea what
+<tt>netid.byname</tt> is used for, nor why it needed rebuilding then.
+-- rgr, 7-Aug-01.]
+
+<p>Steps to setting up <tt>ypserv</tt> and <tt>ypbind</tt> on a fresh
+machine:
+<ol>
+  <li> Pick an NISDOMAIN name, e.g. <tt>ESS-MA</tt>.  This has nothing
+       to do with DNS domains, and should be different from same. 
+  <li> Do <tt>"nisdomainname&nbsp;<i>name</i>"</tt> to initialize it.
+  <li> Update the right config file to initialize the NIS domain name at
+       boot time.  (This is in <tt>/etc/sysconfig/network</tt> on
+       RH&nbsp;6.x, and in <tt>/etc/defaultdomain</tt> on
+       SuSE&nbsp;8.0.)
+  <li> Edit <tt>/etc/yp/Makefile</tt> and <tt>/etc/yp/securenets</tt>,
+       following instructions in the file comments.  [In
+       <tt>/etc/yp/securenets</tt>, note that the subnet mask comes
+       <em>before</em> the address.  -- rgr, 19-Oct-02.]
+  <li> Start the server: <tt>"/etc/init.d/ypserv&nbsp;start"</tt>
+  <li> Verify that the server is up and running:  <tt>"rpcinfo -u
+       localhost ypserv"</tt>.
+  <li> Make sure the server gets started on reboot:
+       <tt>"chkconfig&nbsp;--add&nbsp;ypserv"</tt>
+  <li> [ypinit to build the maps]
+  <li> If required, start <tt>yppasswdd</tt>:
+       <pre>
+       /etc/init.d/yppasswdd start
+       chkconfig --add yppasswdd
+</pre>
+  <li> Full testing requires a running client, but you can do
+       <tt>"rpcinfo&nbsp;-p&nbsp;localhost"</tt> to verify that the
+       server is listening.  The output should include something like
+       the following:
+       <pre>
+   program vers proto   port
+    100004    2   udp    905  ypserv
+    100004    1   udp    905  ypserv
+    100004    2   tcp    908  ypserv
+    100004    1   tcp    908  ypserv
+       </pre>
+       The numbers are arbitrary, except that ypserv version 2 should be
+       listed for both TCP and UDP.
+</ol>
+The following steps are necessary to set up the <tt>ypbind</tt> client
+on the server machine:
+<ol start="11">
+  <li> Set the machine up as a client by putting a <tt>"ypserver"</tt>
+       line in <tt>/etc/yp.conf</tt>:
+       <pre>
+       ypserver 192.168.57.1
+</pre>
+       A fixed IP address is best.
+  <li> Start the client: <tt>"/etc/init.d/ypbind&nbsp;start"</tt>
+  <li> Make sure the client gets started on reboot:
+       <tt>"chkconfig&nbsp;--add&nbsp;ypbind"</tt>
+  <li> Ensure that the client and server are talking to each other:
+       <pre>
+       rogers@localhost&gt; <b>ypmatch rgr hosts</b>
+       192.168.57.1	rgr.rgrjr.com	rgr
+       rogers@localhost&gt; <b>ypmatch staff group</b>
+       staff:*:500:
+       rogers@localhost&gt; <b>ypmatch rogers passwd</b>
+       rogers:Rn0LxKrY3l2ou:503:500::/home/rogers:/bin/bash
+       rogers@localhost&gt;
+</pre>
+</ol>
+
+<p>The following steps are necessary to set up the <tt>ypbind</tt>
+client on a machine other than the server:
+<ol>
+  <li> Do <tt>"nisdomainname&nbsp;<i>name</i>"</tt> to initialize the
+       NIS domain name.  This must be the same name you told the server
+       to use.
+  <li> Update the right config file to initialize the NIS domain name at
+       boot time, just as for the server.
+  <li> Set the machine up as a client by putting a <tt>"ypserver"</tt>
+       line in <tt>/etc/yp.conf</tt>:
+       <pre>
+       ypserver 192.168.57.1
+</pre>
+       A fixed IP address is best.
+  <li> Start the client: <tt>"/etc/init.d/ypbind&nbsp;start"</tt>
+  <li> Make sure the client gets started on reboot:
+       <tt>"chkconfig&nbsp;--add&nbsp;ypbind"</tt>
+  <li> Note that under SuSE (at least 8.0), it is necessary to run
+       <tt>yast2</tt> to finish initialization, or people won't be able
+       to log in to NIS users.  The correct information should already
+       be there (or you can enter it via the GUI), but something it does
+       after you click "Finish" is required.  [Maybe changing
+       <tt>/etc/nsswitch.conf</tt>?  Or putting <tt>"+"</tt> lines in
+       <tt>/etc/passwd</tt>, <tt>/etc/group</tt>, and
+       <tt>/etc/shadow</tt>?  -- rgr, 30-Oct-02.]
+  <li> Ensure that the client and server are talking to each other:
+       <pre>
+       rogers@localhost&gt; <b>ypmatch rgr hosts</b>
+       192.168.57.1	rgr.rgrjr.com	rgr
+       rogers@localhost&gt; <b>ypmatch staff group</b>
+       staff:*:500:
+       rogers@localhost&gt; <b>ypmatch rogers passwd</b>
+       rogers:Rn0LxKrY3l2ou:503:500::/home/rogers:/bin/bash
+       rogers@localhost&gt;
+</pre>
+       [This will actually work before <tt>yast2</tt> initialization,
+       but users still won't be able to log in.  -- rgr, 30-Oct-02.]
+</ol>
+
+<p>[troubleshooting?  -- rgr, 19-Oct-02.]
+
+<p>Resources:
+<ul>
+  <li> <a
+       href="http://www.linux-nis.org/nis-howto/HOWTO/NIS-HOWTO.html">
+       The Linux NIS(YP)/NYS/NIS+ HOWTO</a>, by Thorsten Kukuk, v1.2, 4
+       August 2002.
+  <li> <a href="http://www.linux-nis.org/nis/">Linux NIS(YP) Server and
+       Tools</a>, an overview with other links.
+</ul>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Bob Rogers: Local "howto" information: Burning CDs</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h2>Burning CDs</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : <a href="howto.html">"Howto"</a> : Burning CDs
+<hr>
+
+<p>
+<ul>
+  <li> My current CD-RW/DVD-ROM is an <a href="http://www.lge.co.kr/">
+       LG&nbsp;Electronics</a> model <a
+       href="http://www.lgeus.com/Product/CD/gcc_4120b.asp"> GCC-4120
+       rev 2.01</a> combination CD-RW and DVD-ROM.  That is, it can read
+       and write CD, CD-R, and CD-RW media (audio and data), and read
+       DVD and DVD-ROM media (video and data).  This is an ATAPI drive,
+       which means (roughly) that it uses SCSI commands over IDE, and
+       plugs in using the regular IDE ribbon cable that is common for
+       hard drive and CD drives.
+  <li> [In case you're curious, it cost me $99 at <a
+       href="http://www.pcsforeveryone.com/">PCs for Everyone</a>, my
+       favorite hardware shop, located on Charles Street in Cambridge,
+       Massachusetts.  -- rgr, 7-Jul-02.]
+  <li> In order to get it to work properly as a CD-R drive with my
+       oddball Red Hat 6.0/kernel 2.2.19 GNU/Linux system, I needed to
+       put <tt>"modprobe&nbsp;ide-scsi"</tt> in
+       <tt>/etc/rc.d/rc.modules</tt> to get it to use the correct
+       driver.  This broke mounting for reading as <tt>/dev/cdrom</tt>,
+       a symbolic link to <tt>/dev/hdc</tt>, so I changed
+       <tt>/dev/cdrom</tt> to point to <tt>/dev/scd0</tt> instead.
+  <li> All of the software needed to write CDs of various sorts is
+       available in the <a
+       href="http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html">
+       cdrtools</a> package.  For writing data CDs, <tt>mkisofs</tt>
+       packages up the files into an ISO9660 CD image, and
+       <tt>cdrecord</tt> burns the image onto a blank CD.
+  <li> Still scoping out the DVD-player thing.  See the <a
+       href="http://www.linuxjournal.com/article.php?sid=5644&mode=thread&order=0">
+       GNU/Linux DVD Player Review</a> article for an overview of some
+       of the players now available for Linux.
+  <li> [for the record, the "KOnCD" utility that comes with KDE has
+       problems.  its help file is completely useless.  -- rgr, 3-Jul-01.]
+</ul>
+
+<a name="options">
+<h3>Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options</h3>
+
+This list is far from complete, but a complete list makes a lousy quick
+reference.  Do <tt>"mkisofs --help"</tt> if you want to see all options.
+
+<a name="mkisofs-dash-C">
+<dl>
+  <dt> <b>-C <i>last_sess_start,next_sess_start</i></b>
+  <dd> Used for the second or subsequent session of a multi-session
+       CD.  <tt><i>last_sess_start</i></tt> is the sector number of
+       the first sector in the last session of the CD to which you
+       wish to append, and <tt><i>next_sess_start</i></tt> is the
+       starting sector number of the new session.  These numbers may be
+       retrieved from the CD via
+       <tt>"cdrecord&nbsp;-msinfo&nbsp;..."</tt> [Not clear why this
+       needs to be specified if <tt>"-M&nbsp;<i>device</i>"</tt> is also
+       specified.  -- rgr, 20-Oct-02.]
+  <dt> <b>-f</b>
+  <dd> follow symbolic links.
+  <dt> <b>-hfs</b>
+  <dd> make a Mac filesystem.
+  <dt> <b>-l</b>
+  <dd> allows 31-char file names.
+       <a name="mkisofs-dash-M">
+  <dt> <b>-M ( <i>filename</i> | <i>device</i> )</b>
+  <dd> Specifies an existing ISO9660 image to be merged in second or
+       subsequent session of a multi-session CD, where
+       <tt><i>path</i></tt> is file name and <tt><i>device</i></tt> is a
+       <tt>cdrecord</tt> "SCSI device specifier," e.g. <tt>"1,0,0"</tt>.
+       If you do not specify this option, then all earlier sessions will
+       seem to have vanished from the augmented CD.
+  <dt> <b>-max-iso9660-filenames</b>
+  <dd> allows 37-char names (by flushing the widely-ignored version
+       number feature).
+  <dt> <b>--netatalk</b>
+  <dd> look for <tt>netatalk</tt>-style <tt>.AppleDouble</tt> directory
+       entries.
+  <dt> <b>-o</b>
+  <dd> specifies the output file.
+  <dt> <b>-P</b>
+  <dd> specifies the "publisher."
+  <dt> <b>-relaxed-filenames</b>
+  <dd> removes some file name charset limitations.
+  <dt> <b>-V</b>
+  <dd> specifies the volume name
+</dl>
+The rest of the line consists of at least one directory name.
+
+<p>Here is a useful subset of <tt>cdrecord</tt> options:
+<dl>
+  <dt> <b>-msinfo</b>
+  <dd> Read the session addresses from an existing multisession CD;
+       the result is suitable for passing to the <a
+       href="#mkisofs-dash-C"><tt>cdrecord</tt> <tt>-C</tt> option</a>,
+       and should look something like <tt>"81114,123094"</tt>.  When the
+       second number approaches 700&nbsp;000, then the CD is getting
+       pretty full.  [Note that <tt>df</tt> seems to report the free
+       space for multi-session CDs incorrectly.  On the other hand,
+       I'm running the version that came with Red Hat 6.0, which is now
+       more than 2.5 years old.  -- rgr, 20-Oct-02.]
+  <dt> <b>-multi</b>
+  <dd> [finish.  -- rgr, 20-Oct-02.]
+  <dt> <b>-waiti</b>
+  <dd> This option is needed when piping <tt>mkisofs</tt> to
+       <tt>cdrecord</tt> for the second and subsequent track of a
+       multi-session CD.  <tt>mkisofs</tt> needs to read directory
+       information from the existing CD in order to merge it with the
+       new data, so <tt>cdrecord</tt> must be told to wait before trying
+       to access the drive.
+</dl>
+
+<a name="howto">
+<h3>CD-R how-to</h3>
+
+<dl class="howto">
+  <dt> Find out what <tt>-dev=X,Y,Z</tt> to use:
+  <dd> Do the following:
+       <pre>
+       [root@rgrjr /root]# <font color=blue>cdrecord -scanbus</font>
+       Cdrecord 1.10 (i586-pc-linux-gnu) Copyright (C) 1995-2001 J&ouml;rg Schilling
+       Linux sg driver version: 2.1.39
+       Using libscg version 'schily-0.5'
+       scsibus0:
+	       0,0,0	  0) *
+	       0,1,0	  1) *
+	       0,2,0	  2) *
+	       0,3,0	  3) *
+	       0,4,0	  4) *
+	       0,5,0	  5) 'IOMEGA  ' 'ZIP 100 PLUS    ' 'J.66' Removable Disk
+	       0,6,0	  6) *
+	       0,7,0	  7) *
+       scsibus1:
+	       1,0,0	100) 'HL-DT-ST' 'RW/DVD GCC-4120B' '2.01' Removable CD-ROM
+	       1,1,0	101) *
+	       1,2,0	102) *
+	       1,3,0	103) *
+	       1,4,0	104) *
+	       1,5,0	105) *
+	       1,6,0	106) *
+	       1,7,0	107) *
+       [root@rgrjr /root]# 
+</pre>
+       The first time I tried this, it only found <tt>scsibus0</tt>,
+       which is the symptom of not having the <tt>ide-scsi</tt> driver
+       installed for an ATAPI drive.
+
+  <dt> Get <tt>-scanbus</tt> to work in SuSE 9.0 Pro:
+  <dd> When I moved the CD-burner to my new SuSE 9.0 machine, which had
+       previously only had a CD-ROM drive on it, <tt>cdrecord</tt>
+       stopped working, and <tt>-scanbus</tt> could not even find the
+       bus.  The symptoms are described in detail in a <a
+       href="http://linux.derkeiler.com/Mailing-Lists/SuSE/"> SuSE Linux
+       English thread</a> from March 2004 titled "cdrecord stopped
+       working".  The solution (suggested by <a
+       href="http://linux.derkeiler.com/Mailing-Lists/SuSE/2004-03/0059.html">
+       this post</a>) is the following
+       <pre>
+       cdrecord -scanbus -dev=ATAPI:
+       </pre>
+       To one of the resulting list of
+       <tt>{<i>scsibus</i>,<i>target</i>,<i>lun</i>}</tt> triples, you
+       will need to prefix <tt>"ATAPI:"</tt> in order to tell
+       <tt>cdrecord</tt> to use the corresponding device, e.g. use
+       <tt>"-dev=ATAPI:0,0,0"</tt>.
+
+  <dt> Get drive characteristics:
+  <dd> Once you have the proper
+       <tt>{<i>scsibus</i>,<i>target</i>,<i>lun</i>}</tt> triple, do the
+       following:
+       <pre>
+       [root@rgrjr /root]# <font color=blue>cdrecord -checkdrive -dev=1,0,0</font>
+       Cdrecord 1.10 (i586-pc-linux-gnu) Copyright (C) 1995-2001 J&ouml;rg Schilling
+       scsidev: '1,0,0'
+       scsibus: 1 target: 0 lun: 0
+       Linux sg driver version: 2.1.39
+       Using libscg version 'schily-0.5'
+       Device type    : Removable CD-ROM
+       Version        : 0
+       Response Format: 1
+       Vendor_info    : 'HL-DT-ST'
+       Identifikation : 'RW/DVD GCC-4120B'
+       Revision       : '2.01'
+       Device seems to be: Generic mmc CD-RW.
+       Using generic SCSI-3/mmc CD-R driver (mmc_cdr).
+       Driver flags   : SWABAUDIO
+       [root@rgrjr /root]# 
+</pre>
+       [The <tt>-inq</tt> flag gets a subset of this information, mostly
+       the drive configuration part.  -- rgr, 7-Jul-02.]
+
+  <dt> Put a directory onto a CD (in two steps):
+  <dd> Use something like the following:
+       <pre>
+       mkisofs -f -max-iso9660-filenames -relaxed-filenames -P "Bob Rogers" -V 2003Q1a \
+	       -o foo.iso /scratch/backups/2003Q1a/cd/
+       cdrecord -speed=8 -dev=1,0,0 -data foo.iso
+</pre>
+       The first command makes an ISO9660 CD image out of the contents
+       of an ordinary Linux directory; the second command writes this
+       image to the drive.  It is split up this way into two operations
+       because the writing must be done in real time; the CPU has to
+       ensure that the data gets to the CD in time to be written.  The
+       two operations can be pipelined (see the next item), which
+       eliminates the temp hard drive space usage, but doing them separately
+       ensures that the CD image is burned correctly onto the blank
+       medium.
+
+  <dt> Put a directory onto a CD (in one step):
+  <dd> Use a pipeline that looks something like the following:
+       <pre>
+       mkisofs -max-iso9660-filenames -relaxed-filenames -V 2003Q1a /scratch/backups/cd/2003Q1a \
+                | cdrecord -dev=1,0,0 -speed=8 -
+</pre>
+       On my system, this turns out to be much faster than doing the two
+       steps separately.  The reason is that I have only one hard drive, so
+       making a ISO9660 image file from content on the same hard drive
+       requires lots of seeks, which are time-consuming.
+
+       <p>Note that the drive is theoretically capable of writing a CD-R
+       disk at 4X, 8X, and 12X, but 12X (for me, at least) results in an
+       unreadable CD -- <tt>mount</tt> complains about a bad superblock,
+       among other possibilities.  This is probably because my machine
+       and/or hard drive is not fast enough, and so the pipeline stalls.
+       I notice that the <tt>xload</tt> display shows significantly
+       higher CPU demand when writing at 12X than at 8X or 4X, so
+       perhaps the CPU (a 300MHz Athlon processor) is the limiting
+       factor.  Before the 12X run, I tried using the <tt>-dummy</tt>
+       option, but that was no help; I got no diagnostics from it at
+       all.  However, so far I've only tried writing one CD for each
+       speed.  (The CD-RW write speeds are 2X, 4X, and 8X, but I haven't
+       tried using CD-RW media at all yet.)
+
+       <p>[add <tt>-hfs --netatalk</tt> to make a Mac-readable CD.  --
+       rgr, 22-Sep-02.]
+
+  <dt> Append to a CD: 
+  <dd> This requires creating what is called a "multi-session CD."  Each
+       session is implemented on what would be considered a "track" on
+       an audio disk.  However, note that it is possible to append to a
+       CD only if the <em>previous</em> session was written in such a
+       way as to allow it.  Therefore, you need to think ahead.
+
+       <p>Usually, both <tt>mkisofs</tt> and <tt>cdrecord</tt> need
+       extra instruction on how and whether to write a multi-session CD:
+       <ol>
+	 <li> <tt>mkisofs</tt> options: On the <em>second and
+	      subsequent</em> session image, you must supply the <a
+	      href="#mkisofs-dash-C"><tt>-C</tt></a> and <a
+	      href="#mkisofs-dash-M"><tt>-M</tt></a> options.  Nothing
+	      special is needed for the first session.  However, it is a
+	      good idea to use similar options for all sessions, lest
+	      <tt>mkisofs</tt> get confused by what's already on the CD.
+	 <li> <tt>cdrecord</tt> options: On <em>all but the last</em>
+	      session, you must specify the <tt>-multi</tt> option.  If
+	      you omit <tt>-multi</tt>, then that will be the last
+	      session on the CD.  On the second and all subsequent
+	      sessions, you must also specify <tt>-waiti</tt> if piping
+	      <tt>mkisofs</tt> output directly into <tt>cdrecord</tt>.
+	      (Including <tt>-waiti</tt> for the first session doesn't
+	      hurt, though.)
+       </ol>
+
+       <p>According to the <tt>cdrecord</tt> <tt>man</tt> page,
+       <blockquote>
+       The fixation will be done in a way that allows the CD-Recorder to
+       append additional sessions later.  This is done by generating a
+       TOC with a link to the next program area.  The CD thus written
+       is not 100% compatible to manufactured CDs.
+       </blockquote>
+       [From the version 1.10 description of <tt>"-multi"</tt>, edited
+       slightly for readability.  -- rgr, 20-Oct-02.]
+
+       <p>For example, here's a first session being written to a blank
+       CD in the drive at logical address <tt>"1,0,0"</tt>:
+       <pre>
+       mkisofs /scratch/backups/2003Q1a | cdrecord -dev=1,0,0 -speed=8 -multi -
+</pre>
+       The second and subsequent sessions look like this:
+       <pre>
+       mkisofs -C `cdrecord -dev=1,0,0 -msinfo` -M 1,0,0 /scratch/backups/test \
+            | cdrecord -dev=1,0,0 -speed=8 -multi -waiti -
+</pre>
+       To write a final session, use something based on the second
+       session example but drop the <tt>"-multi"</tt> option.
+
+  <dt> Mount a CD image:
+  <dd> This is a useful trick for mounting the data from a CD without
+       hogging the drive.  It is indispensible for mounting Apple
+       documentation CD's as HFS filesystems, and then re-exporting them
+       via <a href="#netatalk">netatalk</a>.  Either way, what you are
+       mounting will still behave like a CD, though, so you won't be
+       able to change its contents.
+
+       <p>First, you need to put the CD in the drive (but don't mount
+       it), and then copy the raw CD image onto a file on the hard
+       drive:
+       <pre>
+       dd if=/dev/cdrom of=/scratch/backups/cd-image.iso9660
+</pre>
+       You may need to substitute <tt>"/dev/cdrom"</tt> with whatever
+       the device is named on your system; see <tt>/etc/fstab</tt> for
+       hints.  Then, mount it wherever you like as an ISO9660 file
+       system via a "loop device:"
+       <pre>
+       mount cd-image.iso9660 /mnt/cdrom -t iso9660 -o loop
+</pre>
+       See the "THE LOOP DEVICE" section of the <tt>mount</tt>
+       <tt>man</tt> page for more details.
+</dl>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>

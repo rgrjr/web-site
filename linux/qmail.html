@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Bob Rogers: Local "howto" information: qmail</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h2>The <tt>qmail</tt> mail transport agent</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : <a href="howto.html">"Howto"</a> : <tt>qmail</tt>
+<hr>
+
+<tt>qmail</tt> is excellent; it's the only server I haven't had to
+upgrade to fix security issues, and I've been running it for more than
+four years now -- I first installed version 1.03 on 11-Feb-2000, and am
+still running the identical version (though I've had to recompile after
+upgrading the OS).  <tt>qmail</tt> now claims to be the <a
+href="http://www.qmail.org/top.html">"second most popular MTA on the
+Internet"</a>, and I'm not surprised.
+
+<ul>
+  <li> Binaries are installed into the <tt>/var/qmail/bin/</tt>
+       directory by default.
+  <li> Messages are identified by a number, e.g. <tt>110876</tt>, which
+       happens to be the inode number of the data file; this guarantees
+       that it is unique.  The message itself is stored in
+       <tt>/var/qmail/queue/mess/</tt>, e.g. as
+       <tt>/var/qmail/queue/mess/16/110876</tt>, and the queue entry in
+       <tt>/var/qmail/queue/local/</tt>
+       (e.g. <tt>/var/qmail/queue/local/16/110876</tt>).  The extra
+       layer of directories keeps any one queue directory from growing
+       too big (which is tremendous overkill for my installation).
+  <li> Global configuration is via control files in the
+       <tt>/var/qmail/control/</tt> dir.  See
+       <tt>"man&nbsp;qmail-control"</tt> for a summary of all control
+       files and the bits of qmail that use them.  Man pages for the
+       referenced programs will give detailed information.
+  <li> Mail delivery configuration is done by <tt>".qmail"</tt> files in
+       the user's home directory (for localparts that start with the
+       user's login name) or the <tt>/var/qmail/alias/</tt> directory
+       (for localparts that start with anything else).
+</ul>
+
+Here is how to:
+
+<dl class="howto">
+  <dt> Find out what's currently waiting to be delivered:
+  <dd> Run <tt>qmail-qread</tt> (as root).  The output will look
+       something like this:
+       <pre>
+       [root@rgrjr control]# qmail-qread 
+       4 Nov 2002 18:17:55 GMT  #206850  1355  &lt;somebody@rgrjr.dyndns.org&gt;
+	       remote	abuse@pubnet.ne.kr
+       12 Nov 2002 15:02:58 GMT  #206852  1891  &lt;nobody@rgrjr.dyndns.org&gt;
+	       remote	abuse@first.net.jo
+       [root@rgrjr control]#
+</pre>
+       For each message in the queue, a summary line is printed,
+       followed by a status line for each recipient.  The summary line
+       starts with the date the message entered the queue, followed by
+       the message ID (preceded by a "#"), the message size in bytes,
+       and the envelope sender.  Each recipient line contains a status
+       code, the keyword <tt>"local"</tt> or <tt>"remote"</tt>, and the
+       recipient address.  In the example above, the status is blank
+       because the message is still being delivered; if a message had
+       already been delivered to other recipients, different codes would
+       have appeared for those deliveries.  In <tt>qmail</tt>, all
+       deliveries are made independently, even when the same message has
+       multiple recipients at the same destination server.
+  <dt> Find files in the queue:
+  <dd> Do <tt>"find /var/qmail/queue -type f"</tt> to find all queued
+       message files.
+  <dt> Force a bounce:
+  <dd> To force a bounce, you need to make its "info" file older than
+       the maximume queue lifetime (in the
+       <tt>/var/qmail/control/queuelifetime</tt>, or 7 days if not
+       present).  For a message with id 206850, this can be done as
+       follows:
+       <pre>
+       find /var/qmail/queue/info -name 206850 | xargs touch -d '8 days ago'
+</pre>
+       See also the <a
+       href="http://cr.yp.to/qmail/faq/admin.html#rejuvenate"> "How do I
+       rejuvenate a message?"</a> FAQ item.  (To "rejuvenate," just
+       leave off the <tt>"-d&nbsp;'8&nbsp;days&nbsp;ago'"</tt> part.)
+  <dt> Force redelivery attempts:
+  <dd> Do <tt>"kill&nbsp;-ALRM"</tt> on the qmail-send process to force
+       redelivery for all queued messages.  Alternatively,
+       <tt>"/etc/init.d/qmail&nbsp;redeliver"</tt> will do this for
+       you.  (See also the <tt>/root/bin/qmail-redeliver</tt> and
+       <tt>/root/bin/qmail-restart</tt> scripts).
+  <dt> Restart after a network outage:
+  <dd> Run <tt>qmail-tcpok</tt> to get <tt>qmail</tt> to reexamine its
+       notion of which hosts are responding.  -- rgr, 13-Mar-00.
+  <dt> Get around SPAM/relay blockers via <tt>smtproutes</tt>:
+  <dd> When I get a bounce message that looks something like this:
+       <pre>
+    &lt;abuse@morning.ru&gt;:
+    Connected to 195.161.98.12 but sender was rejected.
+    Remote host said: 550 5.7.1 Mail from 66.31.124.111 rejected;
+       see <a href="http://www.five-ten-sg.com/blackhole.php">http://www.five-ten-sg.com/blackhole.php</a>?Search=Search&amp;ip=66.31.124.111
+</pre>
+       then it probably means that the recipient's ISP is blocking my IP
+       address.  In this particular case, <a
+       href="http://good.morning.ru/">Morning Network Ltd. of
+       Krasnoyarsk, Russia</a> has their MTA set up to query the <a
+       href="http://www.five-ten-sg.com/"> 510 Software Group</a> about
+       whether it should allow connections from any given IP address;
+       since they know that <tt>66.31.0.0/16</tt> is a <a
+       href="http://www.comcast.net/">Comcast</a> residential customer
+       IP netblock, they classify it as the equivalent to a dial-in
+       line, and tell Morningstar to refuse.  Rather than bother the 510
+       folks to have them stop blocking my IP (which is not really fixed
+       in any case), I just added the following line to the
+       <tt>/var/qmail/control/smtproutes</tt> file:
+       <pre>
+    morning.ru:smtp.comcast.net
+</pre>
+       This tells my machine to relay mail for the <tt>morning.ru</tt>
+       domain through <tt>smtp.comcast.net</tt> (which will do this for
+       me because I am a customer on their network).  This indirect
+       routing trick is becoming necessary for more and more ISPs as
+       they get more sophisticated about blocking SPAM; someday I may
+       have to route everything through <a
+       href="http://www.comcast.net/">Comcast</a>, though that would
+       force me to change <tt>/var/qmail/control/smtproutes</tt>
+       whenever their servers are unavailable.  Note that it is not
+       necessary to restart the server after changing this file, as
+       <tt>qmail-remote</tt> is forked anew for each remote delivery.
+  <dt> Flush double-bounces.
+  <dd> These are caused by bounces (usually spam addressed to invalid
+       addresses) where the envelope return address is also invalid.  I
+       used to look at all of these myself, but that got to be too much
+       trouble since the spam volume started to explode in 2003.  I
+       currently do the following:
+       <ol>
+	 <li> Define the "dev-null" address by putting something along
+	      the following lines into the
+	      <tt>/var/qmail/alias/.qmail-dev-null</tt> file:
+	      <pre>
+    # The ultimate trash bin.  We must literally "cat" to /dev/null because
+    # qmail reports failure if we try to write /dev/null as an mbox file, 
+    # probably because it can't lock it exclusively.  -- rgr, 1-Oct-03.
+    # | cat > /dev/null
+    | echo `date '+%F-%T'` `grep -i '^From:' | fgrep -v 'MAILER-DAEMON@rgrjr.dyndns.org'` >> doublebounces.log
+</pre>
+	      It doesn't matter who owns this file, as long at it is
+	      world readable.
+	 <li> Put the address "dev-null" in
+	      <tt>/var/qmail/control/doublebounceto</tt>.
+       </ol>
+       This will cause the <tt>/var/qmail/alias/doublebounces.log</tt>
+       to fill up with lines like this, one per bounce:
+       <pre>
+    2004-06-06-05:37:33 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
+    2004-06-06-05:37:32 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
+    2004-06-06-05:37:33 From: "Mark Forrest" &lt;m_forrest_ad@hotmail.com&gt;
+    2004-06-06-06:21:10 From: "Russ" &lt;s0ftwarre4allprocuring@care2.com&gt;
+    2004-06-06-06:54:07 From: Gina Smearsun &lt;rogers-sns@myjalapi.com&gt;
+    2004-06-06-09:19:21 From: "Watches for you" &lt;rcsmz@hotmail.com&gt;
+    2004-06-06-09:23:31 From: "Lauri Hernandez" &lt;l.hernandezng@correo.de&gt;
+    2004-06-06-09:23:31 From: "Lauri Hernandez" &lt;l.hernandezng@correo.de&gt;
+    2004-06-06-11:00:52 From: "Madrid" &lt;zvtmlm@mail15.com&gt;
+    2004-06-06-11:11:09 From: Bob Rogers &lt;rogers-netatalk@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
+    2004-06-06-11:11:10 From: Bob Rogers &lt;rogers-navel@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
+    2004-06-06-11:11:10 From: Bob Rogers &lt;rogers-ilisp@rgrjr.dyndns.org&gt; From: "Wiley Converse" &lt;KarlisHooke@collegebeat.com&gt;
+</pre>
+       The last three are bounced confirmation messages from TMDA for
+       incoming spam, which TMDA sends with an empty return address (as
+       if they were already bounces, which in a way they are).  The
+       "rogers-foo" addresses are retired mailing list addresses to
+       which the spam was addressed; these are used as the "From:"
+       address for the confirmation message, and the other address is
+       the original spam "From:" header in the quoted message.
+       [need TMDA link.  -- rgr, 6-Jun-04.]
+       Note the duplicates sent at almost the same time to multiple
+       addresses at my domain.  Periodically, I rotate
+       <tt>/var/qmail/alias/doublebounces.log</tt>, as I get these at
+       the rate of about 40 per day.
+</dl>
+
+Other <tt>qmail</tt> resources:
+<ul>
+  <li> The home page is at <a href="http://www.qmail.org/top.html">
+       <tt>http://www.qmail.org/top.html</tt></a>.  This page also lists
+       a ton of add-on software for <tt>qmail</tt>.  See <a
+       href="http://www.qmail.org/"><tt>http://www.qmail.org/</tt></a>
+       for a list of mirrors.
+  <li> The FAQ is at <a href="http://cr.yp.to/qmail/faq.html">
+       <tt>http://cr.yp.to/qmail/faq.html</tt></a>.
+  <li> <a href="http://Web.InfoAve.Net/~dsill/lwq.html">Life with
+       qmail</a> by Dave Sill is a first-rate tutorial with detailed
+       installation and setup instructions.
+</ul>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>

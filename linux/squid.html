@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Bob Rogers: Local "howto" information: Squid</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h2>The Squid HTTP/FTP proxy</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : <a href="howto.html">"Howto"</a> : Squid
+<hr>
+
+<a href="http://www.squid-cache.org/">Squid</a> is caching proxy server,
+for which I now have three uses:
+<ol>
+  <li> <b>Web cache.</b> This is the "standard" use for Squid, wherein
+       it uses local RAM and hard drive to speed up Web access.  The
+       extra speed is not so important, as I have a cable modem, but the
+       hard drive cache feature allows me to turn off all browser hard
+       drive caching, which avoids bloating my backups with duplicates
+       of random Web pages.  I have allotted 250MB of hard drive to
+       caching, which lives in <tt>/scratch/squid/cache/</tt>; the
+       <tt>/scratch/</tt> partition is never backed up.  It took more
+       than two years to fill it up (though that was before my wife
+       discovered Ebay).
+
+       <p>In order to prevent randoms from using my machine as an
+       anonymizer, this service is only available on the local network.
+       This is because I have configured the ACLs to prevent nonlocal
+       users from accessing nonlocal servers.
+
+       <p>
+       <a name="squid-vhr">
+  <li> <b>Virtual host redirector.</b> Since I have two distinct Web
+       servers running on this machine, I also need Squid to listen to
+       port 80, where it redirects requests for local Web connections to
+       the appropriate server based on the server named in the
+       <tt>"Host:"</tt> request header.  [I should explain how to set
+       this up, but that would have to be a separate article.  -- rgr,
+       20-Jul-02.]
+
+       <p>[This is somewhat out of date, as I haven't been running the
+       other Web server since fall 2002, so the Web server is back on
+       port 80.  -- rgr, 1-Sep-03.]
+
+       <p>
+  <li> <b>Advertising filter.</b> The same "redirector" technology that
+       supports virtual hosting also serves to rewrite URLs for
+       advertising images into something less annoying, e.g. from a
+       flashing <tt>http://ad.doubleclick.net/</tt> monstrosity to "<img
+       src="/random/doubleclick.png">", a small <a
+       href="http://www.libpng.org/"> <tt>.png</tt> image</a> kept
+       locally.
+</ol>
+Note that these functions can also be performed by <a
+href="http://www.squidguard.org/">squidGuard</a>, which advertises
+itself as "a combined filter, redirector and access controller plugin
+for Squid" that is "free, very flexible, extremely fast, easily
+installed, [and] portable."  But my needs are simpler, so I built my
+own.
+
+<dl class="facts">
+  <dt> Documentation
+  <dd> The <a href="http://www.squid-cache.org/Doc/FAQ/"> Squid FAQ</a>
+       is the most useful piece of Squid documentation I have yet found.
+       It is huge, which is a testament to the versatility of Squid.
+
+       <p><a href="http://www.squid-cache.org/Doc/">
+       <tt>http://www.squid-cache.org/Doc/</tt></a> has links to the
+       FAQ, as well as to other works.
+
+       <p>And the default configuration file, installed by the SuSE 8.1
+       RPM into <tt>/etc/squid/squid.conf.default</tt>, is full of
+       comments that describe each of the configuration options in some
+       detail.  (The configuration guide at <a
+       href="http://squid.visolve.com/squid24s1/contents.htm">
+       <tt>squid.visolve.com</tt></a> is mostly a browseable version of
+       these comments, with some added content.)
+
+  <dt> Configuration file
+  <dd> The configuration file is <tt>/etc/squid/squid.conf</tt>.  If you
+       change it, you can cause a running Squid to reread it by
+       <pre>
+       squid -k reconfigure
+</pre>
+       This is much faster than using the SysV script to stop and
+       restart it, because Squid won't have to rebuild its in-memory
+       cache database.  It also causes the redirector to be restarted,
+       which is necessary after modifying it.
+
+       <p>[The SysV script seems to have a bug; stopping doesn't always
+       work in any case.  But maybe that's just because I was too
+       impatient for Squid to exit.  -- rgr, 20-Jul-02.]
+
+       <p>But before you reload the configuration file, you might want
+       to do
+       <pre>
+       squid -k parse
+</pre>
+       in order to ensure that you haven't introduced errors.
+
+  <dt> Listening ports
+  <dd> By default, Squid listens for proxy requests on port&nbsp;3128.
+       (I also used to have mine configured to listen to port&nbsp;80
+       for the sake of <a href="#squid-vhr">virtual host
+       redirection</a>; if you do that, be sure it only honors requests
+       either for local pages, or requests that originate locally.)
+
+       <a name="squid-log-file">
+  <dt> Access log file
+  <dd> The access log is written to <tt>/var/log/squid/access.log</tt>
+       (if you use the SuSE RPM version; if installed from tarball, the
+       default log destination is <tt>/usr/local/squid/logs/</tt>).  By
+       default, the access log is written in Squid's own internal
+       format; the <tt>~rogers/projects/system/scripts/squid2std.pl</tt>
+       script converts this to the "standard" access log format used by
+       Apache, etc., though without the "referer" field.  See <a
+       href="http://www.squid-cache.org/Doc/FAQ/FAQ-6.html#ss6.6"> Squid
+       FAQ #6.6</a> for details of Squid log format.
+</dl>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>
