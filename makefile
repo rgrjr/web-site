@@ -75,8 +75,8 @@ change-history.html:	.
 	./cvs-chrono-log.pl change-history-template.html > $@
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
-new-hits.html:	/var/log/apache2/access_log.200410.log
-	../system/scripts/make-popular-pages.pl --nosquid $^ > $@
+new-hits.html:	/var/log/apache2/access_log.200412.log
+	../system/scripts/make-popular-pages.pl --top 20 --nosquid $^ > $@
 	cmp $@.old $@
 june-hits.html:	/var/log/apache2/access.tal.200406.log /var/log/apache2/access_log.200406.log
 	../system/scripts/make-popular-pages.pl --nosquid $^ > $@
