@@ -1,0 +1,306 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD: Windowing implementation notes</title>
+</head>
+
+<body bgcolor=white>
+<h2>Windowing implementation notes</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">ICanCAD</a> :
+Internals : Windowing
+<hr>
+
+This page describes how ICanCAD editor windows work, and how they
+interface to the underlying GUI toolkit.  [So far, only CLIM is
+supported.  -- rgr, 9-May-01.]
+
+<h3>Table of contents</h3>
+<!-- hhmtoc start -->
+<ol>
+  <li> Windowing implementation notes
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#mouse">Mouse issues</a>
+	 <li> <a href="#classes">Window classes</a>
+	      <ol>
+		<li> <a href="#basic-cad-window"><tt>basic-cad-window</tt> protocol</a>
+		<li> <a href="#basic-editing-window"><tt>basic-editing-window</tt> protocol</a>
+		<li> <a href="#editing-window-pane"><tt>editing-window-pane</tt> protocol</a>
+	      </ol>
+	 <li> <a href="#lazy-refresh">Lazy refresh</a>
+	      <ol>
+		<li> Lazy refresh implementation details
+		<li> Examples and notes
+	      </ol>
+	 <li> <a href="#use-label-lazy-refresh">Use labels and lazy refresh</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name = mouse>
+<h3>Mouse issues</h3>
+
+Three-button mice are standard in the Unix/X11 world; two-button mice
+now seem to be the norm for Windows.  And XFree86 under Linux emulates
+three buttons if the hardware provides only two.  (To get the "middle"
+button, click both left and right buttons at once.)  Because of this,
+ICanCAD must have mouse bindings that are convenient to use in either
+configuration (and documentation that doesn't make unnecessary
+assumptions about which is in effect).  Because of emulation, it will
+not be possible to autodetect the number of available buttons, so the
+user must be able to switch between the two dynamically.  User
+preference argues for this as well; for example, somebody with a
+three-button mouse who is accustomed to the two-button style.
+
+<p>[More critical is the availability of modifier keys for "bucky"
+shifts.  The current UI has been "dumbed down" for Windows, where we can
+only get access to "Control" and "Shift" modifiers.  However, if we have
+to have three or four sets of mouse bindings for the various mouse
+configurations, that will make documentation awkward.  Currently, the <a
+href="commands.html"> "ICanCAD Editor Command Reference"</a> is
+generated automatically from a Lisp running ICanCAD, and gets the actual
+mouse clicks from the CLIM data structures.  We'd have to rewrite this
+code to look up the command clicks under each of the mouse binding sets,
+and list them all.  That wouldn't help for modal clicks embedded within
+command documentation bodies, unless we show a list of possible clicks
+under each binding set, which might be confusing.  But it's that or have
+one <tt>commands.html</tt> page per mouse binding set.  -- rgr,
+8-Apr-02.]
+
+<a name = classes>
+<h3>Window classes</h3>
+
+In order to facilitate maximum code sharing between hardcopy windows and
+editor windows for various toolkits, three window protocol levels are
+defined.  For lack of anything better, these protocol classes are named
+after the windows that first (and solely) implemented them.  From most
+general to most specific, the primary classes are as follows:
+<dl>
+  <dt> <b>basic-cad-window</b>
+  <dd> Defines common functionality for all window classes.
+  <dt> <b>basic-editing-window</b>
+  <dd> Generic class for on-screen editors, builds on
+       <tt>basic-cad-window</tt>.
+  <dt> <b>editing-window-pane</b>
+  <dd> CLIM-specific window class, builds on
+       <tt>basic-editing-window</tt>.
+  <dt> <b>postscript-window</b>
+  <dd> A window class for hardcopy (see <tt>code/hardcopy.lisp</tt>),
+       built on <tt>basic-cad-window</tt>.
+</dl>
+
+A window for use with the CLG toolkit, for example, would build on
+<tt>basic-editing-window</tt>.
+
+<a name = basic-cad-window>
+<h4><tt>basic-cad-window</tt> protocol</h4>
+
+Defines a transform, editing context, and current def.
+<ul>
+  <li> The transform can be set by the set-window-scale-and-center and
+       fit-window generics.  Methods for transform-point,
+       transform-scalar, and inverse-transform-point are defined that
+       round coordinates to integers.
+  <li> [define editing context.  -- rgr, 28-Apr-02.]
+  <li> When the window is in use, the <tt>window-def</tt> must always be
+       defined, and the window must be on the <tt>def-windows</tt> list.
+       When the window is not in use, it may still point to the def, but
+       must not appear on <tt>def-windows</tt>.  The association is
+       defined this way in order to allow unmapped windows to renew
+       their association with their former current def when remapped, as
+       long as there is some means of cleaning up references to deleted
+       defs.  [On the other hand, it might be better to preserve both
+       links and test explicitly for window visibility before attempting
+       to undraw/redraw.  -- rgr, 11-May-01.]  Admittedly, this
+       definition of "in use" may be toolkit dependent.
+</ul>
+
+<a name = basic-editing-window>
+<h4><tt>basic-editing-window</tt> protocol</h4>
+
+Supports lazy refresh, part selection, and temporary highlighting.
+
+<a name = editing-window-pane>
+<h4><tt>editing-window-pane</tt> protocol</h4>
+
+Defines methods that interface to the GUI toolkit, keeping the
+window-def/def-windows relationship consistent when windows are created,
+iconified, deiconified, and destroyed.
+
+<a name = lazy-refresh>
+<h3>Lazy refresh</h3>
+
+ICanCAD follows emacs in its use of "lazy refresh" to repaint the
+screen.  [add ref here.]  Rather than making each command that modifies
+the design responsible for updating the display, the display update
+happens as a side effect of actual data structure modifications.
+Commands are responsible for changing the design data structures
+strictly through the established interfaces; those calls record what
+needs to be redisplayed, and the repainting is done by the command loop
+when the command is done.  Several advantages are obtained:
+<ol>
+  <li> Editing commands are simpler to design and code, because they
+       don't have to keep track of what needs redisplaying.
+  <li> Repainting is held off until it is actually needed, while
+       prompting for the next command.  This reduces flicker by
+       arranging to draw the parts that need it exactly once.  (In
+       emacs, it also permits a fast typist to edit ahead of screen
+       updates on a slow display, but that will probably not be an
+       advantage -- or an issue -- in ICanCAD.)
+  <li> The common part modification interface aids Undo/Redo bookkeeping
+       as well.
+</ol>
+
+<p>In order to support lazy refresh by means of the following design, a
+few invariants must be satisfied:
+<ul>
+  <li> Everything that is drawn must belong to a part, and must fit
+       entirely within that part's bounding box.
+  <li> Every time that a part is modified in such a way as to require
+       redrawing, a call is made to note-def-geometry-modification
+       <i>before</i> the modification is made, in order to capture the
+       original location/shape of the part, and <i>after</i> the call to
+       note-modification, which ticks the def as modified or signals an
+       error if this is not allowed.  The note-def-geometry-modification
+       call is usually 
+  <li> The draw-part methods assume that it's OK to draw a part on top
+       of itself any number of times (i.e. no XOR drawing modes).  This
+       allows us to avoid explicit clipping.  The restriction could be
+       relaxed by always clipping to the region being repainted, but
+       then we'd have to keep explicit track of such regions.
+  <li> Additionally, the code assumes that overlapping parts may be
+       drawn in any order.  It may be possible to relax this, i.e. in
+       order to support the Macintosh/PostScript opaque drawing model,
+       with corresponding changes in the user interface.
+</ul>
+
+<p>In order to keep the display up-to-date when a part is modified, it
+must be undrawn <i>before</i> modification, and redrawn afterwards.
+Undrawing is done immediately, and redrawing is done "lazily," i.e. at
+the last minute before prompting for the next command.  If the part
+moves again before redisplay, then we've saved ourself the trouble (and
+saved the user the flicker) of drawing it at its temporary intermediate
+position.
+
+<h4>Lazy refresh implementation details</h4>
+
+To bridge the time interval between drawing and redrawing, each part
+has a part-needs-redrawing-p flag that is set when any part of it drawn
+in any window is out-of-date.  To save work when nothing has been
+changed in a given window, each window has a window-needs-redrawing?
+flag of its own.  [need to address the naming inconsistency.  -- rgr,
+9-May-01.]
+
+<p>The window-needs-redrawing? flag can have one of three values:
+<ul>
+  <li> NIL means that no visible part needs redrawing.
+  <li> T means that one or more visible parts might need redrawing (but
+       see the note below).
+  <li> :FORCE means that <em>every</em> visible part needs redrawing,
+       <em>regardless</em> of whether the part itself thinks so.  This
+       allows us to handle the new-def-in-window case gracefully,
+       without having to mark every part as needing redrawing (in which
+       case they would also get redrawn in any other visible windows).
+</ul>
+
+Note that a non-nil window-needs-redrawing? value may not lead to actual
+drawing when the display is eventually updated.  If a part is moved off
+the screen, the undrawing will be done immediately, and the part itself
+won't need to be redrawn (at least in that window), so if no parts
+overlapped the original position of the moved part, then nothing will
+actually need to be drawn.  But it isn't worth trying to figure out if
+this is the case before redraw time.
+
+<p>The undrawing is done in note-def-geometry-modification by
+<ol>
+  <li> If the part-needs-redrawing-p flag is set, then return
+       immediately; the part is not drawn anywhere, so no purpose is
+       served by redrawing whatever happens to be under its present
+       bbox.
+  <li> For each window in which the parent def appears, if the part is
+       at all visible in that window, blank out the part's bbox by
+       drawing the background there, and set the window's
+       window-needs-redrawing? flag.
+  <li> For each part that overlaps the bbox in the parent def, set it's
+       part-needs-redrawing-p flag.  This will include the original
+       part, which is the right thing if the part is being moved, and
+       won't hurt if the part is to be deleted.
+</ol>
+Redrawing is trickier, since a part may appear in more than one window.
+This is handled by <tt>(method redisplay-frame-panes :before
+(icancad))</tt>.
+<blockquote>
+<pre>
+For each def that needs redisplay,
+   Let redraw-windows be the set of windows that need redisplay.
+   For each part of the def that needs redisplay,
+      For each of the redraw-windows,
+         If the part overlaps the visible region,
+            Draw the part in the window.
+      Clear the part's part-needs-redrawing-p flag.
+   For each of the redraw-windows,
+      Clear the window's window-needs-redrawing? flag.
+</pre>
+</blockquote>
+Optimizations are possible for a given def when the set of
+window-needs-redrawing? windows has exactly one window; in particular,
+it is possible to do map-region to iterate over all parts of potential
+interest.  Note that if redraw-windows has two or more, knowing that all
+such windows displayed regions that are are disjoint doesn't help any,
+because a single part could still span multiple windows.  And the part
+needs to be drawn on all such windows before clearing the flag.
+
+<h4>Examples and notes</h4>
+
+<p>An example of where the "laziness" of lazy refresh helps is in moving
+wires around.  To move a wire (as opposed to stretching it), you need to
+move both of its endpoint dots, and the wire follows along.  The first
+dot, when moved, will call note-def-geometry-modification on itself and
+its connected links, which will cause the link to be undrawn, but not
+drawn in an intermediate position.  The second dot will do the same, but
+the link note-def-geometry-modification will not need to do anything, a
+benefit of the first step in the undrawing algorithm.  In fact, the
+note-def-geometry-modification on the second dot will not need to do
+anything either, since the link case for the first dot will have already
+caused the second dot's part-needs-redrawing-p flag to be set (link
+bboxes are defined as the union of their endpoint bboxes).  The net
+effect is that the user sees the wire disappear in one place, and
+reappear in another, without flicker, and without the wire moving code
+having to sweat the details.
+
+<a name = use-label-lazy-refresh>
+<h3>Use labels and lazy refresh</h3>
+
+[There is a problem with lazy refresh of use labels, in that the
+<tt>icc::basic-label-use</tt> instance may not discover that it has been
+changed until its parent use is being redrawn.  Normally, <tt>(method
+icc::maybe-decache-text-string (icc::cached-text-part))</tt> is supposed
+to notice any display string change and call
+<tt>icc::note-def-geometry-modification</tt> on the use to ensure that
+it is properly redrawn, which normally results in <tt>(method
+icc::note-def-geometry-modification (icc::part-with-subparts t))</tt>
+telling the def that the use needs to be redrawn.  There are two
+problems with this, though:
+<ol>
+  <li> If the use is already being drawn, then doing the full
+       <tt>icc::note-def-geometry-modification</tt> dance will make it
+       flicker; and
+  <li> In that case, the window is already using the use's transform, so
+       the wrong things will be undrawn.
+</ol>
+To fix this, the <tt>icc::part-with-subparts</tt> method suppresses the
+<tt>icc::note-def-geometry-modification</tt> call if it can determine
+that it is being redrawn at the time.  This is probably not the best way
+to do it, though.  For one thing, this might somehow leave the use or
+def bbox wrong (though I can't seem to make it break).  Need to think
+more about when and how label text should be decached.  -- rgr,
+8-Apr-02.]
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun Apr 28 21:07:56 EDT 2002
+<!-- hhmts end -->
+</body> </html>

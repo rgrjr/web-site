@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: Security alerts</title>
+</head>
+
+<body bgcolor=white>
+<h2>Security alerts</h2>
+
+<p><a href="/">Home</a> : <a href="/linux/">Linux</a> : <a
+href="/linux/security/">Security</a> : Alerts
+<hr>
+
+<p>Every now and then, when I learn of some severe security problem that
+impacts a large number of computer users, I decide to send email to
+alert my friends and acquaintances.  On a somewhat more frequent basis,
+I send alerts concerning server security problems to a group of fellow
+Linux users.  I have started collecting these online, for the record,
+and for easy reference.
+
+<p>None of these are original discoveries, but are summaries of security
+advisories posted elsewhere, usually on bugtraq.  The alerts in the
+first batch are of general interest, and are aimed at the non-expert.
+Those in the second batch are focused toward Linux users who run
+servers, but are usually also of interest to Unix sysadmins generally.
+
+<h3>Alerts of interest to people running clients</h3>
+
+This means you!
+
+<p>Note that most of these also affect Windows users; they are filed
+under <tt>"/linux/security/"</tt> for historical reasons.
+
+<dl>
+  <dt> <a href="msie-ssl-flash.text"><b>"Some excellent reasons to ditch
+       Internet Explorer, Flash"</b></a> (14 Aug 2002)
+  <dd> Omnibus alert that discusses (1) a severe SSL cert-checking
+       vulnerability in MSIE and Konqueror (sometime referred to as
+       "certificate chain spoofing"), (2) the random unpatched IE
+       vulnerabilities listed at <a
+       href="http://www.pivx.com/larholm/unpatched/">
+       <tt>http://www.pivx.com/larholm/unpatched/</tt></a>, (3) an
+       exploitable Shockwave Flash buffer overrun, and (4) the new
+       licensing terms for Windows Update and Automatic Update that one
+       must accept to get Windows 2000 SP3.  On 2&nbsp;September, it was
+       revealed that Outlook is also affected.
+  <dt> <a href="msie-download-1.text"><b>"MSIE download dialog may lie
+       about file type</b></a> (26 Nov 2001)
+  <dt> <a href="msie-download-1.text"><b>"Followup to: MSIE download
+       dialog may lie about file type</b></a> (16 Dec 2001)
+  <dd> Excerpts two advisories about MSIE problems that allow Web sites
+       to run arbitrary programs on a user's computer with inadequate or
+       no warning.  Microsoft has said that they do not consider this a
+       problem.
+  <dt> <a href="csrf.text"><b>"New HTML vuln: Cross-Site Request
+       Forgeries (CSRF)"</b></a> (16 Jun 2001)
+  <dd> [describe.  -- rgr, 14-Aug-02.]
+</dl>
+
+<h3>Alerts of interest to people running servers</h3>
+
+<dl>
+  <dt> <a href="ssh-trojan.text"><b>"Trojaned OpenSSH on OpenBSD
+       server"</b></a> (1 Aug 2002)
+  <dd> This is no longer relevant; somebody managed to slip a trojan
+       into the OpenSSH tarfile, but it was detected quickly.  I posted
+       this in case somebody downloaded a fresh copy to rebuild after
+       updating OpenSSL.
+  <dt> <a href="ssl-1.text"><b>"Multiple OpenSSL problems"</b></a> (30
+       Jul 2002)
+  <dd> Multiple remotely exploitable vulnerabilities in OpenSSL
+       pre-0.9.6d; used by OpenSSH, among others.
+  <dt> <a href="openssh-2.text"><b>"[Theo de Raadt: Upcoming
+       OpenSSH vulnerability]"</b></a> (26 Jun 2002)
+  <dt> <a href="openssh-2-followup.text"><b>"[Theo de Raadt: Upcoming
+       OpenSSH vulnerability]"</b></a> (followup; 26 Jun 2002)
+  <dd> Remotely exploitable vulnerabilities in OpenSSH pre-3.3.1.
+  <dt> <a href="code-red.text"><b>"'Code Red' worm"</b></a> (20 Jul
+       2001)
+  <dd> Informational message about the original "Code Red" worm, which
+       affects Microsoft IIS Web servers.  Note that "Code Red II,"
+       which came to light a few months later, is much more severe.  A
+       year after CRII, I <i>still</i> see hits from these worms in my
+       Web logs, indicating unpatched servers.
+  <dt> <a href="linux-kernel-cap.text"><b> "Serious Linux kernel flaw;
+       upgrade now!"</b></a> (5 Jul 2000)
+  <dd> Conceptual bug in Linux "capabilities" that makes <tt>setuid</tt>
+       programs readily exploitable.  (Affects all Linux users, but is a
+       local exploit, so requires shell access -- or an exploitable
+       server bug.)
+</dl>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Thu Sep  5 21:48:16 EDT 2002
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD Home Page</title>
+</head>
+
+<body bgcolor=white>
+<h2>ICanCAD Home Page</h2>
+
+<p><a href="/"><tt>Home</tt></a> : ICanCAD
+<hr>
+
+Welcome to the ICanCAD home page.
+
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> ICanCAD Home Page
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#faq">What is "ICanCAD"?</a>
+	 <li> <a href="#can-i-use">Can I use ICanCAD now?  What do I need?</a>
+	 <li> <a href="#plans">What is ICanCAD's future?</a>
+	 <li> <a href="#list">Does ICanCAD have a mailing list?</a>
+	 <li> <a href="#doc-links">Where is ICanCAD documented?</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name=faq>
+<h3>What is "ICanCAD"?</h3>
+
+ICanCAD is a CAD editor for analog and mixed-signal (analog and digital
+signals on the same chip) circuit design that is distributed under the
+terms of the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General
+Public License (GPL)</a>.  Version 0.2.0 (April 2002) has fairly
+complete schematic editing functionality (think of a "draw" program with
+wires), but no support as of yet for netlisting or EDIF I/O.
+
+<a name = can-i-use>
+<h3>Can I use ICanCAD now?  What do I need?</h3>
+
+<p>The short answer is "Yes," but it comes with some fairly major
+caveats:
+<ul>
+  <li> ICanCAD is prototype software; it has had only a few hours of
+       testing by actual design engineers.  It <i>will</i> break
+       (though, like most Lisp applications, you probably won't lose
+       much data, if any, when it does).
+  <li> Owing to copyright uncertainty, ICanCAD does not come with any
+       prebuilt primitive libraries (i.e. you have to draw your own
+       transistors and such).
+  <li> Only two file formats are supported, both of them completely
+       obscure.  EDIF output code is included, but it is only half
+       implemented -- and I haven't worked on it for a while, so the
+       half that is written probably has some bit rot.  Consequently,
+       you will need to do some Lisp programming in order to get more
+       than just PostScript out of it.  <br><b>BUT:</b>
+  <li> Development has been focused on <a
+       href="http://www.franz.com/">Allegro Common Lisp</a> using <a
+       href="http://ww.telent.net/cliki/CLIM">CLIM</a> as the GUI
+       toolkit, largely for historical reasons.  Unfortunately, there
+       does not yet exist a free CLIM that supports a large enough
+       subset for ICanCAD (though <a
+       href="http://www.mikemac.com/mikemac/McCLIM/">McCLIM</a> seems to
+       be getting close).  ICanCAD executables for Windows and Linux are
+       available, but if you want to play with the source code, you will
+       need to either acquire an Allegro development system, attempt to
+       port to LispWorks CLIM, or (shudder) to another GUI toolkit.
+</ul>
+
+<p>If that is not enough to scare you off, you can download the current
+version, including the latest source and documentation files, from the
+<a href="install.html"> Installation instructions</a> page, which also
+has more to say about required software.
+
+<a name = plans>
+<h3>What is ICanCAD's future?</h3>
+
+That's a good question.  The original development strategy was focused
+narrowly on using ICanCAD as an additional design editing station for a
+particular legacy CAD system, at least in its initial deployment.  It
+was intended that ICanCAD would subsequently evolve to provide
+stand-alone schematic entry and simulation of custom IC's, with
+export/import interfaces to other tools, but there is no longer a
+timetable for this.
+
+<p>The original short-term goal has been largely met, but at some cost;
+the resulting system requires unfree components (namely CLIM), and lacks
+features (namely simulation interfaces, and any means of design
+import/export) that would make it useful to anyone else.  As of 1 April
+2002, the constraints that made this strategy desirable have
+disappeared, but so has the funding.
+
+<p>As a result, ICanCAD now sits at a crossroads.  The logical next
+thing to do would be to port it to a free GUI toolkit so that people
+could pick it up at no cost.  This seems like the minimum requirement to
+make it self-sustaining as an Open Source project, but it's unclear when
+or how such a port will happen.  (I've been looking at two possible Lisp
+Open Source GUI toolkits, <a
+href="http://sourceforge.org/projects/clg/"><tt>clg</tt></a> and <a
+href="http://www.mikemac.com/mikemac/McCLIM/"><tt>McCLIM</tt></a>, but
+it would be a big job even if either was "ready for prime time," as the
+saying goes.)
+
+<a name = list>
+<h3>Does ICanCAD have a mailing list?</h3>
+
+If you are interested in receiving ICanCAD progress reports and such,
+send an empty email to <tt>"icancad-subscribe <i>at</i>
+rgrjr.dyndns.org"</tt>; you will get a confirmation message by return
+mail, to which you must reply.  (This proves you have control of the
+email address, lest someone try to subscribe you without your
+permission.)  Use <tt>"icancad-unsubscribe <i>at</i>
+rgrjr.dyndns.org"</tt> to unsubscribe, and <tt>"icancad <i>at</i>
+rgrjr.dyndns.org"</tt> to post queries, comments, and/or bug reports to
+the list.  Mailing to <tt>"icancad-help <i>at</i> rgrjr.dyndns.org"</tt>
+will remind you of this, and also tell you how to request copies of old
+postings.  The <tt>icancad</tt> list is unmoderated, and the volume is
+currently, ah, low.
+
+<a name = doc-links>
+<h3>Where is ICanCAD documented?</h3>
+
+There is now an <a href="user.html"><b>ICanCAD User's Guide</b></a> page
+that links to all available user documentation pages.  Since ICanCAD is
+still "alpha-grade" software, it still needs lots of fleshing out; users
+unfamiliar with the way my mind works will probably need to read the
+code.
+
+<p>See also the <a href="internals.html"> <b>Internal
+Documentation</b></a> page, which serves as something of an introduction
+to the way my mind works.
+
+<p>ICanCAD now has a <a href="http://ww.telent.net/cliki/ICanCAD">CLiki
+page</a> devoted to it.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Fri Apr 26 22:10:58 EDT 2002
+<!-- hhmts end -->
+</body> </html>

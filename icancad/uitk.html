@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Thought on choice of UI toolkit</title>
+</head>
+
+<body bgcolor=white>
+<h2>Thought on choice of UI toolkit</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">ICanCAD</a> : UI
+Tools
+<hr>
+
+<p>It seems to me that there are strong parallels between ICanCAD parts and
+defs on the one hand, and CLIM output records on the other.  We could
+exploit this by designing the appropriate low-level ICanCAD support code
+so that it can be used later to support a CLIM clone as well.
+
+<p>
+<table>
+  <tr>
+    <th>Similarities</th>
+    <th>Differences</th>
+  </tr>
+  <tr>
+    <td valign=top> <b>Both are hierarchical</b>, in that output records
+	 are contained within other output records.  (See <a
+	 href="#note-1">Note 1</a> below.)
+    </td>
+    <td valign=top> Hierarchy in ICanCAD is shared, with named defs
+	 potentially appearing in more than one place in the hierarchy.
+	 (This suggests a possible CLIM extension, but it's probably not
+	 worth the effort of supporting multiple parents for an output
+	 record.)
+    </td>
+  </tr>
+  <tr>
+    <td valign=top> <b>Both use similar 2D geometrical concepts</b> such
+	 as relative placement through transforms, and bounding boxes.
+    </td>
+    <td valign=top> The stream orientation of CLIM introduces certain
+	 biases, such as top-to-bottom construction and the strong
+	 presumption of non-overlap.  A solution that is general enough
+	 for ICanCAD may not suit CLIM well.
+    </td>
+  </tr>
+  <tr>
+    <td valign=top> <b>Sophisticated incremental display update</b>
+	 boosts the performance of both ICanCAD (during editing tasks)
+	 and CLIM (during incremental update of AVV dialogs).
+    </td>
+    <td valign=top>
+	 Again, the stream orientation of CLIM may interfere.
+    </td>
+  </tr>
+</table>
+
+<p>See also <a href="/free-clim/">the Free CLIM page</a>.
+
+<h3>Notes</h3>
+
+<a name=note-1>
+<b>Note 1:</b> In fact, one could argue that ICanCAD hierarchy should be
+more like the CLIM hierarchy, in at least one respect.  Schematic uses
+could stand to be output-record style collections of one-off component
+records for labels and pins (and anything else in the def that is
+context dependent).  Pity this can't be per-window . . .
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Wed Jan 23 15:19:20 EST 2002
+<!-- hhmts end -->
+</body> </html>

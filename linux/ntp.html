@@ -1,0 +1,458 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob: Linux: Automatic system clock setting</title>
+</head>
+
+<body bgcolor=white>
+<h1>Automatic clock setting from an NTP time server</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Linux resources</a> :
+Automatic clock setting
+<hr>
+
+<p>It didn't take me long to get tired of resetting the system clock on
+my cheapo PC.  Not only did it drift pretty badly, needing resetting
+every three or four weeks in order to keep halfway decent time, but
+every time I booted (at least during Daylight Savings Time), the clock
+would be off by nearly an hour.  So, I learned how to run an <a
+href="http://www.ntp.org/">NTP time server</a> under Linux.  Since I
+figured I was not the only one with this problem, I then sat down and
+wrote this page.
+
+<h2>Table of contents</h2>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Automatic clock setting from an NTP time server
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#intro">About NTP and time service in general</a>
+	 <li> <a href="#ntp-unix">Installing NTP on Unix</a>
+	 <li> <a href="#other-client">Getting an NTP client for other operating systems</a>
+	 <li> <a href="#synch">Synchronizing the clock with NTP</a>
+	      <ol>
+		<li> <a href="#ntpdate">Setting the clock with <tt>ntpdate</tt></a>
+		     <ol>
+		       <li> <a href="#client-firewall">Opening up a firewall for an NTP client</a>
+		       <li> <a href="#ntpdate-boot">Using <tt>ntpdate</tt> at boot time</a>
+		       <li> <a href="#ntpdate-cron">Using <tt>ntpdate</tt> via <tt>cron</tt></a>
+		       <li> <a href="#ntpdate-dnld"><tt>ntpdate</tt> shortcut</a>
+		     </ol>
+		<li> <a href="#ntpd">Making continuous clock adjustments with <tt>ntpd</tt></a>
+		<li> <a href="#server">Running an NTP server</a>
+		     <ol>
+		       <li> Opening up a firewall for an NTP server
+		       <li> Random tricks
+		     </ol>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name = intro>
+<h2>About NTP and time service in general</h2>
+
+NTP stands for "Network Time Protocol," and is a UDP-based protocol for
+synchronizing system clocks over the Internet.  With sufficient care
+(and the right hardware), it is possible to synchronize the machines on
+a LAN within tens of microseconds of Universal Time Coordinated (UTC),
+the official time kept by standards agencies using atomic clocks.  (For
+the truly hard core, version 3 of the NTP protocol itself is described
+in <a href="ftp://ftp.isi.edu/in-notes/rfc1305.pdf">RFC1305</a>.)
+
+<p>With the rather minimal effort I have expended, it is possible to
+keep the system clock on my very basic AMD K6 within a second of UTC
+(worst case), which is far more accuracy than I'll ever need for any
+practical reason.  On the other hand, it makes damn sure I'll never ever
+have to reset the stupid clock by hand.  Throughout this document, I
+assume that you have similar interests and accuracy requirements.  If
+you require greater accuracy, e.g. on the order of milliseconds, or if
+you wish to synchronize a subnet of machines, then you'll probably need
+to study the <a
+href="http://www.eecis.udel.edu/~mills/ntp/html/notes.html">
+configuration notes</a> in some detail.
+
+<p>Systems with the most accurate time have at least one interface to a
+radio clock that receives timebase signals from a transmitter operated
+by one of the aforementioned agencies.  These systems are called
+"stratum 1," and any computer that synchronizes itself to one or more
+stratum 1 servers is said to operate at stratum 2, and so on for stratum
+3 and higher.  Since NTP is a very lightweight protocol, a server at any
+level can easily support thousands of simultaneous clients (the "fanout"
+is high), so it is rarely necessary to go higher than stratum 4 or 5.
+Stratum 1 servers are not usually available for service to the casual
+home computer user, but there are a number of stratum 2 and 3 servers
+that are open to the public.  I have set my computer up to provide
+stratum 3 service to anyone that requests it.
+
+<a name = ntp-unix>
+<h2>Installing NTP on Unix</h2>
+
+As far as I know, the only way to install all of NTP on a Unix system is
+by downloading the tarball and compiling it yourself, but fortunately
+this is not hard.  (Also, <a href="#ntpdate-dnld">see below</a> for an
+alternative.)  Get the latest version from the download area on the <a
+href="http://www.ntp.org/">Time Server</a> site at <a
+href="http://www.ntp.org/"> <tt>http://www.ntp.org/</tt></a>.  As of
+April 2003, the latest production version was 4.1.1, dated 2002/02/26.
+
+<p>Installation on Linux is straightforward; it's simply a matter of
+doing
+<pre>
+    ./configure
+    make
+    make install
+</pre>
+once you've unpacked the tarball and changed to that directory.  This
+installs the following binaries into the <tt>/usr/local/bin</tt>
+directory.
+<pre>
+    -rwxr-xr-x   1 root    676441 Nov 16 21:59 <a href="http://www.eecis.udel.edu/~mills/ntp/html/htpd.html">ntpd</a>
+    -rwxr-xr-x   1 root    156227 Nov 16 21:59 <a href="http://www.eecis.udel.edu/~mills/ntp/html/ntpdate.html">ntpdate</a>
+    -rwxr-xr-x   1 root    233564 Nov 16 21:59 <a href="http://www.eecis.udel.edu/~mills/ntp/html/ntpdc.html">ntpdc</a>
+    -rwxr-xr-x   1 root    224636 Nov 16 21:59 <a href="http://www.eecis.udel.edu/~mills/ntp/html/ntpq.html">ntpq</a>
+    -rwxr-xr-x   1 root     55136 Nov 16 21:59 <a href="http://www.eecis.udel.edu/~mills/ntp/html/ntptime.html">ntptime</a>
+    -rwxr-xr-x   1 root    164833 Nov 16 21:59 ntptimeset
+    -rwxr-xr-x   1 root    115298 Nov 16 21:59 <a href="http://www.eecis.udel.edu/~mills/ntp/html/ntptrace.html">ntptrace</a>
+    -rwxr-xr-x   1 root     26939 Nov 16 21:59 <a href="http://www.eecis.udel.edu/~mills/ntp/html/tickadj.html">tickadj</a>
+</pre>
+The links will take you to the HTML equivalent of <tt>man</tt> pages for
+each program; these are also included on the tarball.
+
+<a name = other-client>
+<h2>Getting an NTP client for other operating systems</h2>
+
+<ul>
+  <li> NTP 4.0 claims to run on Windows NT, but I have no experience in
+       that regard.
+  <li> For other flavors of Windows, the <a
+       href="http://www.ntp.org/database/">"database"
+       subdirectory</a> at the UDEL site has something called <a
+       href="http://www.ntp.org/database/ntpdate.exe">
+       <tt>ntpdate.exe</tt></a>, which ought to be a Windows executable,
+       though I can find no description of it.
+
+       <a name = mac-date-and-time>
+  <li> If you are lucky enough to have a Macintosh running MacOS 8.5 or
+       later, then you already have a built-in NTP client.  Just go to
+       the "Date &amp; Time" control panel, and enable it.  They already
+       have the addresses of three Apple servers built in.
+       Unfortunately, it only allows you to specify one server.  And it
+       seems to require numeric IP addresses, which makes it difficult
+       to use servers such as mine that get their addresses reassigned
+       periodically.
+  <li> For older Macs, there is an NTP client available from <a
+       href="http://www.its.caltech.edu/~dundas/ntp/"> John Dundas</a>,
+       but I have no personal knowledge of that one, either.  (It may be
+       the same as the <a
+       href="http://www.ntp.org/database/macntp.sit.hqx">
+       <tt>macntp.sit.hqx</tt></a> at the <a
+       href="http://www.ntp.org/database/">"database"
+       subdirectory of the UDEL site</a>.)
+  <li> Other clients are mentioned on a <a
+       href="http://www.greyware.com/software/domaintime/Instructions/client/otherclients.asp">"Clients
+       for other platforms"</a> page written by a software vendor that
+       sells a commercial NTP server for NT.  (Which I suppose goes to
+       show that you can always find a way to make an NT solution more
+       expensive.)
+  <li> There appear to be other clients out there; do a search for <a
+       href="http://www.google.com/search?q=ntp+macintosh+client">"macintosh
+       ntp client"</a> or <a
+       href="http://www.google.com/search?q=ntp+windows+client">"windows
+       ntp client"</a> on the Web.
+</ul>
+In any case, <i>caveat emptor</i> (if that can be said to apply to
+downloaders of free software).
+
+<a name = synch>
+<h2>Synchronizing the clock with NTP</h2>
+
+There are two approaches:
+<ol>
+  <li> <a href="#ntpdate">The simplest way</a> is to reset the clock
+       periodically from a set of external servers.
+  <li> <a href="#ntpd">The most accurate way</a> is to run a daemon
+       process that adjusts the clock continuously, querying servers
+       periodically to stay on track.
+</ol>
+Both strategies require identifying a set of NTP servers that are
+willing to provide time service.  Using more than one server is
+desirable for the sake of redundancy, in case of host downtime or
+network outages.  (Using more than two improves accuracy -- the more the
+better, up to a point -- but two servers are quite adequate for
+one-second accuracy.)  You are welcome to use <a href="/">
+<tt>rgrjr.dyndns.org</tt></a> as one server, and you might want to pick
+another stratum 2 or 3 machine from the <a
+href="http://www.eecis.udel.edu/~mills/ntp/servers.html"> Public NTP Time
+Servers page
+(<tt>http://www.eecis.udel.edu/~mills/ntp/servers.html</tt>)</a>.  Be
+sure to read the ground rules first before picking a server, and notify
+the contact person if requested.  (My colleagues at <a
+href="http://bmerc-www.bu.edu/">BMERC</a> might want to use the two
+BMERC time servers, but I won't name them here, as they are not
+available for general public use; ask Esther for details.)  And if you
+do use <a href="/">my machine</a>, please <a
+href="mailto:rogers@rgrjr.dyndns.org">send me email</a> to let me know.
+
+<a name = use-dns>
+<p>Note that it is best to refer to time servers by domain name
+(e.g. <tt>rgrjr.dyndns.org</tt>), rather than IP address
+(e.g. <tt>192.168.3.5</tt>), since IP addresses are often reassigned.  A
+large site may even use an alias (<tt>CNAME</tt> record) such as
+<tt>"time.bu.edu"</tt> to point to a designated time server host; the
+server can then be moved to a different host with minimal disruption
+simply by reassigning the alias.  Other hosts, such as mine, have
+dynamically-assigned IP addresses that may change on short notice.
+(That is why I use the free <a href="http://www.dyndns.org">
+<tt>dyndns.org</tt></a> service to give myself a portable name.)
+
+<p>For Mac clients in particular, since you can't enter DNS hostnames
+into the <a href="#mac-date-and-time"> "Date &amp; Time"</a> control
+panel on newer Macs, you can't use hosts with dynamically-assigned
+addresses.
+
+<a name = ntpdate>
+<h3>Setting the clock with <tt>ntpdate</tt></h3>
+
+<p>[These instructions are for Linux; if someone wants to contribute
+instructions for another operating system, please feel free.]
+
+<p>If you have decided to set the clock periodically, then there are two
+places you need to do this: In the startup scripts, so that the clock
+gets started right when you boot up, and in a <tt>cron</tt> job, so that
+it stays right if you keep the machine up for more than a few days.  You
+can also run it from the command line (as <tt>root</tt>) to set the
+clock immediately.
+
+<p>In both places, the command you need is the same:
+<pre>
+    <a href="http://www.eecis.udel.edu/~mills/ntp/html/ntpdate.html">ntpdate</a> server1 [server2 ...]
+</pre>
+This simply tells <tt>ntpdate</tt> to set the system clock using time
+information from the various servers <a href="#use-dns">named</a> on the
+command line.  Needless to say, you need to be logged in as
+<tt>root</tt> to actually set the clock, though for testing purposes you
+can use the <tt>-q</tt> option to <tt>ntpdate</tt> to query the
+server(s) as an ordinary user without attempting to set the time.
+
+<a name = client-firewall>
+<h4>Opening up a firewall for an NTP client</h4>
+
+<p>[May not belong quite here.  -- rgr, 24-Nov-00.]
+
+<p>If your machine is behind a firewall, you need to be sure that
+packets to and from remote NTP servers can get through.  When
+<tt>ntpdate</tt> queries a server, it sends a series of UDP packets (the
+default is four), each of which is addressed to UDP port 123 on the
+remote machine and bears a quasi-random source port, call it <i>X</i>,
+as the return address on the local machine.  Responses are returned with
+a destination port of <i>X</i> on the local machine and a source port of
+123 on the remote machine.  In order for the query to succeed, both
+packets must be able to traverse the firewall.  If there is outbound
+package filtering, it simply needs to let out all UDP packets destined
+for port 123 on any machine.  I don't use outbound filtering (except to
+block X11 connections).
+
+<p>Inbound filtering is trickier.  If you let through any UDP packet
+with a source port of 123, then a cracker could potentially abuse this
+by sending UDP packets with a source port of 123.  There are two ways to
+deal with this:
+<ol>
+  <li> <b>Restrict incoming IP addresses to just those servers of
+       interest.</b>  This certainly narrows the opportunity for abuse
+       considerably, but is inconvenient to implement if server
+       addresses might change arbitrarily.  And it still allows
+       unrestricted access to your UDP ports for users on those
+       machines.
+
+       <p>
+  <li> <b>Restrict the <i>destination</i> to a non-priviledged port, and
+       use the <tt>"-u"</tt> option to <tt>ntpdate</tt> to tell it to
+       use only non-priviledged source ports</b> when it sends out
+       queries.  By long-standing Unix convention, priviledged ports are
+       those below 1024, so this means refusing UDP packets addressed to
+       a port below 1024 even if the source port is 123.  But this
+       notion of "priviledge" is only a convention and is somewhat
+       meaningless for single-user machines, except that it does mean
+       that security-critical services such as file service (NFS) and
+       remote configuration (BOOTP, SNMP) tend to be implemented on the
+       low-numbered ports, especially in the Unix world.
+</ol>
+
+<p>Either way, I believe this is not a serious threat.  Most threats to
+computer security come in through the TCP ports -- it's hard to craft a
+buffer overflow using a UDP packet, after all.  (Besides, I receive
+daily probes from crackers on TCP ports, but not a single UDP probe in
+the last four months.  Unless I'm not logging them properly . . . )
+However, I still think the issue is worth paying attention to, since if
+a UDP-based vulnerability is discovered, it is certain that many
+crackers will learn about it before I do.
+
+<p>In order to implement the second option, I have the following line in
+my <tt>firewall</tt> setup script:
+<pre>
+    ipchains -A ext-in -p UDP -s 0.0.0.0/0 ntp -d `hostname -i` 1024: -j ACCEPT
+</pre>
+This is just an example; it will not work as described above without the
+rest of the setup script as well.  And if you choose this route, you
+will then need to be careful what services you make available on the
+high ports.  Despite the drawback, I prefer this option.
+
+<a name = ntpdate-boot>
+<h4>Using <tt>ntpdate</tt> at boot time</h4>
+
+When booting Red Hat Linux (at least version 6.0), the system clock is
+initialized from the hardware clock by the <tt>/etc/rc.d/rc.sysinit</tt>
+script.  Unfortunately, when this runs, the network has not yet been
+fully initialized, so it is not possible to query servers (I think).
+Instead, it is better to run <tt>ntpdate</tt> from the
+<tt>/etc/rc.d/rc.local</tt> script, which is run as the very last thing
+when booting up (in run levels 2, 3, and 5, which is appropriate).
+Setting the system clock twice like this may leave it off by a bit
+during boot, but the amount by which it is off can be limited for the
+next boot by resetting the hardware clock after initializing the system
+clock from the NTP servers.  You can do all of this by adding the
+following two lines to the end of your <tt>/etc/rc.d/rc.local</tt>
+script (after replacing the server names):
+<pre>
+    ntpdate -b server1 [server2 ...]
+    hwclock --systohc
+</pre>
+The next time you boot, the hardware clock will only be off by the
+amount of drift between boots.  (You should first check to see that you
+have <tt>hwclock</tt> on your system.)
+
+<p>The <tt>"-b"</tt> option forces the system clock to be set in one
+jump, rather than attempting to slew it gradually, and is recommended by
+the <a href="http://www.eecis.udel.edu/~mills/ntp/html/ntpdate.html">
+<tt>ntpdate</tt> documentation page</a> when booting.
+
+<p>Unfortunately, the system boot scripts are very vendor-dependent, so
+though this recipe should work for RH 6.0 with SysVinit 2.78 (and
+therefore probably 6.1, 6.2, and 7.0 as well), it may not work for your
+configuration.  If there is an <tt>/etc/rc.d/rc.local</tt> script, it
+probably works the same way; otherwise, you will need to figure out
+something different for your flavor of Linux/*BSD/etc.
+
+<p><b>[Further disclaimer:</b> Since I need a different setup in order
+to run a server, I haven't ever actually tried this startup scheme
+myself.  If you find a bug in this "recipe," please let me know.  --
+rgr, 24-Nov-00.]
+
+<a name = ntpdate-cron>
+<h4>Using <tt>ntpdate</tt> via <tt>cron</tt></h4>
+
+<tt>"cron"</tt> is the name of the Unix facility for running periodic
+jobs.  A priviledged daemon (also called <tt>"cron"</tt>) is started at
+boot time, and looks in "<tt>crontab</tt> files" for instructions.
+These files 
+
+<p>As <tt>root</tt>, do
+<pre>
+    crontab -u root -e
+</pre>
+This will fire up an editor with a copy of <tt>root</tt>'s existing
+<tt>crontab</tt> file; you must then add a line for <tt>ntpdate</tt>
+that describes when and how to run it.  For example, to run
+<tt>ntpdate</tt> daily at 1:23 AM (local time), add the following lines
+(after replacing the server names):
+<pre>
+    # Daily time update at 1:23AM
+    23 1 * * * ntpdate -s server1 [server2 ...]
+</pre>
+The <tt>"*"</tt>'s in the day-of-month, month, and day-of-week fields
+indicate that those time periods should not be consulted when setting
+the time.  The <tt>"-s"</tt> option tells <tt>ntpdate</tt> to use the
+system logging facilities for messages instead of the standard output,
+and is suggested by the <a
+href="http://www.eecis.udel.edu/~mills/ntp/html/ntpdate.html">
+<tt>ntpdate</tt> documentation page</a> when running <tt>ntpdate</tt> as
+a <tt>cron</tt> job.  (Otherwise, the <tt>cron</tt> daemon will send you
+the output in what would become a tedious daily email message.)
+
+<p><b>Hint:</b> For best results, you should pick a random time that no
+one else is likely to have chosen.  If everybody chose 1:23AM, then once
+all clients were synchronized, the servers would suffer a flood of NTP
+packets every day at that time, and accuracy would suffer.
+
+<p>Don't forget to save the edited <tt>crontab</tt> file before exiting
+the editor.  The next morning, you should examine the log file (probably
+<tt>/var/log/messages</tt>) to ensure that <tt>ntpdate</tt> ran
+successfully.
+
+<p>For more information, see the <tt>crontab(1)</tt> <tt>man</tt> page,
+and for instructions on how to select a different editor.  See the
+<tt>crontab(8)</tt> page for more information on the <tt>crontab</tt>
+file format.
+
+<a name = ntpdate-dnld>
+<h4><tt>ntpdate</tt> shortcut</h4>
+
+If you just need the <tt>ntpdate</tt> binary for a Linux system (i386,
+compiled with egcs-2.91.66 on Red Hat 6.0 with glibc 2.1, should work on
+all glibc 2.1/2.2 systems), you can download it from here (without
+warranty; it works for me, but I can't guarantee it will work for anyone
+else).
+<pre>
+    <a href="ntpdate">-rwxr-xr-x   1 rogers  156227 Nov 16 21:59 ntpdate</a>
+</pre>
+The MD5 checksum for this binary is as follows:
+<pre>
+    5183c36a473bdca10b8846dd074e8988  ntpdate
+</pre>
+
+<a name = ntpd>
+<h3>Making continuous clock adjustments with <tt>ntpd</tt></h3>
+
+Even if you never offer the service to anyone else, running
+<tt>ntpd</tt> will make your clock even more accurate, compared to
+calling <tt>ntpdate</tt> as a <tt>cron</tt> job.  That is because
+<tt>ntpd</tt> effectively adjusts the clock continuously, as opposed to
+just at the <tt>cron</tt> intervals.  And <tt>ntpd</tt> adjustments are
+more stable (in the control systems theory sense) because it has control
+over the adjustment intervals and can also collect a clock drift history
+to use in deciding when and how much to adjust.
+
+<p>[With all that said, I have to confess that I can't yet write this
+section; my server is not completely set up yet.  The server itself is
+usable, but it doesn't restart from the system boot scripts, etc.  On
+the other hand, it is unlikely you'll ever need such precision from your
+system clock.  And if you do, you'll probably need to read the <a
+href="http://www.ntp.org/">Network Time Protocol (NTP) project site</a>
+in detail anyway.  -- rgr, 19-Nov-00.]
+
+<p>[Note: The default configuration installs an <tt>ntpd</tt> that is
+660K in size, rather large for a high-priority daemon.  It is probably
+possible to trim this considerably by flushing all support for clock
+devices, but I haven't investigated this.  -- rgr, 19-Nov-00.]
+
+<a name = server>
+<h3>Running an NTP server</h3>
+
+[This section is not finished (and may not be "finished" for a while).
+For now, I'm using it to keep notes.  -- rgr, 24-Nov-00.]
+
+<h4>Opening up a firewall for an NTP server</h4>
+
+[tbd.  -- rgr, 24-Nov-00.]
+
+<h4>Random tricks</h4>
+
+<dl>
+  <dt> Manual reset:
+  <dd> To reset the time manually from the NTP servers mentioned in the
+       <tt>/etc/ntp.conf</tt> file:
+       <pre>
+       ntpdate `perl -ane 'print "$F[1] " if $F[0] eq "server";' /etc/ntp.conf`
+       </pre>
+       This only works if <tt>ntpd</tt> isn't running.
+</dl>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun Apr 27 21:53:06 EDT 2003
+<!-- hhmts end -->
+</body> </html>

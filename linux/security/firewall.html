@@ -1,0 +1,341 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Linux firewall script</title>
+</head>
+
+<body bgcolor=white>
+<h1>An <tt>ipchains</tt> firewall script</h1>
+
+<p><a href="/">Home</a> : <a href="/linux/">Linux</a> : <a
+href="">Security</a> : <tt>ipchains</tt> firewall script
+<hr>
+
+<p>An old security maxim states that it doesn't pay to be too
+forthcoming about your configuration, lest some cracker find a
+vulnerability.  While I generally consider this a good idea, I am making
+an exception here by publishing my firewall setup scripts.  This is
+because I don't want my friends to get zapped by crackers during their
+initial explorations of Linux and networking.  Don't believe this is
+likely?  Read on.
+
+<h2>Overview</h2>
+
+<p>The <tt>firewall</tt> script assumes that there there are two
+interfaces that need to be configured:
+<ul>
+  <li> The external interface, named <tt>eth0</tt> by default, connects
+       to the outside world via cable modem and has a DHCP-assigned IP
+       address and set of DNS servers.
+
+       <p>
+  <li> The internal interface, named <tt>eth1</tt> by default, connects
+       to an internal network (namely, Jan's Macintosh) for which the IP
+       addresses are fixed private numbers that cannot be used for the
+       external Internet.
+</ul>
+So, there are three basic functions that need to be put in place by this
+script:
+
+<ol>
+  <li> Connections coming from the outside world must be restricted
+       ("firewalling").  This involves denying most connection requests
+       from random hosts, without restricting outgoing traffic (except
+       for X11 connections, which should never transit public networks
+       without some sort of secure tunneling).
+
+       <p>
+  <li> All traffic on the internal network must be permitted.  My Linux
+       box is a mail hub and file server for the Mac (see the <a
+       href="http://www.thehamptons.com/anders/netatalk/">Linux
+       <tt>Netatalk-HOWTO</tt> page</a>).  Strictly, this does not
+       require permitting all traffic, but the policy is to trust the
+       internal network completely, so if we're running a service, the
+       internal network is allowed to use it.
+
+       <p>
+  <li> Connections attempts from the internal network to the outside
+       world must be handled on behalf of the internal machine ("IP
+       masquerading").  This is (a) necessary, because internal machines
+       don't have public IP addresses, and (b) desirable, because it
+       makes internal machines completely inacessible to crackers
+       (unless and until they manage to crack my machine and/or firewall
+       first).
+</ol>
+
+<p>I wrote this script with the <a
+href="http://www.linuxdoc.org/HOWTO/IPCHAINS-HOWTO.html">
+IPCHAINS-HOWTO</a> in one hand (the <tt>howto</tt> RPM on Red Hat
+distributions installs this into <tt>/usr/doc/HOWTO/IPCHAINS-HOWTO</tt>
+if you want a local copy) and the <tt>ipchains</tt> man page in the
+other (virtually speaking), stealing idioms from both places.  Much of
+the magic involved will become much clearer if you read these,
+particularly the overview information.
+
+<p>Note that this pertains solely to the 2.2.x series of kernels.  2.0.x
+kernels use something called <tt>ipfwadm</tt>, and the new 2.4.x kernels
+use something else again -- I haven't found out what, because I haven't
+had a chance to play with 2.4 yet.
+
+<p>It is very unlikely that you would need all of this, so you must edit
+the script to reflect your setup.
+
+<h3>Installation of the firewall script</h3>
+
+The scripts themselves are available from the following links:
+<ul>
+  <li> the <a href="firewall.text"> <tt>firewall</tt></a> script, and
+  <li> the <a href="paranoid.text"> <tt>paranoid</tt></a> script.
+</ul>
+
+<p>The installation instructions are for Red Hat 6.0; 6.1, 6.2, and 7.0
+should be very similar.  Other Linux distributions will vary; consulting
+<tt>"man&nbsp;init"</tt> will give you an idea of how much.  BSD
+variants are quite different, though conceptually more straightforward.
+But I don't know enough to include specific instructions for anything
+but Red Hat.
+
+<ol>
+  <li> <b>Copy the scripts.</b> As root, save or copy the <a
+       href="firewall.text"> <tt>firewall</tt></a> and <a
+       href="paranoid.text"> <tt>paranoid</tt></a> scripts into
+       <tt>/etc/rc.d/init.d/firewall</tt> and
+       <tt>/etc/rc.d/init.d/paranoid</tt>, respectively, and change
+       their permissions to 700 (or at least 744; non-super-users can't
+       run <tt>ipchains</tt> anyway).
+
+       <p>
+  <li> <b>Make your local edits.</b> In particular, make sure that
+
+       <p>
+       <ol>
+	 <li> the interface names are correct in <b>both</b> scripts;
+	 <li> the addresses assigned in the "Interface address
+	      definitions" section of <tt>firewall</tt> will work; and
+	 <li> connection requests for any services you wish to provide
+	      to the Internet are allowed through (search for "Enable
+	      this" in the <tt>firewall</tt> script).
+       </ol>
+
+       <p>Both scripts are set up to flush all existing
+       <tt>ipchains</tt> state, so you can edit a script and rerun it in
+       order to redo your setup.  <tt>firewall</tt> will give you a
+       "chain already exists" warning for the <tt>ext-in</tt> chain, but
+       you can ignore this.  So it's a good idea to run the script after
+       editing in order to debug it, and then make sure you can still
+       get basic services (ping, DNS, SMTP, HTTP) from the outside
+       world.
+
+       <p>
+  <li> <b>Get <tt>paranoid</tt> early in the boot process.</b> Add the
+       line
+       <pre>
+       /etc/rc.d/init.d/paranoid
+</pre>
+       to the end of <tt>/etc/rc.d/rc.modules</tt>, which should be
+       empty, or nearly so.  I like to put it here because
+       <tt>rc.modules</tt> is called by <tt>rc.sysinit</tt> fairly early
+       in the boot process.  Ideally, the firewall should be set up
+       before services are launched, but <tt>rc.modules</tt> runs even
+       before the interfaces are initialized (and <tt>ipchains</tt>
+       doesn't care whether there are any services currently behind the
+       ports mentioned).
+
+       <p>
+  <li> <b>Find out which run levels enable the network.</b> The
+       <tt>/etc/rc.d/init.d/network</tt> script initializes the Ethernet
+       interfaces, and conducts DHCP negotiation for interfaces that
+       require it, so we can enable the firewall anytime after
+       <tt>/etc/rc.d/init.d/network</tt> is run.  Therefore, you need to
+       find out which run levels enable the network.  Use the 'find'
+       command as follows:
+<pre><font size=-1>
+    [root@h0050da615e79 /root]# cd /etc/rc.d/
+    [root@h0050da615e79 rc.d]# find . -name '???network' -ls
+    280638    1 lrwxrwxrwx   1 root     root           17 Jul 24  1999 ./rc0.d/K90network -&gt; ../init.d/network
+    305198    1 lrwxrwxrwx   1 root     root           17 Jul 24  1999 ./rc1.d/K90network -&gt; ../init.d/network
+    311360    1 lrwxrwxrwx   1 root     root           17 Jul 24  1999 ./rc2.d/S10network -&gt; ../init.d/network
+    315470    1 lrwxrwxrwx   1 root     root           17 Jul 24  1999 ./rc3.d/S10network -&gt; ../init.d/network
+    323655    1 lrwxrwxrwx   1 root     root           17 Jul 24  1999 ./rc4.d/S10network -&gt; ../init.d/network
+    327769    1 lrwxrwxrwx   1 root     root           17 Jul 24  1999 ./rc5.d/S10network -&gt; ../init.d/network
+    331826    1 lrwxrwxrwx   1 root     root           17 Jul 24  1999 ./rc6.d/K90network -&gt; ../init.d/network
+    [root@h0050da615e79 rc.d]#
+</pre></font>
+       The output shows that run levels 0, 1, and 6 shut the network
+       down, and 2 through 5 enable it.  Therefore, you want to make
+       sure that the <tt>firewall</tt> script is run sometime
+       thereafter.
+
+       <p>
+  <li> <b>Add links to the <tt>firewall</tt> script from the appropriate
+       <tt>rc<i>#</i>.d</tt> directories</b> so that <tt>firewall</tt>
+       is run after <tt>network</tt>.  Linking <tt>S12firewall</tt> in
+       each of the directories for the network-enabled run levels to the
+       <tt>firewall</tt> script in <tt>/etc/rc.d/init.d/</tt> will
+       guarantee this:
+       <pre>
+    [root@h0050da615e79 rc.d]# for dir in rc2.d rc3.d rc4.d rc5.d; do
+    &gt; ln -s ../init.d/firewall $dir/S12firewall
+    &gt; done
+    [root@h0050da615e79 rc.d]# 
+       </pre>
+       The result should look something like this:
+<pre><font size=-1>
+    [root@h0050da615e79 rc.d]# find . -name '???firewall' -ls
+    311401    1 lrwxrwxrwx   1 root     root           18 Mar  5 00:16 ./rc2.d/S12firewall -&gt; ../init.d/firewall
+    315644    1 lrwxrwxrwx   1 root     root           18 Mar  5 00:16 ./rc3.d/S12firewall -&gt; ../init.d/firewall
+    323768    1 lrwxrwxrwx   1 root     root           18 Mar  5 00:16 ./rc4.d/S12firewall -&gt; ../init.d/firewall
+    327816    1 lrwxrwxrwx   1 root     root           18 Mar  5 00:16 ./rc5.d/S12firewall -&gt; ../init.d/firewall
+    [root@h0050da615e79 rc.d]# 
+</pre></font>
+       You don't need any <tt>K<i>??</i>firewall</tt> links in the other
+       run levels, because it's not necessary to bring the firewall
+       down; bringing the network interfaces down does that just as
+       effectively.
+
+       <p>
+  <li> <b>Enable IP forwarding.</b> If you want to do forwarding and/or
+       masquerading, you need to enable IP forwarding via the following
+       magic:
+<pre>
+       echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+       </pre>
+       You can either put this in <tt>rc.modules</tt>, or edit
+       <tt>/etc/sysconfig/network</tt> so that
+       <tt>/etc/rc.d/init.d/network</tt> does this for you.  (linuxconf
+       gives you a GUI for this, but I can't seem to find it now . . .)
+
+       <p>
+  <li> <b>Reboot your system to test it out.</b> If you encounter
+       serious problems, you can always put <tt>"exit&nbsp;0"</tt> at
+       the start of the <tt>firewall</tt> script, comment out the call
+       that invokes the <tt>paranoid</tt> script, and reboot; that
+       should bring you back to the "native" state.  (But you won't need
+       to use this advice, because you carefully tested things at step
+       2, didn't you?)
+</ol>
+
+<h3>Auditing the logs</h3>
+
+<p>Whenever I tell <tt>ipchains</tt> to deny or reject a packet, I use
+the "-l" option, so <tt>ipchains</tt> shows the event in the logs; it
+will go into <tt>/var/log/message</tt> unless you have changed
+<tt>/etc/syslog.conf</tt>.  (Denial is friendlier than rejection, as the
+remote host gets a polite refusal instead of being ignored.)  It is
+extremely instructive to take a look at these logs from time to time.
+Here's a sample of today's action (with lines wrapped for readability):
+<pre>
+    Feb  2 16:24:18 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:1023 24.128.200.19:513 L=48 S=0x00 I=52829 F=0x4000 T=51 
+    Feb  2 16:24:24 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:1023 24.128.200.19:513 L=48 S=0x00 I=53643 F=0x4000 T=51 
+    Feb  2 16:24:49 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:1023 24.128.200.19:513 L=48 S=0x00 I=56416 F=0x4000 T=51 
+    Feb  2 16:28:38 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:4266 24.128.200.19:23 L=48 S=0x10 I=34483 F=0x4000 T=51 
+    Feb  2 16:28:45 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:4266 24.128.200.19:23 L=48 S=0x10 I=36531 F=0x4000 T=51 
+    Feb  2 16:29:09 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:4266 24.128.200.19:23 L=48 S=0x10 I=39710 F=0x4000 T=51 
+    Feb  2 16:59:19 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:4340 24.128.200.19:21 L=48 S=0x00 I=62591 F=0x4000 T=51 
+    Feb  2 16:59:25 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:4340 24.128.200.19:21 L=48 S=0x00 I=65436 F=0x4000 T=51 
+    Feb  2 16:59:50 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:4340 24.128.200.19:21 L=48 S=0x00 I=6097 F=0x4000 T=51 
+    Feb  2 17:08:16 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:4347 24.128.200.19:80 L=48 S=0x10 I=11648 F=0x4000 T=51 
+    Feb  2 17:08:46 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        128.197.54.63:4347 24.128.200.19:80 L=48 S=0x10 I=12622 F=0x4000 T=51 
+    Feb  2 18:07:12 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        208.40.16.81:2853 24.128.200.19:1080 L=48 S=0x00 I=28352 F=0x4000 T=116 
+    Feb  2 18:07:15 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        208.40.16.81:2853 24.128.200.19:1080 L=48 S=0x00 I=58304 F=0x4000 T=116 
+    Feb  2 18:46:06 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        24.147.186.139:2246 24.128.200.19:27374 L=48 S=0x00 I=22582 F=0x4000 T=127 
+    Feb  2 21:08:21 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        209.235.34.130:16046 24.128.200.19:11011 L=44 S=0x00 I=45110 F=0x0000 T=51 
+    Feb  2 21:08:30 h0050da615e79 kernel: Packet log: ext-in DENY eth0 PROTO=6 \
+        209.235.34.130:16046 24.128.200.19:11011 L=44 S=0x00 I=45383 F=0x0000 T=51 
+</pre>
+
+<p>128.197.54.63 is <tt>huxley.bu.edu</tt>, a computer I use at <a
+href="http://bmerc-www.bu.edu/">work</a>; the connection requests from
+<tt>huxley</tt> from 16:24 through 17:08 are me trying to see if I can
+get through.  (Some of them, e.g. HTTP on port 80, are ports I hadn't
+yet opened at the time but have since put into service.)
+
+<p>The last five lines are a little more troublesome.  Let's look in
+more detail.
+
+<p>"PROTO=6" means TCP, so port 1080 is the "socks proxy server"
+(according to the list of service names in <tt>/etc/services</tt>; see
+also <a href="ftp://ftp.isi.edu/in-notes/iana/assignments/port-numbers">
+the list of assigned ports</a>).  This is a Windows service; I'm not
+familiar with it, but I understand it's a huge security hole for users
+who are unwary enough to leave it open to the Internet.  In any case,
+somebody was hoping to connect to an unguarded socket on my machine,
+probably looking for a vulnerable port on a random machine.  Here's what
+<tt>traceroute</tt> has to say about 208.40.16.81:
+<pre><font size=-1>
+    rgr&gt; /usr/sbin/traceroute 208.40.16.81
+    traceroute to 208.40.16.81 (208.40.16.81), 30 hops max, 40 byte packets
+     1  wbrtr01-wbswt02-vlan8 (24.128.200.1)  2.101 ms  2.031 ms  5.920 ms
+     2  wbgsr01-wbrtr01 (24.128.190.25)  5.625 ms  2.036 ms  1.908 ms
+     3  cmbrt01-srp3.rr.com (24.218.189.172)  2.371 ms  4.612 ms  2.953 ms
+     4  bsgsr01-cambrt01.rr.com (24.128.191.57)  2.512 ms  2.681 ms  2.450 ms
+     5  nygsr01-bsgsr01.rr.com (24.218.188.22)  9.203 ms  9.283 ms  9.541 ms
+     6  pabrt02-nygsr01.rr.com (24.218.188.117)  96.014 ms  97.704 ms  95.908 ms
+     7  pacbell.sanjose.megsinet.net (198.32.128.70)  141.158 ms  145.481 ms  144.061 ms
+     8  pacbell.sanjose.megsinet.net (198.32.128.70)  134.850 ms  136.554 ms  140.272 ms
+     9  core1-ATM-FA4-0.focal-chi.corecomm.net (216.214.85.11)  214.212 ms  223.917 ms  210.119 ms
+    10  tnt17.focal-chi.corecomm.net (208.150.59.47)  213.021 ms  210.295 ms  208.495 ms
+    11  tnt17a-81.focal-chi.corecomm.net (208.40.16.81)  329.930 ms  319.221 ms  322.704 ms
+    rgr&gt; 
+</pre></font>
+Based on <a href="http://www.corecomm.net/">
+<tt>www.corecomm.net</tt></a>, this appears to be some random ISP
+subscriber (as is almost always the case).  So I would know who to take
+my case to if I needed to file a complaint.
+
+<p>The next one is a bit more worrysome.  According to
+<tt>/etc/services</tt>, port 27374 is the "Address Search Protocol".  I
+don't know what that means, but I've been hit on that port from five
+different IP addresses in the last month.  My (revised) guess is that
+the "Address Search Protocol" was designed as an internal service, and
+these guys were checking to see if I had left this open to the world, in
+which case they might be able to get some useful information (for
+cracking) out of my machine.  Two of them are on the West Coast
+(e.g. from <tt>sfba.home.com</tt>), one from an ISP in area code 661,
+and two, including this one, are my MediaOne "neighbors" -- they are
+only two hops away:
+<pre>
+    rgr&gt; /usr/sbin/traceroute 24.147.186.139
+    traceroute to 24.147.186.139 (24.147.186.139), 30 hops max, 40 byte packets
+     1  wbrtr01-wbswt02-vlan8 (24.128.200.1)  81.514 ms  8.101 ms  7.585 ms
+     2  h00e0290f3ce2 (24.147.186.139)  7.755 ms  8.030 ms  7.599 ms
+    rgr&gt; 
+</pre>
+Scary, eh?
+
+<p>And the last guy, 209.235.34.130, is using an off-the-map port,
+11011, but may be a little cannier.  I can't use <tt>traceroute</tt> to
+figure out where he's coming from, since somebody is filtering out the
+ICMP traffic that <tt>traceroute</tt> uses.  [Actually,
+<tt>traceroute</tt> seems to work now, and shows that 209.235.34.130
+inverse-maps to <tt>ns0.scr3am.com</tt>.  But "scr3am" sounds like a
+cracker handle for "scream," so we'd want to complain to the ISP, whom
+we can identify as Interliant of Purchase, New York (email to
+<tt>abuse@sagenetworks.com</tt>), by doing <tt>"whois
+209.235.34.130@whois.arin.net"</tt>.  -- rgr, 29-May-00.]
+
+<p>If that isn't enough to scare you into taking security seriously,
+then nothing will do it.  Short of an actual break-in, of course.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun Mar 25 10:41:35 EST 2001
+<!-- hhmts end -->
+</body> </html>

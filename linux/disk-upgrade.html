@@ -1,0 +1,923 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Linux Hard Disk Upgrade: An Experience</title>
+</head>
+
+<body bgcolor=white>
+<h1>Linux Hard Disk Upgrade: An Experience</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Linux resources</a> : Hard
+Disk Upgrade
+<hr>
+
+<p>The following notes recount my March 2001 experience with upgrading the
+hard drive on my two-year-old cheapo Linux box.  This became
+something of a major project, because it also involved repartitioning
+the disk and doing a memory upgrade while I was at it.  It also turned
+out to be somewhat harrowing, because, despite precautions, I screwed up
+badly enough so that the system wouldn't boot up.  Twice.
+
+<p>Nevertheless, it was well worth the trouble.  My system seems much
+faster because it pages much less, and seems to page faster when it
+needs to (though some of that is undoubtedly due to the simultaneous
+memory upgrade).  I also have tons more disk space on which to put
+stuff; before, I was unable to keep the source files for new packages
+online for very long.  And last but not least, my file space is more
+usefully divided for the way I do backups.
+
+<p>This document is divided roughly equally into three major sections.
+The <a href="#strategy">first section</a> gives an overview of what I
+intended to do, the <a href="#steps">second</a> consists of the detailed
+step-by-step instructions I wrote out for myself (in order to ensure
+that I didn't goof it up), and the <a href="#tales">final section</a>
+recounts the lessons I learned the hard way, and includes a postscript,
+of sorts.
+
+<h2>Table of contents</h2>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Linux Hard Disk Upgrade: An Experience
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#strategy">Upgrade strategy</a>
+	      <ol>
+		<li> <a href="#repartition">New partitions</a>
+	      </ol>
+	 <li> <a href="#steps">Customized upgrade procedure</a>
+	 <li> <a href="#tales">Cautionary tales</a>
+	      <ol>
+		<li> <a href="#oops1">Never do more than one thing at a time</a>
+		<li> <a href="#oops2">Count your cylinders carefully</a>
+		<li> <a href="#ps">When disk errors are not disk errors: a postscript</a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name = strategy>
+<h2>Upgrade strategy</h2>
+
+Not only did I need more space, I needed to split the space up so that
+it wasn't all in the same bucket.  Here is the original setup; this is
+the output of <tt>"fdisk&nbsp;-l"</tt>:
+<blockquote>
+<pre>
+Disk /dev/hda: 128 heads, 63 sectors, 787 cylinders
+Units = cylinders of 8064 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1   *         1       271   1092640+   b  Win95 FAT32
+/dev/hda2           272       787   2080512    5  Extended
+/dev/hda5           272       276     20128+  83  Linux
+/dev/hda6           277       770   1991776+  83  Linux
+/dev/hda7           771       787     68512+  82  Linux swap
+</pre>
+</blockquote>
+On this disk, <tt>/dev/hda5</tt> is <tt>/boot</tt>, and
+<tt>/dev/hda6</tt> is the root partition.
+Virtually all files lived together in
+the 2G root partition, which had several disadvantages:
+<ol>
+  <li> It makes it difficult to do small incremental backups.  If I
+       install a new software package (for instance, Allegro Common Lisp
+       version 6.0, which is 126MB), that will immediately appear on the
+       next incremental backup.  This is silly, because if the disk
+       dies, it would be just as easy to re-install as to restore from
+       backup.  For this reason, I have <tt>/usr/local</tt> on a large
+       partition of its own.
+  <li> Several times I have had to repair the root partition because it
+       wasn't unmounted cleanly.  (Usually this is my fault for
+       panicking too soon, and assuming the system is hung.)
+       <tt>e2fsck</tt> warns about "severe filesystem damage" if you run
+       it on a mounted partition, so keeping the root partition small
+       and stable makes this much less likely.
+</ol>
+
+<p>Another disadvantage of this setup is that the swap partition is
+<tt>/dev/hda7</tt>, at the very end of the drive.  As I understand it,
+this means that it is close to the spindle, where the disk surface moves
+relatively slowly past the heads.  This is the slowest part of the disk
+to read and write, not only because it takes longer for a sector to be
+read, but because there are fewer sectors per cylinder, so the space
+must be spread out over more cylinders, leading to more seeks.
+Accordingly, I wanted to move the swap partition as close to the start
+of the disk as I could.
+
+<a name = repartition>
+<h3>New partitions</h3>
+
+<p>Here's how I planned it:
+<blockquote>
+<pre>
+partition  size	blocks	what
+/dev/hdb1  1G		DOS
+/dev/hdb5  20M	  7929	/boot
+/dev/hdb6  300M		swap
+/dev/hdb7  1G	 62389	/
+/dev/hdb8  3G	195476	/home
+/dev/hdb9  5G	329336	/usr/local
+/dev/hdb10 2G	622439	/usr
+/dev/hdb11 2G	 17698	/var
+Total:	   14.32G
+</pre>
+</blockquote>
+Notes:
+<ul>
+  <li> The partition names are shown as <tt>/dev/hdb<i>i</i></tt>,
+       because that's where I thought the new drive would be when
+       installed using the CDROM cable (turns out I was wrong).
+  <li> The block counts are from the actual usage on the original disk,
+       and were computed by doing <tt>"du&nbsp;-s"</tt> recursively.
+  <li> Based on the block counts, the partition contents (the part of
+       the file structure shown in the "what" column) were chosen to
+       reflect common patterns of file usage (i.e. scratch stuff in
+       <tt>/var</tt>, important stuff in <tt>/home</tt>, various kinds
+       of code development in <tt>/usr/local</tt>, etc.).
+  <li> Given the partition contents, the sizes in the second column were
+       chosen to reflect probable future growth patterns.
+</ul>
+Notice that I'm only using half the disk . . .
+
+<p>As implemented (according to <tt>"fdisk&nbsp;-l"</tt>):
+<blockquote>
+<pre>
+Disk /dev/hda: 255 heads, 63 sectors, 3720 cylinders
+Units = cylinders of 16065 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1   *         1       261   2096451    6  FAT16
+/dev/hda2           262      2261  16065000    5  Extended
+/dev/hda5           262       264     24066   83  Linux
+/dev/hda6           265       525   2096451   83  Linux
+/dev/hda7           526       563    305203+  82  Linux swap
+/dev/hda8           564       694   1052226   83  Linux
+/dev/hda9           695      1086   3148708+  83  Linux
+/dev/hda10         1087      1739   5245191   83  Linux
+/dev/hda11         1740      2000   2096451   83  Linux
+/dev/hda12         2001      2261   2096451   83  Linux
+</pre>
+</blockquote>
+The first four partitions are special; they are physical partitions,
+whose location is specified on the MBR.  I left the first partition
+untouched, and the third and fourth are not used (this appears to be the
+convention).  <tt>/dev/hda2</tt> is a special "extended" partition that
+incorporates the rest of the disk (or the part that is used at any
+rate); the Linux partitions appear as logical partitions within it.
+<tt>/dev/hda6</tt> is not used; see <a href="#oops2">the second tale of
+woe</a> for how and why it was created.
+
+<p>[I have since given <tt>/dev/hda6</tt> an <tt>ext2</tt> file system,
+and mounted it as <tt>/scratch</tt>.  I use it for large things that
+don't need to be backed up, such as 250MB of <a
+href="howto.html#squid">Squid Cache</a> space, and as a holding area for
+backup files waiting to be <a href="howto.html#cd-r">cut to CD</a>.  --
+rgr, 7-Jul-02.]
+
+<p>Here is how <tt>df</tt> reports the state of the mounted filesystem
+partitions:
+<blockquote>
+<pre>
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/hda8              1018298     54919    910768   6% /
+/dev/hda5                23300      7924     14173  36% /boot
+/dev/hda12             2028098     30275   1893001   2% /var
+/dev/hda11             2028098    622426   1300850  32% /usr
+/dev/hda10             5065710    349576   4453875   7% /usr/local
+/dev/hda9              3043987    192556   2693996   7% /home
+</pre>
+</blockquote>
+
+<a name = steps>
+<h2>Customized upgrade procedure</h2>
+
+This procedure is heavily based on the Linux <a
+href="http://www.linuxdoc.org/HOWTO/mini/Hard-Disk-Upgrade/">
+Hard-Disk-Upgrade mini-HOWTO</a> (a text version of which will be in the
+<tt> /usr/doc/HOWTO/mini/Hard-Disk-Upgrade </tt> file on a Red Hat system
+if you have the "howto" RPM installed), plus information from other
+HOWTOs.  It is customized for my configuration (and was later corrected
+based on experience), and may or may not work for yours.  In any case,
+the experience of reading through and understanding the
+Hard-Disk-Upgrade mini-howto is probably more important than the actual
+list of steps themselves.  Your best option is probably to use this as
+an example for comparison purposes as you go through the step-writing
+process yourself.
+
+<ol>
+  <li> Do the standard end-of-month upgrade tasks.
+
+  <p>
+  <li> Logout and go to single-user mode (<tt>"init&nbsp;S"</tt>).
+
+  <p>
+  <li> Do the final pre-upgrade <a href="backup.html#strategy">system
+       backup</a>.
+
+  <p>
+  <li> Shutdown, power off (<tt>"shutdown&nbsp;-h&nbsp;now"</tt>).
+
+  <p>
+  <li> Install the new memory module.
+
+  <p>
+  <li> Install the new disk as slave (seems to be the default) using the
+       CDROM slot and cable.  It was easiest to take the CDROM out to do
+       this; then the new disk could just lie in the space thus vacated.
+       Cabling and jumpering turned out to be trivial to figure out;
+       both old and new drives were made by Seagate, had almost
+       identical packaging, and they and the CDROM drive had power,
+       jumper, and data connections in the same locations.  For some
+       reason, the controller and/or driver decided the new disk was
+       <tt>/dev/hdd</tt> instead of <tt>/dev/hdb</tt>, as I had
+       expected; for all I know this might depend on how the mainboard
+       is wired.
+
+  <p>
+  <li> Reboot into single-user mode (<tt>"linux&nbsp;single"</tt> at the
+       LILO prompt).  <a href="#oops1">[Oops; didn't boot.]</a>
+
+  <p>
+  <li> Run <tt>tripwire</tt> in verification mode.  Don't bother
+       building a new database; moving partitions will just screw it up
+       anyway.
+
+  <p>
+  <li> Use <tt>cfdisk</tt> to build new partitions on <tt>/dev/hdd</tt>.
+       Since I bought a used disk, it had already been partitioned,
+       apparently for Windows NT, so all I had to do is delete what was
+       there, then add the ones I wanted.  Otherwise, I probably would
+       have needed to supply the <tt>-z</tt> option
+       (i.e. <tt>"cfdisk&nbsp;-z&nbsp;/dev/hdd"</tt>), at least to start
+       off.
+
+  <p>
+  <li> Reboot into single-user mode again.  (After saving the new
+       partition structure, <tt>cfdisk</tt> says the following on exit:
+       <blockquote>
+       Reboot the system to ensure the partition table is correctly
+       updated.
+       </blockquote>
+       This may be obsolete, as <tt>"fdisk&nbsp;-l"</tt> showed the new
+       information immediately.  But I didn't take chances.)
+
+  <p>
+  <li> Use <tt>"mke2fs&nbsp;-c&nbsp;/dev/hdd<i>i</i>"</tt> to build each
+       of the Linux file systems.  This actually took much longer than
+       copying the files, which only involved reading 1.1GB from one
+       disk and writing it out to the other.  <tt>"mke2fs&nbsp;-c"</tt>
+       reads every sector of the new partition to check it for read
+       errors, so that required reading some 15G of non-data.
+
+  <p>
+  <li> Copy relevant directories as follows:
+       <pre>
+	mkdir /new/home
+	mount -t ext2 /dev/hdd9 /new/home
+	(cd /home; tar cf - .) | (cd /new/home; tar xBfp -)
+	(cd /home; tar cf - .) | (cd /new/home; tar dBf -)
+</pre>
+       The first tar line copies, the second one compares.  Careful
+       about order of mounts due to directory nesting.
+
+       <p> [<b>NB:</b> One must copy /usr and / differently, because we
+       don't want all subdirectories copied.  -- rgr, 17-Mar-01.]
+
+  <p>
+  <li> Just for the sake of paranoia, make sure the new partitions are
+       still in good order:
+       <pre>
+	umount /new/home
+	e2fsck -f /dev/hdd9
+</pre>
+
+  <p>
+  <li> Maybe switch to new /home partition?
+       <pre>
+	mv /home /old-home
+	mkdir /home
+	mount -t ext2 /dev/hdd9 /home
+       </pre>
+       This would allow a certain amount of testing before punting the
+       old drive . . .
+
+  <p>
+  <li> Use <tt>"mkswap&nbsp;-c&nbsp;/dev/hdd7"</tt> to make the new swap
+       partition.
+
+  <p>
+  <li> Modify <tt>/new/etc/fstab</tt> to reflect the new partitioning,
+       so that Linux will mount the right things in the right places
+       when it starts up.  This requires changing the first three lines
+       to reflect the new partition numbers, and adding four new lines
+       for the four new partitions.
+
+       <p>Old:
+       <pre>
+    /dev/hda6        /              ext2    defaults        1 1
+    /dev/hda5        /boot          ext2    defaults        1 2
+    /dev/hda7        swap           swap    defaults        0 0
+</pre>
+       New:
+       <pre>
+    /dev/hda8        /              ext2    defaults        1 1
+    /dev/hda5        /boot          ext2    defaults        1 2
+    /dev/hda12       /var           ext2    defaults        1 2
+    /dev/hda11       /usr           ext2    defaults        1 2
+    /dev/hda10       /usr/local     ext2    defaults        1 2
+    /dev/hda9        /home          ext2    defaults        1 2
+    /dev/hda7        swap           swap    defaults        0 0
+</pre>
+       Note that these are all still <tt>/dev/hda<i>i</i></tt>, and not
+       <tt>/dev/hdd<i>i</i></tt>, because the new drive will be
+       installed as <tt>/dev/hda</tt> before we need this
+       <tt>fstab</tt>.
+
+  <p>
+  <li> Make a new configuration file to tell LILO how to install itself
+       on the new disk structure, and run <tt>lilo</tt>.  (For clarity,
+       "LILO" refers to the LInux LOader as a whole, and <tt>"lilo"</tt>
+       is the binary that runs under Linux to install LILO.)  To do
+       this, create a new file, <tt>/etc/lilo.conf.new</tt> for example,
+       with the following contents, modified appropriately for your
+       configuration.  Do <b>not</b> replace your current
+       <tt>/new/etc/lilo.conf</tt> file, as this will probably only need
+       small changes (<a href="#lilo2">see below</a>).
+       <pre>
+    disk=/dev/hdd bios=0x80   # Tell LILO to treat the second disk as if
+                              # it were the first disk (BIOS ID 0x80).
+    boot=/dev/hdd             # Install LILO on second hard disk.
+    map=/new/boot/map         # Location of "map file".
+    install=/new/boot/boot.b  # File to copy to hard disk's
+                              # boot sector.
+    prompt                    # Have LILO show "LILO boot:" prompt.
+      timeout = 300
+      vga = normal
+      read-only
+    image=/new/boot/vmlinuz-2.2.17-14  # Location of Linux kernel.
+    label=linux               # Label for Linux system.
+    root=/dev/hda8            # Location of root partition on the new
+                              # hard disk.  Modify accordingly for
+                              # your system.  Note that you must use
+                              # the name of the future location, once
+                              # the old disk has been removed.
+    read-only                 # Mount partition read-only at first, to
+                              # run fsck.
+       </pre>
+       <b>Note:</b> In this configuration file, the disk is referred to
+       as <tt>/dev/hdd</tt> and the file names of files on its boot
+       partition are referred to as <tt>/new/boot/</tt> because
+       <tt>lilo</tt> needs to access the disk <b>now</b> to set it up
+       for booting later.
+
+       <p>Once you have this file set up, do
+       <tt>"lilo&nbsp;-C&nbsp;/etc/lilo.conf.new</tt> to get LILO to
+       install itself on the new disk.
+
+       <p>[This is based on section 8 of the <a
+       href="http://www.linuxdoc.org/HOWTO/mini/Hard-Disk-Upgrade/">
+       Hard-Disk-Upgrade mini-HOWTO</a>.]
+
+  <p>
+  <li> At this point, everything of value (that is accessible to Linux)
+       has been copied off the old drive, and the new drive is ready to
+       take its place.  This would be a good time to destroy any
+       sensitive information you have on the old disk, such as PGP
+       private key databases, correspondence with friends and lovers,
+       Swiss bank account numbers, etc.
+
+  <p>
+  <li> Shutdown, power off (<tt>"shutdown&nbsp;-h&nbsp;now"</tt>).
+
+  <p>
+  <li> Remove old drive, rejumper new drive as master and install,
+       reinstall CDROM as before.
+
+  <p>
+  <li> With fingers crossed, reboot in single user mode.  <a
+       href="#oops2">[Oops again.]</a>
+
+  <p>
+  <li> Run <tt>tripwire</tt> to rebuild the database.  The
+       <tt>tw.config</tt> file will need updating due to the
+       partitioning, since <tt>tripwire</tt> never crosses partition
+       boundaries without explicit instructions.  Don't bother
+       verifying; you've already done that, and the new inodes will all
+       be different anyway.
+
+  <p>
+  <li> Go to multi-user mode (<tt>"init&nbsp;3"</tt>).  Verify that all
+       servers come up properly.
+
+  <p>
+  <a name = lilo2>
+  <li> Update the original <tt>/etc/lilo.conf</tt> to refer to the
+       correct root partition on the new disk, and rerun <tt>lilo</tt>
+       (but this time you don't need the <tt>"-C"</tt> argument).
+       Aren't you glad you kept the original?
+
+  <p>
+  <li> Do <a href="backup.html#strategy">full dumps</a> of all
+       partitions.  (The contents of <tt>/boot</tt> haven't changed, but
+       the inodes have, which might make a difference to <a
+       href="http://dump.sourceforge.net/"><tt>dump</tt></a>, so redump
+       it anyway.)
+
+  <p>
+  <li> Heave a great sigh of relief.
+</ol>
+
+<a name = tales>
+<h2>Cautionary tales</h2>
+
+The upgrade procedure detailed above worked, I suppose you could say,
+but certainly not without glitches.  Several times I thought I was going
+to have to find somebody to haul me out of the new hole I had just dug
+for myself, an embarassing proposition even when it doesn't require
+coughing up the cash.  Fortunately, I managed to find solutions,
+seemingly by accident, before I ran out of ideas and had to find help.
+The fact that I tended to hit these brick walls at inconvenient hours
+probably had a great deal to do with my ability to rescue myself; I was
+actually forced to sit and think for a while.  I am reminded of a
+comment made by David Moon at a recent seminar, about how all computer
+monitors emit "stupid rays," and you have to get away from them
+periodically in order to escape their influence.
+
+<p>I wrote this page partly out of a need for catharsis, and partly
+because of the chance that I may be able to save others some amount of
+aggravation.  May you have better luck than I did in avoiding the
+"stupid rays."
+
+<a name = oops1>
+<h3>Never do more than one thing at a time</h3>
+
+When I tried to boot after shuffling all that hardware around, I was
+swiftly plunged into every sysadmin's nightmare, at least for those of
+us who don't hack kernels.  After displaying something about how much
+memory it found, I saw the messages reproduced below.  I didn't bother
+to transcribe them completely, which is unfortunate, but I noted at the
+time that it did seem to see the new memory module just fine.
+<blockquote>
+<pre>
+.
+.
+Memory: . . .
+Unable to handle kernel NULL pointer dereference at UA 00000030
+.
+.
+oops: 0002
+.
+. [register dump]
+.
+Kernel panic: Attempted to kill the idle task!
+In swapper task - not syncing
+</pre>
+</blockquote>
+And there it hung.  This looked pretty drastic to me.
+
+<p>It occurred to me to try booting the other kernels I had lying around
+(I was running 2.2.17 at the time), but 2.2.16 gave me more or less the
+same thing.  (I also tried Windows 98, but that was completely useless;
+it just gave me the splash screen and hung.)  The 2.2.5 kernel gave me
+something slightly different, though.  It also gave a "kernel NULL
+pointer dereference" error, though at a slightly different address, and
+a different "oops" code, but it got further into the boot process before
+crapping out.
+
+<p>Things looked even worse when it continued to fail in the same way
+after I disconnected the new disk; I was afraid I had damaged the
+original drive or its cabling somehow.  It was about 7&nbsp;PM then, and
+my system seemed to be dead in the water, so I figured I might as well
+take a dinner break.  After dinner, I planned to put the machine back
+together in order to bring it into the shop the following morning, since
+that seemed to be my next bet.
+
+<p>When I finished dinner, I decided to try my luck again, since it
+would have been a colossal waste of time to take the box in to the shop
+if (I had my fingers crossed) the problem had miraculously taken care of
+itself while I ate.  This time, my "luck" consisted of trying both
+2.2.17 and 2.2.5 with the new drive still connected; both kernels still
+died in the same idiosyncratic ways, but I noticed that 2.2.5 (the
+kernel that shipped with Red Hat 6.0) first printed the following, well
+before "oopsing" out:
+<blockquote>
+<pre>
+hdd: ST30630A, 29188MB w/2048kB Cache, CHS = 59303/16/63
+</pre>
+</blockquote>
+It also said the right thing for <tt>hda</tt>, so at least both drives
+were working well enough to be queried for their model numbers and
+configuration information.
+
+<p>This lead me to test the thing I should have suspected all along:  My
+other upgrade task, the new memory module.  Sure enough, I pulled the
+module out and pushed it back in again, and it seemed to seat better the
+second time.  Then, I booted the machine, this time without any trouble.
+I've only done one other memory upgrade, to my wife's old Macintosh
+Performa system, but I seem to recall that upgrade job required two
+tries as well.  Perhaps all such connectors are stiff initially, and
+need a few insertions to get "broken in" properly.
+
+<p>The moral, of course, is to do only one thing at a time, so that you
+can <i>test</i> one thing at a time.  At least I only wasted an hour or
+two, if you exclude having dinner ruined for being bummed about my
+broken system.
+
+<a name = oops2>
+<h3>Count your cylinders carefully</h3>
+
+Disk configuration reeks of deceit.  The drive lies about its C/H/S
+configuration to the BIOS, and the BIOS lies to the operating system,
+either by passing on what the disk said, or possibly by embellishing a
+little.  To cap it all off, the very notion of C/H/S addressing is
+obsolete; it doesn't even apply to modern disk drives, which have
+variable numbers of sectors per track, depending upon the cylinder
+address.  Modern drives use what is known as LBA addressing, in which
+sectors are numbered sequentially from 0 to umpty-million.  However, the
+age-old BIOS design requires C/H/S addressing, with a hardwired 24-bit
+format that only allocates 10 bits for the cylinder field.  Hence, the
+need to exaggerate the number of heads and sectors in order to report no
+more than 1024 cylinders.  Operating systems that work through the BIOS
+are therefore limited to 8.5GB.  This is just the tip of the iceberg;
+further sorry details can be found in the <a
+href="http://www.linuxdoc.org/HOWTO/mini/Large-Disk/"> Large-Disk
+mini-HOWTO</a> (also in the <tt>/usr/doc/HOWTO/mini/Large-Disk</tt>
+file).
+
+<p>Fortunately, Linux skips the BIOS entirely, and talks directly to the
+disk, so once it is booted, Linux is not affected by archaic BIOS
+protocols.  This also means that Linux can access much bigger disks than
+are made these days.  Unfortunately, LILO has to use BIOS disk calls in
+order to pull Linux off of the disk, so BIOS arcana can't be entirely
+ignored.
+
+<p>I was rudely reminded of this sad state of affairs when I attempted
+to reboot off of my snazzy new disk . . . and couldn't even get to the
+LILO prompt; it hung with <tt>"LI"</tt>, and that's all she wrote.
+Several attempts to reboot after reseating connectors met with the same
+result (though the BIOS seemed to be finding the drive, so that
+shouldn't have been an issue).  Finally, suspecting I had make a mistake
+in <tt>/etc/lilo.conf</tt>, I reverted to the two-disk configuration;
+fortunately I hadn't actually moved the drives nor replaced the CDROM at
+that point, so reverting was easy.  (If I still hadn't been able to
+reboot then, I'd have probably pushed the damn thing off a bridge.)
+
+<p>Well, <tt>/etc/lilo.conf</tt> seemed to be what the HOWTO said it
+should, so, in desperation, I started hunting through all of the LILO
+documentation I could find.  While ploughing through
+<tt>/usr/doc/lilo-0.21/doc/tech.tex</tt> looking for clues, I learned
+that the incomplete <tt>"LI"</tt> prompt means that LILO thought it had
+loaded the secondary boot loader (having printed the "I"), but it failed
+to start (having not printed a second "L").  That made me suspect the
+1024-cylinder problem, though I had thought sure I was "safe" in that
+regard.  Here's what the partition table on the new disk looked like at
+the time:
+<blockquote>
+<pre>
+Disk /dev/hdd: 255 heads, 63 sectors, 3720 cylinders
+Units = cylinders of 16065 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hdd1   *         1       261   2096451    6  FAT16
+/dev/hdd2           262      2261  16065000    5  Extended
+/dev/hdd5           262       522   2096451    6  FAT16
+/dev/hdd6           523       525     24066   83  Linux
+. . .
+</pre>
+</blockquote>
+I forget now why I left that second FAT16 partition from the original
+setup; I certainly wasn't worried about reclaiming all of the available
+space just yet.  In any case, the boot partition (shown as
+<tt>/dev/hdd6</tt>) is well under the 1024-cylinder limit.
+
+<p>Then, in a flash of inspiration, I realized that these numbers were
+based on <tt>fdisk</tt>'s fictional notion of disk geometry, using the
+maximum values of 255 heads and 63 sectors (and still it shows almost
+four times as many cylinders as DOS could use).  If the BIOS had a
+different notion of geometry, then it might be using cylinder indices
+that were at least a factor of two greater.  Sure enough, the original
+layout (<a href="#strategy">see above</a>) was reported using 128 heads
+instead of 255.  And, though <tt>lilo</tt> normally warns if it tries to
+install things beyond the 1024-cylinder limit, it would have no way of
+knowing that the BIOS was using different geometry.
+
+<p>So then I did the wrong thing:  I moved the partition.  Since the
+boot partition is really small, at least this didn't waste much time.
+For reference, here's what was involved:
+<ol>
+  <li> Delete <tt>/dev/hdd2</tt> (the second FAT16) and
+       <tt>/dev/hdd5</tt> (the first-cut boot partition).  This makes a
+       single chunk of contiguous free space.
+  <li> Create a new <tt>/dev/hdd5</tt> at the start of the new free
+       space.  (It got numbered 5 instead of 2 because I created it as a
+       logical partition; <tt>/dev/hdd2</tt> had been a physical
+       partition.)
+  <li> Create a new Linux partition that uses up the rest of this chunk
+       of free space.
+  <li> Build a filesystem on <tt>/dev/hdd5</tt>, and recopy the files
+       from the <tt>/dev/hda</tt> drive's original boot partition.
+  <li> Rerun <tt>lilo</tt> to take account of the new location of the
+       boot partition.
+</ol>
+This was not only not necessary, it was not even sufficient; upon
+rebooting, LILO froze at <tt>"LI"</tt> just as before.  The underlying
+problem was that the BIOS and LILO were using two different addressing
+schemes (both fictitious, of course), so when LILO told the BIOS to
+fetch the secondary boot loader from such-and-such a place, the BIOS
+actually read blocks from somewhere different.  Unfortunately, I didn't
+understand this at the time; I had thought I was really dead in the
+water.
+
+<p>But since I had nothing better to do, I poked around in the BIOS disk
+setup menu, and fortuitously discovered that the geometry of the old
+drive had been hardwired for the first disk.  Once I changed the first
+disk to "Auto/LBA" (which seemed to have worked when it was the second
+disk), Linux booted like a charm.  Of course, this probably would have
+worked without moving the partition, but I hope you'll excuse me for not
+feeling like moving it back to try.
+
+<p>For completeness, I should also note that the <a
+href="http://www.linuxdoc.org/HOWTO/mini/Large-Disk/"> Large-Disk
+mini-HOWTO</a>, which I had read (or at least skimmed) while developing
+my upgrade procedure, spends a whole chapter on the need for agreement
+on geometry between LILO and the BIOS.  Here is the first paragraph from
+this chapter (titled "Consequences"):
+<blockquote>
+  What does all of this mean?  For Linux users only one thing: that they
+  must make sure that LILO and fdisk use the right geometry where
+  `right' is defined for fdisk as the geometry used by the other
+  operating systems on the same disk, and for LILO as the geometry that
+  will enable successful interaction with the BIOS at boot time.
+  (Usually these two coincide.)
+</blockquote>
+It is also worth noting that the problem was ultimately due to explicit
+specification of geometry in the BIOS; the HOWTOs all warn against
+overriding the defaults, because chances are it'll get screwed up.
+
+<p>The moral for this tale?  I would like to say, <i>"Steer clear of
+ancient operating systems and their obsolete protocols,"</i> but this is
+hardly possible.  Perhaps a better one would be <i>"Nobody is completely
+unaffected by the Wintel monopoly."</i>
+
+<a name = ps>
+<h3>When disk errors are not disk errors: a postscript</h3>
+
+Once installed, my new disk ran without any sort of trouble for more
+than a year, and then I started getting mysterious crashes.  At odd
+intervals, I would find that the machine had powered itself off in the
+night, with no explanation.  Sometimes it was still powered up but
+completely hung; I couldn't get anything to happen from the console, nor
+could I connect to it from another machine.  In either case, I would
+power it up again, fixing whatever minor disk data structure damage had
+occurred along the way, and things would seem to be back to normal
+again.
+
+<p>Then, on 15 June, I sat down in front of my machine, and found that I
+couldn't do anything with it.  Although it looked normal, and emacs and
+X11 both seemed to work fine, whenever I did something that required
+forking (e.g. trying to start something new in an emacs subshell), emacs
+would hang, and I couldn't get it back no matter what I tried.
+Attempting to start a new shell via <tt>ssh</tt> was completely
+fruitless.
+
+<p>After rebooting, I looked at <tt>/var/log/messages</tt>, and found a
+number of wierd entries from early that morning, starting with the
+following, which had transpired (or been logged, at least) at 01:05:27:
+
+<blockquote>
+<pre>
+Unable to handle kernel NULL pointer dereference at virtual address 00000056 
+current-&gt;tss.cr3 = 0059e000, %%cr3 = 0059e000 
+*pde = 00000000 
+Oops: 0000 
+CPU:    0 
+EIP:    0010:[check_tty_count+16/116] 
+EFLAGS: 00010202 
+eax: 00000002   ebx: 00000001   ecx: c0241fdc   edx: c1867000 
+esi: 00000001   edi: c0012930   ebp: c18c8960   esp: c000bf10 
+ds: 0018   es: 0018   ss: 0018 
+Process gpm (pid: 734, process nr: 36, stackpage=c000b000) 
+</pre>
+</blockquote>
+
+This looked really bad, especially since <tt>gpm</tt> provides mouse
+functionality for the console, but I was running X11 at the time, and so
+wasn't even using <tt>gpm</tt> when moving the mouse, let alone when
+sound asleep in my bed at a little after one in the morning.  I disabled
+the <tt>gpm</tt> process (the fresh one in my newly rebooted system),
+but later in the day it dawned on me that this wasn't necessary, or even
+relevant, since a low-level intermittent hardware glitch could readily
+explain odd problems in <tt>gpm</tt>, or any other process for that
+matter.  I think that's when it first occurred to me that the disk might
+be flaking out.
+
+<p>Finally, on Monday 17 June, it crashed and I couldn't reboot it; the
+superblock for <tt>/dev/hda8</tt>, my root partition, was corrupt.  This
+necessitated booting from a rescue floppy, at which point I attempted to
+use <tt>e2fsck</tt> to restore the root partition.  This didn't seem to
+be working; it found the corrupted boot sector problem OK, but then it
+kept giving me scores of really outrageous problems, things such as ref
+counts in the billions, that couldn't possibly be even close to being
+correct.  It seemed conceivable that there could be a handful of such
+errors on a partition, if part of an inode sector had been destroyed by
+a bad pointer before writing, but for the list to go on and on like this
+just didn't seem reasonable.  It occurred to me that the boot disk I was
+using was made with kernel version 2.2.5 (the one shipped with Red Hat
+6.0), but I was running 2.2.19 with updated ext2 filesystem tools, so
+perhaps that was why it was seeing nonsense.  So, rather than complete
+the operation, I powered the machine off.  I was wrong, of course; ext2
+is very well established and quite stable, and would not have changed so
+drastically.  Even if it had been changed, such major changes would not
+have come without dire compatibility warnings plastered all over the
+package.  Despite being wrong, it's a really good thing I gave it up;
+writing these "fixes" would probably have destroyed the partition
+utterly.
+
+<p>So I was left with an unbootable system, possibly with flaky hardware
+-- time for a coffee break and some cool-headed thinking.  I grabbed
+several sheets of paper and a pen (being a computer guy, I don't usually
+run around with pens or pencils in my pockets), and lit out for our
+local <a href="http://www.carberrys.com/">Carberry's</a> cafe.  I needed
+to scope out my options, because whatever I did, getting the system back
+up would probably be painful and time-consuming, and I only wanted to go
+through it once.
+
+<p>By then it had dawned on me that the kernel version thing couldn't
+explain all the errors I was seeing, and that the most likely
+explanation for all the symptoms I had seen -- indeed, the only
+reasonable one -- was that my disk had Alzheimer's, of a sort.  (This
+was also incorrect, as it turned out, but at least it gave me something
+concrete to work on.)  With some physical and mental space between me
+and the computer, plus the welcome distraction of coffee and a scone, I
+began to plan what I could do to get my data (and my sense of normalcy)
+back.
+
+<p>The following is a rendering of my notes from that Monday morning
+session:
+
+<blockquote>
+<b>Option 1: Rescuscitate</b>
+<ol>
+  <li> swap old drive for new, new for CD
+  <li> boot old drive
+  <li> rescuscitate FS partition(s) on new drive
+  <li> if fail, punt.  else, reswap drives, reboot
+</ol>
+<table>
+  <tr>
+    <td valign=top>May have to rebuild root partition; </td>
+    <td> <s>screwed if so.</s><br>
+	 no; can preload dumps onto old partition.
+    </td>
+  </tr>
+</table>
+
+<p><b>Option 2: Punt</b>
+<ol>
+  <li> get new HD, Linux, maybe new CD
+  <li> install drive
+  <li> install Linux
+  <li> restore backups from CD, Zip -- mostly functioning at this
+       point.
+  <li> swap broken drive for CD
+  <li> recover latest files from <tt>/dev/hdd9</tt>, maybe attempt to
+       diagnose.
+  <li> replace CD (maybe new)
+  <li> finish reinstalling opt software (AbiSuite, ntpd, squid,
+       AOLserver, ssh, qmail, netatalk, PostgreSQL, CLC+Araneida+CLSQL,
+       dump, ACL
+</ol>
+
+<p>
+<table>
+  <tr>
+    <th>Cost/benefit</th>
+    <th>Opt 1</th>
+    <th>Opt 2</th>
+  </tr>
+  <tr>
+    <td>$$</td>
+    <td>+/0</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>time</td>
+    <td>+/-</td>
+    <td>--</td>
+  </tr>
+  <tr>
+    <td>upgrade</td>
+    <td>&nbsp;</td>
+    <td>+</td>
+  </tr>
+  <tr>
+    <td>risk</td>
+    <td>-</td>
+    <td>+</td>
+  </tr>
+</table>
+</blockquote>
+
+Based on this, it looked like it was going to be a roughly equal amount
+of pain either way.  The second option would take a lot longer, but
+would also get me over the Linux upgrade hump as well.  But it would
+also cost significantly more, so I decided to give the first plan a try;
+at worst, I'd only have to give up and use the second plan anyway.  Here
+is what I tried:
+
+<blockquote>
+<ol>
+  <li> Replaced the new drive (the broken one) with my original 3Gig
+       hard drive, and booted off of that.
+  <li> Pulled the relevant backup files for the new root partition from
+       CD, and put them on the old drive.  This was in case I had in
+       fact trashed the root partition.
+  <li> Shut the system down again, and swapped the broken drive for the
+       CD.
+</ol>
+</blockquote>
+
+At this point, I had intended to reboot on the old disk in order to fix
+the new one, but was surprised to find that I couldn't even get the box
+to power up.  No lights, no whirring fans, no response to pushing
+buttons, nothing.  Without the cooling fans, the silence in my attic
+office was oddly distracting.  At that point, I figured I had no choice
+but to take it in to the shop, and let them diagnose the problem.
+
+<p>At <a href="http://www.pcsforeveryone.com/">PCs for Everyone</a>, the
+guy agreed that I had a bad power supply, but they didn't have the
+145-watt supply I needed in stock, and in any case it would be another
+two weeks before they could even look at my disk problem.  I must have
+blanched at the prospect of being without my computer, the "main server"
+for my life and livelihood, for all of two weeks.  After some
+back-and-forth, we came up with an alternative plan: He could attach a
+300-watt supply (even though that was too big to install properly within
+the enclosure), after which I would be able to continue flogging the
+disk problem.  When a new 145-watt supply came in, he said he'd give me
+a call, and I could return the old one under their 14-day refund policy
+and replace it with something that would fit the box.  Since this seemed
+the only path to getting my machine up in any sort of reasonable time, I
+readily agreed, and after executing the sale, he popped out the old
+supply and hooked up the new one, leaving it trailing wires out the back
+of the box.  (Even though this was a 3-year-old machine, PCs for
+Everyone has a lifetime labor warrantee.)  I left my name and phone
+number so he could give me a call when the 145-watt units came in, and
+carefully carried my Dr. Frankenstein PC back to the car.
+
+<p>Once home again, I picked up the rescue process where I had left off
+late that morning.  I moved the new drive back to where the CD-ROM was,
+and booted off the old drive.  To my surprise, the new drive no longer
+seemed quite so flaky.  I was able to use <tt>e2fsck</tt> to repair the
+bad superblock, plus a few other minor partition data structure
+consistency problems I had seen before as a result of unexpected
+shutdowns, and that was it.  (Just to be sure I wouldn't run afoul of
+version problems, I used the <tt>e2fsck</tt> on the old drive to check
+out <tt>/dev/hda8</tt> on the new drive, and then used the new drive's
+<tt>e2fsck</tt> (which itself lives on <tt>/dev/hda8</tt>) to recheck
+<tt>/dev/hda8</tt>, and then fix the other partitions on the new drive.)
+
+<p>Was that all there was to it?  Had all of my "disk problems" been due
+to a flaky power supply?  That would have been the first bit of good
+luck I had seen all day, so I was disinclined to believe it.  I checked
+each partition with the current <tt>e2fsck</tt> version, then checked
+them again to be sure they were still clean, and finally backed up all
+partitions, so I would have the latest data in case the new disk resumed
+misbehaving when I booted off of it.  (Doing "cross-disk" backups turned
+out to be tricky -- I had to cut-and-paste entries from the new
+<tt>/usr/local/etc/dumpdates</tt> to the old
+<tt>/usr/local/etc/dumpdates</tt> so that <tt>dump</tt> used the correct
+starting dates, changing the partition names from
+<tt>/dev/hda<i>X</i></tt> to <tt>/dev/hdd<i>X</i></tt> as I went.  Then,
+after I was done, I had to move the entries for the backups I had just
+made to the new drive, undoing the partition renaming.)
+
+<p>Sure enough, it worked.  The system booted properly, all services
+came up without problems, and has been working flawlessly since then.
+
+<p>For consistency, perhaps I ought to conclude with a moral that
+summarizes what I learned from the experience.  Certainly, the lesson I
+learned (relearned, actually) is not to assume I know what the problem
+is until I've actually fixed it.  This is also a good maxim for
+software, but it goes double for hardware, especially for me, since I
+have much less hardware troubleshooting experience.  But I can't think
+of anything really pithy and original that conveys this.  If you're
+willing to forego orginality, we could use <i>"It ain't over until the
+fat lady sings."</i> But I'll understand if you're unwilling.
+
+<p>There's actually slightly more to the tale -- the subsequent
+de-frankensteinification of my system.
+[finish getting new PS & CD, returning PS.  -- rgr, 10-Jul-02.]
+
+<p>So perhaps a good moral would be, <i>"Choose your hardware supplier
+carefully."</i>  Kudos to <a href="http://www.pcsforeveryone.com/">PCs
+for Everyone</a> for taking such good care of an old (and not
+particularly rich) customer.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+    <tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun Apr 27 21:21:36 EDT 2003
+<!-- hhmts end -->
+</body> </html>

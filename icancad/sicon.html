@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>ICanCAD: Schematic icon editing</title>
+</head>
+
+<body bgcolor=white>
+<h2>Schematic icon editing</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="./">ICanCAD</a> :
+<a href="user.html">User's Guide</a> : Schematic icon
+<hr>
+
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Schematic icon editing
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#sicon-intro">Introduction to schematic icons</a>
+	      <ol>
+		<li> <a href="#labels">Labels</a>
+		<li> <a href="#pins">Pins</a>
+		<li> <a href="#schematic-iface">Relationship of icons to schematics</a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name = sicon-intro>
+<h3>Introduction to schematic icons</h3>
+
+As the name implies, schematic icons are pretty pictures that are drawn
+in order to stand for a schematic at a lower hierarchical level.  Each
+schematic may have one or more icons (though other tools may not support
+more than one icon per schematic).  Editing a schematic icon is much
+like editing a symbolic def [described on the previous, nonexistent,
+page], with the addition of two kinds of parts that relate to the
+associated schematic.
+
+<a name = labels>
+<h4>Labels</h4>
+
+Labels display some value, usually a property of the use for which the
+icon is drawn.
+
+<p>[finish.  describe expression, formatter properties.  -- rgr,
+6-Feb-02.]
+
+<p>[Janus labels are more restricted; you should stick to expressions of
+the form <tt>"(&gt;&gt;&nbsp;<i>param-name</i>)"</tt> and formatters
+that consist of <tt>"~A"</tt> or <tt>"~S"</tt> with optional leading or
+trailing strings that are fixed.  -- rgr, 20-Mar-02.]
+
+<p>In ICanCAD, label attributes (expression, formatter, position, etc.)
+are frozen at initial instantiation time, and saved as part of the use
+parameterization information.  That way, it is always safe to move the
+label defs around in an icon, since doing so can't possibly break any
+previous uses.  To upgrade an existing use to the current icon labels,
+use the <a href="commands.html#com-update-uses">"Update Uses"</a>
+command (which also updates pins).
+
+<a name = pins>
+<h4>Pins</h4>
+
+Pins describe a named connection point; the connection point allows
+wires to be connected to the use, and the name defines the port in the
+child schematic to which those wires logically connect.  The name and
+the connection point may be positioned independently; 
+
+<p>[finish.  -- rgr, 6-Feb-02.]
+
+<p>In ICanCAD, pin attributes (text and position) are frozen at initial
+instantiation time, and saved as part of the use parameterization
+information.  That way, it is always safe to move the pins around in an
+icon, since doing so can't possibly break any previous uses.
+To upgrade an existing use to the current icon pins,
+use the <a href="commands.html#com-update-uses">"Update Uses"</a>
+command (which also updates labels).
+
+<p><b><tt>port-dot</tt> class properties:</b>
+<blockquote>
+<dl>
+  <dt> <b>connection-pt</b>
+  <dd> Location of the connection point,
+       as a <tt>pt</tt> object.
+  <dt> <b>visible?</b>
+  <dd> Defines whether the label text should be drawn in a parent
+       schematic (the text is always visible when editing the icon def
+       itself).
+  <dt> <b>x</b>
+  <dd> X coordinate of the connection point.
+  <dt> <b>y</b>
+  <dd> Y coordinate of the connection point.
+</dl>
+</blockquote>
+
+<a name = schematic-iface>
+<h4>Relationship of icons to schematics</h4>
+
+Schematic icon defs and the schematics they represent are fairly loosely
+coupled.  Any icon can represent any schematic, provided only that every
+pin on the icon corresponds to a port in the schematic, and vice versa.
+This allows multiple icons per schematic (e.g. de Morgan equivalents for
+logic gates), and multiple schematics per icon (identical gates in
+related IC technologies can use the same icon def in order to ensure
+"pin compatible" replacement).
+
+<p>[May want to specify a way for an icon to declare that a given
+schematic port should be connected in a given way, e.g. to a global,
+without requiring a pin.  -- rgr, 10-Feb-02.]
+
+<p>For most purposes, a schematic's icon is too special-purpose to be
+reused for anything else, so each schematic gets a single icon, and
+that's that.
+
+<p>When a use of a child schematic is created in ICanCAD, the label defs
+and pins of the selected icon are effectively frozen at initial
+instantiation time.  This is done by creating "label use" and "bristle"
+objects that are effectively copies of the icon's label defs and ports,
+respectively; these label uses and bristles are then stored as part of
+the use parameterization information, and saved with the parent def.
+The result is that the connection of the parent to the child through the
+use is independendent of any information in the icon; the icon is only
+needed for drawing.  It is therefore always safe to move the pins around
+in an icon, since doing so can't possibly break connections to any
+previous uses of that icon.  To upgrade a previous use to the current
+icon labels and pins, use the <a
+href="commands.html#com-update-uses">"Update Uses"</a> command in the
+parent.  [However, note that older CAD systems and formats do not
+support this, so all uses must be up-to-date in order to export to EDIF
+or Janus format.  -- rgr, 1-May-02.]
+
+<p>[This requires storing the bristles and use labels of each use with
+every def, but these days that seems like such a small price to pay.
+And, like ns, this also offers the opportunity of moving bristles around
+on the use to "custom" locations.  The current UI can't handle this,
+though.  -- rgr, 11-Apr-01.]
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Wed May  1 10:44:11 EDT 2002
+<!-- hhmts end -->
+</body> </html>

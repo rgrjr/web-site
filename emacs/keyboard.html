@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>emacs: Keyboard issues</title>
+</head>
+
+<body bgcolor=white>
+<h2>Keyboard issues</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Emacs tips</a> : Keyboard
+<hr>
+
+<p>If you plan on using emacs extensively in the future, you should put
+some time into learning to touch-type emacs.  There are several
+important advantages:
+<ol>
+  <li> Using the keyboard effectively will improve your productivity
+       greatly.
+  <li> Not using the keyboard awkwardly will help avoid hurting your
+       hands. 
+</ol>
+By "touch-type emacs," I mean being able to type commands without
+looking at the keyboard by using the fingers of the appropriate hand to
+type the character, and those of the other hand (preferably the stronger
+index and middle fingers) for the "Control" and "Meta" shifts.
+
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Keyboard issues
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#kdb-config">Recommended keyboard reconfiguration</a>
+	 <li> <a href="#keyboard-x11">X11 Keyboard reprogramming with <tt>xmodmap</tt></a>
+	 <li> <a href="#super-key">The "Super-" shift</a>
+	 <li> <a href="#sun-xmodmap"><tt>xmodmap</tt> and Sun keyboards</a>
+	 <li> <a href="#pc-xmodmap"><tt>xmodmap</tt> and PC keyboards</a>
+	 <li> <a href="#suggestion">An extreme suggestion</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name = kdb-config>
+<h3>Recommended keyboard reconfiguration</h3>
+
+<p>In order to touch-type emacs commands, it is necessary to configure
+your keyboard with a "Control" modifier key and a "Meta" modifier key on
+<strong>each</strong> side of the keyboard.  Such things as
+<tt>C-M-t</tt> are just plain awkward to type if you have to use the
+same hand for the "Control" and the "T" keys.  If you get into the habit
+of typing control/meta modifiers with the opposite hand from the
+character key, you will be able to rip out those commands faster with
+less wear and tear on your hands.
+
+<p><strong>Carpal tunnel syndrome is not conducive to
+productivity,</strong> and I suspect that the contortions that are
+otherwise necessary to type arcane key combinations are a factor.  Some
+people mistakenly blame these contortions on emacs, when the problem is
+really due to brain-dead keyboard layouts; some hardware manufacturers
+must assume that you will hardly ever want to type modifier keys.  Many
+old Hewlett-Packard keyboards had a single tiny "Ctrl" key at the
+extreme upper-left of the main key layout; furthermore, of all the keys,
+"Ctrl" was the only one that was hardwired and therefore incapable of
+being moved by software to a reasonable location.
+
+<p>Fortunately, despite being made for computers with operating systems
+that are more mouse- than keyboard-oriented, most recent keyboards
+include a selection of modifier keys, symmetrically placed around the
+space bar.  Unfortunately, both Mac and PC systems put the "Control"
+keys at the extreme ends of the row, which is hard on the pinkies.  It
+is much easier to type modifier keys with the index and middle fingers,
+and much faster to do so if these keys are near the space bar.
+Consequently, even "modern" keyboards usually need reprogramming to work
+well with emacs.
+
+<p>My emacs-friendly keyboard-reprogramming scripts for X11 under Unix
+are described below.  As for non-Unix machines, or X11 running under
+Windows, you'll need to check the window system documentation.
+
+<a name=keyboard-x11>
+<h3>X11 Keyboard reprogramming with <tt>xmodmap</tt></h3>
+
+<p>If you are using <a href="http://www.x.org/">X11</a> on a Unix
+machine, the way to do this is with the <tt>xmodmap</tt> command.  I use
+<pre>
+    xmodmap <a href="sun4u.xmodmaprc">sun4u.xmodmaprc</a>
+</pre>
+for Sparcstations, and
+<pre>
+    xmodmap <a href="i586.xmodmaprc">i586.xmodmaprc</a>
+</pre>
+for my PC; the naming convention allows my <tt>.xinitrc</tt> script to
+recognize which is appropriate.  Both versions tell <tt>xmodmap</tt> to
+change the keyboard layout to roughly the same configuration (allowing
+for different key sizes) that makes it easy to touch-type emacs.  (I
+picked this configuration to resemble the Lisp Machine keyboards of my
+youth, which is why the "Control" keys are closest to the space bar and
+the "Meta" keys just outside of "Control".  If this annoys you, or you
+would rather have something more consistent with PC usage, you can
+always swap "Control" and "Meta" in the
+<tt>"keycode&nbsp;<i>xx</i>&nbsp;="</tt> assignments.)
+
+<p>If you'd rather not mess with the <tt>xmodmap</tt> program directly,
+you can use Jamie Zawinski's <a href="http://www.jwz.org/xkeycaps/">
+<tt>xkeycaps</tt> program</a>, which provides a Mac-like interface for
+finding out and changing keyboard configuration information.  See also
+<a href="http://www.jwz.org/xkeycaps/man.html">the <tt>xkeycaps</tt>
+<tt>man</tt> page</a>, which summarizes how X11 handles keyboards.
+
+<a name = super-key>
+<h3>The "Super-" shift</h3>
+
+<p>Use of the "Super-" shift is optional.  If you like, you can bind
+keys to "Super-" shifts in emacs by using something like
+<pre>
+    (global-set-key [?\s-b] 'beginning-of-line)
+</pre>
+But I hardly ever take advantage of this, mostly because these shifts
+are inconvenient to type.  However, even if you have no use for these
+keys, it still pays to leave them as "Super-" shifts, since this
+effectively disables the unused keys that send "Super-".  Nothing is
+bound to Super-<i>anything</i> in emacs by default, so if you type
+<tt>"s-x"</tt> (Super-x) when you meant <tt>"M-x"</tt>, emacs will just
+beep; if you had set the key to generate nothing, it would have inserted
+an <tt>"x"</tt> (or worse).
+
+<a name = sun-xmodmap>
+<h3><tt>xmodmap</tt> and Sun keyboards</h3>
+
+<p>Specifically, <a href="sun4u.xmodmaprc">sun4u.xmodmaprc</a> makes the
+the following changes to the default key interpretations on
+Sparcstations:
+<ul>
+  <li> disables the original "Control" key;
+  <li> moves the "Meta" modifier keys to the "Alt" key on the left and
+       the "Compose" key on the right;
+  <li> moves "Control" to the diamond keys next to the space bar (the
+       original "Meta" keys); and
+  <li> turns the "Caps Lock" and "Alt Graph" keys into "Super-".
+</ul>
+I have used this on Sparcs for which <tt>uname&nbsp;-m</tt> returns
+<tt>"sun4u"</tt> or <tt>"sun4m"</tt>; use with caution on older Sparc
+keyboards.  <b>Do not use this</b> on non-Sparc machines; it will
+probably screw up your keyboard, since the keycodes will almost
+certainly be different.
+
+<p>If you want a more PC-compatible configuration, you can leave "Meta"
+where it is and put "Control" on "Caps Lock" and "Alt Graph".  You will
+then be typing <tt>"M-"</tt> with your index fingers, and
+<tt>"C-"</tt> with your middle fingers.
+
+<a name = pc-xmodmap>
+<h3><tt>xmodmap</tt> and PC keyboards</h3>
+
+<p>The <a href="i586.xmodmaprc">i586.xmodmaprc</a> file makes the
+following changes to the default key interpretations for <a
+href="http://www.xfree86.org/">XFree86</a> on my GNU/Linux PC:
+<ul>
+  <li> turns the left Alt key and the "flag" key (just right of the
+       right Alt) into "Control-",
+  <li> turns the "flag" key (left of the left Alt) and the right "menu"
+       key into "Meta-",
+  <li> turns the left Ctrl and right Ctrl keys into "Super-", and
+  <li> optionally disables "Caps Lock".
+</ul>
+
+<p>Graphically, the bottom row of the keyboard changes from this:
+<pre>
+    +-----++----++----++---------------------------++----++----++----++-----+
+    |Ctrl ||Flag||Alt ||         Space bar         ||Alt ||Flag||Menu||Ctrl |
+    +-----++----++----++---------------------------++----++----++----++-----+
+</pre>
+to this:
+<pre>
+    +-----++----++----++---------------------------++----++----++----++-----+
+    |Super||Meta||Ctrl||         Space bar         ||&lt;no&gt;||Ctrl||Meta||Super|
+    +-----++----++----++---------------------------++----++----++----++-----+
+</pre>
+
+<p>This is inconsistent from right to left, but it more accurately
+echoes the physical arrangement I have set up on the Sun Sparcstation
+keyboards at work.  Please read the comments in the file before you
+attempt to use it.  <b>Do not use this</b> on non-PCs; it will probably
+screw up your keyboard, since the keycodes will almost certainly be
+different.
+
+<a name = suggestion>
+<h3>An extreme suggestion</h3>
+
+If I were willing to reprogram my brain (again) in order to take
+advantage of a more emacs-optimal keyboard layout, I'd probably do a few
+things differently.  In particular, I'd keep the "Meta-" keys next to
+the space bar, so that people with no Lisp Machine experience don't
+freak out when the try to type on my keyboard.  Better still, since it
+is most efficient to avoid switching hands during command sequences that
+bounce back and forth from one side of the keyboard to the other (how
+fast can <i>you</i> type <tt>"C-p C-a C-o C-b"</tt>), I might try using
+the "Super-" shift to overload the left half of the keyboard.  In other
+words,
+<ul>
+  <li> <tt>"s-g"</tt> would map to <tt>"h"</tt>, 
+  <li> <tt>"C-s-g"</tt> would map to <tt>"C-h"</tt>, 
+  <li> <tt>"C-M-s-g"</tt> would map to <tt>"C-M-h"</tt>,
+  <li> <tt>"s-f"</tt> would map to <tt>"j"</tt>, 
+  <li> <tt>"C-s-f"</tt> would map to <tt>"C-j"</tt>, 
+  <li> etc.
+</ul>
+That way, I could type long command sequences with the left hand in
+standard position, and the three longest fingers of the right hand
+providing all of the modifier shifts.  I would only ever have to move my
+right hand, and only to type long sequences of text.
+
+<p>Then again, if I were willing to reprogram my brain at all, I'd be
+better off switching to an ergonomic split-keyboard design that puts the
+modifiers in the middle where they can be worked with the thumbs without
+ever needing to move your hands.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun May 28 19:40:39 EDT 2000
+<!-- hhmts end -->
+</body> </html>

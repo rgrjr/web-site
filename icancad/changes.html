@@ -1,0 +1,748 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD change history</title>
+</head>
+
+<body bgcolor=white>
+<h2>ICanCAD change history</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">ICanCAD</a> :
+Change history
+<hr>
+
+<h2>Table of contents</h2>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> ICanCAD change history
+  <li> Table of contents
+       <ol>
+	 <li> Changes in version 0.2.2
+	 <li> Changes in version 0.2.1
+	 <li> Changes in version 0.2.0
+	 <li> Changes in version 0.1.23
+	 <li> Changes in version 0.1.22
+	 <li> Changes in version 0.1.21
+	 <li> Changes in version 0.1.20
+	 <li> Changes in version 0.1.19
+	 <li> Changes in version 0.1.18
+	 <li> Changes in version 0.1.17
+	 <li> Changes in version 0.1.16
+	 <li> Changes in version 0.1.15
+	 <li> Changes in version 0.1.14
+	 <li> Changes in version 0.1.13
+	 <li> Changes in version 0.1.12
+	 <li> Changes in version 0.1.11
+	 <li> Changes in version 0.1.10
+	 <li> Changes in version 0.1.9
+	 <li> Changes in version 0.1.8
+	 <li> Changes in version 0.1.7
+	 <li> Changes in version 0.1.6
+	 <li> Changes in version 0.1.5
+	 <li> Changes in version 0.1.4
+	 <li> Changes in version 0.1.3
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<h3>Changes in version 0.2.2</h3>
+
+Released 28-Jan-03.
+
+<ul>
+  <li> <b>Initial extraction implementation.</b> This is not yet
+       incomplete; there is no user interface per se.  Bus support
+       should be complete, but is not well tested.  Error recovery is
+       poor.
+  <li> <b>Hierarchical SPICE netlisting support.</b> Also incomplete,
+       but at least there is a <a
+       href='commands.html#com-write-spice-netlist'>"Write Spice
+       Netlist"</a> command.  Only MOS devices are supported at present.
+  <li> There is also a SPICE netlist reader and simple by-name circuit
+       comparator, both undocumented, but they are only just good enough
+       to prove to me that the circuit I extracted from some schematic
+       today is the same as the one I extracted from that schematic
+       yesterday.
+  <li> Multiple edit properties (i.e. for a set of selected parts).
+  <li> New <a href='commands.html#com-insert-net-label'>"Insert Net
+       Label"</a> and <a
+       href='commands.html#com-select-connected'>"Select Connected"</a>
+       commands.
+  <li> EDIF output no longer bombs on dots and links (but still doesn't
+       generate correct output).
+</ul>
+
+<h3>Changes in version 0.2.1</h3>
+
+Released 6-May-02.
+
+<ul>
+  <li> <b>Hardcopy support</b>, albeit rudimentary, has been added.
+       This consists of drawing one or more defs to a PostScript file.
+       See the <a href="commands.html#com-print-def"> "Print Def"</a>
+       command for details.
+  <li> <b>ICanCAD now has a <tt>generic-process</tt> technology.</b>
+       It's pretty stubby, with only one type of PMOS and NMOS device
+       each, but at least that's a start.  And it's in the public
+       domain, so it can be shipped as part of ICanCAD, and people can
+       hack on it to their heart's content. 
+  <li> There is also a new set of public-domain port icons.
+  <li> <b>New <a href="commands.html#com-def-operations"> "Def
+       Operations"</a> command</b> that allows a set of defs to be
+       saved, reverted, printed, etc., all at the same time.  (This is
+       similar to the Janus "Kill or Save Defs" command.)
+  <li> <b>New <a href="commands.html#com-update-uses"> "Update Uses"</a>
+       command</b> for updating use labels and bristles after editing
+       the icon.
+  <li> Def parameters are now saved and restored properly (fixes <a
+       href="bugs.html#bug-47">bug 47</a>).
+  <li> Fixed a bug in highlighting kill ring entries.
+  <li> Schematic use labels and symbolic uses can now be saved and
+       restored (oops).
+  <li> Tweaked bristle drawing to make bus-width icons look better.
+  <li> The <a href="commands.html#mouse-recenter">
+       <tt>mouse-recenter</tt></a> pointer documentation now echoes the
+       first point.
+  <li> Grids are now defaulted from the technology.
+  <li> Several minor fixes to allow ICanCAD to be compiled in CMU Common
+       Lisp (still without graphics).
+  <li> Several documentation updates (albeit mostly small ones).
+</ul>
+
+<h3>Changes in version 0.2.0</h3>
+
+Released 8-Apr-02 (which happens to be my birthday -- ;-).
+
+<ul>
+  <li> If the def is empty, <a href="commands.html#com-fit">"Fit"</a>
+       now chooses a more appropriate initial scale factor.
+  <li> When starting up, ICanCAD will no longer look for any random def
+       (e.g. a port icon), but will create a new def in the
+       <tt>"<i>user</i>:work;"</tt> library instead.
+  <li> Fixed a nasty bug that blew up when caching presentation objects
+       near the mouse.  The code grew the array, but not the variable
+       that held the limit.
+  <li> The last part-kind added is now remembered separately for each
+       view.  This avoids (for instance) offering to add wires to an
+       icon.
+  <li> Fixed a use label redisplay bug.
+  <li> Fixed another use redisplay bug when recomputing the use bbox.
+  <li> <a href="commands.html#com-set-technology">"Set Technology"</a>
+       now offers a choice of unloaded technologies, and ensures that
+       the one chosen is loaded.
+  <li> Compiles on CMU Common Lisp (again).
+  <li> Numerous other code and documentation tweaks.
+</ul>
+
+<h3>Changes in version 0.1.23</h3>
+
+Released 28-Mar-02.
+
+<ul>
+  <li> <b>Engineering expressions are now fully supported.</b>  Also,
+       an "Eval" command has been added to take advantage of this.
+  <li> Right-angle bends in wires are now filleted with circular arcs.
+  <li> The "Add Wire" command now has a "Flip direction" button.
+  <li> Use parameters are now edited using the presentation type
+       specified in the def parameter descriptors.  However, this
+       presentation type is now always <tt>engineering-number</tt>,
+       since def parameters should always be allowed to be expressions,
+       regardless of what one might want to do to limit the result of
+       evaluating that expression.
+  <li> Fixed a nasty bug in case-insensitivity of engineering suffixes
+       that might have turned a Janus "milli" into an ICanCAD "mega."
+  <li> The <a href="commands.html"> <tt>commands.html</tt></a> page can
+       now be generated completely automatically.
+  <li> Plus the usual random bug fixes and other changes.
+</ul>
+
+<h3>Changes in version 0.1.22</h3>
+
+Released 22-Mar-2002.  (Source tarball re-released after a previous
+release on 19-Mar-2002.)
+
+<ul>
+  <li> <b>Connection points are now much better supported by the user
+       interface.</b> In particular, connection to existing off-grid
+       locations (i.e. off-grid bristles and the wires that connect to
+       them) now works reasonably well.  This includes some internal
+       caching that greatly speeds up mouse tracking.
+  <li> <b>Mouse gesture bindings were revised extensively</b> in order
+       to compensate for a lack of usable modifier keys in Windows; see
+       the <a href="general.html#invoking-mouse-commands">Invoking mouse
+       commands in editor windows</a> section for more information.
+  <li> New "Select Loaded" command.
+  <li> "Kill Def" is now more accurately called "Unload Def."
+  <li> "Add Use" now has better error handling, "Add Loaded Def" now
+       only offers to add uses of defs with icons.
+  <li> "Add Text" now accepts a sequence of strings on the command
+       line.
+  <li> Text parts now highlight as text when adding or moving (in small
+       numbers).
+  <li> Can now do <tt>setf</tt> of <tt>&gt;&gt;</tt> forms.
+  <li> Engineering notation is now always used for numbers.
+  <li> The <tt>visible?</tt> property of pins can now be saved in Janus
+       format (even though Janus doesn't support it).
+  <li> Experimental (i.e. buggy and incomplete) support for def name
+       completion has been added.
+  <li> Work around <tt>clim:menu-choose</tt> bug in part and point
+       command pop-up menus.
+  <li> The <a href="commands.html">command documentation page</a> has
+       been regenerated with the latest inline command descriptions.
+  <li> The code for generating HTML documentation is now included.
+  <li> Plus other documentation improvements.
+  <li> Plus numerous internal tweaks.
+</ul>
+
+<h3>Changes in version 0.1.21</h3>
+
+<p>This was never actually released.
+
+<ul>
+  <li> <b>Pin and net label "Edit Properties" are much improved.</b> In
+       particular, ICanCAD now supports the usual Janus repertoire of
+       <tt>:context</tt> and <tt>:special-property</tt> values.
+  <li> <b>"Edit Parameters" command for adding/changing def
+       parameters.</b>
+  <li> <b>Icons of existing uses can now be changed in "Edit
+       Properties."</b>
+  <li> New "Return To Schematic" command (for after "Edit Icon"), new
+       "Insert Def" command.
+  <li> New icon "Add Schematic Labels" and "Add Schematic Ports"
+       commands, to speed up icon creation when the schematic already
+       exists.
+  <li> The "Edit Def Properties" command has been renamed to "Def
+       Properties" (where it isn't shadowed by "Edit Def").
+  <li> "Add Pin" and "Add Net Label" now allow more than one of each to
+       be added with a single command -- use semicolons to separate the
+       values.
+  <li> It is now possible to back up when adding wires.
+  <li> Library directories are now created when needed, after asking the
+       user (better supported in order to fix bugs).
+  <li> Undo/Redo support for unbound properties.
+  <li> Many improvements/bug fixes to the Janus conversion code,
+       including support for parameters and net label properties.
+  <li> Technology-specific stuff now lives in the
+       <tt>"icancad:process;**;"</tt> tree, instead of
+       <tt>"icancad:code;"</tt>.
+  <li> When typing a def name, the merged result is now shown after you
+       hit <tt>Enter</tt> or the space bar.
+  <li> Pointer highlighting is now correctly redrawn after click
+       (bug&nbsp;25).
+  <li> Renaming a def now updates the frame label.
+  <li> Includes patch for ACL 6.1/Windows font bug.
+  <li> Plus numerous internal tweaks.
+</ul>
+
+<h3>Changes in version 0.1.20</h3>
+
+Released 21-Feb-2002.
+
+<p>This has lots of new stuff, and probably more than a few broken
+things as well.  The massive <tt>wiring.lisp</tt> and
+<tt>janus-save.lisp</tt> patches have been integrated and (to some
+extent) tested.  These new features will be the basis for the 0.2.0
+release, for which this one is really something of an alpha prerelease
+(with at least one more such expected).
+
+<ul>
+  <li> <b>Schematic wiring is now fully supported.</b>
+  <li> <b>Two new Lisp packages have been added.</b> These are called
+       <tt>ICANCAD-USER</tt> and <tt>ICANCAD-ATLAS</tt>, and are needed
+       for Janus compatibility (among other things).
+  <li> <b>Limited technology (IC process) support has been added</b>,
+       including a "Set Technology" command.  Technologies are
+       autoloaded when they are first needed.  No technology definitions
+       ship with ICanCAD as of yet.
+  <li> <b>Transparent interoperability with Janus is now supported.</b>
+       Defs can now be written back to disk in Janus format (which is
+       now fully supported, except for archaicisms).  This happens
+       automatically when you read and write defs with <tt>.sch</tt> and
+       <tt>.shape-def</tt> view suffixes.
+  <li> New "Add Device", "Add Loaded", and "Add Recent" commands, which
+       are all variations on "Add Use."  Also, a new "Add" menu-bar menu
+       was created.  [The documentation still needs to be updated to
+       include these, though.  -- rgr, 21-Feb-02.]
+  <li> The new <tt>com-load-pbin</tt> and <tt>com-dump-pbin</tt>
+       commands can be used to help diagnose and fix save format
+       problems (assuming the PBIN format encoding is intact).
+  <li> The "guts" of a use are now displayed when
+       adding/moving/stretching if there are at most five of them.  This
+       is controlled by the <tt>*maximum-uses-to-highlight-innards*</tt>
+       variable.
+  <li> When adding a use with multiple icons, <tt>Super-Right</tt> now
+       allows the user pick a new one.
+  <li> Schematic uses now have unique (within the def) names generated
+       for them when added to a def.
+  <li> Aborting a command now backs out any partial effects of the
+       command (bug fix).
+  <li> Fixed some bugs with generating mouse documentation.
+  <li> Newly created schematic uses now get their child def parameters
+       set to the defaults (bug fix).
+  <li> When converting from Janus format, coordinates are now divided by
+       10 (instead of 20) to reduce roundoff problems.
+  <li> Extensive documentation updates.
+</ul>
+
+<h3>Changes in version 0.1.19</h3>
+
+Released 25-Jan-2002.
+
+<p>This is another release of mostly minor fixes and internal changes.
+
+<ul>
+  <li> Report roundoff errors in Janus conversion.  If
+       <tt>*janus-conversion-verbose?*</tt> is set, then a message is
+       generated for every roundoff error.
+  <li> The "Cut" and "Copy" commands now print a message if no parts
+       were copied to the kill ring.
+  <li> The two-point rewindow command now offers "Exit" as an option
+       when asking for the second point.
+  <li> Part colors are now canonicalized when saving, which makes the
+       resulting files more compact.
+  <li> Plus numerous internal tweaks.
+</ul>
+
+<h3>Changes in version 0.1.18</h3>
+
+Released 7-Jan-2002.
+
+<p>For the most part, these are minor fixes or internal changes, since
+"serious" development is now happening in patch files, but it's been too
+long since the last release.
+
+<ul>
+  <li> Atlas text parts in Janus icons are now converted; previously,
+       they were ignored.
+  <li> Labels in Janus icons that do not correspond to def parameters
+       are ignored, and a warning is printed.
+  <li> If you write a new version of a def on disk (still not
+       recommended, as the save format hasn't stabilized yet), the old
+       disk file is correctly made into a backup file.
+  <li> At startup, load "sys:icancad.lisp" instead of "sys:clinit.cl".
+  <li> Slightly better window labels (at least internally).
+  <li> Lots of other minor internal tweaks.
+</ul>
+
+<h3>Changes in version 0.1.17</h3>
+
+Released 15-Dec-2001.
+
+<ul>
+  <li> <b>ICanCAD now uses PBIN format for saved defs.</b>
+  <li> Init file loading has been improved, and made more consistent
+       between the binary and source distributions.
+  <li> "Edit Def" and related commands are now more robust in the face
+       of defs that are so broken they cannot be displayed.
+  <li> Some bugs in parsing and handling wildcarded def names have been
+       fixed.  It is not likely that all such bugs have been fixed (and
+       the change is large enough that it may create problems of its
+       own).
+  <li> Fixed bugs in reading PBIN strings, dotted lists.
+  <li> Fixed a bug in converting schematic net labels.
+  <li> The top level now avoid infinite error loops when (e.g.)
+       something cannot be displayed; if three errors happen after a
+       single command, ICanCAD stops with a "Three strikes and you're
+       out" message.
+  <li> Skip and retry options are now presented (in the debugger) when a
+       child def cannot be found during conversion of a Janus use.
+</ul>
+
+<h3>Changes in version 0.1.16</h3>
+
+Released 6-Dec-2001.
+
+<ul>
+  <li> <b>The "List Defs" command now lists defs on disk, instead of
+       just those in memory</b>, and offers to truncate long listings by
+       just listing the libraries (aka directories) with defs in them.
+       The old "List Defs" command is now the "List Loaded Defs"
+       command.  <b>Both commands now accept <tt>"**"</tt>, the
+       directory "accordion wildcard" sequence.</b>
+  <li> "Rename Def" and "Write Def" (aka "Save As") now check to see if
+       the directory exists, and offers to create it if not.
+  <li> Since scroll bars didn't work and the implementation was too
+       obscure to figure out how to fix them, scroll bars have been
+       removed from editor windows entirely.  (Re-adding them is now on
+       the list of enhancements; see <a
+       href="bugs.html#enh-4">enhancement 4</a>.)
+  <li> Fixed two bugs in computing the available modifier chords for the
+       "More commands on..." pointer documentation.
+  <li> Fixed a bug that drew net label icons upside-down for some label
+       orientations.
+  <li> ICanCAD now comes with an updated version of mk-defsystem 3.2i
+       from <a href="http://clocc.sourceforge.net/">CLOCC</a> (labelled
+       "defsystem-3-2i-2" in order to distinguish it from the previous
+       version, which was also "3.2i").  I have modified it slightly to
+       pass logical pathnames to the <tt>compile-file</tt> function
+       (patch submitted).
+  <li> Other miscellaneous release-related cleanups.
+</ul>
+
+<h3>Changes in version 0.1.15</h3>
+
+Released 27-Nov-2001.
+
+<ul>
+  <li> <b>ICanCAD now understands Janus "PBIN" (Portable Binary)
+       format.</b>  This is the default save format in Janus, so all
+       Janus design databases can be converted directly.  ICanCAD still
+       doesn't understand how to write PBIN, nor how to convert back to
+       the Janus save format, so it is still not possible to edit Janus
+       designs.
+  <li> <b>Many new commands:</b>
+       <ul>
+	 <li> "Add Arc"
+	 <li> "Add Label" (for icon label-def parts)
+	 <li> "Add Use" (stubby, and hasn't really been tested for
+	      schematic uses)
+	 <li> "New Def"
+	 <li> "Stretch Orthogonally" (menu command that toggles.  "Set
+	      Def Modified" now toggles in the same way.)
+	 <li> "Delete vertex" (mouse command)
+       </ul>
+  <li> "List Defs" now takes a wildcard def name argument.
+  <li> The menu of kinds of parts to add (available on Super-Right) now
+       has a nearly complete set of current and future parts.  Part
+       kinds that are not legal for the current def, such as label-defs
+       in anything but a schematic icon def, or that are not yet
+       implemented, are greyed out in this menu.
+  <li> Similarly, the "Add <i>Kind</i>" menu items on the menu bar
+       'Edit' menu are now greyed out if the part <i>kind</i> isn't
+       legal to add to the def being edited.
+  <li> <b>Finally fixed text drawing.</b> Text is now drawn to fit
+       within the bounding box, to the limits of the font set available
+       through CLIM.
+  <li> <b>Fixed several mouse tracking bugs:</b>
+       <ul>
+	 <li> Mouse motion events are no longer dropped.  This was due
+	      to IPC bugs between the ICanCAD process and the Motif
+	      event handler (I had forgotten that they ran in separate
+	      threads).  More such bugs may yet exist.
+	 <li> Windows now keep track of when the mouse has exited.
+	 <li> ALL shift changes are now handled properly.  The
+	      highlighting and pointer documentation now update
+	      immediately; formerly, you had to also move the mouse.
+       </ul>
+       Plus related pointer document code robustness improvements.
+  <li> Fixed a bug whereby "Add Line" gave you a polygon, and "Add
+       Polygon" gave you a line.
+  <li> Fixed a bug in selection highlighting that interacted badly with
+       stretching, leading to screen garbage.
+  <li> Fixed a bug in screen erasure (i.e. more screen garbage).
+  <li> Arcs, oblongs, and symbolic uses now save and load correctly.
+  <li> Menus and <a href="commands.html">command documentation</a> were
+       updated to make them correspond by name.  Some additional command
+       documentation was written, but there is still much to be done.
+  <li> Many miscellaneous internal cleanups.
+</ul>
+
+<h3>Changes in version 0.1.14</h3>
+
+Released 12-Nov-2001.
+
+<ul>
+  <li> <b>ICanCAD now has a kill ring</b>, also known as a 'cut buffer.'
+       There are still some missing features (see <a
+       href="bugs.html">bugs 17 and 18</a>).
+  <li> <b>Arcs are now stretchable.</b>  They stretch the same way they
+       are added, by dragging any of the three defining vertices.
+  <li> In contradistinction to polygons, lines are never filled now,
+       though they still have a fill color.  Closing a line (e.g. by
+       adding a vertex or moving the endpoints) converts it into a
+       polygon, which shares the same part class as lines and differ
+       only in being closed.  (Unfortunately, there is no user interface
+       as yet to convert a polygon back into a line; see <a
+       href="bugs.html">bug 16</a>.)
+  <li> Part selection is now shown consistently for all selected parts
+       by highlighting their handles.
+  <li> Some internal vector-text fixes (but the font is still not
+       complete).
+  <li> Miscellaneous Genera updates.
+</ul>
+
+<h3>Changes in version 0.1.13</h3>
+
+Released 6-Nov-2001.
+
+<ul>
+  <li> <b>Parts are now stretchable</b> (but not yet arcs).  Select the
+       part, then click on a corner or an edge to drag it to a new
+       location.  Some of this behavior can be controlled via the
+       <tt>*handle-radius*</tt> and <tt>*stretch-orthogonally-p*</tt>
+       variables (q.v.).
+  <li> <b>There are now more part-adding commands on the "Edit"
+       menu</b>, nearly a complete set.  There is also an "Add last
+       part" command on Super-Middle, and an "Add random part" command
+       on Super-Right.
+  <li> New "Add vertex" mouse command.
+  <li> Gesture definitions are now in their own file,
+       <tt>clim-gestures.lisp</tt>.  This may make it easier for users
+       to redefine them.  (Also added the <tt>handles.lisp</tt> and
+       <tt>clim-add.lisp</tt> files.)
+  <li> Lines are now highlighted with a dashed pattern, controlled by
+       the <tt>*highlighted-line-dash-pattern*</tt> variable.
+  <li> Conversion of a Janus shape-def now attempts to guess a
+       reasonable default grid, if none was defined explicitly.
+  <li> A bug in the interpretation of Janus rotation angles was fixed,
+       which also exposed a bug in rotation/reflection composition
+       order.
+  <li> Some bugs in drawing arrowheads were fixed.  Arrowhead drawing is
+       now consistent with polygons in its use of fill and outline
+       colors.
+  <li> Fixed a bug in generating the command documentation string if it
+       was more than the line length.
+  <li> Plus lots of miscellaneous changes (make props editable, new
+       gestures, new generics, debug tools, obsoleting old mouse code,
+       etc.).
+</ul>
+
+<h3>Changes in version 0.1.12</h3>
+
+Released 31-Oct-2001.
+
+<ul>
+  <li> <b>A second line of pointer documentation is now supported</b>,
+       and is used for "More commands on ..." (but the code that
+       generates it still doesn't work quite right).
+  <li> New <tt>*part*</tt> variable, which is set by selecting a single
+       part.
+  <li> Improved highlighting of lines/polygons/arrows, controlled by the
+       <tt>*highlighted-line-dash-pattern*</tt> variable.
+  <li> Improved selection of polygons.
+  <li> Redundant line (path or polygon) vertices are now removed when
+       the line is created or changed.  (They are also removed for
+       arrows, which is probably a bug.)
+  <li> Two bugs in arc transformation fixed:  Angles are now transformed
+       with the part (previously, they were ignored), and a bug in
+       <tt>rot90</tt> arc drawing was fixed (that had probably been
+       caused/uncovered by the transform composition fix in 0.1.10).
+  <li> "Pop" & "Select region" now insist on having an editor window,
+       avoiding blowups.
+  <li> Fixed an internal property definition bug:  An explicit
+       <tt>:writer</tt> function should override setting the slot for
+       properties with <tt>:instance</tt> allocation.
+  <li> Some splitting of source and documentation files, plus additional
+       documentation update.
+</ul>
+
+<h3>Changes in version 0.1.11</h3>
+
+Released 24-Oct-2001.
+
+<p>New <a href="dpt.html">dynamic presentation translator</a> features:
+<ul>
+  <li> <b>Search of part and point objects underneath the mouse is now
+       integrated with finding applicable commands</b> (CLIM
+       translators), for both top-level commands and modal subcommands.
+  <li> <b>Stateful highlighting</b> allows modal commands to provide
+       better feedback.
+  <li> Rewindowing commands (internally, all presentation actions) can
+       be executed at any time within modal commands.
+  <li> It is no longer necessary to move the mouse into the bounding box
+       of a part in order to select it and/or operate on it; being
+       within <tt>*min-selection-distance*</tt> (default is 20 pixels)
+       is enough.
+  <li> "Move" and "Copy" now allow rotation and reflection as modal
+       subcommands; their effects are reflected in the orientation of
+       the parts that are dragged along with the mouse cursor.
+  <li> Plus miscellaneous related pointer documentation improvements.
+</ul>
+
+<p>Other changes:
+<ul>
+  <li> "Describe Part" now actually does <tt>describe</tt>.
+  <li> Selection of lines and polygons now uses the path itself, and not
+       just the bounding box.
+</ul>
+  
+<p>Other internal changes:
+<ul>
+  <li> Added some hooks for part handles, for stretching parts other
+       than schematic wiring.
+</ul>
+
+<h3>Changes in version 0.1.10</h3>
+
+Released 11-Oct-2001 (which is a palindrome date if expressed in the
+American "MM-DD-YY" style: 10-11-01).
+
+<p>New:
+<ul>
+  <li> New <tt>make-transform</tt> function that provides an interface
+       to transform composition routines.
+  <li> New "Zoom" command that takes a relative scale factor.
+</ul>
+
+<p>Fixed:
+<ul>
+  <li> <b>Fixed a major bug in computing transform composition</b>:  If
+       x.y was different than y.x, it had been using the wrong
+       composition order.  This fixes some drawing problems where the
+       bbox would appear in a different place than the use (because the
+       use was being drawn with the window.use composition, but the bbox
+       was effectively being transformed by each one separately), but
+       may expose new Rel-Janus transform conversion bugs.
+  <li> Fixed a bug in move of overlapping parts; the second part didn't
+       get undrawn properly.  (Only affects the non-presentation
+       version.)
+  <li> Fixed a bug in text save/copy that prevented the text string
+       itself from being copied.
+  <li> The history of visited defs (used by "Select Buffer") is now
+       initialized correctly.  It used to omit the first def.
+  <li> Label use bboxes are now initialized more intelligently.
+  <li> Fixed a bug in rehighlighting on re-exposure after being
+       partially obscured that would left garbage on the screen.  (May
+       only affect the non-presentation version.)
+  <li> Use parts now get highlighted correctly (we used to ignore the
+       use transform).
+  <li> Some text size tweaks.  It's far from perfect; strings still run
+       outside the bbox at smaller scales, because the character aspect
+       ratio gets fatter as the scale decreases.
+</ul>
+
+<h3>Changes in version 0.1.9</h3>
+
+Released 30-Sep-2001.  (Not much happened in the two and a half months
+since the last release because I've been working on things that are not
+yet ready for release.)
+
+<ul>
+  <li> New "Select Buffer" command.
+  <li> Grid support, "Changed Def Grid" command.  (Previously, there had
+       been a hardwired grid that happened to work for the test
+       schematics I've seen.)
+  <li> New <tt>*draw-too-big-text*</tt> and
+       <tt>*draw-too-small-text*</tt> user option variables.
+  <li> <tt>edit-properties-for-value</tt>, plus numerous property
+       substrate tweaks.
+</ul>
+
+Other changes were made for the sake of the following incomplete
+features:
+<ul>
+  <li> Vector font for last-resort text drawing.
+  <li> McCLIM support.
+  <li> Genera support.
+</ul>
+These features are not yet ready for release.
+
+<h3>Changes in version 0.1.8</h3>
+
+Released 19-Jul-2001.
+
+<ul>
+  <li> "Add Polygon" always creates filled objects; "Add Line" never
+       fills.
+  <li> Clicking on the background pane now does "Unselect All" only on
+       CAD windows (i.e. not the interaction pane).
+  <li> <tt>find-property</tt> now signals the <tt>unbound-property</tt>
+       condition if the property is not bound.
+  <li> Fixed some bugs in copying a use with labels.
+  <li> Made the "Push" and "Push Icon" commands work from the menu.
+</ul>
+
+<h3>Changes in version 0.1.7</h3>
+
+Released 28-Jun-2001.
+
+<ul>
+  <li> <b>Use labels now behave much as in Rel-Janus.</b> To support
+       this, push contexts (the object that tells from where you pushed)
+       now record the "actual" parameter values for the use through
+       which you are pushed.
+  <li> The new <tt>&gt;&gt;</tt> macro is for iterated
+       <tt>get-property</tt> references.  For instance, <tt>(&gt;&gt; x1
+       part3)</tt> returns the left edge coordinate of the part named
+       <tt>part3</tt> in the current def.
+  <li> There is now a formal <tt>:default</tt> property attribute.  The
+       optional third argument to <tt>get-property</tt> is now obsolete.
+  <li> Minor bug fixes:  Revert Def ensures that there is a disk version
+       first, before any further questions;
+       <tt>default-frame-top-level</tt> now binds the <tt>*package*</tt>
+       global, def computed props now return correct <tt>bound-p</tt>
+       value, primitive icon parameters are now properly converted.
+  <li> Much internal class rearrangement, to support uses with internal
+       parts (for use labels, and eventually bristles).
+</ul>
+
+<h3>Changes in version 0.1.6</h3>
+
+Released 15-Jun-2001.
+
+<ul>
+  <li> New *icancad-version* variable holds the version string,
+       e.g. "0.1.6".
+  <li> The Pop command now knows from whence you Pushed.
+  <li> Internal text part reorganization (split the text-part class out
+       of basic-text).
+  <li> New label-def part class, now used instead of plain text when
+       converting label-text parts in Rel-Janus shape defs.
+  <li> New ICC package nickname, clean up of legacy packages via
+       aliasing.
+</ul>
+
+<h3>Changes in version 0.1.5</h3>
+
+Released 19-May-2001.
+
+<ul>
+  <li> "Revert Def" and "Kill Def" commands.
+  <li> Fixed two windowing bugs.
+  <li> Miscellaneous internal cleanups.
+</ul>
+
+<h3>Changes in version 0.1.4</h3>
+
+Released 11-May-2001.
+
+<ul>
+  <li> New menus, filled with commands that mostly don't work yet.  But
+       ICanCAD is finally beginning to look like an editor.
+  <li> "Set Fill Color" and "Set Outline Color" that change the color of
+       selected parts, or the default color if none selected.
+  <li> "Add Rect" and "Add Line" commands.
+  <li> Fixed some display update bugs.
+  <li> Added the <a href="window-internals.html">
+       window-internals.html</a> page.
+</ul>
+
+<h3>Changes in version 0.1.3</h3>
+
+Released 14-Apr-2001.
+
+<ul>
+  <li> Now compiles in CMUCL, though without the graphics.  [7-Dec-00]
+  <li> Proper <tt>def-name</tt> objects.  [8-Mar-01]
+  <li> <tt>def-pathname</tt> now uses the "ICANCAD-DESIGNS" logical host
+       to map def names to file names.  [11-Mar-01]
+  <li> Fixed a bug that didn't allow def <tt>":writable-p&nbsp;nil"</tt>
+       properties to be reread from disk.  [23-Mar-01]
+  <li> def-child-uses, def-parent-uses, def-child-defs, and
+       def-parent-defs fns.  [24-Mar-01]
+  <li> basic part-saving support machinery.  [25-Mar-01]
+  <li> <tt>file-state</tt> structures, support for detecting defs
+       changed on disk.  [27-Mar-01]
+  <li> Hack "lazy refresh" implementation that uses CLIM output
+       recording.  [5-Apr-01]
+  <li> Started improving property/slot/initarg name consistency.
+       [8-Apr-01 &amp; continuing]
+  <li> Fix <tt>finish-transaction</tt> bug when Undo is disabled.
+       [11-Apr-01]
+  <li> Fix bug in undrawing selected part.  [13-Apr-01]
+  <li> Clean up def creation, especially for conversion.  [13-Apr-01]
+  <li> Don't save :virtual props as explicit.  [14-Apr-01]
+  <li> Use new corner names, e.g. :bottom-right, and convert Rel-Janus
+       defs accordingly.  [14-Apr-01]
+  <li> Pop, Set Modified, Save Def, Write Def (Save As), Rename Def
+       commands.  [various dates]
+</ul>
+     
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Tue Jan 28 22:03:03 EST 2003
+<!-- hhmts end -->
+</body> </html>

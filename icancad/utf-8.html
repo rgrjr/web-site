@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+</head>
+
+<body bgcolor=white>
+<h1></h1>
+
+Taken verbatim from <a
+href="http://www.unicode.org/unicode/reports/tr27/">
+<tt>http://www.unicode.org/unicode/reports/tr27/</tt></a>.
+
+<p>
+<blockquote>
+<table border="1" cellspacing="0" cellpadding="4" cols="5">
+  <caption><b><font size="4">Table 3.1B. Legal UTF-8 Byte Sequences</font></b></caption>
+  <tr>
+    <th bgcolor="#CCCCCC" style="background-color: #990000" width="10%"><font
+	 color="#FFFFFF">&nbsp;Code Points</font></th>
+    <th width="10%" style="background-color: #990000"><font color="#FFFFFF">1st
+	 Byte</font></th>
+    <th width="10%" style="background-color: #990000"><font color="#FFFFFF">2nd
+	 Byte</font></th>
+    <th width="10%" style="background-color: #990000"><font color="#FFFFFF">3rd
+	 Byte</font></th>
+    <th width="10%" style="background-color: #990000"><font color="#FFFFFF">4th
+	 Byte</font></th>
+  </tr>
+  <tr>
+    <th style="background-color: #990000" width="10%"><tt><font
+	 color="#FFFFFF">U+0000..U+007F</font></tt></th>
+    <td width="10%"><tt>00..7F</tt></td>
+    <td width="10%"><tt>&nbsp;</tt></td>
+    <td width="10%"><tt>&nbsp;</tt></td>
+    <td width="10%"><tt>&nbsp;</tt></td>
+  </tr>
+  <tr>
+    <th style="background-color: #990000" width="10%"><tt><font
+	 color="#FFFFFF">U+0080..U+07FF</font></tt></th>
+    <td width="10%"><tt>C2..DF</tt></td>
+    <td width="10%"><tt>80..BF&nbsp;</tt></td>
+    <td width="10%"><tt>&nbsp;</tt></td>
+    <td width="10%"><tt>&nbsp;</tt></td>
+  </tr>
+  <tr>
+    <th style="background-color: #990000" width="10%"><tt><font
+	 color="#FFFFFF">U+0800..U+0FFF</font></tt></th>
+    <td width="10%"><tt>E0</tt></td>
+    <td width="10%"><tt><u>A0</u>..BF</tt></td>
+    <td width="10%"><tt>80..BF&nbsp;</tt></td>
+    <td width="10%"><tt>&nbsp;</tt></td>
+  </tr>
+  <tr>
+    <th style="background-color: #990000" width="10%"><tt><font
+	 color="#FFFFFF">U+1000..U+FFFF</font></tt></th>
+    <td width="10%"><tt>E1..EF</tt></td>
+    <td width="10%"><tt>80..BF</tt></td>
+    <td width="10%"><tt>80..BF&nbsp;</tt></td>
+    <td width="10%"><tt>&nbsp;</tt></td>
+  </tr>
+  <tr>
+    <th style="background-color: #990000" width="10%"><tt><font
+	 color="#FFFFFF">U+10000..U+3FFFF</font></tt></th>
+    <td width="10%"><tt>F0</tt></td>
+    <td width="10%"><tt><u>90</u>..BF</tt></td>
+    <td width="10%"><tt>80..BF</tt></td>
+    <td width="10%"><tt>80..BF</tt></td>
+  </tr>
+  <tr>
+    <th style="background-color: #990000" width="10%"><tt><font
+	 color="#FFFFFF">U+40000..U+FFFFF</font></tt></th>
+    <td width="10%"><tt>F1..F3</tt></td>
+    <td width="10%"><tt>80..BF</tt></td>
+    <td width="10%"><tt>80..BF</tt></td>
+    <td width="10%"><tt>80..BF</tt></td>
+  </tr>
+  <tr>
+    <th style="background-color: #990000" width="10%"><tt><font
+	 color="#FFFFFF">U+100000..U+10FFFF</font></tt></th>
+    <td width="10%"><tt>F4</tt></td>
+    <td width="10%"><tt>80..<u>8F</u></tt></td>
+    <td width="10%"><tt>80..BF&nbsp;</tt></td>
+    <td width="10%"><tt>80..BF</tt></td>
+  </tr>
+</table>
+
+<p><u>Table 3.1B. lists all of the byte sequences that are legal in UTF-8. A
+range of byte values such as A0..BF indicates that any byte from A0 to BF
+(inclusive) is legal in that position. Any byte value outside of the ranges
+listed is illegal. For example, the byte sequence &lt;C0 AF&gt; is <i>illegal</i>
+since C0 is not legal in the 1st Byte column. The byte sequence &lt;E0 9F 80&gt;
+is <i>illegal</i> since in the row where E0 is legal as a first byte, 9F is not
+legal as a second byte. The byte sequence &lt;F4 80 83 92&gt; is <i>legal</i>,
+since every byte in that sequence matches a byte range in a row of the table
+(the last row).</u>
+</blockquote>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sat Dec  1 17:51:25 EST 2001
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,240 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD: Installation instructions</title>
+</head>
+
+<body bgcolor=white>
+<h2>ICanCAD: Installation instructions</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="./">ICanCAD</a> :
+Installation
+<hr>
+
+<p><i>Version 0.1.15, Bob Rogers, 27 November 2001</i>
+
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> ICanCAD: Installation instructions
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#reqs">System requirements</a>
+	 <li> <a href="#steps">Installation steps</a>
+	 <li> <a href="#md5">MD5 checksums for recent releases</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name=reqs>
+<h3>System requirements</h3>
+
+We will assume:
+<ul>
+  <li> You are installing on Allegro 6.0 running under Linux, and that
+       Allegro is in the <tt>/usr/local/acl60</tt> directory.
+  <li> You want ICanCAD to be installed under the
+       <tt>/usr/local/src</tt> directory.
+</ul>
+If either of these is not the case, you will need to adjust accordingly.
+ICanCAD may also run under <a
+href="http://www.xanalys.com">LispWorks</a> on Linux, but this has not
+been tested; it is likely to require some porting effort, because
+LispWorks uses a somewhat different version of CLIM than Allegro.
+LispWorks on Windows would require more effort, as the code probably
+makes Unix assumptions internally.  (ICanCAD is known to compile under
+<a href="http://www.cons.org/cmucl/"> CMU Common Lisp (CMUCL) version
+18c</a>, which is free, but CMUCL doesn't have CLIM, so none of the
+editing stuff is available.)
+
+<a name=steps>
+<h3>Installation steps</h3>
+
+<ol>
+  <li> Download the distribution <tt>tar</tt> file from <a
+       href="ICanCAD-0.1.15.tgz">
+       <tt>http://rgrjr.dyndns.org/icancad/ICanCAD-0.1.15.tgz</tt></a>
+       (a hair under 1MB gzipped, and around 3.5 megabytes on disk).  In
+       Netscape, <i>shift-left</i> on the preceding link should do it.
+       (There is also a "zip" archive at <a href="ICanCAD-0.1.15.zip">
+       <tt>http://rgrjr.dyndns.org/icancad/ICanCAD-0.1.15.zip</tt></a>,
+       but you're on your own for installing it.)
+
+       <p>If you like, you can compare <a href="#md5">MD5 checksums</a>,
+       though you'll have to get the right checksum value from a later
+       version of this page than is on the tarball.
+
+       <p>
+  <li> Unpack the tar file:
+       <pre>
+       cd /usr/local/src
+       tar xzf <i>tarfilename</i>
+       cd ICanCAD-0.1.15
+</pre>
+       The tarfile may now be deleted.
+
+       <p>
+  <li> Define the "ICANCAD" logical host with a translation rule that
+       points it to the installed ICanCAD directory tree.
+
+       <p>
+       <dl>
+	 <dt> If you are only running ACL 6.0:
+	 <dd> Add the following line to the system logical pathname
+	      translations file, which should be in
+	      <tt>/usr/local/acl60/hosts.cl</tt>:
+	      <pre>
+"icancad"    '("**;*.*.*" "/usr/local/src/ICanCAD-0.1.15/**/*.*")
+</pre>
+	      [This won't work for 5.0.1 and earlier.  -- rgr,
+	      14-Apr-01.]
+
+	      <p>
+	 <dt> Otherwise:
+	 <dd> In a Lisp file that is loaded as part of the startup
+	      process, add the following form:
+	      <pre>
+(setf (logical-pathname-translations "ICANCAD")
+      '(("**;*.*.*" "/usr/local/src/ICanCAD-0.1.15/**/*.*")))
+</pre>
+	      This will do the same in a more generic way.  If you are
+	      only installing ICanCAD for yourself, you can put this in
+	      your personal init file (<tt>"~/clinit.cl"</tt> for
+	      Allegro).  If you are installing for multiple users at
+	      your site, you will want to put this in a standard site
+	      init file (<tt>"/usr/local/acl60/siteinit.cl"</tt> for
+	      Allegro).  If you are installing for multiple Lisps, you
+	      should create a common file,
+	      e.g. <tt>"/etc/icancad.lisp"</tt>, that can be loaded from
+	      each of the vendor-specific init files.
+       </dl>
+
+       <p>Note that some Lisps may deal with accordion wildcards (the
+       "**" business) better than others.
+
+       <p>
+  <li> Do the same thing for the "ICANCAD-DESIGNS" logical host,
+       pointing it at the existing design database.  What I use is more
+       or less equivalent to this:
+       <pre>
+(setf (logical-pathname-translations "ICANCAD-DESIGNS")
+      '(("janus;shapes;*.*"
+	 "/home/janus/janus-tech-specific/shape-process/shapes/*.*")
+	("ams-byq-process;shapes;*.*"
+	 "/home/janus/janus-tech-specific/ams-byq-process/shapes/*.*")
+	("*;*;*.*" "/home/*/janus/*/*.*")
+	("*;*;*;*.*" "/home/*/janus/*/*/*.*")
+	("*;*;*;*;*.*" "/home/*/janus/*/*/*/*.*")))
+</pre>
+       The first rule maps the <tt>janus:shapes;</tt> library to the
+       <tt>/home/janus/janus-tech-specific/shape-process/shapes/</tt>
+       directory, and the last three rules map each user's libraries
+       with two to four library name components (two is the minimum) to
+       the <tt>"janus"</tt> subdirectory of their home directory.  Using
+       separate rules is for the benefit of Lisps that don't support
+       "accordion wildcard" matching.  [The <a
+       href="libraries.html">library</a> stuff implemented in this
+       version is rudimentary at best.  -- rgr, 14-Apr-01.]
+</ol>
+
+ICanCAD should now be installed.  To test the installation, you should
+start the editor:
+
+<ol>
+  <li> In <tt>emacs</tt>, start Allegro using the
+       <tt>M-x&nbsp;fi:common-lisp</tt> command.
+
+       <p>
+  <li> In the Lisp session, load the system definition file, and then
+       load the ICanCAD system itself.  The first Lisp "command"
+       (actually, an expression), shown at the <tt>"cl-user(1):"</tt>
+       prompt in blue, sets the pathname translations for the "ICANCAD"
+       logical host by hand; this will not be necessary if you installed
+       it in a standard system place (step 3 above).  The next command
+       loads <tt>"icancad:code;icancad.system"</tt>, a logical pathname
+       that refers to the system definition file indirectly, by means of
+       the "ICANCAD" translations.  This pathname string will therefore
+       be the same regardless of where you installed ICanCAD.
+       (Transcript edited slightly for readability.)
+       <pre>
+    cl-user(1): <font color=blue>(setf (logical-pathname-translations "ICANCAD")
+	  '(("**;*.*.*" "/usr/local/src/ICanCAD-0.1.15/**/*.*")))</font>
+    (("**;*.*.*" "/usr/local/src/ICanCAD-0.1.15/**/*.*"))
+    cl-user(2): <font color=blue>(load "icancad:code;icancad.system")</font>
+    ; Loading icancad:code;icancad.system
+    ;    (/usr/local/src/ICanCAD-0.1.15/code/icancad.system)
+    ;   Fast loading icancad:defsystem-3-2i;defsystem.fasl
+    ;      (/usr/local/src/ICanCAD-0.1.15/defsystem-3-2i/defsystem.fasl)
+    T
+    cl-user(3): <font color=blue>(mk:load-system :icancad)</font>
+    ; Loading /usr/local/src/ICanCAD-0.1.15/icancad.system
+    ; Fast loading /usr/local/src/ICanCAD-0.1.15/pkg.fasl
+    ; . . .
+    ; Fast loading /usr/local/src/ICanCAD-0.1.15/debug.fasl
+    (#&lt;MODULE: main&gt; #&lt;MODULE: basic&gt;)
+    cl-user(4): <font color=blue>(in-package :icancad)</font>
+    #&lt;The ICANCAD package&gt;
+    ICC(5):
+</pre>
+       At this point, you have ICanCAD loaded into a running Lisp.
+       Note: You should use <tt>mk:compile-system</tt> instead of
+       <tt>mk:load-system</tt> if you have different hardware or Lisp
+       software, or if you ever patch the source.
+
+       <p>
+  <li> Start up the ICanCAD editor:
+<pre>
+    ICC(5): <font color=blue>(setq *def* (find-def "sas:ia;v5chgswtch.sch.newest"))</font>
+    Reading sas:ia;v5chgswtch.sch
+    Reading ams-byq:logic;inv.sch
+    . . .
+    Reading janus:shapes;nor-2.shape-def
+    Reading sas:ia;v5chgswtch.shape-def
+    #&lt;SCHEMATIC-ICON-DEF sas:ia;v5chgswtch.sch, 79 parts @ #x20b0aa0a&gt;
+    ICC(6): <font color=blue>(ICanCAD)</font>
+    #&lt;icancad @ #x206241ea&gt;
+    ICC(7): 
+</pre>
+       After this step, you should see the editor window come up with
+       the <tt>sas:ia;v5chgswtch.sch.newest</tt> def prominently
+       displayed.
+</ol>
+
+<a name=md5>
+<h3>MD5 checksums for recent releases</h3>
+
+Needless to say, the version of this page that is contained in any given
+distribution archive file can't have the MD5 sum for that release.  So
+you will need to consult the Web version to get the checksums for the
+latest release.
+
+<p><tt>gzip</tt>'ed <tt>tar</tt> archive files:
+<blockquote>
+<pre>
+ecb7e6e028c7b9a00ac1ec9f5945a81b  ICanCAD-0.1.11.tgz
+718b2f626f1b0371c067a024448ba023  ICanCAD-0.1.12.tgz
+1ad11150c4ec822df887a2f1a1db1118  ICanCAD-0.1.13.tgz
+2e86ef15e6515d903cd09e0375efd6f3  ICanCAD-0.1.14.tgz
+8efe8d69ab39e4b1fe1bed82d1ce7417  ICanCAD-0.1.15.tgz
+</pre>
+</blockquote>
+
+<p>Zip archive files:
+<blockquote>
+<pre>
+cceb57060118abfb0914d3d24bc8419a  ICanCAD-0.1.11.zip
+3ba1b1ce31b4f414f05a135ae86bf3cf  ICanCAD-0.1.12.zip
+a55f418874d7b42fcb46d5470a5913bb  ICanCAD-0.1.13.zip
+33657c4bf074cd3c1737f7e62f142b72  ICanCAD-0.1.14.zip
+7826bf4230b38212d0be733847e0f78b  ICanCAD-0.1.15.zip
+</pre>
+</blockquote>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Tue Nov 27 22:01:10 EST 2001
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,518 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>rgr-hacks</title>
+</head>
+
+<body bgcolor=white>
+
+<a name=rgr-hacks>
+<h2>Emacs hacks for bootcamp</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Emacs tips</a> :
+<tt>rgr-hacks</tt>
+<hr>
+
+<p>This is a subset of my personal collection of hacks and tweaks; by
+default, not all of it is enabled.
+
+<h3>Table of Contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> <a href="#rgr-hacks">Emacs hacks for bootcamp</a>
+       <ol>
+	 <li> Table of Contents
+	 <li> <a href="#install">Installation</a>
+	 <li> <a href="#abbrev-completion">Using <tt>rgr-abbrev-completion</tt> to save typing</a>
+	 <li> <a href="#rgr-mouse">Mouse commands</a>
+	 <li> <a href="#hhm-commands">Useful commands in <code>html-helper-mode</code></a>
+	      <ol>
+		<li> <a href="#rgr-html-hacks">Additional <tt>rgr-html-hacks</tt> commands</a>
+		<li> <a href="#hhm-more">More <code>html-helper-mode</code> documentation</a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name = install>
+<h3>Installation</h3>
+
+These installation instructions are for setting up your bootcamp machine
+with the extra emacs stuff documented below.
+
+<ol>
+  <li> Download the file <a
+       href="rgr-hacks-1.3.tar.gz"><tt>rgr-hacks-1.3.tar.gz</tt></a>
+       into your home directory.  (Clicking on the link should be
+       sufficient to accomplish this.)
+
+       <p>
+  <li> Untar this into your <tt>~/emacs</tt> directory.  In a shell, do
+       the following:
+       <pre>
+       cd
+       gunzip &lt; rgr-hacks-1.3.tar.gz | tar xf -
+       </pre>
+       This creates an <tt>~/emacs</tt> directory, if one does not
+       already exist.
+
+       <p>
+       <a name = dot-emacs>
+  <li> Install the sample <code>.emacs</code> file in your home
+       directory.
+       <pre>
+       mv emacs/dot-emacs.el .emacs
+       </pre>
+       (Don't forget the dot in <tt>".emacs"</tt>!)
+       <blockquote>
+       <b>-- Or -- </b>
+       </blockquote>
+       If you already have a <code>.emacs</code> file, you may prefer to
+       append the new stuff:
+       <pre>
+       cat emacs/dot-emacs.el &gt;&gt; .emacs
+       </pre>
+
+       <p>
+  <li> Start a new <tt>emacs</tt>, and you should have it.  Find a
+       <tt>.html</tt> file using <tt>C-x&nbsp;C-f</tt> to test it (an
+       empty file is fine); the mode line (in inverse video near the
+       bottom) should say
+       <pre>
+       --:** foo.html              (HTML helper Fill)--L3--All--------
+       </pre>
+       or something similar.
+</ol>
+
+Enjoy, and let me know if you encounter any bugs.
+
+<a name = abbrev-completion>
+<h3>Using <tt>rgr-abbrev-completion</tt> to save typing</h3>
+
+emacs has an "abbrev" concept whereby you can save typing by using
+abbreviations, which emacs will automatically expand as they are typed.
+This has the disadvantage that the abbreviations must predefined, and
+furthermore they must be unique.  There is also a notion of definition
+name completion (e.g. <tt>M-TAB</tt> in the minibuffer when <tt>M-.</tt>
+prompts you for a tag name) that uses the same style of completion as
+for file names, but this is limited to names of definitions found in <a
+href="advanced.html#meta-dot">tags tables</a>, and runs into the problem
+that definitions usually have common prefixes.
+
+<p>In the mean time, I got used to a package on the Symbolics Lisp
+Machine that had the best features of both, plus some extras.  When I
+stopped being able to use Lisp Machines, I hacked a version (from
+memory) for emacs that I called <tt>rgr-abbrev-completion</tt>.  It currently has
+the following features:
+
+<ul>
+  <li> Names are learned automatically whenever you read in a file in a
+       syntax that <tt>rgr-abbrev-completion</tt> knows about.
+       Currently supported language modes are <tt>emacs-lisp-mode</tt>,
+       <tt>lisp-mode</tt>, <tt>makefile-mode</tt>, and <tt>c-mode</tt>.
+       (<tt>tcl-mode</tt> is also supported if you use
+       <tt>rgr-tcl-mode-hook</tt>.)
+  <li> Names available for completion are also learned as you type, so
+       they are not limited to definition names.
+  <li> Names can be completed normally (by specifying prefixes), or by
+       specifying abbreviations (e.g. <tt>"rtmh"</tt> or <tt>"rtm"</tt>
+       for <tt>"rgr-tcl-mode-hook"</tt>.)  The abbreviations are
+       constructed automatically from initial letters as names are
+       learned.
+  <li> In order to avoid confusion, completion is invoked explicitly; I
+       bind it to <tt>f4</tt> because this is easy to type.
+  <li> Abbreviations need not be unique.  The first <tt>f4</tt> inserts
+       the most used abbreviation, and subsequent <tt>f4</tt>
+       invocations cycle through the other possibilities in order from
+       most to least used.
+  <li> Completion names and their usage frequencies can also be saved to
+       disk and restored on restart, so that useful names are not
+       immediately forgotten.
+</ul>
+
+<p><b>Commands:</b>
+<ul>
+  <li> <b><tt>f4</tt></b> (<tt>rgr-insert-symbol-abbreviation</tt>) --
+       attempt to complete the name before point.  Must have at least
+       three characters.  Repeated invocations will attempt to complete
+       more of the name (for traditional completion) or cycle through
+       the possibilities from most to least used (for abbreviations).
+  <li> <b><tt>M-x&nbsp;rgr-install-abbrev-completion</tt></b> -- 
+  <li> <b><tt>M-x&nbsp;rgr-install-weekly-completion-cycle</tt></b> -- 
+</ul>
+
+<p>[finish.  -- rgr, 7-Oct-99.]
+
+<a name = rgr-mouse>
+<h3>Mouse commands</h3>
+
+Because I have been seriously and permanently handicapped by using the
+powerful Lisp Machine user interface, I was driven to recreate some of
+its mouse commands within emacs after being forced back into the Unix
+world.  There is a Symbolics-like cut-and-paste interface, but the real
+win is a mouse interface to <tt>M-.</tt>.  (Though you may have to
+disable your window manager's interception of the "meta" modifier on the
+mouse buttons in order to get it to work.)
+
+<p>These are not enabled by default, since they override standard emacs
+mouse command bindings.
+
+<ul>
+  <li> <b><tt>M-mouse-1</tt></b> (<tt>rgr-mouse-edit-thing</tt>) --
+       finds the source files for the thing under the mouse.
+       <ul>
+	 <li> If it looks like a pathname (i.e. starts with '.', '/', or
+	      '~', or has a host: prefix followed by one of these three
+	      characters), then do <tt>C-x&nbsp;C-f</tt> on it.
+	      (Relative pathnames are interpreted relative to the
+	      filename of the buffer in which you clicked.)
+	 <li> If it looks like a Common Lisp or emacs Lisp symbol, then
+	      do <a href="advanced.html#meta-dot"><tt>M-.</tt>
+	      (<tt>find-tag</tt>)</a> on it.
+	 <li> If it looks like a file URL (i.e. starts with
+	      <tt>"ftp:"</tt> or <tt>"file:"</tt>), then it converts the
+	      URL to an <a href="advanced.html#ange-ftp">
+	      <tt>ange-ftp</tt></a> file name and uses
+	      <tt>C-x&nbsp;C-f</tt> on it.
+	 <li> If it looks like a World Wide Web URL (i.e. starts with
+	      <tt>"http:"</tt>, etc.), then it brings up the page in
+	      Netscape.  (Although it is possible to teach it to bring
+	      up a page in other browsers, I have not written the code
+	      to do so.)
+       </ul>
+       Whatever it is (unless it gets viewed in Netscape), it is found
+       in the current window, regardless of where you click.
+  <li> <b><tt>C-down-mouse-1</tt></b>
+       (<tt>rgr-mouse-mark-text-down</tt>) -- sets the mark or copies
+       text to kill ring.  If clicked in a single spot, sets the mark
+       there.  If clicked in one spot and dragged to and released at
+       another, copies the intervening text to the kill ring.  The click
+       and release points may be in either order, and need not even be
+       in the same window, as long as they are in the same buffer (which
+       need not be the same as the current buffer).
+  <li> <b><tt>C-mouse-2</tt></b> (<tt>rgr-mouse-insert-thing</tt>) --
+       Insert the thing under the mouse at point.  Sets the mark to the
+       beginning of the insertion, and leaves point at the end.  If
+       clicked after the end of a line, inserts the whole line, else
+       inserts the word or expression clicked on.  This works between
+       windows/buffers, including the minibuffer, and does not change
+       the current buffer.
+</ul>
+
+<p><b>Setting up:</b>
+
+<p>[finish.  -- rgr, 8-Nov-99.]
+
+<a name = hhm-commands>
+<h3>Useful commands in <code>html-helper-mode</code></h3>
+
+HTML helper mode is a mode for editing HTML documents which I prefer to
+the default HTML mode distributed with emacs.  For more documentation
+and the newest version, see <a
+href="http://www.santafe.edu/~nelson/tools/">
+<tt>http://www.santafe.edu/~nelson/tools/</tt></a>.
+
+<p>The main function html-helper-mode provides is a menu and keybindings
+for the HTML tags one inserts when writing HTML documents.  Selecting
+the menu item or typing the key sequence for a command inserts the
+corresponding tag and places point in the right place.  If a prefix
+argument is supplied, the tags is instead wrapped around the region.
+Alternately, one can type in part of the tag and complete it with
+<tt>M-TAB</tt>.  (Personally, I don't use either, much; I type it all
+the hard way because I find going back and forth to fill in the template
+to be annoying.)
+
+<p>There is also code for indentation, timestamps, skeletons for new
+documents, and lots of other neat features.
+
+<p><b>Commands:</b>
+<ul>
+  <li> <b><tt>M-RET</tt></b> (<tt>tempo-template-html-paragraph</tt>)
+       inserts a <tt>&lt;p&gt;</tt> tag.
+  <li> <b><tt>M-TAB</tt></b> (<tt>tempo-complete-tag</tt>) completes the
+       tag name before point.
+  <li> <b><tt>M-C-b</tt></b> (<tt>tempo-forward-mark</tt>) goes to the
+       previous template mark in an inserted HTML template.  (But I don't
+       use HTML templates, so I restore the default binding of
+       <tt>M-C-b</tt> to <tt>backward-sexp</tt>).
+  <li> <b><tt>M-C-f</tt></b> (<tt>tempo-backward-mark</tt>) goes to the
+       next template mark in an inserted HTML template.  (But I don't
+       use HTML templates, so I restore the default binding of
+       <tt>M-C-f</tt> to <tt>forward-sexp</tt>).
+
+       <p><b>Inserting entities:</b>
+       <br>These are those <tt>&amp;foo;</tt> things;
+       see <a href="http://www.bbsinc.com/iso8859.html">ASCII - ISO
+       8859-1 Table with HTML Entity Names</a> for a description and
+       list of names and encodings.
+  <li> <b><tt>C-c&nbsp;&lt;</tt></b>
+       (<tt>tempo-template-html-less-than</tt>) inserts the entity for
+       "&lt;".
+  <li> <b><tt>C-c&nbsp;&gt;</tt></b>
+       (<tt>tempo-template-html-greater-than</tt>) inserts the entity for
+       "&gt;".
+  <li> <b><tt>C-c&nbsp;&amp;</tt></b>
+       (<tt>tempo-template-html-ampersand</tt>) inserts the entity for
+       "&amp;".
+  <li> <b><tt>C-c&nbsp;SPC</tt></b>
+       (<tt>tempo-template-html-nonbreaking-space</tt>) inserts the entity for
+       "&nbsp;" (a hard space).
+  <li> <b><tt>C-c&nbsp;-</tt></b>
+       (<tt>tempo-template-html-soft-hyphen</tt>) inserts the entity for
+       "&shy;" (normally not displayed, but may be turned into a hyphen
+       by line wrapping).
+  <li> <b><tt>C-c&nbsp;@</tt></b>
+       (<tt>tempo-template-html-copyright</tt>) inserts the entity for
+       "&copy;" (the copyright symbol).
+  <li> <b><tt>C-c&nbsp;$</tt></b>
+       (<tt>tempo-template-html-registered</tt>) inserts the entity for
+       "&reg;" (the registered trademark symbol).
+  <li> <b><tt>C-c&nbsp;"</tt></b>
+       (<tt>tempo-template-html-quotation-mark</tt>) inserts the entity for
+       '&quot;' (a quotation mark).
+  <li> <b><tt>C-c&nbsp;#</tt></b>
+       (<tt>tempo-template-html-ascii-code</tt>) inserts "&amp;#;", with
+       the cursor positioned before the ";", which specifies an entity
+       by its decimal internal encoding.
+
+       <p><b>Text markup (physical presentation):</b>
+       <br>Typing these inserts matching start/end tags with the cursor
+       positioned between them; with a numeric argument, tags are put
+       around the region.
+  <li> <b><tt>C-c&nbsp;C-p&nbsp;f</tt></b>
+       (<tt>tempo-template-html-fixed</tt>) 
+  <li> <b><tt>C-c&nbsp;C-p&nbsp;b</tt></b>
+       (<tt>tempo-template-html-bold</tt>)
+  <li> <b><tt>C-c&nbsp;C-p&nbsp;i</tt></b>
+       (<tt>tempo-template-html-italic</tt>)
+  <li> <b><tt>C-c&nbsp;C-p&nbsp;u</tt></b>
+       (<tt>tempo-template-html-underline</tt>)
+  <li> <b><tt>C-c&nbsp;C-p&nbsp;s</tt></b>
+       (<tt>tempo-template-html-strikethru</tt>
+
+       <p><b>Text markup (logical presentation):</b>
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;p</tt></b>
+       (<tt>tempo-template-html-preformatted</tt>)
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;s</tt></b>
+       (<tt>tempo-template-html-strong</tt>)
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;e</tt></b>
+       (<tt>tempo-template-html-emphasized</tt>)
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;a</tt></b>
+       (<tt>tempo-template-html-address</tt>)
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;d</tt></b>
+       (<tt>tempo-template-html-definition</tt>)
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;v</tt></b>
+       (<tt>tempo-template-html-variable</tt>)
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;k</tt></b>
+       (<tt>tempo-template-html-keyboard-input</tt>)
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;r</tt></b>
+       (<tt>tempo-template-html-citation</tt>)
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;x</tt></b>
+       (<tt>tempo-template-html-sample</tt>) 
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;c</tt></b>
+       (<tt>tempo-template-html-code</tt>) 
+  <li> <b><tt>C-c&nbsp;C-s&nbsp;b</tt></b>
+       (<tt>tempo-template-html-blockquote</tt>)
+
+       <p><b>Headings:</b>
+       <br>Typing these inserts matching start/end tags with the cursor
+       positioned between them.
+  <li> <b><tt>C-c&nbsp;C-t&nbsp;1</tt></b>
+       (<tt>tempo-template-html-header-1</tt>) 
+  <li> <b><tt>C-c&nbsp;C-t&nbsp;2</tt></b>
+       (<tt>tempo-template-html-header-2</tt>) 
+  <li> <b><tt>C-c&nbsp;C-t&nbsp;3</tt></b>
+       (<tt>tempo-template-html-header-3</tt>) 
+  <li> <b><tt>C-c&nbsp;C-t&nbsp;4</tt></b>
+       (<tt>tempo-template-html-header-4</tt>) 
+  <li> <b><tt>C-c&nbsp;C-t&nbsp;5</tt></b>
+       (<tt>tempo-template-html-header-5</tt>) 
+  <li> <b><tt>C-c&nbsp;C-t&nbsp;6</tt></b>
+       (<tt>tempo-template-html-header-6</tt>) 
+
+       <p><b>Links ("anchors"):</b>
+  <li> <b><tt>C-c&nbsp;C-a&nbsp;l</tt></b>
+       (<tt>tempo-template-html-hyperlink</tt>) 
+  <li> <b><tt>C-c&nbsp;C-a&nbsp;n</tt></b>
+       (<tt>tempo-template-html-link-target</tt>) 
+
+       <p><b>Miscellaneous tags:</b>
+  <li> <b><tt>C-c&nbsp;RET</tt></b>
+       (<tt>tempo-template-html-line-break</tt>) inserts a
+       <tt>&lt;br&gt;</tt> tag.
+  <li> <b><tt>C-c&nbsp;=</tt></b>
+       (<tt>tempo-template-horizontal-rule</tt>) inserts an 
+       <tt>&lt;hr&gt;</tt> tag.
+  <li> <b><tt>C-c&nbsp;C-z&nbsp;v</tt></b> (<tt>browse-url-of-file</tt>)
+  <li> <b><tt>C-c&nbsp;C-z&nbsp;t</tt></b>
+       (<tt>html-helper-insert-timestamp-delimiter-at-point</tt>)
+
+       <p><b>Images:</b>
+  <li> <b><tt>C-c&nbsp;TAB&nbsp;t</tt></b>
+       (<tt>tempo-template-html-image-with-alternate-text</tt>)
+  <li> <b><tt>C-c&nbsp;TAB&nbsp;e</tt></b>
+       (<tt>tempo-template-html-aligned-image-with-alt.-text</tt>)
+  <li> <b><tt>C-c&nbsp;TAB&nbsp;i</tt></b>
+       (<tt>tempo-template-html-image</tt>)
+  <li> <b><tt>C-c&nbsp;TAB&nbsp;a</tt></b>
+       (<tt>tempo-template-html-aligned-image</tt>)
+</ul>
+
+<a name = rgr-html-hacks>
+<h4>Additional <tt>rgr-html-hacks</tt> commands</h4>
+
+These are installed by the <tt>rgr-html-define-commands</tt> hook
+function; the <a href="#dot-emacs"> <tt>rgr-hacks</tt> sample
+<tt>.emacs</tt> file</a> does the following to install
+<tt>html-helper-mode</tt> and <tt>rgr-html-hacks</tt>:
+<blockquote>
+<pre>
+;; Install html-helper-mode.
+(setq auto-mode-alist (cons '("\\.html$" . html-helper-mode) auto-mode-alist))
+;; Add my HTML code hacks: check tag nesting (C-c n), make table of contents
+;; (C-c t), check href's (C-c h c), paragraph motion, markup motion (C-c C-f,
+;; C-c C-b, C-c C-k), and much more.  (Only need to do this once, so these are
+;; on html-helper-load-hook.)
+(add-hook 'html-helper-load-hook 'rgr-html-define-commands)
+(add-hook 'html-helper-load-hook 'rgr-html-fix-regexps)
+;; This has some per-buffer stuff (and is therefore on html-helper-mode-hook).
+;; -- rgr, 19-Mar-96.
+(add-hook 'html-helper-mode-hook 'rgr-html-helper-mode-hook)
+</pre>
+</blockquote>
+
+If you are using emacs at <a href="http://bmerc-www.bu.edu/">BMERC</a>,
+then these are all pre-installed (at no extra charge).
+
+<p><b>Markup commands:</b> These operate on nested
+<code>&lt;foo&gt;..&lt;/foo&gt;</code> constructs.
+<ul>
+  <li> <b><tt>C-c&nbsp;C-f</tt></b> (<tt>rgr-html-forward-markup</tt>)
+       -- move forward past markup (<tt>M-C-f</tt> equivalent for HTML).
+  <li> <b><tt>C-c&nbsp;C-b</tt></b> (<tt>rgr-html-backward-markup</tt>)
+       -- move backward past markup (<tt>M-C-b</tt> equivalent for
+       HTML).
+  <li> <b><tt>C-c&nbsp;C-u</tt></b>
+       (<tt>rgr-html-backward-up-markup</tt>) -- move backward out of
+       the current markup (<tt>M-C-u</tt> equivalent for HTML).
+  <li> <b><tt>C-c&nbsp;C-l</tt></b> (<tt>rgr-html-forward-li</tt>) --
+       moves forward to the next <tt>&lt;li&gt;</tt> tag of the current
+       list (i.e. ignoring any <tt>&lt;li&gt;</tt> items within nested
+       lists).  If there aren't any, this just leaves you after the last
+       list close tag.  This needs a special command because people
+       almost never use <tt>&lt;/li&gt;</tt> tags.
+  <li> <b><tt>C-c&nbsp;/</tt></b> (<tt>rgr-html-close-markup</tt>) --
+       insert a close tag for the last open tag; a numeric argument
+       closes the last N tags.
+  <li> <b><tt>C-c&nbsp;C-k</tt></b> (<tt>rgr-html-kill-markup</tt>) --
+       kill markup (<tt>M-C-k</tt> equivalent for HTML).
+  <li> <b><tt>C-c&nbsp;n</tt></b> (<tt>rgr-html-check-tag-nesting</tt>)
+       -- check HTML tags for nesting errors.  If any are found, they are
+       put in a buffer which is viewed in the other window, and you can
+       use <a href="advanced.html#next-grep-hit">
+       <tt>C-x&nbsp;`</tt></a> to step through them, as for the <a
+       href="advanced.html#grep"> <tt>M-x&nbsp;grep</tt></a> command.
+  <li> <b>TAB</b> (<tt>html-helper-indent-command</tt>) -- indent the
+       current line prettily.  (<tt>html-helper-mode</tt> implements
+       this, but <tt>rgr-html-hacks</tt> fixes some bugs.)
+  <li> <b><tt>M-C-q</tt></b> (<tt>rgr-html-indent-markup</tt>) -- indent
+       all markup lines.
+</ul>
+
+<p><b>Anchor checking commands:</b>
+
+<ul>
+  <li> <b><tt>c-c&nbsp;h&nbsp;c</tt></b>
+       (<tt>rgr-html-check-buffer-hrefs</tt>) -- check for href's to
+       undefined pages/tags.  if any are found, they are put in a buffer
+       which is viewed in the other window, as with <tt>c-c&nbsp;n</tt>,
+       and you can use <a href="advanced.html#next-grep-hit">
+       <tt>c-x&nbsp;`</tt></a> to step through them.
+  <li> <b><tt>c-c&nbsp;h&nbsp;f</tt></b>
+       (<tt>rgr-html-fix-buffer-hrefs</tt>) -- like
+       <tt>c-c&nbsp;h&nbsp;c</tt>, but offers to replace an undefined
+       reference to one in another file, if it knows of any of the same
+       name (see <tt>C-c&nbsp;a&nbsp;u</tt> and
+       <tt>C-c&nbsp;a&nbsp;f</tt>).  Can't handle offsite references.
+  <li> <b><tt>C-c&nbsp;h&nbsp;d</tt></b>
+       (<tt>rgr-html-check-directory-hrefs</tt>) -- checks references to
+       undefined anchors in the current buffer, like
+       <tt>C-c&nbsp;h&nbsp;c</tt>, but also checks everything in the
+       same directory that is reachable from the current buffer, and
+       lists all files in that directory that are not reachable from the
+       current buffer.
+  <li> <b><tt>C-c&nbsp;a&nbsp;u</tt></b>
+       (<tt>rgr-html-update-buffer-anchors</tt>) -- learns the anchor
+       names (the <tt>"foo"</tt> in <tt>"&lt;a&nbsp;name=foo&gt;"</tt>)
+       of the current buffer, for possible use by
+       <tt>C-c&nbsp;h&nbsp;f</tt>.
+  <li> <b><tt>C-c&nbsp;a&nbsp;f</tt></b>
+       (<tt>rgr-html-flush-file-anchors</tt>) -- forgets the current
+       buffer's anchor names.
+</ul>
+
+<p><b>Heading commands:</b>
+<ul>
+  <li> <b><tt>M-x rgr-html-add-heading-anchors RET</tt></b> -- add
+       anchors to all headings that do not already have them.
+  <li> <b><tt>M-x rgr-html-increment-buffer-heading-nesting RET</tt></b>
+       -- increment or decrement the nesting level of headings in the
+       buffer, e.g. changing <tt>&lt;h1&gt;</tt> to <tt>&lt;h2&gt;</tt>,
+       <tt>&lt;h2&gt;</tt> to <tt>&lt;h3&gt;</tt>, etc.  By default, the
+       depth is increased by one, but this can be changed with a prefix
+       argument, which can be negative to decrease the nesting depth.
+  <li> <b><tt>M-x rgr-html-increment-region-heading-nesting RET</tt></b>
+       -- increment or decrement the nesting level of headings in the
+       buffer, as by
+       <tt>M-x&nbsp;rgr-html-increment-region-heading-nesting</tt>.
+</ul>
+
+<p><b>Miscellaneous commands:</b>
+
+<ul>
+  <li> <b><tt>M-}</tt></b> (<tt>rgr-html-forward-paragraph</tt>) --
+       moves forward to the end of the HTML paragraph.  With arg N, do
+       it N times; a negative arg -N means move backward N paragraphs.
+       See the online documentation (using <a
+       href="self-doc.html#describe-function"><tt>C-h&nbsp;f</tt></a>) for
+       details of how an "HTML paragraph" is defined.
+  <li> <b><tt>M-{</tt></b> (<tt>rgr-html-backward-paragraph</tt>) --
+       moves backward to the start of the HTML paragraph.  With arg N,
+       do it N times; a negative arg -N means move forward N paragraphs.
+  <li> <b><tt>M-q</tt></b> (<tt>rgr-html-fill-paragraph</tt>) -- fills
+       text in the paragraph defined by doing <tt>M-{</tt> and
+       <tt>M-}</tt> from point.
+  <li> <b><tt>C-c&nbsp;t</tt></b> (<tt>rgr-html-make-toc</tt>) --
+       inserts a nested table of contents generated from
+       <tt>&lt;h#&gt;&lt;/h#&gt;</tt> lines.  If this is the first
+       invocation in this buffer, this command inserts at point, and you
+       will be asked to confirm this.  Otherwise, the previous TOC is
+       replaced with a new one.  If an anchor definition
+       (i.e. <tt>"&lt;a&nbsp;name=foo&gt;"</tt>) appears on the previous
+       line, it will be used to hyperlink the section names.  (The TOC
+       at the top of this document is an example.)  If given a numeric
+       argument, the items are generated within nested
+       <tt>&lt;ul&gt;</tt> forms; otherwise, they are within
+       <tt>&lt;ol&gt;</tt> forms.
+</ul>
+
+<a name = hhm-more>
+<h4>More <code>html-helper-mode</code> documentation</h4>
+
+See the <code>html-helper-mode</code> documentation at <a
+href="http://host16.bootcamp.arsdigita.com/html-helper-mode/">
+<code>/html-helper-mode/</code></a>.  [This describes an older version,
+so take it with a grain of salt.]
+
+<p>If you don't mind shelling out the money (or already have a copy),
+the <a href="advanced.html#oreilly">O'Reilly emacs offerings</a> describe
+<code>html-helper-mode</code>, albeit briefly.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@darwin.bu.edu">Bob Rogers
+	<tt>&lt;rogers@darwin.bu.edu&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sat May 27 23:20:57 EDT 2000
+<!-- hhmts end -->
+</body> </html>

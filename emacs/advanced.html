@@ -1,0 +1,522 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Advanced emacs usage tips</title>
+</head>
+
+<body bgcolor=white>
+<h2>Advanced emacs usage tips</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Emacs tips</a> : Advanced
+<hr>
+
+<p>These are the things that, in my opinion, makes emacs worthwhile; I use
+them constantly.
+
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Advanced emacs usage tips
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#shell-mode">Running a shell within emacs</a>
+	 <li> <a href="#man">Viewing <tt>man</tt> pages</a>
+	      <ol>
+		<li> Why I don't use pagers: A digression
+	      </ol>
+	 <li> <a href="#tcl-mode">Editing Tcl source code</a>
+	 <li> <a href="#dired">Editing directory listings with <tt>C-x&nbsp;d</tt></a>
+	 <li> <a href="#meta-dot">Finding definitions in source code with <tt>M-.</tt></a>
+	 <li> <a href="#grep">Finding regular expressions in source code</a>
+	 <li> <a href="#ange-ftp">Editing remote files via <tt>ange-ftp</tt></a>
+	 <li> <a href="#other-advanced">Other resources for more advanced emacs</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name=shell-mode>
+<h3>Running a shell within emacs</h3>
+
+emacs supports a mode called <tt>shell-mode</tt> (with variants) that
+let you run a command interpreter in an emacs buffer.
+(<tt>shell-mode</tt> is as opposed to <tt>sh-mode</tt> (aka
+<tt>shell-script-mode</tt>), which is for editing shell scripts.)  Other
+modes with similar functionality (e.g. <tt>matlab-shell</tt> provided by
+<tt>matlab-mode.el</tt>, the Lisp dialects supported by <a
+href="http://www2.cons.org/ilisp/">the <tt>ilisp</tt> package</a>) are
+usually built on top of this, and provide a similar user interface.
+
+<p><b>Commands:</b>
+<ul>
+  <li> <b><tt>M-x&nbsp;shell</tt></b> starts a shell in the buffer named
+       "*shell*", or selects that buffer if it already exists.  You can
+       use normal emacs editing commands to input a command; typing
+       <tt>RET</tt> sends the command to the shell.  To create multiple
+       shell buffers, simply keep renaming "*shell*" to something else
+       (e.g. via <tt>M-x&nbsp;rename-buffer</tt> or
+       <tt>M-x&nbsp;rename-uniquely</tt>).
+  <li> <b><tt>M-x&nbsp;rsh</tt></b> prompts for a host name, and starts
+       a remote shell via rsh in the buffer named "*rsh-<i>host</i>*",
+       or selects that buffer if it already exists.
+  <li> <b><tt>M-x&nbsp;telnet</tt></b> prompts for a host name, and
+       starts a telnet session in the buffer named
+       "*telnet-<i>host</i>*", or selects that buffer if it already
+       exists.
+
+       <p>Command input:
+  <li> <b><tt>RET</tt></b> also sends a previously typed command to the
+       shell if typed on a line before the current prompt.  So you can
+       use <tt>C-r</tt> to search backward for a command close to what
+       you need, edit the command in the transcript, and invoke it via
+       <tt>RET</tt>.
+  <li> Alternatively, <b><tt>C-c&nbsp;RET</tt></b> on a previous line is
+       like <tt>RET</tt>, but the command is just copied to the prompt
+       without sending, allowing further editing.
+  <li> <b><tt>M-p</tt></b> inserts the previous command (when at the
+       shell prompt).  Repeated invocation of <tt>M-p</tt> cycles
+       through the command history, or you can use a numeric argument to
+       get the Nth previously typed command.
+  <li> <b><tt>M-n</tt></b> is like <tt>M-p</tt> but gets the next
+       command, cycling backward through the command history.
+  <li> <b><tt>M-r</tt></b> is like <tt>M-p</tt>, but prompts for a
+       regular expression and inserts the Nth previous matching command
+       (named by analogy with <tt>C-r</tt>).
+  <li> <b><tt>M-s</tt></b> is like <tt>M-n</tt> but prompts for a
+       regular expression and inserts the Nth subsequent matching
+       command (named by analogy with <tt>C-s</tt>).
+  <li> <b><tt>TAB</tt></b> attempts to complete the file name before
+       point.
+
+       <p>Job control:
+  <li> <b><tt>C-c&nbsp;C-c</tt></b> interrupts the currently running
+       shell command.
+  <li> <b><tt>C-c&nbsp;C-d</tt></b> sends an EOF to the currently
+       running shell command.
+  <li> <b><tt>C-c&nbsp;C-z</tt></b> suspends the currently running shell
+       command (but you have to use shell job control to resume it).
+
+       <p>Miscellaneous:
+  <li> <b><tt>C-c&nbsp;n</tt></b> goes to the next prompt.
+  <li> <b><tt>C-c&nbsp;p</tt></b> goes to the previous prompt.
+  <li> <b><tt>C-M-l</tt></b> moves to the start of the output of the
+       last command, putting it at the top of the window.
+  <li> <b><tt>M-x&nbsp;dirs</tt></b> tells emacs to ask the shell what
+       its current directory is.  (emacs tries to make the default
+       directory of the buffer track the shell's working directory, but
+       sometimes it gets confused.)
+</ul>
+
+<a name=man>
+<h3>Viewing <tt>man</tt> pages</h3>
+
+Most Unix command and system API documentation comes in the form of
+"<tt>man</tt> pages," which are available online by invoking the
+<tt>man</tt> command<a href="#pager-fn0">[0]</a>.  emacs provides a user
+interface to <tt>man</tt> that formats the page (which may actually be
+many pages if printed) and puts it in a buffer, where you can search,
+scroll, print, cut & paste, etc.  Successive <tt>M-x&nbsp;man</tt>
+invocations result in successive buffers, which can be viewed in
+parallel.
+
+<p><b>Commands:</b>
+<ul>
+  <li> <b><tt>M-x&nbsp;man</tt></b> prompts for a command or function
+       name, formats the page into its own buffer, and views it in
+       another window.  If the page has already been formatted (i.e. the
+       buffer exists), <tt>M-x&nbsp;man</tt> just puts the buffer in the
+       other window, leaving the cursor where you saw it last.  The
+       manpage buffers are read-only, so most commands do not require
+       the control or meta modifiers.
+
+       <p><b>Within a manpage buffer:</b>
+  <li> <b><tt>SPC</tt></b> -- Scrolls forward (or type <tt>C-M-v</tt> or
+       <tt>M-next</tt> from the other window; <tt>next</tt> may be
+       labelled "Page Down").
+  <li> <b><tt>DEL</tt></b> -- Scrolls backward (or type <tt>M-prior</tt>
+       from the other window; <tt>prior</tt> may be labelled "Page Up").
+  <li> <b><tt>m</tt></b> -- Prompt to retrieve a new manpage (i.e. a
+       shortcut for <tt>"M-x&nbsp;man"</tt>).
+  <li> <b><tt>r</tt></b> -- Retrieve reference in SEE ALSO section.
+  <li> <b><tt>M-n</tt></b> -- Jump to next manpage in circular list.
+  <li> <b><tt>M-p</tt></b> -- Jump to previous manpage in circular list.
+  <li> <b><tt>n</tt></b> -- Jump to next manpage section.
+  <li> <b><tt>p</tt></b> -- Jump to previous manpage section.
+  <li> <b><tt>g</tt></b> -- Go to a manpage section.
+  <li> <b><tt>s</tt></b> -- Jumps to the SEE ALSO manpage section.
+  <li> <b><tt>q</tt></b> -- Deletes the manpage window, bury its buffer.
+  <li> <b><tt>k</tt></b> -- Deletes the manpage window, kill its buffer.
+</ul>
+
+<h4>Why I don't use pagers: A digression</h4>
+
+<p>If you invoke <tt>man</tt> from a shell (as the hardcore Unix hackers
+do), then the formatted manual page comes to the standard output, flying
+rapidly off the top of the window<a href="#pager-fn1">[1]</a>.  In order
+to be able to actually read the page, it used to be that one had to pipe
+the output through a "pager" program, e.g. <tt>more</tt> (or the FSF
+analogue <tt>less</tt>), which stopped and prompted the user after each
+screenful, and also allowed context searching, among other features.  It
+amazes me that even now, with bitmapped displays and cheap memory,
+people still use such things<a href="#pager-fn2">[2]</a>.  Given that I
+am already in emacs, I find it so much easier to use the shell buffer
+for running shell commands, and to look at <tt>man</tt> pages in
+<tt>man-mode</tt> buffers using the <tt>M-x&nbsp;man</tt> command.
+
+<p>Similarly, instead of doing <tt>"ls -l | less"</tt> to see a
+long-format directory listing of the current directory, in emacs you can
+do <tt>"M-x&nbsp;dired RET RET"</tt> (or <tt>"C-x&nbsp;d&nbsp;RET"</tt>)
+to see the same listing in a "dired mode" buffer.  The dired buffer can
+be scrolled forward and backward as by <tt>less</tt>, and searched
+somewhat more efficiently.  Better still, dired mode also allows you to
+manipulate the files (edit, rename, delete, change permissions, etc.)
+with single-character commands.  See the <a href="#dired">"Editing
+directory listings with <tt>C-x&nbsp;d</tt>"</a> section for more
+information.
+
+<p>The other approach is to turn off paging entirely (by doing
+<tt>"setenv PAGER cat"</tt> in <tt>csh</tt>), and view the whole
+<tt>man</tt> page or <tt>ls</tt> listing in the shell buffer.  But for
+most purposes, I find it easier to keep these in separate buffers, where
+they are randomly accessible and don't interfere with whatever I'm
+trying to accomplish in the shell.
+
+<p>Note that it doesn't make a difference whether you are running emacs
+under a graphical user interface, or through the rawest terminal
+emulator over a telnet connection.  The emacs user interface looks
+almost the same, and a pager is more of a hindrance than a help in
+either case.
+
+<p><b>Footnotes:</b>
+
+<dl compact>
+  <a name= pager-fn0>
+  <dt> [0]
+  <dd> Note that the <a href="http://www.fsf.org/">Free Software
+       Foundation</a> considers <tt>man</tt> pages obsolescent,
+       preferring <tt>info</tt> documents instead, so this statement is
+       less true of (e.g.) <a
+       href="http://www.fsf.org/gnu/linux-and-gnu.html"> GNU/Linux
+       systems</a> than of "traditional" Unix distributions.  Although
+       the FSF ships <tt>man</tt> pages with most of their applications,
+       the <tt>info</tt> documentation is usually more complete, often
+       containing tutorial material with examples, and may be more
+       up-to-date.
+
+       <p>
+       <a name= pager-fn1>
+  <dt> [1]
+  <dd> Newer versions of <tt>man</tt> invoke the pager for you, unless
+       you explicitly say otherwise, so this is no longer strictly true.
+       It used to be that you had to explicitly pipe the output of
+       <tt>man</tt> through the pager:
+       <pre>
+       man cmdname | more
+</pre>
+       But on most systems, this is no longer necessary.
+
+       <p>
+       <a name = pager-fn2>
+  <dt> [2]
+  <dd> OK, even I find it necessary to use a pager now and then when I'm
+       using the raw console TTY in single-user mode.  But even in those
+       rare cases, it's usually more convenient to do it all within
+       emacs.
+</dl>
+
+<a name=tcl-mode>
+<h3>Editing Tcl source code</h3>
+
+[in progress]
+
+<p><b>Commands:</b>
+<ul>
+  <li> <b><tt>M-x&nbsp;tcl-mode</tt></b>
+  <li> <b><tt>M-x&nbsp;inferior-tcl</tt></b> (<tt>C-c&nbsp;C-t</tt> in a
+       Tcl source buffer)
+
+       <p><b>Tcl editing:</b>
+  <li> <b><tt>C-c&nbsp;TAB</tt></b> (<tt>tcl-help-on-word</tt>)
+  <li> <b><tt>C-c&nbsp;C-c</tt></b> (<tt>comment-region</tt>)
+
+       <p><b>Tcl editing support for inferior Tcl:</b>
+  <li> <b><tt>C-c&nbsp;C-t</tt></b> (<tt>inferior-tcl</tt>) creates
+       one.
+  <li> <b><tt>C-c&nbsp;C-s</tt></b> (<tt>switch-to-tcl</tt>) switches to
+       the inferior Tcl process buffer (but does not create one).
+  <li> <b><tt>C-c&nbsp;C-x</tt></b> (<tt>tcl-eval-region</tt>)
+  <li> <b><tt>C-M-x</tt></b> or <b><tt>C-c&nbsp;C-v</tt></b>
+       (<tt>tcl-eval-defun</tt>)
+  <li> <b><tt>C-c&nbsp;C-f</tt></b> (<tt>tcl-load-file</tt>) loads a Tcl
+       file into the inferior Tcl process.
+</ul>
+
+<a name=dired>
+<h3>Editing directory listings with <tt>C-x&nbsp;d</tt></h3>
+
+<tt>dired</tt> is another extremely useful useful emacs feature that
+provides the ability to "edit" directories as if they were
+specially-formatted files.  When <tt>dired</tt> is invoked, usually by
+typing <tt>C-x&nbsp;d</tt>, it asks for the name of a directory, and
+then shows the contents of that directory as a "long"
+(<tt>"ls&nbsp;-l"</tt>) format listing, indented by two spaces.  Files
+can then be manipulated, and subdirectories opened, by using
+single-character commands.  Two styles of operation are supported:
+immediate operations, and mark-now/execute-later.
+
+<p><tt>dired</tt> is an ancient and well-developed feature of emacs; the
+summary below only scratches the surface of what it can do.  [and needs
+more work in any case.  -- rgr, 19-Feb-01.]
+
+<p><b>Commands:</b>
+<ul>
+  <li> <b><tt>C-x&nbsp;d</tt></b> -- enters <tt>dired</tt> mode in the
+       current window, after prompting for a directory name.
+  <li> <b><tt>C-x&nbsp;4&nbsp;d</tt></b> (<tt>dired-other-window</tt>)
+       -- enters <tt>dired</tt> mode in the other window, after
+       prompting for a directory name.
+
+       <p><b>Immediate commands:</b>
+  <li> <b><tt>C</tt></b> (<tt>dired-do-copy</tt>) --
+  <li> <b><tt>D</tt></b> (<tt>dired-do-delete</tt>) --
+  <li> <b><tt>G</tt></b> (<tt>dired-do-chgrp</tt>) --
+  <li> <b><tt>M</tt></b> (<tt>dired-do-chmod</tt>) --
+  <li> <b><tt>O</tt></b> (<tt>dired-do-chown</tt>) --
+  <li> <b><tt>P</tt></b> (<tt>dired-do-print</tt>) --
+  <li> <b><tt>R</tt></b> (<tt>dired-do-rename</tt>) --
+  <li> <b><tt>X</tt></b> (<tt>dired-do-shell-command</tt>) -- prompts
+       for and runs a shell command on the specified file(s).
+  <li> <b><tt>Z</tt></b> (<tt>dired-do-compress</tt>) --
+</ul>
+
+<a name=meta-dot>
+<h3>Finding definitions in source code with <tt>M-.</tt></h3>
+
+Once you set it up properly, emacs can cruise through source code
+hypertext style.
+
+<p><b>Commands:</b>
+<ul>
+  <li> <b><tt>M-.</tt></b> (<tt>find-tag</tt>) prompts for a definition
+       name, and searches for it in the set of known tags tables.  The
+       first definition is brought up in the current emacs window;
+       typing <b><tt>C-u&nbsp;M-.</tt></b> brings you to the next
+       matching definition.  (Matching is done with string searching, so
+       you don't have to supply the full name, but short names tend to
+       find spurious definitions.)
+  <li> <b><tt>M-x&nbsp;visit-tags-table</tt></b> introduces a new tags table
+       (see below).
+  <li> <b><tt>C-x&nbsp;4&nbsp;.</tt></b>
+       (<tt>find-tag-other-window</tt>) is like <tt>M-.</tt>, but shows
+       the definition in the other window.
+</ul>
+
+<p><b>Setting up:</b>
+
+<p>This sets up a tags table, conventionally called <tt>TAGS</tt>, for
+finding stuff in a given directory.  Let's assume that the
+<tt>"~/c-prog/"</tt> directory contains a program written in C.
+
+<ol>
+  <li> Go to the appropriate directory, and make the tags table:
+       <pre>
+       cd ~/c-prog
+       etags *.[ch]
+</pre>
+       You need to create the <tt>TAGS</tt> file initially, and may need
+       to redo it periodically if emacs can't find something (usually
+       because you've moved a definition from one file to another).
+
+       <p>
+  <li> Visit the tags table in emacs:
+       <pre>
+       M-x visit RET ~/c-prog/ RET
+</pre>
+       If you are already in the <tt>~/c-prog/</tt> directory, then
+       <tt>M-x&nbsp;visit RET RET"</tt> will be sufficient.  In any
+       case, you must do this every time you restart emacs.
+
+       <p>
+  <li> Or, to get this tags table automatically every time you restart
+       emacs, put
+       <pre>
+       (setq tags-table-list (list (expand-file-name "~/c-prog/TAGS")))
+</pre>
+       in your <tt>.emacs</tt> file.
+</ol>
+
+Once you've set up one of your program directories this way, try
+<tt>M-.</tt> on one of the function names to test it out.
+<tt>etags</tt> understands C, Perl, Lisp, Fortran, Pascal, and a host of
+other programming languages.
+
+<p>If you install the <a href="rgr-hacks.html#rgr-mouse">mouse commands
+in the <tt>rgr-hacks</tt> package</a>, you can click <tt>M-mouse-1</tt>
+(that is, hold down the "Meta" modifier while clicking the left mouse
+button) to invoke <tt>find-tag</tt> on the definition name under the
+mouse.
+
+<p><b>Setting up a <a href="http://bootcamp.arsdigita.com/">bootcamp</a>
+machine:</b>
+
+<p>This sets up a tags table, conventionally called <tt>TAGS</tt>, for
+finding stuff in the ACS system, as modified by you on your machine.
+You should be able to do this with a command like
+<tt>"etags&nbsp;*.tcl"</tt>, but <tt>etags</tt> doesn't know about Tcl
+syntax, and certainly not about <tt>proc_doc</tt>, hence the arcana.
+
+<ol>
+  <li> Copy <a href="makefile.text">the sample makefile</a> to your
+       top-level server directory (<tt>/web/studentXX/</tt>), renaming
+       it from <tt>makefile.text</tt> to <tt>makefile</tt>.  You only
+       need to do this once.
+
+       <p>
+  <li> Go to the server directory, and make the tags table:
+       <pre>
+       cd /web/studentXX/
+       make
+</pre>
+       You need to initialize this once, and may need to redo it
+       periodically if emacs can't find something (because you've moved
+       a definition from one file to another, etc.).
+
+       <p>
+  <li> Visit the tags table in emacs:
+       <pre>
+       M-x visit RET /web/student<i>XX</i>/ RET
+</pre>
+       You must do this every time you restart emacs.
+
+       <p>
+  <li> Or, to get this tags table automatically every time you restart
+       emacs, put
+       <pre>
+       (setq tags-table-list '("/web/student<i>XX</i>/TAGS"))
+</pre>
+       in your <tt>.emacs</tt> file.
+
+       <p>
+  <li> Try <tt>"M-.&nbsp;ad_permission_p&nbsp;RET"</tt> to test it out.
+</ol>
+
+<a name=grep>
+<h3>Finding regular expressions in source code</h3>
+
+The Unix <tt>grep</tt> command may be used to search for regular
+expressions in source files.  For example,
+<pre>
+    grep -n 'room-view' *.tcl
+</pre>
+finds all occurrences of the string "room-view" in all tcl files in the
+current buffer's default directory (so it matters what buffer you're in
+when you invoke this command).  These are presumably links that invoke
+the <tt>room-view.tcl</tt> script.  <tt>grep</tt> uses a more powerful
+regular expression language than tcl (but not as powerful as emacs or
+perl); see <tt>"M-x&nbsp;man&nbsp;RET&nbsp;grep&nbsp;RET"</tt> for more
+information.
+
+<p>By itself, <tt>grep</tt> is quite useful, but emacs makes it more
+so.  <tt>M-x&nbsp;grep</tt> runs <tt>grep</tt> itself to search for
+occurrences of a regular expression in a set of files, putting the
+result in a buffer.  Then, <tt>C-x&nbsp;`</tt> visits the lines where
+the regular expression matches (called "hits") one at a time.
+
+<p><b>Commands:</b>
+<ul>
+  <li> <b><tt>M-x&nbsp;grep</tt></b> prompts for a <tt>grep</tt> command
+       to execute, complete with regular expression and some indication
+       of which files to search, usually a wildcarded file name in the
+       current directory.  The resulting hits are put in a buffer called
+       "*grep*" which is viewed in the other window, with one hit per
+       line.
+
+       <a name= next-grep-hit>
+  <li> After grepping, <b><tt>C-x&nbsp;`</tt></b> (that is, "control-x
+       backquote") will step you through the hits, one by one.
+       Alternatively, you can click the middle button on a hit to visit
+       it.
+</ul>
+
+<p><b>Hints:</b>
+<ul>
+  <li> To continue the example above, if you also want to search your
+       <tt>/admin/</tt> tree, you can do:
+       <pre>
+       grep -n 'room-view' `find . ../admin -name '*.tcl'`
+</pre>
+       but be sure to keep your backquotes and apostrophes straight.
+       (This is just a standard application of the Unix <tt>find</tt>
+       command, by the way.)
+  <li> <tt>M-x grep</tt> is related to the similar
+       <tt>M-x&nbsp;compile</tt> command, which is used to start a
+       compilation process in a buffer and then step through the
+       compiler errors and warnings one by one.
+  <li> Multiple <tt>grep</tt> searches (and/or compilations) can be
+       done, as long as one remembers to rename the buffer before
+       starting a new search.  To change buffers, go to the
+       <tt>grep</tt> or <tt>compile</tt> buffer and visit a hit (either
+       by typing <tt>"RET"</tt> or clicking middle on the hit to visit);
+       <tt>C-x&nbsp;`</tt> will resume from the next hit in that buffer.
+</ul>
+
+<a name=ange-ftp>
+<h3>Editing remote files via <tt>ange-ftp</tt></h3>
+
+<p>[finish.  -- rgr, 8-Nov-99.]
+
+<a name=other-advanced>
+<h3>Other resources for more advanced emacs</h3>
+
+<b>Online documentation:</b>
+<ul>
+  <li> The <b>GNU Emacs manual</b> is available within emacs by typing
+       <tt>C-h&nbsp;i</tt> to get to the <tt>info</tt> browser top
+       level, and then <tt>"m&nbsp;emacs&nbsp;RET"</tt> within
+       <tt>info</tt> to go to the emacs manual pages.  The same material
+       is also available online from several source, e.g. <a
+       href="http://www.cs.cmu.edu/cgi-bin/info2www?(emacs)">
+       <tt>www.cs.cmu.edu</tt></a> (describes emacs version 19.22) and,
+       in a somewhat different format, at the <a
+       href="http://w3.pppl.gov/texi/emacs_toc.html">Princeton Plasma
+       Physics Lab</a> (describes version 19.25).  But the <tt>info</tt>
+       version will always correspond to the emacs you are running.
+  <li> The <a
+       href="http://www.cs.indiana.edu/elisp/elisp-intro.html">Emacs
+       Lisp Introduction</a> describes how to program in the underlying
+       Lisp-like extension language.  Like the <b>GNU Emacs manual</b>,
+       this Web version does not appear to be any more hypertextual than
+       the <tt>info</tt> version, but at least it saves you from
+       flipping back and forth between the <tt>info</tt> buffer and your
+       work.
+  <li> The <a href="http://www.fsf.org/">Free Software Foundation</a>
+       has an online version of <a
+       href="http://www.fsf.org/software/emacs/emacs-paper.html">"EMACS:
+       The Extensible, Customizable Display Editor"</a>, Richard
+       Stallman's paper that describes the design of the original emacs,
+       i.e. how emacs came to be the way that it is.  This paper was
+       written circa 1980, but despite its age, the general information
+       it contains is still very much up to date, since emacs has
+       remained true to its roots.  (Implementation details are another
+       story.)
+</ul>
+
+<p><b>Printed documentation:</b>
+<ul>
+  <a name = oreilly>
+  <li> The O'Reilly <a href="http://www.oreilly.com/catalog/gnu2/">
+       <b>Learning GNU Emacs</b> book</a> covers emacs version 19.34 (I
+       think), which should be good enough for basic editing, and then
+       some.  The advanced sections are sometimes superficial, but the
+       basics seem sound.  The companion O'Reilly <a
+       href="http://www.oreilly.com/catalog/gnupr/">GNU Emacs Pocket
+       Reference</a> has been updated for version 20.
+</ul>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Mon Feb 19 22:35:16 EST 2001
+<!-- hhmts end -->
+</body> </html>

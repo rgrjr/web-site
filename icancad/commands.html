@@ -1,0 +1,2147 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>ICanCAD Editor Command Reference</title>
+</head>
+<body bgcolor=white>
+
+<h2>ICanCAD Editor Command Reference</h2>
+
+<p><p><a href="/"><tt>Home</tt></a> : <a href="index.html">ICanCAD</a> :
+<a href="user.html">User Manual</a> : Command Reference
+<hr>
+
+<p>This page was generated automatically from the existing code
+base.  For each command, the descriptive paragraphs were taken from
+human-written inline documentation.  The descriptions of how to
+invoke the command via mouse, menu, and keyboard were generated
+automatically from the appropriate Lisp data structures.
+
+<ul>
+  <li> ICanCAD Editor Command Reference
+       <ul>
+	 <li> Table of Contents
+	 <li> <a href='#def-load-save-commands'>Def loading and saving commands</a>
+	      <ul>
+		<li> <a href='#com-edit-def'>Edit Def</a>
+		<li> <a href='#com-select-buffer'>Select Buffer</a>
+		<li> <a href='#com-select-loaded-def'>Select Loaded Def</a>
+		<li> <a href='#com-new-def'>New Def</a>
+		<li> <a href='#com-save-def'>Save Def</a>
+		<li> <a href='#com-close-def'>Close Def</a>
+		<li> <a href='#com-write-def'>Write Def</a>
+		<li> <a href='#com-save-some-defs'>Save Some Defs</a>
+	      </ul>
+	 <li> <a href='#def-other-commands'>Other def commands</a>
+	      <ul>
+		<li> <a href='#com-insert-def'>Insert Def</a>
+		<li> <a href='#com-revert-def'>Revert Def</a>
+		<li> <a href='#com-unload-def'>Unload Def</a>
+		<li> <a href='#com-rename-def'>Rename Def</a>
+		<li> <a href='#com-set-def-modified'>Set Def Modified</a>
+		<li> <a href='#com-print-def'>Print Def</a>
+		<li> <a href='#com-list-defs'>List Defs</a>
+		<li> <a href='#com-list-loaded-defs'>List Loaded Defs</a>
+		<li> <a href='#com-def-operations'>Def Operations</a>
+	      </ul>
+	 <li> <a href='#window-commands'>Windowing commands</a>
+	      <ul>
+		<li> <a href='#com-fit'>Fit</a>
+		<li> <a href='#com-redraw'>Redraw</a>
+		<li> <a href='#com-change-def-grid'>Change Def Grid</a>
+		<li> <a href='#mouse-recenter'>Mouse Recenter</a>
+		<li> <a href='#mouse-zoom-out-recenter'>Mouse Zoom Out Recenter</a>
+		<li> <a href='#mouse-zoom-in-recenter'>Mouse Zoom In Recenter</a>
+		<li> <a href='#mouse-rewindow'>Mouse Rewindow</a>
+		<li> <a href='#com-zoom'>Zoom</a>
+		<li> <a href='#com-duplicate-window'>Duplicate Window</a>
+		<li> <a href='#com-select-window'>Select Window</a>
+	      </ul>
+	 <li> <a href='#basic-editing'>Basic editing commands</a>
+	      <ul>
+		<li> <a href='#intro-kill-ring'>Introduction to kill rings</a>
+		<li> <a href='#com-undo'>Undo</a>
+		<li> <a href='#com-redo'>Redo</a>
+		<li> <a href='#com-edit-properties'>Edit Properties</a>
+		<li> <a href='#com-def-properties'>Def Properties</a>
+		<li> <a href='#com-cut-parts'>Cut Parts</a>
+		<li> <a href='#com-copy-to-kill-ring'>Copy To Kill Ring</a>
+		<li> <a href='#com-cut-region'>Cut Region</a>
+		<li> <a href='#com-copy-region'>Copy Region</a>
+		<li> <a href='#com-paste-parts'>Paste Parts</a>
+		<li> <a href='#com-move-parts'>Move Parts</a>
+		<li> <a href='#com-copy-parts'>Copy Parts</a>
+	      </ul>
+	 <li> <a href='#part-selection-commands'>Part selection commands</a>
+	      <ul>
+		<li> <a href='#com-select-part'>Select Part</a>
+		<li> <a href='#com-toggle-select'>Toggle Select</a>
+		<li> <a href='#com-select-region'>Select Region</a>
+		<li> <a href='#com-select-all'>Select All</a>
+		<li> <a href='#com-unselect-all'>Unselect All</a>
+	      </ul>
+	 <li> <a href='#symbolic-part-commands'>Commands for adding symbolic parts</a>
+	      <ul>
+		<li> <a href='#com-set-fill-color'>Set Fill Color</a>
+		<li> <a href='#com-set-outline-color'>Set Outline Color</a>
+		<li> <a href='#com-add-a'>Add A</a>
+		<li> <a href='#com-add-rectangle'>Add Rectangle</a>
+		<li> <a href='#com-add-oblong'>Add Oblong</a>
+		<li> <a href='#com-add-line'>Add Line</a>
+		<li> <a href='#com-add-polygon'>Add Polygon</a>
+		<li> <a href='#com-add-arrows'>Add Arrows</a>
+		<li> <a href='#com-add-text'>Add Text</a>
+		<li> <a href='#com-add-circle'>Add Circle</a>
+		<li> <a href='#com-add-arc'>Add Arc</a>
+	      </ul>
+	 <li> <a href='#schematic-editing-commands'>Commands for editing schematics</a>
+	      <ul>
+		<li> <a href='#com-set-technology'>Set Technology</a>
+		<li> <a href='#com-edit-parameters'>Edit Parameters</a>
+		<li> <a href='#com-add-use'>Add Use</a>
+		<li> <a href='#com-update-uses'>Update Uses</a>
+		<li> <a href='#com-add-device'>Add Device</a>
+		<li> <a href='#com-add-loaded-def'>Add Loaded Def</a>
+		<li> <a href='#com-add-recent-use'>Add Recent Use</a>
+		<li> <a href='#com-add-wire'>Add Wire</a>
+		<li> <a href='#com-add-net-label'>Add Net Label</a>
+		<li> <a href='#com-insert-net-label'>Insert Net Label</a>
+		<li> <a href='#com-select-connected'>Select Connected</a>
+		<li> <a href='#com-edit-icon'>Edit Icon</a>
+		<li> <a href='#com-push'>Push</a>
+		<li> <a href='#com-push-icon'>Push Icon</a>
+		<li> <a href='#com-pop'>Pop</a>
+	      </ul>
+	 <li> <a href='#icon-editing-commands'>Commands for editing icons</a>
+	      <ul>
+		<li> <a href='#com-return-to-schematic'>Return To Schematic</a>
+		<li> <a href='#com-add-pin'>Add Pin</a>
+		<li> <a href='#com-add-label'>Add Label</a>
+		<li> <a href='#com-add-schematic-labels'>Add Schematic Labels</a>
+		<li> <a href='#com-add-schematic-ports'>Add Schematic Ports</a>
+	      </ul>
+	 <li> <a href='#stretching-and-reshaping'>Part reshaping commands</a>
+	      <ul>
+		<li> <a href='#com-stretch-orthogonally'>Stretch Orthogonally</a>
+		<li> <a href='#com-quick-stretch'>Quick Stretch</a>
+		<li> <a href='#com-add-vertex'>Add Vertex</a>
+		<li> <a href='#com-delete-vertex'>Delete Vertex</a>
+	      </ul>
+	 <li> <a href='#misc-commands'>Miscellaneous commands</a>
+	      <ul>
+		<li> <a href='#com-clear-output-history'>Clear Output History</a>
+		<li> <a href='#com-describe-part'>Describe Part</a>
+		<li> <a href='#com-load-file'>Load File</a>
+		<li> <a href='#com-noop'>Noop</a>
+		<li> <a href='#com-eval'>Eval</a>
+		<li> <a href='#com-quit'>Quit</a>
+		<li> <a href='#com-write-edif-internal'>Write Edif Internal</a>
+		<li> <a href='#com-dump-pbin'>Dump Pbin</a>
+		<li> <a href='#com-load-pbin'>Load Pbin</a>
+	      </ul>
+	 <li> <a href='#simulation-commands'>Simulation commands</a>
+	      <ul>
+		<li> <a href='#intro-simulation'>Introduction to simulation commands</a>
+		<li> <a href='#com-write-spice-netlist'>Write Spice Netlist</a>
+	      </ul>
+	 <li> <a href='#menu-index'>Menu index</a>
+       </ul>
+</ul>
+
+<a name=def-load-save-commands>
+<h3>Def loading and saving commands</h3>
+
+<p>[These commands require the <tt>"ICANCAD-DESIGNS"</tt> logical
+pathname translations to be set up properly.  However, the directories need
+not already exist, as long as you have permission to create them.
+-- rgr, 6-Mar-02.]
+
+<a name=com-edit-def>
+<h4>Edit Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-EDIT-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Open Def&quot;
+  <dt> <i>Keyboard:</i> <tt>Edit Def</tt> <tt><i>name</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>name</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Meta-Left</tt> on a def name.
+</dl>
+</blockquote>
+
+<p>Edits an existing def by name, or creates a new def if the named def
+can't be found in memory or on disk.  As with all other commands that
+make defs editable, the def is put at the top of the
+<tt>*visited-def-history*</tt> list so the <a
+href='#com-select-buffer'>"Select Buffer"</a> command can find it.
+
+<p>Given <a href='libraries.html#syntax'>the name of a def</a>, the
+"Edit&nbsp;Def" command reads it from disk if necessary, and brings it
+up in a window of it's own, if it doesn't already appear in an <a
+href='glossary.html#active-window'>active window</a>.  In any case, the
+window is brought to the front and/or deiconified, as necessary.
+[Interaction with windows is not well defined; multiple windows are
+still unimplemented.  -- rgr, 25-Jan-02.]
+
+<p>If there is no existing def by that name, then a new one is created
+as if the def existed but was empty.  It is not actually created on disk
+until you save the new def.
+
+<p>If the def had been read in previously, "Edit Def" always checks to
+see whether the in-memory version is out of date.  This happens when
+somebody writes a new version of the def to disk after the time you
+initially read it into memory (or last did "Edit Def" on it).  If
+you have not modified the def, "Edit Def" will offer to revert the def
+from disk, as by the <a href='#com-revert-def'>"Revert Def"</a>
+command; if you say no (which is not recommended), the def is left
+alone.  If the def is modified, then you will be warned but allowed to
+continue editing your modified copy.
+
+<p>It is not assumed that you are necessarily going to modify the def.
+In fact, you may not be able to do so initially; if the library resides
+in a directory to which you do not have write access, then the def is
+initially made read-only.  You can change this by toggling the
+"Modifiable?" value back to "Yes" in the <a
+href='#def-properties'>"Def&nbsp;Properties"</a> menu.  [Read-only
+mode not yet implemented.  Does not actually do a check for writability.
+-- rgr, 26-Mar-01.]
+
+<a name=com-select-buffer>
+<h4>Select Buffer</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SELECT-BUFFER</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Select Buffer&quot;
+  <dt> <i>Keyboard:</i> <tt>Select Buffer</tt>
+</dl>
+</blockquote>
+
+<p>Offers a menu of defs previously viewed or edited that are still in
+memory.  If a def is chosen, it is made <a href='glossary.html#current-def'>
+the current def</a>.
+
+<p>The list of defs previously viewed or edited is kept in the
+<tt>*visited-def-history*</tt> variable.  Defs remain on this list even
+when all of their windows are closed, though not when they are unloaded
+or reverted.  (An exception is made when reverting the current def).
+
+<a name=com-select-loaded-def>
+<h4>Select Loaded Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SELECT-LOADED-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Select Loaded&quot;
+  <dt> <i>Keyboard:</i> <tt>Select Loaded Def</tt>
+</dl>
+</blockquote>
+
+<p>Offers a menu of loaded (i.e. in-memory) defs; if one is chosen,
+it is made <a href='glossary.html#current-def'>
+the current def</a>.
+
+<a name=com-new-def>
+<h4>New Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-NEW-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;New Def&quot;
+  <dt> <i>Keyboard:</i> <tt>New Def</tt>
+</dl>
+</blockquote>
+
+<p>Creates a new def in the current library with an arbitrary name.
+Initially, the def contains no parts.  This is equivalent to
+supplying an unused def name to the "Edit Def" command.
+
+<p>[<tt>com-new-def</tt> needs to be a little smarter when the current
+library is not writable. -- rgr, 26-Nov-01.]
+
+<a name=com-save-def>
+<h4>Save Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SAVE-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Save&quot;
+  <dt> <i>Keyboard:</i> <tt>Save Def</tt>
+</dl>
+</blockquote>
+
+<p>Save the current def to disk, if it needs it.
+
+<a name=com-close-def>
+<h4>Close Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-CLOSE-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Close&quot;
+</dl>
+</blockquote>
+
+<i>[not yet implemented.]</i>
+
+<a name=com-write-def>
+<h4>Write Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-WRITE-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Save As&quot;
+  <dt> <i>Keyboard:</i> <tt>Write Def</tt> <tt><i>new-name</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>new-name</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Writes the current def to disk under a new name.  This is essentially
+equivalent to <a href='#com-rename-def'>"Rename&nbsp;Def"</a> followed
+by <a href='#com-save-def'> "Save&nbsp;Def"</a>, except that parent
+uses are never updated.  See also the description of the <a
+href='#com-rename-def'>"Rename&nbsp;Def"</a> command.
+
+<p>Note that "Save As" effectively dissociates the def from its original
+name.  Other defs that refer to the original name will continue to do
+so.  If you wish to also rename uses in loaded parents of this def, you
+must use <a href='#com-rename-def'>"Rename&nbsp;Def"</a> with
+":Update-Loaded-Parents? Yes" (on the command line or in the dialog), and
+then do <a href='#com-save-def'>"Save&nbsp;Def"</a>.  [But
+":Update-Loaded-Parents?" is not yet supported.  -- rgr, 19-May-01.]
+
+<a name=com-save-some-defs>
+<h4>Save Some Defs</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SAVE-SOME-DEFS</tt>
+  <dt> <i>Keyboard:</i> <tt>Save Some Defs</tt>
+</dl>
+</blockquote>
+
+<p>Offers to save any modified defs, asking for each one individually.
+If none are modified, a message to that effect is printed.
+
+<p>This command also works in the console window, e.g. one can type
+<tt>(com-save-some-defs)</tt> at the Lisp prompt.  This allows any work
+in progress to be saved if ICanCAD should encounter a bug that makes the
+GUI unusable but isn't severe enough to terminate the Lisp session.
+When that happens, the underlying Lisp system displays an error and
+gives a debugger prompt.  If you ever see this, you should (1) invoke
+this command to save your work; (2) type <tt>":zoom :count 999"</tt>
+to put a backtrace into the transcript and submit a bug report that
+includes the transcript, the ICanCAD version number, and any additional
+information you feel would help us to reproduce the bug; and (3) type
+<tt>":exit"</tt> to get out of the Lisp.
+
+<a name=def-other-commands>
+<h3>Other def commands</h3>
+
+<a name=com-insert-def>
+<h4>Insert Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-INSERT-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Insert&quot;
+  <dt> <i>Keyboard:</i> <tt>Insert Def</tt> <tt><i>from</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>from</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Paste all parts from the specified def into the current def.  Any def
+-- loaded or on disk -- may be inserted using this command.  The parts
+can be dragged by the mouse to their new location; click <tt>Left</tt> to
+put them down, <tt>Middle</tt> to exit without placing.
+
+<a name=com-revert-def>
+<h4>Revert Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-REVERT-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Revert Def&quot;
+  <dt> <i>Keyboard:</i> <tt>Revert Def</tt> <tt><i>name</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>name</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Replaces the in-memory copy of the current def with the disk version.
+
+<p>[this is designed so that it doesn't affect parent defs.  this means
+that uses can't be too dependent on data structures owned by their
+child/icon defs.  -- rgr, 26-Mar-01.]
+
+<a name=com-unload-def>
+<h4>Unload Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-UNLOAD-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Unload Def&quot;
+  <dt> <i>Keyboard:</i> <tt>Unload Def</tt> <tt><i>name</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>name</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Removes the def from memory (it will still exist on disk if it had
+been saved).  If the def is modified, you will be asked to confirm that
+it is OK to discard your editing changes.  If this def is used from any
+other parent defs, those uses are unaffected and still refer to the same 
+def.  As a result, redisplay of such a schematic will force all of the 
+icon defs for its uses to be reloaded.
+
+<a name=com-rename-def>
+<h4>Rename Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-RENAME-DEF</tt>
+  <dt> <i>Keyboard:</i> <tt>Rename Def</tt> <tt><i>new-name</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>new-name</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Gives the current def a new name, and marks it as modified so that it
+will be saved under the new name.  The library must already exist, and
+the view may not be changed.  The new name must not already be in use
+for a def loaded in memory, or the command will fail.  If there is a def
+with the new name on disk, a warning message is printed to the effect
+that this def will be overwritten if you save.
+
+<p>Note that other defs that referred to this def by its original name will
+continue to do, by default.  If you wish to update uses in loaded
+parents of this def, you must say ":Update-Loaded-Parents? Yes" (on
+the command line or in the dialog), which will modify all loaded parent
+defs in order to change the child or icon def name(s) of all of their
+uses of the renamed def.  <b>Uses of unloaded parents are not updated in
+any case</b>, and will continue to refer to the old def name.  [But
+":Update-Loaded-Parents?" is not yet supported.  When it is, we need
+to document its interaction with <a href='#com-undo'>"Undo"</a>
+carefully.  -- rgr, 26-Nov-01.]
+
+<a name=com-set-def-modified>
+<h4>Set Def Modified</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SET-DEF-MODIFIED</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Set modified&quot;
+  <dt> <i>Keyboard:</i> <tt>Set Def Modified</tt> <tt><i>to</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>to</i></tt> </td> <td> is a boolean. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Set or clear the def's modified flag.  The command-line version
+prompts for a boolean value (<tt>"Yes"</tt> or <tt>"No"</tt> with
+completion, so only the first letter is necessary).  The menu version
+just toggles the value, so sometimes it appears in the menu as "Set
+modified" and sometimes as "Set not modified".
+
+<a name=com-print-def>
+<h4>Print Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-PRINT-DEF</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Print&quot;
+  <dt> <i>Keyboard:</i> <tt>Print Def</tt> <tt>&amp;key</tt> <tt>:Def</tt> <tt>:Pathname</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>def</i></tt> </td> <td> is a def name. </td> </tr>
+         <tr> <td> <tt><i>pathname</i></tt> </td> <td> is a pathname. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Plot a single def to the indicated plot file, which defaults to the
+def name with an extension of <tt>".ps"</tt>.  [This default doesn't
+serve very well if the user wants to plot both a schematic and its icon,
+one at a time.  -- rgr, 26-Apr-02.]  For plotting multiple defs at a time,
+i.e. to the same PostScript file, use the <a href='#com-def-operations'>"Def
+Operations"</a> command.
+
+<p>[there is no "plot to a printer" command/option, because I don't have a
+printer on my cheapo system with which to test.  -- rgr, 26-Apr-02.]
+
+<a name=com-list-defs>
+<h4>List Defs</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-LIST-DEFS</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;List Defs&quot;
+  <dt> <i>Keyboard:</i> <tt>List Defs</tt> <tt><i>matching</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>matching</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Lists all defs, loaded or on disk, that match the specified def name,
+which is usually wildcarded, and defaults to all defs in the current
+library, e.g. <tt>"foo:bar:baz;*.*"</tt>.  [subset of actual files 
+shown; need to test and clarify.  -- rgr, 1-Dec-01.]
+
+<p>There are two basic forms of output:
+<ol>
+<li> If all defs are in a single library, they are shown in a single
+alphabetical list.  If there are more than
+<tt>*def-name-list-query-threshold*</tt> defs (the initial value
+is 50), you will be asked to confirm that you really want to see
+them all.
+<li> If defs are in multiple libraries, they are listed alphabetically
+by library.  If there are more than
+<tt>*def-name-list-query-threshold*</tt> defs total, you will be
+asked if you just want to see the library names.
+</ol>
+
+<p>In either case, the name of each matching def is shown in the interactor
+pane, preceded by a single character describing its current state:
+
+<p><dl compact>
+<dt> "U"
+<dd> if the def is unloaded (i.e. hasn't been read in this session,
+or hasn't been re-read since it was last unloaded);
+<dt> "*"
+<dd> if the def has been modified since it was last read; or
+<dt> "&nbsp;"
+<dd> otherwise.
+</dl>
+
+<p>The def names are mouse sensitive, so you can click <tt>Left</tt> to
+supply the name as input to a command, click <tt>Meta-Left</tt> to
+invoke the <a href='#com-edit-def'>"Edit Def"</a> command, or click
+<tt>Right</tt> to get a menu of other def operations.  Library names are
+also mouse sensitive; clicking <tt>Left</tt> on a library name lists all
+defs in that library.
+
+<a name=com-list-loaded-defs>
+<h4>List Loaded Defs</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-LIST-LOADED-DEFS</tt>
+  <dt> <i>Keyboard:</i> <tt>List Loaded Defs</tt> <tt><i>matching</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>matching</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>List all loaded defs matching the specified def name, which is
+usually wildcarded, and defaults to all defs in the current library.
+The output is shown in the same format as for <a href='#com-list-defs'>
+"List Defs"</a>.
+
+<a name=com-def-operations>
+<h4>Def Operations</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-DEF-OPERATIONS</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Library def ops&quot;
+  <dt> <i>Keyboard:</i> <tt>Def Operations</tt> <tt><i>wildcard</i></tt> <tt>&amp;key</tt> <tt>:Default-Operation</tt> <tt>:Default-If-Modified</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>wildcard</i></tt> </td> <td> is a def name. </td> </tr>
+         <tr> <td> <tt><i>default-operation</i></tt> </td> <td> is one of None, Save, Modify, Unmodify, Unload, Revert, or Print. </td> </tr>
+         <tr> <td> <tt><i>default-if-modified</i></tt> </td> <td> is one of None, Save, Modify, Unmodify, Unload, Revert, or Print. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>This command provides a means of performing save/unload/revert
+operations (plus a few others) on a collection of similarly-named defs.
+Given a wildcarded def name, "Def Operations" presents a menu of
+possible def operations for all matching loaded defs.  Defs are sorted
+by putting modified defs first, and then in alphabetical order by def
+name.
+
+<p>The operations are as follows:
+<ul>
+<li> <b>None</b>:  Leaves the def untouched.
+<li> <b>Save</b>:  Saves the def, as if by <a href='#com-save-def'>
+"Save Def"</a>, except that def will be saved even if it hasn't been 
+modified.
+<li> <b>Modify</b>:  If the def is unmodified, marks it as modified.
+<li> <b>Unmodify</b>:  If the def is modified, marks it as unmodified.
+<li> <b>Unload</b>:  Removes the def from memory, as if by
+<a href='#com-unload-def'>"Unload Def"</a>.
+<li> <b>Revert</b>:  Reverts the def, as if by <a href='#com-revert-def'>
+"Revert Def"</a>.
+<li> <b>Print</b>:  Print the def.  All such defs are printed together
+in the same print job [actually, just a PostScript file].
+</ul>
+
+<p>The default is to save the def if modified, else to do nothing.  The
+first default can be controlled by the <tt>:Default-If-Modified</tt>
+keyword argument, the second by the <tt>:Default-Operation</tt>
+argument.  The options presented for each def are slightly different
+depending on whether the def is currently modified.
+
+<a name=window-commands>
+<h3>Windowing commands</h3>
+
+<p>[describe "current window" concept.  -- rgr, 23-Jan-02.]
+
+<a name=com-fit>
+<h4>Fit</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-FIT</tt>
+  <dt> <i>Menu:</i> &quot;Window&quot; -&gt; &quot;Fit&quot;
+  <dt> <i>Keyboard:</i> <tt>Fit</tt>
+</dl>
+</blockquote>
+
+<p>Draws the def in the current window so that it is entirely visible
+and as large as possible while still leaving a 5% margin around the
+edges.
+
+<a name=com-redraw>
+<h4>Redraw</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-REDRAW</tt>
+  <dt> <i>Menu:</i> &quot;Window&quot; -&gt; &quot;Redraw&quot;
+  <dt> <i>Keyboard:</i> <tt>Redraw</tt>
+</dl>
+</blockquote>
+
+<p>Redraws the contents of all editor windows.  [A properly working
+graphics program doesn't need such a command, but we still have drawing
+bugs.]
+
+<a name=com-change-def-grid>
+<h4>Change Def Grid</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-CHANGE-DEF-GRID</tt>
+  <dt> <i>Menu:</i> &quot;Window&quot; -&gt; &quot;Change grid&quot;
+  <dt> <i>Keyboard:</i> <tt>Change Def Grid</tt>
+</dl>
+</blockquote>
+
+<p>Change the grid parameters associated with the current def.  This is
+done by changing the <tt>grid</tt> property of the current def, which
+modifies the def, which means that the new values will be saved with the
+def.  This also means that <a href='#com-undo'>"Undo"</a> will restore
+the old grid.
+
+<a name=mouse-recenter>
+<h4>Mouse Recenter</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::MOUSE-RECENTER</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Control-Left</tt>.
+</dl>
+</blockquote>
+
+<p>Move the window so that the indicated point is
+in its center, preserving the present scale factor.
+
+<p>"Mouse Recenter" can also be invoked transparently
+during other input operations, e.g. while specifying the vertices of a polygon.
+
+<a name=mouse-zoom-out-recenter>
+<h4>Mouse Zoom Out Recenter</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::MOUSE-ZOOM-OUT-RECENTER</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Meta-Control-Right</tt>.
+</dl>
+</blockquote>
+
+<p>Zoom out 0.5X (i.e. by halving the scale factor),
+and moving the point clicked to the window center.
+
+<p>"Mouse Zoom Out Recenter" can also be invoked transparently
+during other input operations, e.g. while specifying the vertices of a polygon.
+
+<a name=mouse-zoom-in-recenter>
+<h4>Mouse Zoom In Recenter</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::MOUSE-ZOOM-IN-RECENTER</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Meta-Control-Left</tt>.
+</dl>
+</blockquote>
+
+<p>Zoom in 2X (i.e. by doubling the scale factor),
+and moving the point clicked to the window center.
+
+<p>"Mouse Zoom In Recenter" can also be invoked transparently
+during other input operations, e.g. while specifying the vertices of a polygon.
+
+<a name=mouse-rewindow>
+<h4>Mouse Rewindow</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::MOUSE-REWINDOW</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Meta-Control-Middle</tt>.
+</dl>
+</blockquote>
+
+<p>Change the portion of the def displayed by
+specifying two points; the display is altered by putting those points on
+diametrically opposite edges of the window.  The effect is to zoom in by
+a variable amount, inversely proportional to the distance between the
+two points, and recenter to the midpoint of the two points.  (This is
+easier to demonstrate than to explain.)
+
+<p>After clicking the first point, an "X" is drawn there, and the mouse
+drags a box with the aspect ratio of the window.  Clicking [\:select]
+causes the contents of the box to fill the screen, while clicking
+<tt>Middle</tt> aborts.
+
+<p>"Mouse Rewindow" can also be invoked transparently
+during other input operations, e.g. while specifying the vertices of a polygon.
+
+<a name=com-zoom>
+<h4>Zoom</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ZOOM</tt>
+  <dt> <i>Menu:</i> &quot;Window&quot; -&gt; &quot;Zoom in&quot;
+  <dt> <i>Keyboard:</i> <tt>Zoom</tt> <tt><i>factor</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>factor</i></tt> </td> <td> is a floating-point number greater than 0.0. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Zoom in if the scale multiplier is greater than one, else zoom out.
+The center of the window is unaffected.
+
+<a name=com-duplicate-window>
+<h4>Duplicate Window</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-DUPLICATE-WINDOW</tt>
+  <dt> <i>Menu:</i> &quot;Window&quot; -&gt; &quot;Duplicate&quot;
+</dl>
+</blockquote>
+
+<i>[not yet implemented.]</i>
+
+<a name=com-select-window>
+<h4>Select Window</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SELECT-WINDOW</tt>
+</dl>
+</blockquote>
+
+<i>[not yet implemented.]</i>
+
+<a name=basic-editing>
+<h3>Basic editing commands</h3>
+
+<p>[These are most of the commands that operate on parts or sets of
+parts.]
+
+<a name=intro-kill-ring>
+<h4>Introduction to kill rings</h4>
+
+<p>ICanCAD keeps a history deletions made by the "Cut" or "Copy"
+commands in its <a href='glossary.html#kill-ring'>kill ring</a>, from
+whence they can be readded at any time later during the session.  The <a
+href='#com-paste-parts'>"Paste"</a> command give you an opportunity to
+place the parts last cut or copied, at which time you may use mouse
+clicks to select any of the less recent kill ring entries.  At most 60
+kill ring entries are remembered; this is under control of the
+<tt>*kill-ring-max*</tt> variable.
+
+<p>Note that most similar graphical editors only remember the last set of
+parts cut or copied, in a place usually called the "cut buffer."
+ICanCAD's kill ring was modeled after the emacs concept of the same
+name.  The historical emacs name was kept partly to emphasize the extra
+functionality, and partly for purely historical reasons (since ICanCAD
+is being developed by partly historical Lisp hackers).
+
+<a name=com-undo>
+<h4>Undo</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-UNDO</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Undo&quot;
+  <dt> <i>Keyboard:</i> <tt>Undo</tt>
+</dl>
+</blockquote>
+
+<p>Undoes the effect of the last command that modified the current def.
+The "Undo" command may be repeated as many times as desired; the
+entire edit history is kept until the time def was read (or last
+reverted).  [This is actually <a href='bugs.html#bug-31'>a bug</a>, as
+it might constitute a "memory leak" during a long session.]
+
+<a name=com-redo>
+<h4>Redo</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-REDO</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Redo&quot;
+  <dt> <i>Keyboard:</i> <tt>Redo</tt>
+</dl>
+</blockquote>
+
+<p>After undoing one or more commands to move backward in the edit
+history, one can go forward again by using the "Redo" command.  When
+the def is modified by a "normal" editing command (i.e. not "Undo"
+or "Redo"), anything on the "Redo" history must be thrown away,
+because the def is no longer in the expected state.  That is why
+"Redo" is only effective after "Undo," and also why commands cannot
+be undone out of order.
+
+<a name=com-edit-properties>
+<h4>Edit Properties</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-EDIT-PROPERTIES</tt>
+  <dt> <i>Keyboard:</i> <tt>Edit Properties</tt> <tt><i>part</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>part</i></tt> </td> <td> is a BASIC-PART. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Shift-Middle</tt> on a BASIC-PART.
+</dl>
+</blockquote>
+
+<p>Edit part properties in a pop-up dialog.
+This command is always invoked by clicking on a specific part.  If there
+are multiple selected parts, and "Edit Properties" is invoked by
+clicking on one of them, then the values of all properties that are
+changed or added to that part are copied to all of the other parts.
+Otherwise, only the part that was actually clicked on is modified.
+
+<a name=com-def-properties>
+<h4>Def Properties</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-DEF-PROPERTIES</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Def Properties&quot;
+  <dt> <i>Keyboard:</i> <tt>Def Properties</tt>
+</dl>
+</blockquote>
+
+<p>Edit properties of the current def.  The <a
+href='#com-undo'>"Undo"</a> command can restore the previous values of
+any properties that were modified.  See also the <a
+href='#com-edit-parameters'>"Edit Parameters"</a> command.
+
+<a name=com-cut-parts>
+<h4>Cut Parts</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-CUT-PARTS</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Cut parts&quot;
+  <dt> <i>Keyboard:</i> <tt>Cut Parts</tt>
+</dl>
+</blockquote>
+
+<p>Cut the selected parts, copying to a new kill ring entry.
+
+<a name=com-copy-to-kill-ring>
+<h4>Copy To Kill Ring</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-COPY-TO-KILL-RING</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Copy parts&quot;
+  <dt> <i>Keyboard:</i> <tt>Copy To Kill Ring</tt>
+</dl>
+</blockquote>
+
+<p>Copy the selected parts to a new kill ring entry without deleting
+anything.
+
+<p>[To add to the confusion, this is really called
+<tt>com-copy-to-kill-ring</tt> internally.  There is also a
+<tt>com-copy-parts</tt> command that combines "Copy Parts" with an
+immediate "Paste," though it doesn't touch the kill ring.  <a
+href='#com-copy-parts'> <tt>com-copy-parts</tt></a> is available from a
+mouse click.  -- rgr, 23-Jan-02.]
+
+<a name=com-cut-region>
+<h4>Cut Region</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-CUT-REGION</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Cut region&quot;
+</dl>
+</blockquote>
+
+<i>[not yet implemented.]</i>
+
+<a name=com-copy-region>
+<h4>Copy Region</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-COPY-REGION</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Copy region&quot;
+  <dt> <i>Keyboard:</i> <tt>Copy Region</tt> <tt>&amp;key</tt> <tt>:Start</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>start</i></tt> </td> <td> is None or a pt. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Super-Left</tt>.
+</dl>
+</blockquote>
+
+<p>Copy parts within the region into a kill ring entry.
+
+<a name=com-paste-parts>
+<h4>Paste Parts</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-PASTE-PARTS</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Paste&quot;
+  <dt> <i>Keyboard:</i> <tt>Paste Parts</tt>
+</dl>
+</blockquote>
+
+<p>Paste parts from the kill ring into the current def.  Initially, the
+parts in the top kill ring entry can be dragged by the mouse to their
+new location; click <tt>Left</tt> to put them down, <tt>Middle</tt> to exit
+without placing.  Parts can also be rotated before placing [need shared
+description].
+
+<p>If a different set of deleted parts is desired, you can click
+<tt>Right</tt> to drag the previous kill ring entry; multiple
+<tt>Right</tt> clicks will yield successively earlier kills.  Or, click
+<tt>Shift-Right</tt> to be prompted for the amount by which to rotate
+the kill ring; this number can be negative, in which case an earlier
+kill is chosen.  The "current" kill ring entry is remembered between
+commands, so that you can paste multiple copies of an early kill, but is
+always reset to the first (most recently deleted) item whenever anything
+is added to the kill ring.
+
+<a name=com-move-parts>
+<h4>Move Parts</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-MOVE-PARTS</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Move parts&quot;
+  <dt> <i>Keyboard:</i> <tt>Move Parts</tt> <tt>&amp;key</tt> <tt>:Start</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>start</i></tt> </td> <td> is None or a pt. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Left</tt> on a BASIC-PART.
+</dl>
+</blockquote>
+
+<p>Moves the selected parts to a new location.
+
+<a name=com-copy-parts>
+<h4>Copy Parts</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-COPY-PARTS</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Copy/paste&quot;
+  <dt> <i>Keyboard:</i> <tt>Copy Parts</tt> <tt>&amp;key</tt> <tt>:Start</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>start</i></tt> </td> <td> is None or a pt. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Middle</tt> on a BASIC-PART.
+</dl>
+</blockquote>
+
+<p>Copies the selected parts to a new location.  This does not affect
+the kill ring.  [Though perhaps, for consistency, it should.  -- rgr,
+26-Jan-02.]
+
+<a name=part-selection-commands>
+<h3>Part selection commands</h3>
+
+<p>These commands change the set of selected parts.  Most other commands
+that operate on parts, particularly those invoked via menus, operate on
+the selected set.  If such a command is invoked when there are no selected
+parts, you will be prompted to "Click on a part"; a single click will 
+start the command executing, or type <tt>Control-G</tt> to quit.
+[Just giving up in this case would probably be cleaner.  -- rgr, 31-Mar-02.]
+
+<a name=com-select-part>
+<h4>Select Part</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SELECT-PART</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Left</tt> on a BASIC-PART.
+</dl>
+</blockquote>
+
+<p>Select a single part, and assign it to the <tt>*part*</tt> variable.
+All other parts are unselected.
+
+<a name=com-toggle-select>
+<h4>Toggle Select</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-TOGGLE-SELECT</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Shift-Left</tt> on a BASIC-PART.
+</dl>
+</blockquote>
+
+<p>Toggle part selection status.  This does not affect the selection
+status of other parts, so is commonly used to "add-select" additional
+parts.
+
+<a name=com-select-region>
+<h4>Select Region</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SELECT-REGION</tt>
+  <dt> <i>Keyboard:</i> <tt>Select Region</tt> <tt><i>start</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>start</i></tt> </td> <td> is a pt. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Shift-Left</tt> on a blank area.
+</dl>
+</blockquote>
+
+<p>Add-select or toggle selection for all parts in a region
+
+<a name=com-select-all>
+<h4>Select All</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SELECT-ALL</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Select All&quot;
+  <dt> <i>Keyboard:</i> <tt>Select All</tt>
+</dl>
+</blockquote>
+
+<p>Select all of the def's parts.
+
+<a name=com-unselect-all>
+<h4>Unselect All</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-UNSELECT-ALL</tt>
+  <dt> <i>Keyboard:</i> <tt>Unselect All</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Left</tt> on a blank area.
+</dl>
+</blockquote>
+
+<p>Unselect all selected parts.
+
+<a name=symbolic-part-commands>
+<h3>Commands for adding symbolic parts</h3>
+
+<p>These are the commands that add <a
+href='glossary.html#symbolic'>"symbolic"</a> parts.  They are
+presented in the order in which they appear in the menu (except that
+"Set Fill Color" and "Set Outline Color" are really on the
+"Format" menu).
+
+<p>When editing a given def, some of the "Add" menu
+commands may be greyed out when not applicable.
+For instance, "Add Wire" only works in schematic defs, and hence is
+not available in icon or symbolic defs.  Such commands are described in the
+<a href='#schematic-editing-commands'>"Commands for editing schematics"</a>
+section or the <a href='#icon-editing-commands'>"Commands for editing
+icons"</a> section.
+
+<a name=com-set-fill-color>
+<h4>Set Fill Color</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SET-FILL-COLOR</tt>
+  <dt> <i>Menu:</i> &quot;Format&quot; -&gt; &quot;Set Fill Color&quot;
+  <dt> <i>Keyboard:</i> <tt>Set Fill Color</tt> <tt><i>color</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>color</i></tt> </td> <td> is None or one of Black, White, Magenta, Yellow, Red, Green, Cyan, or Blue. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Set the fill color of the selected parts, or the default fill color.
+
+<a name=com-set-outline-color>
+<h4>Set Outline Color</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SET-OUTLINE-COLOR</tt>
+  <dt> <i>Menu:</i> &quot;Format&quot; -&gt; &quot;Set Outline Color&quot;
+  <dt> <i>Keyboard:</i> <tt>Set Outline Color</tt> <tt><i>color</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>color</i></tt> </td> <td> is one of Black, White, Magenta, Yellow, Red, Green, Cyan, or Blue. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Set the outline color of the selected parts, or the default outline color.
+
+<a name=com-add-a>
+<h4>Add A</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-A</tt>
+  <dt> <i>Keyboard:</i> <tt>Add A</tt> <tt><i>kind</i></tt> <tt>&amp;key</tt> <tt>:Start</tt> <tt>:Window</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>kind</i></tt> </td> <td> is one of rectangle, oblong, line, polygon, arrow, circle, circular arc, use, wire, text, net label, label, or pin. </td> </tr>
+         <tr> <td> <tt><i>start</i></tt> </td> <td> is a pt. </td> </tr>
+         <tr> <td> <tt><i>window</i></tt> </td> <td> is an EDITING-WINDOW-PANE. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Control-Middle</tt>.
+</dl>
+</blockquote>
+
+<p>Add a random part.
+
+<a name=com-add-rectangle>
+<h4>Add Rectangle</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-RECTANGLE</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Rect&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Rectangle</tt>
+</dl>
+</blockquote>
+
+<p>Add a rectangle part.
+
+<a name=com-add-oblong>
+<h4>Add Oblong</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-OBLONG</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Oblong&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Oblong</tt>
+</dl>
+</blockquote>
+
+<p>Add an oblong part.
+
+<a name=com-add-line>
+<h4>Add Line</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-LINE</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Line&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Line</tt>
+</dl>
+</blockquote>
+
+<p>Add a line part.  See also the <a href='#com-add-polygon'>"Add
+Polygon"</a> command.
+
+<a name=com-add-polygon>
+<h4>Add Polygon</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-POLYGON</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Poly&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Polygon</tt>
+</dl>
+</blockquote>
+
+<p>Add a polygon part.  As far as ICanCAD is concerned, a polygon is
+just a line that has a closed path, and may therefore be filled in some
+arbitrary color.  A line may be converted into a polygon by <a
+href='#com-quick-stretch'>dragging one of its endpoints to coincide with
+the other</a>.  A polygon may be converted into a line by <a
+href='#com-delete-vertex'>deleting one of its segments</a>; once this is
+done, the former polygon will cease to be filled, but it will remember
+its fill color in case you decide to close it again.
+
+<a name=com-add-arrows>
+<h4>Add Arrows</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-ARROWS</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Arrows&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Arrows</tt>
+</dl>
+</blockquote>
+
+<p>Add arrows
+
+<a name=com-add-text>
+<h4>Add Text</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-TEXT</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Text&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Text</tt> <tt><i>strings</i></tt> <tt>&amp;key</tt> <tt>:Size</tt> <tt>:Justification</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>strings</i></tt> </td> <td> is a sequence of strings. </td> </tr>
+         <tr> <td> <tt><i>size</i></tt> </td> <td> is an integer greater than or equal to 1. </td> </tr>
+         <tr> <td> <tt><i>justification</i></tt> </td> <td> is one of Auto, Bottom-Center, Bottom-Left, Bottom-Right, Center-Left, Center, Center-Right, Top-Center, Top-Left, or Top-Right. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Add a text part
+
+<a name=com-add-circle>
+<h4>Add Circle</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-CIRCLE</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Circle&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Circle</tt>
+</dl>
+</blockquote>
+
+<p>Add a circle
+
+<a name=com-add-arc>
+<h4>Add Arc</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-ARC</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Arc&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Arc</tt>
+</dl>
+</blockquote>
+
+<p>Add a circular arc
+
+<a name=schematic-editing-commands>
+<h3>Commands for editing schematics</h3>
+
+<p>These commands are especially useful for editing schematics.  See also
+the <a href='schematic.html'> <b>Schematic editing</b></a> page.
+
+<p>The good news is that there is no restriction on what goes into an
+ICanCAD schematic def; they can have arbitrary symbolic parts (polygons,
+circles, etc.)  The bad news is that, all except for text, these parts
+are lost if saved in Janus format, since Janus schematics do not support
+them.  (See also the <a href='schematic.html#janus-format-subset'>
+Conversion of Janus defs</a> section.)
+
+<a name=com-set-technology>
+<h4>Set Technology</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SET-TECHNOLOGY</tt>
+  <dt> <i>Keyboard:</i> <tt>Set Technology</tt>
+</dl>
+</blockquote>
+
+<p>Set or change the technology of the current def.  [Currently,
+technologies are just names, the value of the <tt>technology</tt>
+property of the def, and changing them does not do any sort of updating
+of primitives.  -- rgr, 25-Apr-02.]
+
+<a name=com-edit-parameters>
+<h4>Edit Parameters</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-EDIT-PARAMETERS</tt>
+  <dt> <i>Menu:</i> &quot;Edit&quot; -&gt; &quot;Def Parameters&quot;
+  <dt> <i>Keyboard:</i> <tt>Edit Parameters</tt>
+</dl>
+</blockquote>
+
+<p>View or change the parameters of the current def.  <b>Warning:</b>
+This is not undoable, nor does it mark the def as modified (see bug <a
+href='bugs.html#bug-46'>bug 46</a>).
+
+<a name=com-add-use>
+<h4>Add Use</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-USE</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Use ...&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Use</tt> <tt><i>child</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>child</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Add a use
+
+<a name=com-update-uses>
+<h4>Update Uses</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-UPDATE-USES</tt>
+  <dt> <i>Keyboard:</i> <tt>Update Uses</tt>
+</dl>
+</blockquote>
+
+<p>Update uses in the current def to reflect ports and/or labels changed
+in their icons.  If any uses are selected, then only those uses will be
+considered for update.  If a use is already consistent with its icon, it
+is not changed.  Note that this operation is undoable, as it works by
+replacing the original uses with newly created ones.
+
+<p>[bug: there is no warning if bristle connections get swapped or
+disconnected during the update.  "Update Uses" ought to do something
+more intelligent with existing connections to moved pins.  fortunately,
+that is much easier than having to deal with new pin positions when
+reading the parent def from disk.  -- rgr, 1-May-02.]
+
+<a name=com-add-device>
+<h4>Add Device</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-DEVICE</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Device ...&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Device</tt>
+</dl>
+</blockquote>
+
+<p>Add a primitive device to the current schematic def.
+
+<p>This relies on having a <tt>technology</tt> property on the def that
+names the technology, and either a user-defined <tt>device-menu</tt>
+property or a <tt>primitives</tt> property on the technology name.
+
+<a name=com-add-loaded-def>
+<h4>Add Loaded Def</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-LOADED-DEF</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Loaded ...&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Loaded Def</tt>
+</dl>
+</blockquote>
+
+<p>Add a use of a loaded (i.e. in-memory) schematic to the
+current schematic def.
+
+<a name=com-add-recent-use>
+<h4>Add Recent Use</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-RECENT-USE</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Recent ...&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Recent Use</tt>
+</dl>
+</blockquote>
+
+<a name=com-add-wire>
+<h4>Add Wire</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-WIRE</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Wire&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Wire</tt> <tt>&amp;key</tt> <tt>:Start</tt> <tt>:Window</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>start</i></tt> </td> <td> is None or a pt. </td> </tr>
+         <tr> <td> <tt><i>window</i></tt> </td> <td> is an EDITING-WINDOW-PANE. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Control-Shift-Middle</tt> on a connection pt or a pt.
+  <dd> Click <tt>Control-Shift-Left</tt> on a connection pt or a pt.
+</dl>
+</blockquote>
+
+<p>Add a wire
+
+<a name=com-add-net-label>
+<h4>Add Net Label</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-NET-LABEL</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Net Label&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Net Label</tt> <tt><i>labels</i></tt> <tt>&amp;key</tt> <tt>:Size</tt> <tt>:Justification</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>labels</i></tt> </td> <td> is a sequence of strings. </td> </tr>
+         <tr> <td> <tt><i>size</i></tt> </td> <td> is an integer greater than or equal to 1. </td> </tr>
+         <tr> <td> <tt><i>justification</i></tt> </td> <td> is one of Auto, Bottom-Center, Bottom-Left, Bottom-Right, Center-Left, Center, Center-Right, Top-Center, Top-Left, or Top-Right. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Add one or more net labels, with strings specified on the command
+line.  If you want to add more than one, use a semicolon to separate the
+strings; type <tt>Enter</tt> when you are done.  To use a string that
+contains spaces or semicolons, put them in double quotes
+(<tt>'&quot;'</tt>); for multiple such strings, you must remember to
+leave the separating semicolons outside of the quotes.  Optionally, you
+can also specify the initial size and/or justification on the command
+line; type <tt>Space</tt> followed by <tt>":Size 4"</tt> (without the
+quotes), for example.
+
+<p>After hitting <tt>Enter</tt>, you will be given a chance to drag 
+the text of the net label around on the def.  Notice that the connection
+point snaps to the nearest wire, if one is nearby.  Click <tt>Shift-Left</tt> to
+fix the connection point at its present location; click <tt>Shift-Left</tt> again
+to release it.
+
+<p>The string, size, and justification can all be changed while dragging
+by clicking <tt>Shift-Middle</tt>.  [plus others.  finish.  -- rgr,
+20-Mar-02.]
+
+<p>If the net label has a number in it (i.e. a string of digits), then
+the next time you place a net label, the default label string is the
+same but with the digit string incremented by one.  Otherwise, the
+default is the same as the last time you dragged a net label around,
+regardless of whether you actually placed it.  [Unfortunately, the
+default is only available when invoked via the mouse by clicking
+<tt>Control-Middle</tt> or <tt>Super-Right</tt>.  -- rgr, 20-Mar-02.]
+
+<p>See also the <a href='schematic.html#net-label'>"Schematic net 
+labels"</a> section.
+
+<a name=com-insert-net-label>
+<h4>Insert Net Label</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-INSERT-NET-LABEL</tt>
+  <dt> <i>Keyboard:</i> <tt>Insert Net Label</tt> <tt><i>start</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>start</i></tt> </td> <td> is a SCRATCH-DOT or a connection pt. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+</dl>
+</blockquote>
+
+<p>Insert a net label at the specified location.  The location is
+initially fixed to the point clicked, but can be released by clicking
+<tt>Shift-Left</tt>.  The text starts out as a guess based on what is already
+connected, but can be changed (along with other properties) while
+dragging the new net label around by clicking <tt>Shift-Middle</tt>
+to get the edit properties dialog.
+
+<a name=com-select-connected>
+<h4>Select Connected</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-SELECT-CONNECTED</tt>
+  <dt> <i>Keyboard:</i> <tt>Select Connected</tt> <tt><i>part</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>part</i></tt> </td> <td> is a BASIC-PART that satisfies CONNECTABLE-PART?. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+</dl>
+</blockquote>
+
+<p>Select the specified part and everything physically connected.  For a
+dot or link, this includes all wiring and net labels that are directly
+connected, but not uses.  For a use, this includes the use and all
+wiring connected to its bristles.
+
+<a name=com-edit-icon>
+<h4>Edit Icon</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-EDIT-ICON</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Edit Icon&quot;
+  <dt> <i>Keyboard:</i> <tt>Edit Icon</tt> <tt><i>icon-name</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>icon-name</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Edits an existing icon for the current def by name, or creates a new
+icon def if the named def can't be found in memory or on disk.  The icon
+is edited as with the <a href='#com-edit-def'>"Edit Def"</a> command;
+the only difference is that "Edit Icon" offers to put the def name on
+the current def's <tt>icon-names</tt> list.  This property stores the
+names of all 'preferred' icons for a given schematic.
+
+<p>Note the distinction between this command and <a href='#com-push-icon'>
+"Push Icon"</a>, which pushes into the icon of a use.
+
+<p>[If the named def already exists but isn't on <tt>icon-names</tt>, 
+we should check it for electrical consistency before adding.  But we 
+won't really be able to do this right until ICanCAD can extract nets from
+schematics.  -- rgr, 29-Jan-02.]
+
+<a name=com-push>
+<h4>Push</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-PUSH</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Push&quot;
+  <dt> <i>Keyboard:</i> <tt>Push</tt> <tt>&amp;key</tt> <tt>:Window</tt> <tt>:Part</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>window</i></tt> </td> <td> is an EDITING-WINDOW-PANE. </td> </tr>
+         <tr> <td> <tt><i>part</i></tt> </td> <td> is None or a BASIC-USE. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Meta-Left</tt> on a BASIC-PART.
+</dl>
+</blockquote>
+
+<p>Push into the child def of a use.  The use of interest may either be
+selected before invoking the command, specified by clicking on the use
+of interest when invoking via the mouse, or prompted for after invoking
+(via keyboard or menu).
+
+<a name=com-push-icon>
+<h4>Push Icon</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-PUSH-ICON</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Push Icon&quot;
+  <dt> <i>Keyboard:</i> <tt>Push Icon</tt> <tt>&amp;key</tt> <tt>:Window</tt> <tt>:Part</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>window</i></tt> </td> <td> is an EDITING-WINDOW-PANE. </td> </tr>
+         <tr> <td> <tt><i>part</i></tt> </td> <td> is None or a BASIC-USE. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Meta-Middle</tt> on a BASIC-PART.
+</dl>
+</blockquote>
+
+<p>Push into the icon def of a use.  The use of interest may either be
+selected before invoking the command, specified by clicking on the use
+of interest when invoking via the mouse, or prompted for after invoking
+(via keyboard or menu).
+
+<p>Note the distinction between this command and <a href='#com-edit-icon'>
+"Edit Icon"</a>, which edits an icon of the current def.
+
+<a name=com-pop>
+<h4>Pop</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-POP</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Pop&quot;
+  <dt> <i>Keyboard:</i> <tt>Pop</tt> <tt>&amp;key</tt> <tt>:Window</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>window</i></tt> </td> <td> is an EDITING-WINDOW-PANE. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Meta-Right</tt> on a blank area.
+</dl>
+</blockquote>
+
+<p>Pop back into a parent def.  If you did not previously push, you will
+be asked to choose a loaded parent of the current def.
+
+<a name=icon-editing-commands>
+<h3>Commands for editing icons</h3>
+
+<p>These commands are useful when editing a schematic icon
+(<tt>".shape-def"</tt> or <tt>".sicon"</tt>) def.  See also the <a
+href='sicon.html'> Schematic icon editing</a> page.
+
+<a name=com-return-to-schematic>
+<h4>Return To Schematic</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-RETURN-TO-SCHEMATIC</tt>
+  <dt> <i>Keyboard:</i> <tt>Return To Schematic</tt>
+</dl>
+</blockquote>
+
+<p>After moving from a schematic to one of its icons via the 
+<a href='#com-edit-icon'>"Edit Icon"</a> command, use this command 
+to move back to the original schematic.
+
+<a name=com-add-pin>
+<h4>Add Pin</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-PIN</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Pin&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Pin</tt> <tt><i>ports</i></tt> <tt>&amp;key</tt> <tt>:Size</tt> <tt>:Justification</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>ports</i></tt> </td> <td> is a sequence of strings. </td> </tr>
+         <tr> <td> <tt><i>size</i></tt> </td> <td> is an integer greater than or equal to 1. </td> </tr>
+         <tr> <td> <tt><i>justification</i></tt> </td> <td> is one of Auto, Bottom-Center, Bottom-Left, Bottom-Right, Center-Left, Center, Center-Right, Top-Center, Top-Left, or Top-Right. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Add one or more pins, with strings specified on the command
+line.  If you want to add more than one, use a semicolon to separate the
+strings; type <tt>Enter</tt> when you are done.  To use a string that
+contains spaces or semicolons, put them in double quotes
+(<tt>'&quot;'</tt>); for multiple such strings, you must remember to
+leave the separating semicolons outside of the quotes.  Optionally, you
+can also specify the initial size and/or justification on the command
+line; type <tt>Space</tt> followed by <tt>":Size 4"</tt> (without the
+quotes), for example.
+
+<p>After hitting <tt>Enter</tt>, you will be given a chance to drag the
+text of the pin around on the def.  Click <tt>Shift-Left</tt> to fix the
+connection point at its present location; click <tt>Shift-Left</tt> again to
+release it.
+
+<p>The string, size, and justification can all be changed while dragging
+by clicking <tt>Shift-Middle</tt>.
+
+<p>If the pin has a number in it (i.e. a string of digits), then
+the next time you place a pin, the default label string is the
+same but with the digit string incremented by one.  Otherwise, the
+default is the same pin string you dragged around last time,
+regardless of whether you actually placed it.  [Unfortunately, the
+default is only available when invoked via the mouse by clicking
+<tt>Control-Middle</tt> or <tt>Super-Right</tt>.  -- rgr, 20-Mar-02.]
+
+<a name=com-add-label>
+<h4>Add Label</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-LABEL</tt>
+  <dt> <i>Menu:</i> &quot;Add&quot; -&gt; &quot;Add Use Label&quot;
+  <dt> <i>Keyboard:</i> <tt>Add Label</tt> <tt><i>expressions</i></tt> <tt>&amp;key</tt> <tt>:Size</tt> <tt>:Formatter</tt> <tt>:Justification</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>expressions</i></tt> </td> <td> is a sequence of expressions. </td> </tr>
+         <tr> <td> <tt><i>size</i></tt> </td> <td> is an integer greater than or equal to 1. </td> </tr>
+         <tr> <td> <tt><i>formatter</i></tt> </td> <td> is a string. </td> </tr>
+         <tr> <td> <tt><i>justification</i></tt> </td> <td> is one of Auto, Bottom-Center, Bottom-Left, Bottom-Right, Center-Left, Center, Center-Right, Top-Center, Top-Left, or Top-Right. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Add a label part
+
+<a name=com-add-schematic-labels>
+<h4>Add Schematic Labels</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-SCHEMATIC-LABELS</tt>
+  <dt> <i>Keyboard:</i> <tt>Add Schematic Labels</tt> <tt><i>schematic-name</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>schematic-name</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Add use labels to the icon based on the parameters of the given
+schematic, one for each parameter followed by one for the use name.  If
+you've just created this icon with the <a href='#com-edit-icon'>"Edit
+Icon"</a> command, then the default for this command will be the
+original schematic.  "Add Schematic Labels" allows you to place a use
+label for each parameter in the named def for which a use label does not
+already exist.  Essentially, this is just a shorthand for invoking <a
+href='#com-add-label'>"Add Label"</a> with a set of useful expressions.
+
+<p>If the current def already has labels for every parameter in the
+schematic, plus <tt>name</tt>, then "Add Schematic Labels" prints a
+message to that effect, and exits.
+
+<a name=com-add-schematic-ports>
+<h4>Add Schematic Ports</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-SCHEMATIC-PORTS</tt>
+  <dt> <i>Keyboard:</i> <tt>Add Schematic Ports</tt> <tt><i>schematic-name</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>schematic-name</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Add icon pins based on the ports in the given schematic.  If you've
+just created this icon with the <a href='#com-edit-icon'>"Edit
+Icon"</a> command, then the default will be the schematic for which
+you've created this icon.  For each port net in the named def for which
+there is not already a pin in the current def, "Add Schematic Ports"
+allows you to place a pin of that name.  Essentially, this is just a
+shorthand for invoking <a href='#com-add-pin'>"Add Pin"</a> with a set
+of useful names.
+
+<p>If the current def already has pins for every port net in the schematic,
+then "Add Schematic Ports" prints a message to that effect, and gives
+you another chance to place pins for all ports.
+
+<p>This uses a pretty raw heuristic based on finding net labels with
+<tt>:port</tt> context; it doesn't do an extraction, so it may be 
+confused by synonym labels.
+
+<a name=stretching-and-reshaping>
+<h3>Part reshaping commands</h3>
+
+<p>This collection of commands is related to reshaping parts that have
+already been added.
+
+<a name=com-stretch-orthogonally>
+<h4>Stretch Orthogonally</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-STRETCH-ORTHOGONALLY</tt>
+  <dt> <i>Menu:</i> &quot;Format&quot; -&gt; &quot;Stretch to any angle&quot;
+  <dt> <i>Keyboard:</i> <tt>Stretch Orthogonally</tt> <tt><i>value</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>value</i></tt> </td> <td> is a boolean. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<a name=com-quick-stretch>
+<h4>Quick Stretch</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-QUICK-STRETCH</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Left</tt> on a handle.
+</dl>
+</blockquote>
+
+<p>Reposition this handle
+
+<a name=com-add-vertex>
+<h4>Add Vertex</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-ADD-VERTEX</tt>
+  <dt> <i>Keyboard:</i> <tt>Add Vertex</tt> <tt><i>handle</i></tt> <tt><i>start</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>handle</i></tt> </td> <td> is a handle that satisfies HANDLE-CAN-ADD-VERTICES-P. </td> </tr>
+         <tr> <td> <tt><i>start</i></tt> </td> <td> is a pt. </td> </tr>
+       </table>
+       </blockquote>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Super-Meta-Left</tt> on a handle.
+</dl>
+</blockquote>
+
+<p>Insert vertex here
+
+<a name=com-delete-vertex>
+<h4>Delete Vertex</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-DELETE-VERTEX</tt>
+  <dt> <i>Mouse:</i>
+  <dd> Click <tt>Super-Meta-Middle</tt> on a handle.
+</dl>
+</blockquote>
+
+<p>Delete this vertex
+
+<a name=misc-commands>
+<h3>Miscellaneous commands</h3>
+
+<p>These are the commands that don't clearly fit into any
+other category.
+
+<a name=com-clear-output-history>
+<h4>Clear Output History</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-CLEAR-OUTPUT-HISTORY</tt>
+  <dt> <i>Keyboard:</i> <tt>Clear Output History</tt>
+</dl>
+</blockquote>
+
+<p>Clear the contents of the interactor pane.  This is not undoable,
+but does not affect the contents any def.
+
+<a name=com-describe-part>
+<h4>Describe Part</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-DESCRIBE-PART</tt>
+  <dt> <i>Keyboard:</i> <tt>Describe Part</tt>
+</dl>
+</blockquote>
+
+<a name=com-load-file>
+<h4>Load File</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-LOAD-FILE</tt>
+  <dt> <i>Keyboard:</i> <tt>Load File</tt> <tt><i>files</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>files</i></tt> </td> <td> is a sequence of pathnames. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Load one or more files containing Lisp definitions (source or object) into
+the running ICanCAD session.
+
+<a name=com-noop>
+<h4>Noop</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-NOOP</tt>
+  <dt> <i>Keyboard:</i> <tt>Noop</tt>
+</dl>
+</blockquote>
+
+<p>Do nothing
+
+<a name=com-eval>
+<h4>Eval</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-EVAL</tt>
+  <dt> <i>Keyboard:</i> <tt>Eval</tt> <tt><i>form</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>form</i></tt> </td> <td> is an engineering expression. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Evaluate a Lisp expression, printing the resulting values.  Lisp 
+expressions are in fully-parenthesized prefix notation, e.g.
+
+<pre>
+	(* (+ 3 5) (expt 2 24))
+	(setq foo (cosh 1/3))
+	(* foo 36.2n)
+</pre>
+
+<p>In the last example, the "n" stands for "nano"; the "Eval" command
+is slightly different from most Lisp "top-level" evaluators in that <a
+href='general.html#eng-number'>SI multiplier abbreviations</a> are
+accepted for floating-point values, e.g. 3.5u for 3.5e-6.  Floating
+point results are also printed in engineering syntax, if appropriate.
+
+<p>The "Eval" command is intended to provide a low-level alternative to
+the graphical user interface, including access to features for which
+there is no GUI.  For example, evaluating <tt>"(setf (&gt;&gt; width
+M2) 10u)"</tt> changes the width of the transistor named M2, which can
+also be done via the <a href='#com-edit-properties'>"Edit
+Properties"</a> command.
+
+<a name=com-quit>
+<h4>Quit</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-QUIT</tt>
+  <dt> <i>Menu:</i> &quot;File&quot; -&gt; &quot;Quit&quot;
+  <dt> <i>Keyboard:</i> <tt>Quit</tt>
+</dl>
+</blockquote>
+
+<p>Quit ICanCAD.  If ICanCAD was started from the command line, this
+exits the Lisp; if started from within Lisp, then all ICanCAD windows
+are closed, but all other state, including loaded defs, are still kept
+in memory.
+
+<p>In either case, if there are unsaved defs, "Quit" requires you to
+confirm before exiting.  The unsaved defs are listed in a dialog window,
+with three exit choices:
+<ul>
+<li> "OK" to exit without saving;
+<li> "Offer to save" to be asked (as by
+<a href='#com-def-operations'> "Def Operations"</a>) whether to save 
+or not save each def individually; or
+<li> "Cancel" to cancel the "Quit" command, leaving all windows open.
+</ul>
+
+<p>See also <a href='#com-save-some-defs'> "Save Some Defs"</a>, which
+uses a keyboard-oriented interface, and can be used from the debugger
+for "emergency" exits.
+
+<a name=com-write-edif-internal>
+<h4>Write Edif Internal</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-WRITE-EDIF-INTERNAL</tt>
+</dl>
+</blockquote>
+
+<a name=com-dump-pbin>
+<h4>Dump Pbin</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-DUMP-PBIN</tt>
+  <dt> <i>Keyboard:</i> <tt>Dump Pbin</tt> <tt><i>from</i></tt> <tt><i>to</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>from</i></tt> </td> <td> is a def name. </td> </tr>
+         <tr> <td> <tt><i>to</i></tt> </td> <td> is a pathname. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Given a def name and a destination file name, reads the contents of
+the def's file (which must be in PBIN format) and writes a text version
+onto the destination file.  In conjunction with the <a
+href='#com-load-pbin'> Load PBIN</a> command, this is useful for
+diagnosing and repairing problems in PBIN data files (as long as the
+PBIN encoding itself is not corrupted).
+
+<a name=com-load-pbin>
+<h4>Load Pbin</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-LOAD-PBIN</tt>
+  <dt> <i>Keyboard:</i> <tt>Load Pbin</tt> <tt><i>from</i></tt> <tt><i>to</i></tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>from</i></tt> </td> <td> is a pathname. </td> </tr>
+         <tr> <td> <tt><i>to</i></tt> </td> <td> is a def name. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Given a source file name and a destination def name, reads the
+contents of the source file as text and writes a PBIN version onto the
+destination def's file.  In conjunction with the <a
+href='#com-dump-pbin'>Dump PBIN</a> command, this is useful for
+diagnosing and repairing problems in PBIN data files (as long as the
+PBIN encoding itself is not corrupted).
+
+<a name=simulation-commands>
+<h3>Simulation commands</h3>
+
+<a name=intro-simulation>
+<h4>Introduction to simulation commands</h4>
+
+<p>[This is still in development; the only command is "Write Spice
+Netlist".  Even the underlying networking stuff is still in flux.  As a
+result, nothing is documented, except in source.  -- rgr, 28-Jan-03.]
+
+<a name=com-write-spice-netlist>
+<h4>Write Spice Netlist</h4>
+<blockquote>
+<dl>
+  <dt> <i>Function:</i> <tt>ICANCAD::COM-WRITE-SPICE-NETLIST</tt>
+  <dt> <i>Keyboard:</i> <tt>Write Spice Netlist</tt> <tt>&amp;key</tt> <tt>:Def</tt> <tt>:File</tt>
+  <dd> where
+       <blockquote>
+       <table>
+         <tr> <td> <tt><i>def</i></tt> </td> <td> is a def name. </td> </tr>
+         <tr> <td> <tt><i>file</i></tt> </td> <td> is a pathname. </td> </tr>
+       </table>
+       </blockquote>
+</dl>
+</blockquote>
+
+<p>Write a hierarchical SPICE netlist for the specified schematic def
+(which defaults to the current def) and its hierarchical children to the
+indicated file, which defaults to the def name with an extension of
+<tt>".spice"</tt>.
+<p>
+<hr>
+
+
+<a name=menu-index>
+<h3>Menu index</h3>
+
+<p>The following indices show the ICanCAD commands as they appear in the
+command menus available from the menu bar.  Note that these indices were
+generated automatically from the menu definitions.
+
+<a name = file-menu-index>
+<h4>The "File" menu</h4>
+
+<blockquote>
+<br><a href='#com-new-def'>"New Def"</a>
+<br><a href='#com-edit-def'>"Open Def"</a>
+<br><a href='#com-select-buffer'>"Select Buffer"</a>
+<br><a href='#com-select-loaded-def'>"Select Loaded"</a>
+<br><a href='#com-edit-icon'>"Edit Icon"</a>
+<br><a href='#com-insert-def'>"Insert"</a>
+<br>"Close" [unimplemented]
+<br><a href='#com-save-def'>"Save"</a>
+<br><a href='#com-write-def'>"Save As"</a>
+<br><a href='#com-revert-def'>"Revert Def"</a>
+<br><a href='#com-unload-def'>"Unload Def"</a>
+<br><a href='#com-def-operations'>"Library def ops"</a>
+<br><a href='#com-def-operations'>"All def ops"</a>
+<br><a href='#com-list-defs'>"List Defs"</a>
+<br><a href='#com-set-def-modified'>"Set modified"</a>
+<br><a href='#com-push'>"Push"</a>
+<br><a href='#com-push-icon'>"Push Icon"</a>
+<br><a href='#com-pop'>"Pop"</a>
+<br><a href='#com-print-def'>"Print"</a>
+<hr align=left width=20%>
+<br><a href='#com-quit'>"Quit"</a>
+</blockquote>
+
+<a name = edit-menu-index>
+<h4>The "Edit" menu</h4>
+
+<blockquote>
+<br><a href='#com-undo'>"Undo"</a>
+<br><a href='#com-redo'>"Redo"</a>
+<br><a href='#com-cut-parts'>"Cut parts"</a>
+<br><a href='#com-copy-to-kill-ring'>"Copy parts"</a>
+<br>"Cut region" [unimplemented]
+<br><a href='#com-copy-region'>"Copy region"</a>
+<br><a href='#com-paste-parts'>"Paste"</a>
+<br><a href='#com-select-all'>"Select All"</a>
+<br><a href='#com-move-parts'>"Move parts"</a>
+<br><a href='#com-copy-parts'>"Copy/paste"</a>
+<hr align=left width=20%>
+<br><a href='#com-def-properties'>"Def Properties"</a>
+<br><a href='#com-edit-parameters'>"Def Parameters"</a>
+</blockquote>
+
+<a name = add-menu-index>
+<h4>The "Add" menu</h4>
+
+<blockquote>
+<br><a href='#com-add-use'>"Add Use ..."</a>
+<br><a href='#com-add-device'>"Add Device ..."</a>
+<br><a href='#com-add-loaded-def'>"Add Loaded ..."</a>
+<br><a href='#com-add-recent-use'>"Add Recent ..."</a>
+<br><a href='#com-add-wire'>"Add Wire"</a>
+<hr align=left width=20%>
+<br><a href='#com-add-rectangle'>"Add Rect"</a>
+<br><a href='#com-add-oblong'>"Add Oblong"</a>
+<br><a href='#com-add-line'>"Add Line"</a>
+<br><a href='#com-add-polygon'>"Add Poly"</a>
+<br><a href='#com-add-arrows'>"Add Arrows"</a>
+<br><a href='#com-add-text'>"Add Text"</a>
+<br><a href='#com-add-pin'>"Add Pin"</a>
+<br><a href='#com-add-net-label'>"Add Net Label"</a>
+<br><a href='#com-add-label'>"Add Use Label"</a>
+<br><a href='#com-add-circle'>"Add Circle"</a>
+<br><a href='#com-add-arc'>"Add Arc"</a>
+</blockquote>
+
+<a name = format-menu-index>
+<h4>The "Format" menu</h4>
+
+<blockquote>
+<br><a href='#com-set-fill-color'>"Set Fill Color"</a>
+<br><a href='#com-set-outline-color'>"Set Outline Color"</a>
+<br><a href='#com-stretch-orthogonally'>"Stretch to any angle"</a>
+</blockquote>
+
+<a name = arrange-menu-index>
+<h4>The "Arrange" menu</h4>
+
+<blockquote>
+<br>"Align to Grid" [unimplemented]
+<br>"Align Parts" [unimplemented]
+<hr align=left width=20%>
+<br>"Reshape" [unimplemented]
+<br>"Free rotate" [unimplemented]
+<br>"Transform" [unimplemented]
+</blockquote>
+
+<a name = window-menu-index>
+<h4>The "Window" menu</h4>
+
+<blockquote>
+<br><a href='#com-fit'>"Fit"</a>
+<br><a href='#com-redraw'>"Redraw"</a>
+<br><a href='#com-zoom'>"Zoom in"</a>
+<br><a href='#com-zoom'>"Zoom out"</a>
+<br><a href='#com-change-def-grid'>"Change grid"</a>
+<br>"Duplicate" [unimplemented]
+<br>"Close" [unimplemented]
+<hr align=left width=20%>
+</blockquote>
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+<!-- hhmts end -->
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>emacs customization</title>
+</head>
+
+<body bgcolor=white>
+<h2>Customization</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Emacs tips</a> :
+Customization
+<hr>
+
+<p>[this section is under construction.  it's well-covered in the emacs
+texinfo doc, though, so i may decide not to finish it.  -- rgr,
+22-May-00.]
+
+<p>There are many ways to customise emacs, including the following, from
+simplest to most complicated:
+<ol>
+  <li> Setting variables.
+  <li> Rebinding keys.
+  <li> Writing keyboard macros.
+  <li> Defining hook functions.
+  <li> Writing emacs lisp code.
+</ol>
+All of these can be put in your <tt>.emacs</tt> file so that they
+persist from session to session.
+
+<h3>The <tt>.emacs</tt> file</h3>
+
+emacs loads the <tt>.emacs</tt> file from your home directory every time
+you start emacs.  This file should contain a series of emacs lisp
+<b>expressions</b>
+(also known as <b>forms</b> or, more obscurely, <b>symbolic
+expressions</b> or <b>sexps</b>), each of which is <b>evaluated</b> in
+turn.  Each expression is of the form:
+<ul>
+  <li> a self-defining constant (integer, floating point number, or
+       string surrounded by double quotes);
+  <li> [finish]
+</ul>
+
+<a name=set-var>
+<h3>Setting variables</h3>
+
+Variables may be set with the <tt>M-x&nbsp;set-variable</tt> command,
+which prompts for the variable name, and then a value.
+
+<a name=rebind-keys>
+<h3>Rebinding keys</h3>
+
+<pre>
+	(global-set-key "\C-cb" 'bury-buffer)
+</pre>
+or, for a keybinding that is specific to <tt>mail-mode</tt>:
+<pre>
+	(define-key mail-mode-map "\C-cb" 'bury-buffer)
+</pre>
+
+<a name=kbd-mac>
+<h3>Writing keyboard macros</h3>
+
+Since you can bind a string of characters that invoke commands to a key,
+the way to save a keyboard macro is like this:
+<pre>
+	(global-set-key "\C-cf" "This is some inserted text.
+	It occupies two lines\n")
+</pre>
+Remember that ordinary characters are commands that insert themselves.
+
+<a name=hook-fns>
+<h3>Defining hook functions</h3>
+
+<a name=writing-code>
+<h3>Writing emacs lisp code</h3>
+
+If you've been keeping up with the preceding discussion, then you're
+already reading emacs lisp code.
+
+<p>The minimum command would look like this:
+<pre>
+	(defun foo-command ()
+	  (interactive)
+	  (insert "This is some inserted text.
+	It occupies two lines\n"))
+	(global-set-key "\C-cf" 'foo-command)
+</pre>
+You could then invoke foo-command by typing <tt>"C-c&nbsp;f"</tt>, in
+any buffer.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun Jun 18 22:33:41 EDT 2000
+<!-- hhmts end -->
+</body> </html>

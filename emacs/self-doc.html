@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>emacs self-documentation commands</title>
+</head>
+
+<body bgcolor=white>
+<h2>emacs self-documentation commands</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Emacs tips</a> : emacs
+self-documentation
+<hr>
+
+<p>There are many emacs commands that tell you about emacs, most of which
+use the <tt>C-h</tt> (for "help") prefix.
+
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> emacs self-documentation commands
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#summary">Summary of self-help commands</a>
+	 <li> <a href="#info"><tt>C-h&nbsp;i</tt>: The <tt>info</tt> documentation browser</a>
+	 <li> <a href="#describe-mode"><tt>C-h&nbsp;m</tt> Describe the current editing modes</a>
+	 <li> <a href="#view-lossage"><tt>C-h&nbsp;l</tt>: view "lossage"</a>
+	 <li> <a href="#describe-function"><tt>C-h&nbsp;f</tt> and <tt>C-h&nbsp;C-f</tt>: Document a command or function by name</a>
+	 <li> <a href="#describe-key"><tt>C-h&nbsp;c</tt>, <tt>C-h&nbsp;k</tt>, and <tt>C-h&nbsp;C-k</tt>: Document a command by keystrokes</a>
+	 <li> <a href="#apropos"><tt>C-h&nbsp;a</tt>: Apropos commands</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name=summary>
+<h3>Summary of self-help commands</h3>
+
+<p>The following is a complete list, based on the results of typing
+<tt>"C-h&nbsp;?"</tt>, with hyperlinks to more specific documentation
+for the help commands I find most useful.
+
+<ul>
+  <b>General documentation:</b>
+  <li> <b><tt>C-h&nbsp;a</tt></b> (<a
+       href="#apropos"><tt>command-apropos</tt></a> ) -- prompts for a
+       substring (actually, a regular expression), and shows a list of
+       matching commands (a subset of functions).
+  <li> <b><tt>C-h&nbsp;b</tt></b> (<tt>describe-bindings</tt>) --
+       displays a table of all key bindings currently in effect.
+  <li> <b><tt><i>prefix</i>&nbsp;C-h</tt></b> displays a table of all
+       key bindings that start with <tt><i>prefix</i></tt>,
+       e.g. <tt>"C-x&nbsp;?"</tt> gives you a list of all commands that
+       start with <tt>C-x</tt>.
+  <li> <b><tt>C-h&nbsp;i</tt></b> (<a href="#info"><tt>info</tt></a>)
+       -- enter the <a href="#info"> <tt>info</tt> documentation
+       reader</a>.
+  <li> <b><tt>C-h&nbsp;l</tt></b> (<a
+       href="#view-lossage"><tt>view-lossage</tt></a>) -- shows the last
+       hundred characters you typed.
+  <li> <b><tt>C-h&nbsp;p</tt></b> (<tt>finder-by-keyword</tt>) -- Find
+       packages matching a given topic keyword.
+  <li> <b><tt>C-h&nbsp;t</tt></b> (<tt>help-with-tutorial</tt>) --
+       starts the emacs learn-by-doing tutorial.  The tutorial is a file
+       that gives you step-by-step instructions on how to edit it.
+
+       <p><b>Specific documentation:</b>
+       <br>These are designed to produce more detailed documentation for
+       specific items, e.g. commands.
+  <li> <b><tt>C-h&nbsp;c</tt></b> (<a
+       href="#describe-key"><tt>describe-key-briefly</tt></a>) --
+       prompts for a command key sequence, and displays the command
+       (function) name.
+  <li> <b><tt>C-h&nbsp;k</tt></b> (<a
+       href="#describe-key"><tt>describe-key</tt></a>) -- prompts for a
+       command key sequence, and displays the full command (function)
+       documentation.
+  <li> <b><tt>C-h&nbsp;C-k</tt></b>
+       (<tt>Info-goto-emacs-key-command-node</tt>) -- prompts for a
+       command key sequence, and takes you to the <a
+       href="#info"><tt>info</tt></a> documentation node for the command
+       bound to that key.
+  <li> <b><tt>C-h&nbsp;f</tt></b> (<a
+       href="#describe-function"><tt>describe-function</tt></a>) -- Type
+       a function name and get documentation of it.
+  <li> <b><tt>C-h&nbsp;C-f</tt></b> (<a
+       href="#describe-function"><tt>Info-goto-emacs-command-node</tt></a>)
+       -- prompts for a function name, and takes you to the <a
+       href="#info"><tt>info</tt></a> node for that command.
+  <li> <b><tt>C-h&nbsp;v</tt></b> (<tt>describe-variable</tt>) --
+       prompts for the name of a variable, and displays the variable's
+       documentation and value.
+  <li> <b><tt>C-h&nbsp;w</tt></b> (<tt>where-is</tt>) -- prompts for a
+       command name, and shows which keystrokes invoke that command.
+
+       <p><b>Mode documentation:</b>
+  <li> <b><tt>C-h&nbsp;m</tt></b> (<a
+       href="#describe-mode"><tt>describe-mode</tt></a>) -- views
+       documentation for the current major mode, describing the commands
+       peculiar to it.
+  <li> <b><tt>C-h&nbsp;s</tt></b> (<tt>describe-syntax</tt>) -- displays
+       the contents of the current mode's syntax table, plus
+       explanations of what the codes mean.
+
+       <p><b>Other information:</b>
+  <li> <b><tt>C-h&nbsp;F</tt></b> (<tt>view-emacs-FAQ</tt>) -- Shows
+       emacs frequently asked questions file.
+  <li> <b><tt>C-h&nbsp;n</tt></b> (<tt>view-emacs-news</tt>; also on
+       <tt>C-h&nbsp;C-n</tt>) -- shows the emacs "news" file (the change
+       history that came as part of the emacs installation).
+  <li> <b><tt>C-h&nbsp;C-c</tt></b> (<tt>describe-copying</tt>) -- shows
+       Emacs copying permission (the General Public License or GPL).
+  <li> <b><tt>C-h&nbsp;C-d</tt></b> (<tt>describe-distribution</tt>) --
+       shows Emacs ordering information.
+  <li> <b><tt>C-h&nbsp;C-p</tt></b> (<tt>describe-project</tt>) -- shows
+       information about the GNU project ("The GNU Manifesto").
+  <li> <b><tt>C-h&nbsp;C-w</tt></b> (<tt>describe-no-warranty</tt>) --
+       shows information on the absence of a warranty for GNU Emacs.
+</ul>
+
+<a name=info>
+<h3><tt>C-h&nbsp;i</tt>: The <tt>info</tt> documentation browser</h3>
+
+The <tt>info</tt> online documentation browser is the standard viewer
+for <a href="http://www.gnu.org/">all documentation</a> produced by <a
+href="http://www.gnu.org/"> the GNU project</a>; much GNU documentation
+in addition to that for emacs is usually available online.
+<tt>info</tt> documents are written as <tt>.texi</tt> ("texinfo") files,
+which can be turned into printed manuals as well as the browsable
+<tt>info</tt> form.  Such <tt>info</tt> documents must be installed
+properly in order to be available, but the standard installation
+procedure for all GNU software also installs its documentation in the
+right place.  For example, at <a
+href="http://bmerc-www.bu.edu/">BMERC</a>, we have not only both the
+user guide and emacs lisp reference, but such tools as <tt>gdb</tt>,
+<tt>bison</tt>, and the CMU Common Lisp system are also fully
+documented.  And <tt>info</tt> gives you a structured look at the full
+text of the printed manuals for these programs; if I had known this when
+I started using emacs, I could have saved a few trees.
+
+<p> There are only a handful of <tt>info</tt> commands that are really
+essential to learn (a tutorial is available, but hardly necessary).  An
+<tt>info</tt> document is a hierarchy of "nodes"; the browser shows you
+one node at a time, and the commands are primarily for navigating within
+and between nodes.  Here are the basics:
+
+<ul>
+  <li> <b><tt>mouse-2</tt></b> -- follows the node reference (menu item,
+       cross reference, etc.) clicked on.
+  <li> <b><tt>SPC</tt></b> -- scrolls forward to the next screenful, or,
+       if at the bottom, moves to the next node.
+  <li> <b><tt>n</tt></b> -- moves to the next node.
+  <li> <b><tt>DEL</tt></b> -- scrolls backward to the previous screenful, or,
+       if at the top of the node, moves to the previous node.
+  <li> <b><tt>p</tt></b> -- moves to the previous node.
+  <li> <b><tt>u</tt></b> -- moves up to this node's parent.
+  <li> <b><tt>m</tt></b> -- prompts for a menu item (with completion),
+       and goes to that node.
+  <li> <b><tt>.</tt></b> -- go to the top of the current node.
+  <li> <b><tt>q</tt></b> -- exit <tt>info</tt> by burying the buffer;
+       typing <tt>C-h&nbsp;i</tt> later on will bring back the buffer
+       where you left off.
+</ul>
+There are also commands for searching in the broader document
+(i.e. beyond the current node) and the document index; use <a
+href="#describe-mode"> <tt>C-h&nbsp;m</tt></a> in <tt>info</tt> to find
+them.
+
+<p>One weak point of <tt>info</tt> is that the manuals tend to be fairly
+linear (i.e. not hypertextual), a consequence of being produced from the
+same markup source as the printed manuals.  But this is greatly relieved
+by being easily searchable.  It is common for the top-level "node" for a
+manual to reference first what would be the chapters of the printed
+edition, and then include a "detailed" listing that includes all of the
+third-level nodes (sections) within the chapters.  This makes it easy to
+use <tt>C-s</tt> to find the section of interest, then use <tt>m</tt> to
+move into that section.  This turns out to be faster than using a paper
+index, especially for the emacs manuals, which are more than 500 pages
+each in hardcopy.
+
+<p><b>Tip:</b> The <b>GNU Emacs Manual</b> and the <b>GNU Emacs Lisp
+Reference Manual</b> are available on the Web as well; see the <a
+href="advanced.html#other-advanced">"Other resources for more advanced
+emacs"</a> section.
+
+<a name="describe-mode">
+<h3><tt>C-h&nbsp;m</tt> Describe the current editing modes</h3>
+
+When you encounter a new editing mode, <tt>C-h&nbsp;m</tt> will help you
+find out what mode-specific commands and option settings are available.
+For instance, when you edit an HTML document in <a
+href="rgr-hacks.html#hhm-commands"> <tt>html-helper-mode</tt></a> and
+type <tt>"C-h&nbsp;m"</tt>, you get the following:
+<pre>
+    The minor modes are described first,
+    followed by the major mode, which is described on the last page.
+    ^L
+    auto-fill-function minor mode (indicator Fill):
+    Automatically break line at a previous space, in insertion of text.
+    ^L
+    HTML helper mode:
+    Mode for editing HTML documents.
+    For more documentation and the newest version, 
+    see <a href="http://www.santafe.edu/~nelson/tools/">http://www.santafe.edu/~nelson/tools/</a>
+
+    The main function html-helper-mode provides is a menu and keybindings
+    for the HTML tags one inserts when writing HTML documents. Selecting
+    the menu item or typing the key sequence for a command inserts the
+    corresponding tag and places point in the right place. If a prefix
+    argument is supplied, the tags is instead wrapped around the region.
+    Alternately, one can type in part of the tag and complete it with M-TAB.
+
+    There is also code for indentation, timestamps, skeletons for new
+    documents, and lots of other neat features.
+
+    key             binding
+    ---             -------
+
+    RET		newline-and-indent
+    TAB		html-helper-indent-command
+    ESC		Prefix Command
+    C-c		Prefix Command
+
+    . . .
+</pre>
+
+<a name=view-lossage>
+<h3><tt>C-h&nbsp;l</tt>: view "lossage"</h3>
+
+Typing <tt>C-h&nbsp;l</tt> shows the last 200 characters typed, which can be a 
+big plus after typos with the control key held down.  If you look through 
+the list to see where you goofed, you can type <tt>C-h&nbsp;c</tt> to find out 
+what those keys are called (strictly speaking, the name of the command to 
+which they are bound).  Many times I've learned new commands this way!
+
+<a name="describe-function">
+<h3><tt>C-h&nbsp;f</tt> and <tt>C-h&nbsp;C-f</tt>: Document a command or function by name</h3>
+
+After prompting for a function name (typed with completion),
+<tt>C-h&nbsp;f</tt> shows the full code documentation in a separate
+window.  (Remember that every emacs command is implemented by an
+underlying function.)  <tt>C-h&nbsp;C-f</tt> is similar, but brings up
+the function documentation in the <a href="#info"><tt>info</tt>
+browser</a>, which makes it possible to get more context than
+<tt>C-h&nbsp;f</tt> can give you (e.g. what other similar commands are
+available).  The commands described in the next section
+(<tt>C-h&nbsp;c</tt>, <tt>C-h&nbsp;k</tt>, and <tt>C-h&nbsp;C-k</tt>) do
+the same thing given the sequence of keys you use to invoke the command.
+Taken together, these commands are indispensible for getting full
+details of exactly what the command does, including special cases, and
+how it uses the numeric argument (if it does).
+
+<a name=describe-key>
+<h3><tt>C-h&nbsp;c</tt>, <tt>C-h&nbsp;k</tt>, and <tt>C-h&nbsp;C-k</tt>: Document a command by keystrokes</h3>
+
+<tt>C-h&nbsp;c</tt> prompts for a key sequence, as if you were actually
+invoking a command, and tells you the name of the command that runs when
+you type those keys.  <tt>C-h&nbsp;k</tt> prompts for a key sequence and
+gives you the full function documentation, as by <tt>C-h&nbsp;f</tt>
+(see above).  And <tt>C-h&nbsp;C-k</tt> takes you to the relevant
+section of the online manual, as by <tt>C-h&nbsp;C-f</tt>.  (Ironically,
+typing <tt>"C-h C-k C-h C-k"</tt> doesn't work, in either emacs 19.34 or
+20.3; this has been reported as a bug.)  Remember that the command
+specified by a key sequence will depend on the editing mode; typing
+<tt>TAB</tt> invokes <tt>self-insert-command</tt> in fundamental mode,
+as you might expect, but does <tt>indent-for-lisp</tt> in Lisp mode and
+<tt>indent-for-c</tt> in C mode.
+
+<p>The commands described in <a href="#describe-function">the previous
+section</a> (<tt>C-h&nbsp;f</tt> and <tt>C-h&nbsp;C-f</tt>) do the same
+thing given the command or function name.  Taken together, these
+commands are indispensible for getting full details of exactly what the
+command does, including special cases, and how it uses the numeric
+argument (if it does).
+
+<a name="apropos">
+<h3><tt>C-h&nbsp;a</tt>: Apropos commands</h3>
+
+[finish; also document <tt>apropos</tt> and <tt>apropos-do-all</tt>.  --
+rgr, 19-Oct-99.]
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sat May 27 23:22:36 EDT 2000
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,1229 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD Schematic Wiring</title>
+</head>
+
+<body bgcolor=white>
+<h2>ICanCAD Schematic Wiring Implementation</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">ICanCAD</a> :
+<a href="internals.html">Internals</a> : Wiring
+<hr>
+
+<p>
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> ICanCAD Schematic Wiring Implementation
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#wiring">Schematic wiring: basic concepts</a>
+	      <ol>
+		<li> <a href="#link-dot-constraints">Link/dot consistency constraints</a>
+		<li> <a href="#dot-classes">Dot classes</a>
+		     <ol>
+		       <li> <a href="#dot-location">Dot coordinate systems</a>
+		       <li> <a href="#has-dot-mixin">The <tt>has-dot-mixin</tt> class</a>
+		       <li> <a href="#net-labels">Schematic net labels and icon pins</a>
+		       <li> <a href="#net-label">The <tt>net-label</tt> class</a>
+		     </ol>
+		<li> <a href="#schematic-link">The <tt>schematic-link</tt> class</a>
+	      </ol>
+	 <li> <a href="#algorithms">Wiring algorithms</a>
+	      <ol>
+		<li> <a href="#connect-locations">Internal operation of the <tt>connect-locations</tt> generic</a>
+		<li> <a href="#reconnection">Wiring reconnection</a>
+		     <ol>
+		       <li> Overview of reconnection algorithm and data structures
+		       <li> <a href="#dot-dot-resolution">The dot-dot overlap resolution algorithm</a>
+		       <li> <a href="#link-link-resolution">The link-link and link-dot overlap resolution algorithm</a>
+		       <li> Miscellaneous notes on reconnection
+		     </ol>
+		<li> <a href="#editorial">A brief editorial interlude</a>
+	      </ol>
+	 <li> <a href="#implementation">Implementation details</a>
+	      <ol>
+		<li> <a href="#link-dot-drawing">Drawing dots and links</a>
+		<li> <a href="#consistency-maintenance">Maintaining dot/link consistency during editing</a>
+		<li> <a href="#wiring-stretch">Stretching wiring parts</a>
+		<li> <a href="#wiring-undo">Undo of wiring</a>
+		<li> <a href="#symbolic-wires">Wiring cut-and-paste</a>
+	      </ol>
+	 <li> <a href="#future">Future possibilities</a>
+	      <ol>
+		<li> <a href="#bus-width-params">Parameterized bus widths</a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<p>
+<a name = wiring>
+<h3>Schematic wiring: basic concepts</h3>
+
+All physical (drawn) wiring in a schematic is implemented using "dots
+and links," where a dot is a part that has an (X,Y) location and a set
+of connected links, and a link is a part that connects exactly two dots.
+The intent is to use a simple data structure to describe explicit
+connectivity that can be made to behave as wiring in a way that is
+intuitive to the user.
+
+<p>Implementing both dots and links as parts (as opposed to hiding the
+implementation of one within the other) means that both are
+independently selectable, and can be manipulated by the user.  Net
+labels and connections to uses are handled by creating dot object
+classes that have extra semantics.
+
+<a name = link-dot-constraints>
+<h4>Link/dot consistency constraints</h4>
+
+<p>Several key constraints must be maintained:
+<blockquote>
+<dl compact>
+  <dt> <b>Dot degeneracy</b> [DD]
+  <dd> Each dot must have at least one link (but this
+       does not apply to <a href="glossary.html#bristle">bristles</a>
+       and net labels).
+  <dt> <b>Dot uniqueness</b> [DU]
+  <dd> No two dots may share the same location.
+  <dt> <b>Link degeneracy</b> [LD]
+  <dd> No link may connect a dot to itself.
+  <dt> <b>Link uniqueness</b> [LU]
+  <dd> No two links may connect the same pair of
+       dots.
+       <a name = ldo>
+  <dt> <b>Link-dot overlap</b> [LDO]
+  <dd> A link and a dot may not overlap.  Since links are defined as
+       excluding their geometric endpoints, links are considered not to
+       overlap the dots to which they connect.
+  <dt> <b>Link-link overlap</b> [LLO]
+  <dd> Two links may overlap if and only if they intersect at a point,
+       and then only if they do not connect.  In that case, they must
+       cross at a nonzero angle, and the point of intersection cannot
+       lie on an endpoint of either link.
+</dl>
+</blockquote>
+
+A consequence of [DU] and [LD] is that no link may be of zero length.
+
+<a name = links-exclude-endpoints>
+<p>In order to keep [LLO] and [LDO] simple, it is convenient to define
+links as excluding their endpoints; it can therefore be said that links
+do not overlap their dots, nor do they overlap other links that connect
+to the same dot.  However, [LLO] then requires all links that connect to
+a given dot to "exit" in mutually different directions, lest any pair of
+links also overlap at other points.
+
+<p>[The [LLO] constraint is the dots-and-links equivalent of the
+parallel postulate, only unlike Euclid, this one can be proven from the
+others by applying [LDO] and [LU] to a case analysis.  So perhaps this
+is really just a theorem, and [LDO] is our parallel postulate.  -- rgr,
+29-Mar-01.]
+
+<p>A seventh, much weaker constraint could be added to the effect that
+all links must be orthogonal.  While the UI code tries to maintain this
+state (because it's confusing otherwise), and the internal algorithms do
+not go out of their way to handle them well, the underlying
+dots-and-links implementation must not blow up in the presence of
+non-orthogonal links (though it is acceptable if the user interface
+behaves oddly).
+
+<p>The challenge for the user interface is to maintain these constraints
+while making wiring behave intuitively for the user.  Some notes:
+
+<dl>
+  <dt> Moving wiring on top of other wiring.
+  <dd> This is comparatively simple if only scratch objects (dots and
+       links) are involved.  The strategy is to move the parts, then
+       check all moved or reshaped parts for consistency.  See the <a
+       href="#reconnection">"Wiring reconnection"</a> section below for
+       details.
+  <dt> Moving a bristle on top of another bristle.
+  <dd> This has to be disallowed; maybe someday we could consider
+       creating special zero-length links to handle this case, but right
+       now that's too much hair for a marginal feature.  [What the UI
+       should do when the user tries this should be considered
+       carefully.  -- rgr, 2-Jan-02.]
+  <dt> Moving a net label on top of a bristle (or vice versa).
+  <dd> Also disallowed for the time being.  May not be too hard to fudge
+       this; see below.
+  <dt> Moving a net label on top of another net label.
+  <dd> This is best handled by merging the two net labels, and giving
+       the remaining label the string
+       <tt>"label1&nbsp;=&nbsp;label2"</tt> in order to maintain
+       connectivity.
+  <dt> Undo support.
+  <dd> <a href = "#wiring-undo">See below.</a>
+  <dt> Selected part set mutation.
+  <dd> All of this adding and deleting could affect the set of selected
+       parts.  That needs to be done in an intuitive way.  I think the
+       right idea would be, when merging two parts, to select the
+       replacement if either of the original parts was selected.
+       [Currently, the code doesn't do anything about selection set
+       maintenance.  -- rgr, 5-Feb-02.]
+</dl>
+
+<a name = dot-classes>
+<h4>Dot classes</h4>
+
+There are four kinds of dot-like parts, each implemented by its own
+class.  Each of these fall into two broad categories, depending on
+whether or not there is associated text:
+<blockquote>
+<dl>
+  <dt> <b>Points:</b>
+  <dd> These share the <tt>dot-part</tt> class.
+       <ul>
+	 <li> <tt>dot</tt> parts (implemented by the
+	      <tt>scratch-dot</tt> class) are used in a schematic def
+	      e.g. when wires turn a corner or form a T junction.
+	 <li> <tt>bristle</tt> parts (implemented by the
+	      <tt>bristle</tt> class) only appear inside of uses.
+       </ul>
+  <dt> <b>Points with text:</b>
+  <dd> These share the <tt>labelled-point</tt> class.
+       <ul>
+	 <li> <tt>net-label</tt> parts (implemented currently by the
+	      <tt>new-net-label</tt> class) allow the user to name nets
+	      and busses in a schematic def.
+	 <li> <tt>pin</tt> parts (implemented by the <tt>port-dot</tt>
+	      class) define where to connect to the icons that contain
+	      them.  No connections are actually made to the pin itself;
+	      instead, a bristle is created for each pin, and
+	      connections to the use are made to the bristle.
+       </ul>
+</dl>
+</blockquote>
+
+<p>Assuming that the classes for <a href="#net-labels">schematic net
+labels and icon pins</a> are implemented using the two-dot model, we get
+a class hierarchy that looks in part something like this:
+<blockquote>
+<pre>
+basic-thing
+   has-dot-mixin
+   basic-part
+      dot-part (+ has-dot-mixin)
+         bristle <i>(maybe "schematic-bristle" would be better?)</i>
+         scratch-dot
+      basic-text (+ cached-bounding-box-mixin, has-transform-mixin)
+         text-part
+	    labelled-point (+ has-dot-mixin)
+	       net-label <i>(currently <tt>new-net-label</tt> in the code)</i>
+	       pin <i>(currently <tt>port-dot</tt> in the code)</i>
+      schematic-link
+</pre>
+</blockquote>
+Notice that <tt>has-dot-mixin</tt> gets put into all four dot-like
+things, which are all parts, though <tt>has-dot-mixin</tt> is not by
+itself a part.  Also, bristles and scratch dots have a common
+superclass, and net labels and pins have a distinct common superclass,
+reflecting the difference between "simple" dots parts and dots that are
+associated with text.
+
+<p>[Originally, I had intended to build bristles directly on
+<tt>has-dot-mixin</tt>, without including <tt>basic-part</tt>, but that
+was before the rewrite for <tt>has-parts-mixin</tt> and
+<tt>has-parent-mixin</tt> done last June.  Since bristles are now to be
+considered as "parts" of the use, it is cleaner to give bristles an
+inheritance closer to that for scratch dots.  -- rgr, 2-Jan-02.]
+
+<a name = dot-location>
+<h5>Dot coordinate systems</h5>
+
+Since bristles live in the coordinates of their <tt>schematic-use</tt>
+part, and all other dots are in the coordinates of the parent def,
+access to the dot's coordinates outside of methods must go through the
+following functions:
+
+<dl>
+  <dt> <b>dot-location</b> <i>dot</i>
+  <dd> Returns the dot location as two values, in the parent def's
+       coordinate system.  Note that bristles need to apply the use's
+       transform to the "raw" location in order to compute these.
+  <dt> <b>dot-connection-pt</b> <i>dot</i>
+  <dd> Connection location in the def's coordinates as a <tt>pt</tt>
+       object.
+  <dt> <b>dot-connection-x</b> <i>dot</i>
+  <dd> X coordinate of the connection location.
+  <dt> <b>dot-connection-y</b> <i>dot</i>
+  <dd> Y coordinate of the connection location.
+  <dt> <b>dot-stretched-location</b> <i>dot</i>
+  <dd> Stretched location if the part is being stretched, else the
+       connection location, always as two values in the def's
+       coordinates.  This is used by the link <tt>highlight-thing</tt>
+       method to show the stretched wiring location.
+  <dt> <b>dot-raw-location</b> <i>dot</i>
+  <dd> Returns the "raw" dot location as two values, in the parent's
+       coordinate system.  These are the values that are actually stored
+       in the dot object.  This is mostly useful for saving, and for
+       drawing (since bristles draw when the window has the use's
+       coordinate system in effect).
+  <dt> <b>dot-bbox-extent</b> <i>(dot)</i>
+  <dd> This is used to compute link bounding boxes, so it needs to be in
+       def coordinates (for bristles), and must include only the dot
+       (for net labels).
+  <dt> <b>raw-bbox-extent</b> <i>(dot)</i>
+  <dd> This is used to compute "native" dot bounding boxes, so it needs
+       to be in parent-relative coordinates.
+</dl>
+
+<a name = has-dot-mixin>
+<h5>The <tt>has-dot-mixin</tt> class</h5>
+
+[<tt>has-dot-mixin</tt> could be based on the <tt>vertex-handle</tt>
+class . . . though that could drag in more baggage than we want.
+specifically, having a class that was both part and handle could make
+things pretty wierd.  however, if we manage to get it working somehow,
+then uses and text parts could probably use this code, since both are
+classes of single-handle parts.  -- rgr, 2-Jan-02.]  [on second thought,
+<tt>basic-part</tt> still has a <tt>handles</tt> slot, which should
+probably be kept valid regardless, so special-casing really isn't worth
+it.  -- rgr, 3-Jan-02.]
+
+<p>[well, i went ahead and built <tt>has-dot-mixin</tt> on
+<tt>basic-vertex-handle</tt>, and now i'm regretting it, as this makes
+<tt>labelled-point</tt> part stretching much hairier than it should be.
+-- rgr, 16-Jan-02.]
+
+<p>[i removed the dot-is-a-handle code, and now things seem to work much
+better.  lots of "reinstate default method" code was flushed, and now
+bristles and uses stretch correctly.  it wasn't as hairy to go back as i
+thought it would be.  -- rgr, 28-Jan-02.]
+
+<a name = net-labels>
+<h5>Schematic net labels and icon pins</h5>
+
+Net labels and <a href="glossary.html#pin">pins</a> have much in common;
+both appear to the user as line segments with text at one end and a "hot
+spot" at the other.  Given the dots-and-links model, there are three
+ways to implement net labels:
+<dl>
+  <dt> One dot:
+  <dd> The net label is implemented as a single dot, with the text drawn
+       at its dot-position, and the hot spot and intermediate line are
+       another arbitrary dot and link.  In this scenario, one could also
+       have zero links, or multiple links.
+  <dt> Dot-and-link:
+  <dd> The net label is implemented as a link, and connects to exactly
+       one dot, appearing on its dot-links list.
+  <dt> Two dots:
+  <dd> The net label is implemented as a dot at the hot spot, with the
+       text drawn independently.
+</dl>
+
+Based on the following table of advantages and disadvantages, I am
+inclined to choose the two-dot model; the code-sharing advantage far
+outweighs the disadvantage of any special casing needed to support
+connecting directly to a port.
+
+<p>
+<table border=2>
+  <tr>
+    <th bgcolor="#d0d0ff">Issue</th>
+    <th>One dot</th>
+    <th>Dot-and-link</th>
+    <th>Two dots</th>
+  </tr>
+  <tr>
+    <th bgcolor="#d0d0ff"> Display</th>
+    <td bgcolor="#ffd0d0"> Link drawing has to be special-cased if one
+	 of its dots is a net label.
+    </td>
+    <td> Simple; the net-label does all the work.</td>
+    <td> Simple; the net-label does all the work.</td>
+  </tr>
+  <tr>
+    <th bgcolor="#d0d0ff"> Code sharing</th>
+    <td bgcolor="#ffd0d0"> Harder to share net-label and pin
+	 functionality through a common base class.</td>
+    <td bgcolor="#ffd0d0"> Harder to share net-label and pin
+	 functionality through a common base class.</td>
+    <td> net-labels and pins would each have two locations, and so more
+	 code could be stuffed into a common base class.
+    </td> 
+  </tr>
+  <tr>
+    <th bgcolor="#d0d0ff"> Moving the text on top of the hot spot</th>
+    <td bgcolor="#ffffd0"> Real zero-length links are not allowed, so
+	 the net-label and the dot would have to be merged.  Without
+	 special-case code, counterintuitive behavior might result.  For
+	 example, you could undo such a move via "Undo," but not
+	 manually by picking up the net label again, since the old link
+	 is gone, and the newly connected links would drag along with
+	 the net label.
+    </td>
+    <td> Zero-length segments internal to the net label are not a problem. </td>
+    <td> Zero-length segments internal to the net label are not a problem. </td>
+  </tr>
+  <tr>
+    <th bgcolor="#d0d0ff"> Connecting a net label directly to a bristle</th>
+    <td bgcolor="#ffd0d0"> Requires an intermediate link, which might
+	 need to be zero-length (if full freedom in placing the text is
+	 to be allowed).
+    </td>
+    <td> No problem; the net-label is itself the link. </td>
+    <td bgcolor="#ffffd0"> Requires an intermediate
+	 link.  (Since we have an extra degree of freedom, the link need
+	 not be zero-length -- we could put the text at the bristle and
+	 just move the dot one grid point away, but this would require
+	 special-casing the link drawing in order to look right.)
+    </td>
+  </tr>
+</table>
+
+<a name = net-label>
+<h5>The <tt>net-label</tt> class</h5>
+
+[The code-in-progress currently calls this <tt>new-net-label</tt>, to
+distinguish it from the kludged version currently in the
+<tt>schematic.lisp</tt> source.  -- rgr, 4-Feb-02.]
+
+<p>Net label drawing is somewhat hairy, because the depiction of each net
+label is composed of up to four elements:
+<ol>
+  <li> The label text itself.
+  <li> The dot connection point, which might not be drawn if at the text
+       origin.
+  <li> An optional port icon, which is def drawn under a transform that
+       depends on the relative location of the text and dot.  This may
+       be suppressed if it interferes with the display of the label
+       text.
+  <li> A line connecting the text to the dot, which is suppressed if
+       they are superimposed.  This runs from the transform origin to
+       the dot location, but is clipped to the outside of (1) the text,
+       and either (2a) the port icon if it exists, otherwise (2b) the
+       dot circle.  This may leave no link at all.
+</ol>
+<p>In order to avoid recomputing these quantities for each net label on
+every redisplay, they are kept in a <tt>labelled-point-display-info</tt>
+structure, which is computed when necessary and cached by the
+<tt>labelled-point-display-info</tt> generic function (though
+<tt>compute-labelled-point-display-info</tt> does the actual
+computation).  These structures are also used for storing the bounding
+boxes of the text and the def icon, and are thrown away any time the net
+label is modified in the slightest, as they depend sensitively on just
+about anything about the net label.
+
+<p>Pins, by comparison, are much simpler, because there are no "port
+icons" for pins, and the dot and line are always drawn.  However, it is
+still useful to cache the text bbox for pins, which is why
+<tt>labelled-point-display-info</tt> is generic on
+<tt>labelled-point</tt>.
+
+<p>[It might be nice to allow a "text pin" on port icons.  If the port
+icon has a pin (with some designated label), then
+<ol>
+  <li> the connecting line is drawn from the text origin to the pin dot
+       location;
+  <li> the dot is not drawn; and
+  <li> the line is only clipped against the text and not the icon bbox.
+</ol>
+This would give users near-complete control over dot display.  -- rgr,
+5-Feb-02.]
+
+<p>[more on clipping; should use the fact that the dot is a circle.  --
+rgr, 4-Feb-02.]
+
+<a name = schematic-link>
+<h4>The <tt>schematic-link</tt> class</h4>
+
+<p>Providing a single link class and calling it "schematic-link"
+precludes building a sticks view on top of these classes.  But such a
+view is currently hypothetical; there isn't a need at present.  And if I
+split this up into <tt>basic-link</tt> and <tt>schematic-link</tt> now
+in anticipation of a <tt>sticks-link</tt> later, having never done a
+sticks implementation, I would probably just get it wrong anyway.  So it
+would be much better if sticks functionality were implemented
+independently, preferably factored this way in order to share code with
+the schematic view.  [With that said, it might be a useful exercise to
+consider how to preserve a user-specified color for a link when <a
+href="#reconnection">reconnecting</a>.  -- rgr, 1-Apr-01.]
+
+<a name = algorithms>
+<h3>Wiring algorithms</h3>
+
+[this describes the implementation of the (re-)connection primitives.
+it should say more about how and when they are used.  -- rgr,
+21-Jan-02.]
+
+<a name = connect-locations>
+<h4>Internal operation of the <tt>connect-locations</tt> generic</h4>
+
+This is the guts of the wire-adding code, which is also used when
+replacing moved wires.  It comes in two forms:
+<dl>
+  <dt> <b>connect-locations</b> <i>def pt1 pt2</i>
+  <dd> Connects between the indicated pt objects (which may themselves
+       be dots).
+  <dt> <b>connect-locations*</b> <i>def x1 y1 x2 y2</i>
+  <dd> Connects between the indicated points.  This is a "spread
+       argument" version of <tt>connect-locations</tt>.
+</dl>
+
+<p>In order to keep the detailed discussion from getting muddled, I have
+tried to use the following terminology to distinguish between data
+structure entities and the purely geometric terms used to specify them.
+A <b>segment</b> is a geometric entity, the portion of a line between
+two distinguished geometric <b>points</b> known as <b>endpoints</b> that
+are usually denoted (x1,y1) and (x2,y2).  The endpoints are allowed to
+coincide, in which case the segment has zero length.  As above, a
+<b>link</b> is a data structure entity that always connects two data
+structure <b>dots</b> at distinct locations; links are therefore never
+of zero length.
+
+<p>In these terms, the charter of <tt>connect-locations</tt> is to add
+such dots and links as are necessary to connect the segment endpoints to
+each other, and to all intermediate points (except for points on links
+that do not cross the segment at an endpoint), without introducing any
+<a href="#link-dot-constraints">link/dot constraint</a> violations.  In
+outline, the basic algorithm looks like this:
+<ol>
+  <li> Find relevant dots and links under the segment.
+  <li> Deal with the endpoints (by breaking links that cross it, looking
+       for existing dots, or creating starting dots).
+  <li> Connect the resulting set of dots.
+</ol>
+
+<p>A number of special cases must be finessed, in order to prevent the
+creation of degenerate geometry.  Other special cases were added to
+avoid complicating the main body code, and to reduce unnecessary consing
+(where parts would otherwise be added and then immediately removed
+again).
+
+<p>The first step is to find all dots that lie along the specified line
+segment, and all links that cross either endpoint (or both).  In
+general, we do not need to care as much about links because the ones of
+interest are mostly implied by the dots: if two dots within the segment
+already have a link between them, then we don't need to add another one,
+and that is the only way that particular link could affect the outcome.
+
+<p>Of course, there are a few categories of exceptional links with which
+we must cope:
+<ul>
+  <li> Links that cross through either endpoint at an angle need to be
+       broken at that endpoint in order to make a T junction.  (If there
+       is already a T and we're adding a fourth wire to make a "+", then
+       there will be a dot at the junction already, and so we do not
+       need to be interested in links that have a dot on the line
+       segment, even at the start or end point.)
+  <li> Collinear links that cross through either endpoint make part of
+       the specified wire redundant, so <tt>connect-locations</tt> must
+       avoid creating any links there.
+</ul>
+
+<p>Next, we must ensure that the starting and ending points are each
+represented by dots, without conflicting links.  There are three
+mutually exclusive main cases to consider for each endpoint:
+<ol>
+  <li> If there is a dot at the endpoint, then we can start (or finish)
+       connecting links from that.
+  <li> If there are one or more links that cross over the endpoint, then
+       there cannot also be a dot there.  (If there were a dot, it
+       should have been connected to the links, in which case we would
+       have considered them uninteresting.)  If there are two or more
+       links, they cannot already connect to each other, i.e. they cross
+       at a nonzero angle, and do not have a dot (a.k.a. "endpoint") in
+       common.  We can therefore do at least one of the following
+       things:
+       <ul>
+	 <li> If there is only one link, and it runs parallel to the
+	      segment through the first (or last) endpoint, and there
+	      can be at most one such link, then one of that link's dots
+	      must be the first (or last) dot on the segment, so it
+	      would be redundant to create a link to it from the start
+	      or end.  (But first we must rule out complete overlap; <a
+	      href="#hairy-overlap-case">see below</a>.)  Consequently,
+	      we can choose this dot to start (or end) linking, even
+	      though it is not at the endpoint.  (This is strictly an
+	      optimization; we could break this link, but we'd only
+	      create redundant dots that would have to be removed
+	      later.)
+	 <li> Whether or not the above case applies, it is still safe to
+	      create a dot at that location and break the links, linking
+	      all of their dots to the new one.  This is the best thing
+	      if there are multiple links, as the user must have meant
+	      to short them if he or she clicked on the intersection,
+	      and such dots will never be made redundant.  Linking
+	      starts (or finishes) from the new dot, as for the first
+	      case.
+       </ul>
+  <li> If there is nothing at the endpoint at all (no dots or links),
+       then it must be safe to create a new dot, and link from that.
+</ol>
+There is one more case, really a meta-case, as it affects more than just
+finding start and end dots:
+<ol start=4>
+  <li> If the segment to be added is of zero length, then the starting
+       and ending points will be the same, and we only need to consider
+       one of them.  Since adding a zero-length segment reduces to the
+       equivalent of adding a single dot, this only makes sense if there
+       are (at least) two intersecting wires, since that is the only
+       case in which adding a single dot would make a difference.
+       Otherwise, we can ignore the request.  And in either case, we are
+       done after considering that degenerate endpoint.  [this might
+       have to change if zero-length links are allowed.  in that case,
+       we could find bristles and net-labels on top of each other, and
+       connecting a point to itself wouldn't necessarily be a trivial
+       operation.  -- rgr, 4-Jan-02.]
+</ol>
+<a name = hairy-overlap-case>
+OK, I lied; there is another hairy meta-case to spoil our day:
+<ol start=5>
+  <li> It is possible for the same link to appear in both endpoint
+       overlap sets for a segment of nonzero length.
+       If such a link exists, it is called an <b>overlapping link</b>
+       and is said to <b>overlap</b> the segment.
+       Consider, for
+       example, an "H" made of three links that overlap but are not
+       connected, where A and B are the uprights and X is the
+       overlapping 
+       link.  If the segment to be wired starts on one intersection and
+       ends at the other, corresponding to case 5c below, then one
+       overlap set will contain (A, X) and the other will be (B, X).
+       The good news is that there are never any dots in the
+       middle, and there is no need to place any new links, so all we
+       have to do is handle the segment endpoints.  There are three
+       distinct subcases:
+       <dl compact>
+	 <dt> 5a.
+	 <dd> If neither endpoint has another crossing link, then we
+	      need do nothing; the two segment endpoints are already
+	      connected.
+	 <dt> 5b.
+	 <dd> If exactly one endpoint has another crossing link, then we
+	      need to short those links, exactly as if we were placing a
+	      zero-length segment there.
+	 <dt> 5c.
+	 <dd> If both endpoints have crossing links, then we need to
+	      short both.  The bad news is that this is greatly
+	      complicated by having the overlapping link appear in both
+	      endpoints' link overlap sets.  Rather than updating the
+	      second set when replacing links in the first set, which
+	      results in adding a new link only to delete it again
+	      immediately, we do the following:
+	      <ol>
+		<li> Delete the "hairy" overlapping link.
+		<li> Split both overlap sets, creating two new dots.
+		<li> Connect those dots with the original endpoints of
+		     the overlapping link.
+	      </ol>
+	      Care must be taken to connect the resulting set of four
+	      dots in the right order.
+       </dl>
+       In essence, these subcases are all equivalent to placing
+       zero-length segments at each endpoint.  But, to handle that one
+       oddball unconnected "H" subcase in a relatively clean way, we
+       need to jump through hoops.
+</ol>
+
+<p>The code as actually written separates the consideration of endpoint
+link overlap sets from finding or creation of the start and end dots.
+[should probably say more?  -- rgr, 4-Jan-02.]
+
+<a name = connect-locations-linking>
+<p>Assuming we get to step three without being diverted by a meta-case,
+we are left with an ordered series of two or more dots that span the
+segment.  Completing the requested wiring is then a simple matter of
+adding links between all adjacent pairs of dots that are not already
+linked.  Phew.
+
+<a name = connect-locations-postpass>
+<p>It is still necessary to do a postpass to detect redundant dots,
+i.e. scratch dots in the middle of straight segments, which do not add
+anything to the data structure, and may make it behave in ways
+counterintuitive to the user.  It is not always possible to avoid
+creating these.  Consider the connection of the endpoints of two extant
+collinear links -- the dots at the endpoints must go, one way or
+another.  To check for these cases, <tt>connect-locations</tt> calls
+<tt>delete-if-redundant</tt> on each dot it has seen or created during
+the course of connection; bristles and net labels ignore the operation,
+and scratch dots do the appropriate thing if they decide they are not
+wanted.
+
+<p>Have I implemented all of this correctly?  Probably not.  So, as a
+testing hack, I've written methods for the
+<tt>check-link-dot-consistency</tt> generic that look for data structure
+problems.  To use it on the current def, evaluate
+<blockquote>
+<pre>
+(map-parts *def* #'check-link-dot-consistency)
+</pre>
+</blockquote>
+in a listener.  This does not check the full range of <a
+href="#link-dot-constraints">link/dot constraints</a> (in particular,
+none of the nonoverlap constraints are checked), but it does catch a
+range of data structure errors, such as degeneracy pointer consistency.
+
+<a name = reconnection>
+<h4>Wiring reconnection</h4>
+
+Rather than attempt to maintain wiring consistency when dragging parts
+around, it is much simpler to move everything to its new location at
+once and then resolve the resulting overlaps.  This process is called
+<i>reconnection</i>, and is also used when pasting schematic parts, and
+when adding schematic uses, since placing new parts may also create
+overlaps.  We can get away with this two-phase implementation because
+the top-level command loop [should have hyperlink] undoes the partial
+effects of any command that completes abnormally, i.e. by aborting.  If
+a move stacks two net label or bristle dots illegally, we can more
+easily detect that after the move, and when we abort the reconnection,
+all parts will be moved back to their original location, returning the
+database to a consistent state.
+
+<p>The basic reconnection operations are <tt>reconnect-def-wiring</tt>
+and <tt>reconnect-def-wiring*</tt>:
+<dl>
+  <dt> <tt><b>reconnect-def-wiring</b> <i>def bbox</i></tt>
+  <dd> Look for and fix any wiring inconsistencies in def parts that lie
+       within the specified bounding box.  If <tt>bbox</tt> is specified
+       as NIL, then the whole def is examined.
+  <dt> <tt><b>reconnect-def-wiring*</b> <i>def x1 y1 x2 y2</i></tt>
+  <dd> Look for and fix any wiring inconsistencies in def parts within
+       the bounding box specified by the corners <i>x1,y1</i> and
+       <i>x2,y2</i>.  If all coordinates are specified as NIL, then the
+       whole def is examined.
+</dl>
+
+<h5>Overview of reconnection algorithm and data structures</h5>
+
+<p>In broad outline:
+<ol>
+  <li> Merge coincident dots.  At the same time, we also delete any
+       zero-length links that may have been created by superimposing
+       dots.
+  <li> Handle link-link and dot-link overlap.  This is done by deleting
+       the offending links and re-adding them via
+       <tt>connect-locations</tt> (or equivalent).
+  <li> Finally, we must do a postpass to detect redundant dots,
+       i.e. scratch dots in the middle of straight segments, as <a
+       href="#connect-locations-postpass">done by
+       <tt>connect-locations</tt></a>.  [Actually, this is currently
+       distributed in two places in the code, in an attempt to avoid
+       calling <tt>delete-if-redundant</tt> unless something actually
+       needed to be changed.  -- rgr, 22-Jan-02.]
+</ol>
+
+The link-link interactions turn out to be the hairiest, so the basic
+data structure is chosen to make it easy to detect these.  This is a
+hash table that maps all wiring parts with a given X or Y coordinate to
+a list sorted on the other coordinate.  Two such hash tables need to be
+created, one for X and one for Y; all dots necessarily appear in both
+tables, vertical links appear only in the X table, and horizontal links
+only in the Y table.  Dots are sorted by the appropriate
+<tt>dot-connection-point</tt> coordinate, and links by lesser of the
+two dot coordinate values.  A dot at <i>x1,y1</i> and its connected link
+at <i>x1,y1:x1,y2</i> will appear in the X table's <i>x1</i> equivalence
+class, and (assuming <i>y1&nbsp;&lt;&nbsp;y2</i>) would nominally tie
+for sorting, as they have the same Y coordinate.  Such ties are broken
+by always putting the dot before its link(s).  This ordering is
+therefore completely specified, except in the case of coincident dots
+and zero-length links, where it is sufficient that the dots get sorted
+together and come before any of their links.
+
+<p>The <tt>find-wiring-coord-equivalence-classes</tt> function is in
+charge of building such hash tables, for either X or Y.  This function
+also accepts spread extent arguments (namely <i>x1</i>, <i>y1</i>,
+<i>x2</i>, and <i>y2</i>).  If NIL is passed as the coordinate values,
+then all parts in the def are considered.  Otherwise,
+<tt>find-wiring-coord-equivalence-classes</tt> will return only links
+and dots that overlap this extent.  However, it is necessary for a link
+to be bracketed by its start and end dots in order for the reconnection
+code to work as written; we need to find those dots in their proper
+order if the link needs to be replaced.  Therefore,
+<tt>find-wiring-coord-equivalence-classes</tt> arranges to include the
+endpoint dots for included links, even if one or both of those dots is
+strictly outside the extent.
+
+<p>This data structure allows us to handle each equivalence class (also
+called a sorted part list) independently.  The X and Y tables can also
+be processed independently, but only provided that the second table is
+not built until the first one is completely processed, as fixing
+overlaps that appear in the first table may mutate dots, which appear in
+both tables.  [there may yet be other hairy cases I haven't reckoned on.
+-- rgr, 21-Jan-02].
+
+<a name = dot-dot-resolution>
+<h5>The dot-dot overlap resolution algorithm</h5>
+
+Dot-dot overlap is handled first, using the X table (containing vertical
+links).  Since it is convenient to get rid of zero-length links at this
+time, it is arranged to have them also appear in the X table.  The X
+table is updated to reflect the reduced set of dots, and any new
+vertical links that were needed to replace links connected to dots that
+were eliminated.
+
+<p>[finish writing this.  -- rgr, 22-Jan-02.]
+
+<a name = link-link-resolution>
+<h5>The link-link and link-dot overlap resolution algorithm</h5>
+
+<p>Link-link overlaps are found by keeping a list of active links while
+iterating through a sorted part list.  A link is added when it is
+encountered, and deleted when its other dot is encountered.  Defined
+this way, there should never be more than one active link.  If a second
+is found, then those two links constitute the initial overlap set.
+Additional links are added to it, until some dot finally empties the
+active set.  When that happens, the overlap set is complete, and can be
+resolved independently of any other overlaps that may be encountered
+later in the sorted part list.
+
+<p>As it turns out, dot-link overlaps can be handled at the same time by
+looking for a non-empty active set when processing a dot.  After the
+dot's own links have been removed from the active set, any remaining
+links must overlap the dot.  If we are in the middle of processing an
+overlap, then there is no need to do anything further, as we'll pick
+this dot up later.  Otherwise, we need to start an overlap set, seeding
+it with the active links.  While accumulating an overlap set, each new
+link is added to it as well as to the active set.
+
+<p>The link overlap set ends when the active set first empties again,
+which will happen when processing the second dot of the last active
+link.  The link overlap set is then complete, and is processed as
+follows:
+
+<ol>
+  <li> Find the span of the overlap.  This is the minimum and maximum
+       sort coordinate value, which can be found from the sort coord of
+       the earliest link in the set (the last list element) and the sort
+       coord of the concluding dot, respectively.
+  <li> Use the coordinates of the span to find the indices of the first
+       and last dots in the sorted part list, and extract the list of
+       dots from first to last.  Note that this may include more dots
+       than we could discover by examining the links; we need those
+       dots, which is why we must go back to the parts list.
+  <li> Given the sequence of overlapped dots, find the subset of
+       overlapping links that connect <i>non</i>consecutive dots.  This
+       is the "cut set" -- it is necessary as well as sufficient to
+       remove these in order to eliminate all link-link and dot-link
+       overlaps.  Due to the way we constructed the dot sequence, the
+       remaining "dot-to-dot" links can't interfere with each other or
+       with any other dots.
+  <li> Any intermediate scratch dots in the dot sequence (i.e. excluding
+       the first and last) that are unconnected at this point are
+       obviously not needed.  What is less obvious is that scratch dots
+       that are connected only to their nearest neighbors in the
+       sequence (one or both) are also not needed.  This is because the
+       next step will add such nearest-neighbor links as are not already
+       present, making the dot redundant; the result would be the same
+       as for completely unconnected dots.  Hence, such
+       "locally-connected" dots must also be deleted.
+  <li> Finally, we put a link between each pair of consecutive dots that
+       does not already have a link, as <a
+       href="#connect-locations-linking">done by
+       <tt>connect-locations</tt></a>.
+</ol>
+
+We do not bother to update the sorted part list to reflect the replaced
+links, as we are no longer interested in the links once we've resolved
+any overlaps.
+
+<h5>Miscellaneous notes on reconnection</h5>
+
+<p>A single move operation starting from a consistent state (i.e. with
+no initial overlaps) can cause at most two links to overlap at any given
+point (remembering that <a href="#links-exclude-endpoints">links exclude
+their endpoints</a>).  Zero-length links do not count, of course, since
+they include no points, and cannot therefore overlap anything (and will
+in any case have been eliminated by the time we do link-link overlap
+resolution).  However, we do not take advantage of this fact in the
+reconnection algorithm; knowing this does not make the code any simpler,
+and assuming at most two overlaps would make the code less robust in any
+case.  In fact, it is possible to construct cases that produce
+arbitrarily large overlap sets, though the links themselves only ever
+overlap in pairs.
+
+<a name = editorial>
+<h4>A brief editorial interlude</h4>
+
+Go ahead and call me a nerd if you must; I don't care, because I just
+have to say this:  Data structures are beautiful.  The reason for this
+struck me only recently:
+<blockquote>
+<b>Data structures are beautiful because they are mathematics come to
+life.</b>
+</blockquote>
+As mathematical objects, they retain some of the beauty and precision of
+mathematical reasoning.  We can be confident that our programs are
+correct only to the extent that we can employ mathematical reasoning to
+them, and data structures are wonderfully amenable to such analysis, as
+are few other aspects of so-called "computer science."
+
+<p>It is nevertheless true that mathematical objects embodied in a
+program are susceptible to the imperfections of code (and coders).
+Indeed, their time-bound nature is what makes formal analysis of
+programs so difficult, so behavior and imperfection may be inseparably
+linked (in a parody of "original sin" for software).  It should come as
+no surprise that many bugs, perhaps a majority, are due to failure to
+analyze correctly the program's behavior over time.  But, despite the
+drawbacks, the gift of behavior allows data structures to move, to
+evolve, to <i>work</i>, and that, to me, makes them much more
+interesting than the well-studied mathematics that underlie them.
+
+<p>The <a href="http://rgrjr.dyndns.org/icancad/wiring.html">
+dot-and-link implementation of schematic wiring</a> discussed above
+makes an excellent case in point.  Describing the connection of points
+on a page requires a combination of simple analytic geometry and simple
+graph theory.  The resulting data structure implements a plane-embedded
+graph that changes over time, and that "looks and feels" (we hope) as
+wires on a page ought.
+
+<p>We now return to our regularly scheduled internal documentation.
+
+<a name = implementation>
+<h3>Implementation details</h3>
+
+This is where I show all the bodies buried in the code . . .
+
+<a name = link-dot-drawing>
+<h4>Drawing dots and links</h4>
+
+Dots draw as small circles of a fixed radius; open for an endpoint (one
+connected link), a fillet for a corner (two links), or a solid "solder
+dot" otherwise (including the pathological zero-link case).  Dots have a
+simple bbox (the location oversized by the circle radius), and links
+compute the union of their dots' bboxes; neither is cached.
+
+<p>[Filleting has not been implemented yet; with the present data
+structures, it turns out to be tricky to do efficiently.  -- rgr,
+7-Jan-02.]
+
+<a name = consistency-maintenance>
+<h4>Maintaining dot/link consistency during editing</h4>
+
+When adding or deleting parts with wiring semantics (e.g. net labels or
+uses) in schematic defs, there are a number of extra steps that need to
+be taken in order to maintain wiring <a
+href="#link-dot-constraints">link/dot consistency constraints</a>
+enumerated above.
+<ul>
+  <li> When adding wiring part(s), it is necessary to look for any dots
+       or links underneath any new dots that have been added, and take
+       care of them as if for <a href="#reconnection">reconnection</a>.
+       Pasting must employ the general reconnection algorithm, since
+       adding multiple parts at a time may require a more global
+       approach, but adding single parts can be special-cased.  This
+       happens for net labels in <tt>(method add-part :after
+       (schematic-def new-net-label))</tt>, and in <tt>(method add-part
+       :after (schematic-def schematic-use))</tt> for uses.  (All adding
+       of links goes through <a href="#connect-locations">the
+       <tt>connect-locations</tt> operation</a>, so nothing special
+       needs to be done.)
+  <li> When deleting wiring part(s), it may be necessary to fix up any
+       connected parts.  Specifically:
+       <ul>
+	 <li> When deleting a dot, it is necessary to delete all of its
+	      connected links.  This is what <tt>(method
+	      delete-part-internal :before (t has-dot-mixin))</tt> does.
+	      (Some or all of these links may already be earmarked for
+	      deletion, so they must be disposed of in a way that
+	      doesn't confuse the rest of the code, e.g. by adding
+	      redundant undo transactions.  [taken care of by adding a
+	      <tt>part-deleted?</tt> check in the main
+	      <tt>delete-part-internal</tt> method.  -- rgr,
+	      17-Jan-02.])
+	 <li> When deleting a link, it must be unconnected from its
+	      dots.  This may render either or both dots superfluous, in
+	      which case they, too, must be deleted.  Both matters are
+	      handled by <tt>(method delete-part-internal :around (t
+	      schematic-link))</tt>.
+	 <li> When deleting the last link to a net label, the dot should
+	      spring back to the text origin, which effectively makes
+	      the unconnected dot disappear.  <tt>(method
+	      delete-if-redundant (new-net-label))</tt> does this, so
+	      usually this just happens for free as a result of cleanup
+	      from the previous case.
+       </ul>
+  <li> [When deleting a connected net label, it may be desirable to
+       reconnect its links to a scratch dot.  Ditto, possibly, for uses.
+       This could be hairy to do right, though.  -- rgr, 17-Jan-02.]
+</ul>
+
+<a name = reconnection-in-progress>
+<p>These consistency maintenance operations are done as daemon methods
+on the <tt>delete-part-internal</tt> and <tt>add-part-internal</tt>
+operations, so as not to muck up the rest of the code.  Unfortunately,
+they are likely to cause trouble on add/delete operations that are
+internal to <a href="#reconnection">reconnection</a> or <a
+href="#connect-locations"> <tt>connect-locations</tt></a>, so we need to
+add a kludge in order to tell the difference.  The
+<tt>*reconnection-in-progress?*</tt> variable is normally <tt>NIL</tt>,
+but is bound dynamically to <tt>T</tt> during connection (or
+reconnection) in order to disable the consistency maintenance daemons.
+(In some cases, it might be possible to avoid this, e.g. by using a
+"make-before-break" strategy when replacing links in order to prevent a
+scratch dot from deleting itself.  However, this may make the code
+awkward in places, and may not be at all feasible for some cases,
+e.g. distinguishing between adding a new net label interactively and
+pasting a net label.)
+
+<a name = wiring-stretch>
+<h4>Stretching wiring parts</h4>
+
+[I've done this in a half-assed way, by building <tt>has-dot-mixin</tt>
+on <tt>basic-vertex-handle</tt>.  This allows me to specialize some of
+the stretching operations in useful ways, but I am coming to see it as
+more of a hindrance than a help.  For one thing, it is confusing to have
+part objects that are built on the <tt>pt</tt> class.  For another
+thing, I can't use <tt>pt-point</tt> normally on bristles, since that
+returns something in the use's coordinate space, which isn't comparable
+to the coordinates of other dots in the def.  And bristle stretching
+propagation is a mess; it isn't even close to working.  So, I'm looking
+for something better.  -- rgr, 22-Jan-02.]
+
+<p>[OK, I've now (28-Jan-02) reimplemented <tt>has-dot-mixin</tt> on
+<tt>pt</tt> instead, using the <tt>basic-dot-handle</tt>,
+<tt>use-handle</tt>, and <tt>bristle-proxy-handle</tt> classes to
+implement stretching.  <tt>pt-point</tt> on parts is still a little
+wierd, but at least bristle/use stretching works without much kludgery.
+-- rgr, 29-Jan-02.]
+
+<p>There are three ways a bristle can become selected for stretching:
+<ol>
+  <li> Stretching a wire connected to a bristle causes the stretch
+       direction to be propagated into the use via the link, and out
+       again through all other bristles.  Propagation will stop at links
+       that are not parallel to the first, though all connected links
+       will need to be redrawn while stretching, as they may change
+       shape.
+  <li> Similarly, stretching the use itself requires the same sort of
+       outward propagation through connected wires.
+  <li> If just a single bristle is stretched, then it needs to move
+       independently of the rest of the use, and propagation must happen
+       outward only through its direct connections.  This should only
+       happen through the "Stretch" commands and never as a consequence
+       of moving or copying schematic parts, and is not yet supported in
+       any case.
+</ol>
+In the first two cases, the use is rigid and behaves as if it had only
+one handle, associated with the use itself; the bristles don't need to
+do anything because they get carried along with the use.  In particular,
+these selection modes mustn't put the bristles themselves on the
+parts-to-stretch list.  To do this, we use a
+<tt>bristle-proxy-handle</tt> class with an additional <tt>bristle</tt>
+slot.  Instances of <tt>bristle-proxy-handle</tt> advertise the
+bristle's location so that links may correctly determine their stretch
+direction, but during selection they act as proxies for their bristle's
+use's origin handle.
+
+<p>[The third case would have to be implemented either by specially
+mangling the desired bristle's handle, or by a
+<tt>bristle-proxy-handle</tt> selection mode switch -- either way, it's
+not an immediate problem, so I won't worry about it.  -- rgr,
+23-Jan-02.]
+
+<a name = schematic-stretch-reconnect>
+<p>The code used to use a <tt>*stretch-parts*</tt> special, to which
+schematic parts were required add themselves during stretching selection
+in order to be stretched and then reconnected.  Unfortunately, the time
+cost of maintaining such a list is potentially <i>O(N<sup>2</sup>)</i>,
+not to mention the cost in lost hacker time of dealing with all of the
+list maintenance kludges scattered through the code.  Instead, schematic
+stretching now uses the <a
+href="part-internals.html#with-part-stretching">
+<tt>with-part-stretching</tt></a> interface, which just selects the
+handles, and then asks for the def's <tt>stretchy-parts</tt> list.  The
+<tt>stretchy-parts</tt> list works the same way selection presently
+does:  The set is constructed on the fly from those members of
+<tt>def-parts</tt> that are <tt>part-stretchy?</tt>, an <i>O(N)</i>
+operation (albeit with a larger <i>N</i>).  The <tt>schematic-def</tt>
+<tt>stretch-def-parts-internal</tt> method (which implements
+<tt>with-part-stretching</tt>) is more elaborate than the default, in
+order to handle reconnection for code that does not take care of this
+(e.g. the <tt>com-quick-stretch</tt> command) by binding
+<tt>*reconnection-in-progress?*</tt> to true around the
+<tt>with-part-stretching</tt> call.
+
+<a name = wiring-undo>
+<h4>Undo of wiring</h4>
+
+The trick for making <tt>connect-locations</tt> and moves of schematic
+wiring parts readily undoable is to separate the high-level code that
+decides what parts need to be added/deleted/changed from the low-level
+operations that do the work.  The low-level stuff is recorded and played
+back for undoing; that way, no high-level decisions need to be remade
+(possibly differently this time) during playback.  [I did this wrong in
+New Janus, and somebody else had to fix it.  -- rgr, 29-Mar-01.]
+
+<dl>
+  <dt> <b>add-part</b> <i>(def part)</i>
+  <dd> Called by the UI to request adding a new part.  Signals an error
+       if the part already has a parent.  Otherwise, calls
+       <tt>note-modification</tt> for effect, and if that didn't fail
+       (because the def wasn't modifiable, etc.), calls
+       add-part-internal to do the work.
+  <dt> <b>add-part-internal</b> <i>(def part)</i>
+  <dd> Called from add-part to actually add the part to its parent, and
+       sets its own part-needs-redrawing-p flag.  Also records an undo
+       transaction, and is called for undo of delete-part-internal
+       transactions.  [Is this what the def loading &amp; Janus
+       conversion code should call?  -- rgr, 4-Apr-01.]
+  <dt> <b>delete-part</b> <i>(def part)</i>
+  <dd> Called by the UI to request deletion of a part.  Does nothing if
+       the part does not have a parent.  Otherwise, calls
+       <tt>note-modification</tt> for effect, and if that didn't fail
+       (because the def wasn't modifiable, etc.), calls
+       <tt>delete-part-internal</tt> to do the work.  The
+       <tt>has-dot-mixin</tt> method will also call
+       <tt>delete-part-internal</tt> on connected links.
+  <dt> <b>delete-part-internal</b> <i>(def part)</i>
+  <dd> Actually deletes the part by clearing its parent slot and
+       removing it from its parent's part list.  Also calls
+       <tt>note-def-geometry-modification</tt>, and records an undo
+       transaction.  Called from <tt>delete-part</tt>, and for undo of
+       <tt>add-part-internal</tt> transactions
+  <dt> <b>transform-part</b> <i>(part transform)</i>
+  <dd> UI call to do geometric transformation.  This is also used to do
+       moves (by using a transform with an identity orientation).  Calls
+       <tt>note-modification</tt> on the parent for effect, and if that
+       didn't fail (because the def wasn't modifiable, etc.), calls
+       <tt>transform-part-internal</tt> to do the work.  [actually,
+       <tt>(method transform-part :around (basic-part t))</tt> does this
+       currently, plus handling <tt>note-def-geometry-modification</tt>
+       and undo transaction recording, and then calls the main method to
+       modify the part.  -- rgr, 1-Apr-01.]  [this should probably be
+       remodularized; there are too many daemons on this operation, and
+       too much <tt>setf</tt>-ing of the <tt>transform</tt> slot
+       elsewhere.  -- rgr, 30-Jan-02.]
+  <dt> <b>transform-part-internal</b> <i>(part transform)</i>
+  <dd> Does the actual transformation, calls
+       <tt>note-def-geometry-modification</tt>, and records undo
+       information.  [there is no such operation; see
+       <tt>transform-part</tt>, above.  -- rgr, 30-Jan-02.]
+  <dt> <b>stretch-part</b> <i>(part dx dy)</i>
+  <dd> UI call to do the job of stretching by the given delta.  Calls
+       either transform-part-internal to implement rigid movement, or
+       <tt>(setf&nbsp;get-property)</tt> to stretch via outline
+       reshaping.  A <tt>:geometry</tt> timestamp on the relevant
+       property in the latter case will inform
+       <tt>(setf&nbsp;get-property)</tt> to do the right thing.
+  <dt> <b>note-def-geometry-modification</b> <i>(def bbox)</i>
+  <dd> A dot daemon, <tt>(method note-def-geometry-modification :after
+       (t has-dot-mixin))</tt>, exists in order to call
+       <tt>note-def-geometry-modification</tt> on connected links.
+       Anything that affects how or where a dot is drawn must also
+       affect its connected links.  [except that this is not strictly
+       true for labelled-point parts.  -- rgr, 10-Jan-02.]
+</dl>
+
+<a name = symbolic-wires>
+<h4>Wiring cut-and-paste</h4>
+
+Generally speaking, wires are not supported except in schematic defs.
+However, it is useful to be able to copy a schematic (or portion
+thereof) into another def in order to make a picture of the schematic,
+possibly for use as an icon.  (Copying symbolic parts into schematics is
+not problematic, and therefore is always permitted.)  It is also
+desirable in its own right to make cut-and-paste operations transparent
+to the kinds of defs involved.
+
+<p>When copying or cutting parts into the kill ring, the kind of def
+into which they will eventually be pasted is not known; in fact, it
+could be both symbolic and schematic, at different times.  Wiring parts
+must therefore save themselves in a form that can be used in either
+place.  We choose to <b>use symbolic parts with a non-nil value for the
+<tt>wiring?</tt> property.</b> Lines representing links remain as lines
+when added to a symbolic def but turn into <a href="#connect-locations">
+<tt>connect-locations</tt></a> calls when added to a schematic def.
+Dots are only copied to the kill ring when they would be drawn as
+circles in a schematic; these become plain circles in a symbolic def and
+are ignored in schematics, as copying the links is sufficient for
+reconnection.  This has the neat feature that schematic parts could be
+"added" to a symbolic def, and even saved to disk and restored later,
+and then would reappear as wiring when copied back into a schematic def.
+
+<p>In order to implement this, we need the following generic functions:
+<dl>
+  <dt> <b>add-transformed-part</b> <i>(def part transform)</i>
+  <dd> Apply <tt>transform</tt> to a copy of <tt>part</tt>, and add it
+       to <tt>def</tt>, selecting it in the process and returning the
+       new part.  This is all the
+       default method does, but specialized daemons are free to
+       interpret "copy" liberally, and morph the part into something
+       completely different, or ignore it altogether.  Schematic defs
+       may assume that this is called in a context where <a
+       href="#reconnection-in-progress">
+       <tt>*reconnection-in-progress?*</tt></a> is true.
+  <dt> <b>paste-transformed-parts</b> <i>(from-def into-def transform)</i>
+  <dd> Copy all parts from <tt>from-def</tt> (which may also be a
+       <tt>kill-ring-entry</tt> instance) into <tt>into-def</tt> after
+       transforming via <tt>transform</tt>, setting selected set to the
+       new parts.  Uses <tt>add-transformed-part</tt> on each part to
+       handle view- and part-dependent morphing.  Schematic defs must
+       handle reconnection on the affected region when needed.
+</dl>
+
+<p>Since pins don't interact directly with wiring, they are always
+treated as symbolic parts, and are copied and stored in kill ring
+entries as themselves.
+
+<p>[Net labels, on the other hand, may be problematic.  This also
+interacts with how net labels should be drawn in a schematic when
+unconnected.  For now, it is probably OK to avoid special treatment, as
+for pins.  -- rgr, 10-Jan-02.]
+
+<p>[Another fly in the ointment is that moving schematic uses into a
+non-schematic def and then back again doesn't work.  If we convert the
+use into a <tt>symbolic-use</tt> instance that shows the original icon,
+then we lose track of the child schematic.  Leaving it as a
+<tt>schematic-use</tt> also preserves the bristles, which then look
+unconnected.  Possibly, we could convert on cut/copy to a
+<tt>symbolic-use</tt> that stores the child name string on the
+<tt>wiring?</tt> property (though that still loses if bristle positions
+can be customized per-use).  Right now, we do nothing special, which
+means <tt>schematic-use</tt> instances get plopped into symbolic defs,
+bristles and all.  And they can't even be saved from there.  -- rgr,
+30-Jan-02.]
+
+<p>[The other candidate implementation technique would have been to use
+special proxy parts when copying into the kill ring.  These proxy parts
+would only appear in kill ring entries.  The part classes used for
+actual links and dots are not suitable, as they would not retain enough
+state to reflect their appearance in the schematic when cut or copied.
+-- rgr, 30-Jan-02.]
+
+<a name = future>
+<h3>Future possibilities</h3>
+
+<a name = bus-width-params>
+<h4>Parameterized bus widths</h4>
+
+[supporting this is tricky, but i am beginning to see how it could be
+done.  because of the extra work involved, it won't be available for
+some time.  -- rgr, 4-Apr-01.]
+
+<p>Extending ICanCAD to support parameterized bus widths requires a
+number of modifications:
+<ul>
+  <li> The whole net label syntax needs to be extended to allow
+       subscript expressions.  (If it is possible to identify the set of
+       parameters (or def properties) on which all
+       tap/net&nbsp;label/ripper expressions depend, then that will help
+       subsequent processing.  At the very least, we'd know that we only
+       need one set of nets when the dependent parameter set is empty.)
+  <li> The extraction process must be factored fully into bus creation
+       (which can be done just once) and net creation (which may need to
+       be done multiple times, perhaps once for each unique set of def
+       parameters).
+  <li> Net creation will require a context in order to fix parameters,
+       so the UI code must be made correspondingly more complex.
+       Anything that asks for "the net (or a net, or all nets)
+       associated with this wire" will be affected.
+</ul>
+
+<p>[it occurs to me that zero-width busses and uses with iteration
+counts of zero could be useful for doing conditional connections and
+conditional part-inclusion, a la EDIF Level 1.  these could be handled
+as logical extensions of parameterized bus widths and connections.
+consequently, i need to avoid artificially making zero-width cases
+illegal in the mean time.  -- rgr, 15-Jun-01.]
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Wed Mar 20 16:02:33 EST 2002
+<!-- hhmts end -->
+</body> </html>

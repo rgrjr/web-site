@@ -1,0 +1,656 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD: Editing in ICanCAD</title>
+</head>
+
+<body bgcolor=white>
+<h2>Editing in ICanCAD</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="./">ICanCAD</a> :
+<a href="user.html">User's Guide</a> : Editing
+<hr>
+
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Editing in ICanCAD
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#bug-reports">Reporting a bug in in ICanCAD</a>
+	 <li> <a href="#lisp-stuff">Useful Common Lisp concepts</a>
+	      <ol>
+		<li> <a href="#lisp-packages">Lisp packages</a>
+		<li> <a href="#eng-number">Lisp numbers and engineering number syntax</a>
+	      </ol>
+	 <li> <a href="#clim-interaction">Interacting with ICanCAD via CLIM</a>
+	      <ol>
+		<li> <a href="#invoking-mouse-commands">Invoking mouse commands in editor windows</a>
+		<li> <a href="#typing-commands">Typing commands to ICanCAD</a>
+	      </ol>
+	 <li> <a href="#library-notes">Libraries, defs, and files</a>
+	      <ol>
+		<li> <a href="#def-name-syntax">Def name syntax</a>
+		<li> <a href="#startup">ICanCAD startup and initialization files</a>
+		<li> <a href="#file-locking">Def file locking</a>
+		<li> <a href="#undo-redo">Undo and Redo</a>
+	      </ol>
+	 <li> <a href="#printing">Printing and hardcopy</a>
+	 <li> <a href="#parts">ICanCAD parts</a>
+	      <ol>
+		<li> <a href="#rects">Rectangles and oblongs</a>
+		<li> <a href="#lines">Lines, polygons, and arrows</a>
+		<li> <a href="#arcs">Circles and circular arcs</a>
+		<li> <a href="#text-parts">Text parts</a>
+		<li> <a href="#uses">Hierarchical uses</a>
+	      </ol>
+	 <li> <a href="#creating-circuits">Creating circuits with ICanCAD</a>
+	      <ol>
+		<li> <a href="#schematic-parameters">Passing parameters to schematic defs</a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<p>
+<a name = bug-reports>
+<h3>Reporting a bug in in ICanCAD</h3>
+
+Send mail to <tt>"icancad <i>at</i> rgrjr.dyndns.org"</tt> in order to
+report a bug.  [need more.  -- rgr, 7-Mar-02.]
+
+<p>
+<a name = lisp-stuff>
+<h3>Useful Common Lisp concepts</h3>
+
+ICanCAD is written in ANSI Common Lisp, but for the most part it is not
+necessary to know this.  There are, however, a few exceptions.
+<ul>
+  <li> <a href="#startup">Initialization files</a> are Lisp source code.
+       They are loaded into ICanCAD when it first starts up, which
+       effectively runs the code contained therein.  The documentation
+       contains example code that can be cut-and-pasted into one's
+       <tt>icancad.lisp</tt> init file, so simple customizations do not
+       require specialized Lisp knowledge.
+  <li> <a href="sicon.html#labels">Schematic icon label parts</a> have
+       Lisp expressions that are evaluated in order to produce something
+       to be displayed.  In principle, they could do just about
+       anything, but in practice labels are used mostly to display the
+       value of a property, so it is sufficient to use
+       <tt>"(&gt;&gt;&nbsp;<i>prop-name</i>)"</tt> to display the value
+       of the <tt><i>prop-name</i></tt> property of the use.
+  <li> From time to time, a bug will crop up which throws ICanCAD into
+       the Lisp debugger.  Initially, most users find this annoying, but
+       only until they realize that a comparable C++ application would
+       have simply exited, perhaps after "dumping core."  Since it is
+       possible to continue execution from most ICanCAD bugs, even for
+       such things as segmentation violations, chances are excellent
+       that no data will have been lost.  [need to have some intro to
+       the acl debugger so users can (a) continue, (b) get backtrace
+       info for a bug report, and (c) save data and exit if all else
+       fails.  -- rgr, 13-Feb-02.]
+  <li> Customizing translators may require putting some Lispy
+       definitions into a file, and loading them into a running ICanCAD
+       image.  [At present, there are no examples of such.  -- rgr,
+       13-Feb-02.]
+</ul>
+[should have lisp references, the <a
+href="http://www.xanalys.com/software_tools/reference/HyperSpec/Front/">
+Common Lisp HyperSpec (TM)</a> in particular.  -- rgr, 13-Feb-02.]
+
+<a name = lisp-packages>
+<h4>Lisp packages</h4>
+
+Large Lisp applications are often organized into multiple <a
+href="glossary.html#package">packages</a> in order to avoid conflicts
+between function and variable names, and ICanCAD is no exception.  A
+package is just a symbol table, and it maps a string to a Lisp <a
+href="glossary.html#symbol">symbol</a>.  The Lisp <tt>*package*</tt>
+variable defines the default package for symbols being read into the
+Lisp system; symbols in other packages can still be accessed by
+prefixing their name with the package name and two colons,
+e.g. <tt>"clim-internals::some-random-thing"</tt>.  <tt>*package*</tt>
+is normally set to the <tt>"ICANCAD-USER"</tt> package within ICanCAD;
+it is not recommended to change this within the ICanCAD window itself,
+though it should be fine for other Lisp interactions.
+
+<p>When Lisp says that a function or variable is undefined, but you're
+sure you typed its name correctly, the disagreement is probably due to a
+package oversight.  For instance, if you want to invoke the ICanCAD
+<tt>hairy-internal-function</tt> function for some reason, which is
+named by a symbol internal
+to the <tt>"ICANCAD"</tt> but
+forgot to type <tt>"icancad::hairy-internal-function"</tt> (or
+<tt>"icc::hairy-internal-function"</tt>, since <tt>"ICC"</tt> is the
+package "nickname" for <tt>"ICANCAD"</tt>), Lisp will say
+<pre>
+    Error:  The HAIRY-INTERNAL-FUNCTION function is not defined.
+</pre>
+(or some such).  And it won't bother to preface
+<tt>"HAIRY-INTERNAL-FUNCTION"</tt> with <tt>"ICANCAD-USER::"</tt>,
+because that is the value of <tt>*package*</tt> so a prefix would be
+redundant.
+
+<a name = eng-number>
+<h4>Lisp numbers and engineering number syntax</h4>
+
+Lisp naturally supports floating point numbers, but also includes
+complex numbers and extended precision integers.  [more.  -- rgr,
+26-Mar-02.]
+
+<p>For floats, ICanCAD extends the syntax to include Syst&eacute;me
+International (SI) magnitude multiplier suffixes, such as "n" for
+"nano".  [discuss mega/milli ambiguity.  -- rgr, 26-Mar-02.]
+
+<p>[mention db, dbm, % suffixes.  -- rgr, 26-Mar-02.]
+
+<p>[At present, engineering syntax is not supported for input or
+printing of complex numbers.
+-- rgr, 26-Mar-02.]
+
+<a name = clim-interaction>
+<h3>Interacting with ICanCAD via CLIM</h3>
+
+Commands may be invoked in a number of ways:
+<dl>
+  <dt> <b>By using the menu-bar menus.</b>
+  <dd> Commands that require additional arguments (e.g. <a
+       href="commands.html#com-edit-def">"Edit Def"</a>) will prompt for
+       them in the interactor; other commands will start executing
+       immediately.  The command menus can therefore be used as a
+       substitute for typing a command name.
+  <dt> <b>By clicking on a highlighted object.</b>
+  <dd> Examples of such objects include points or parts in an editor
+       window, or previously entered commands in the interactor window.
+       <a href="#invoking-mouse-commands">More about this below.</a>
+  <dt> <b>By typing the command in the interactor.</b>
+  <dd> Simply type the name of the command, followed by any arguments,
+       [Note that the command names as typed in the interactor may be
+       different from the names used in the menu.  This is unfortunate,
+       and should probably be fixed.  -- rgr, 22-Mar-02.]
+</dl>
+[In CLIM, it is also possible to invoke commands by typing accelerators,
+e.g. <tt>Control-Meta-L</tt>, but ICanCAD does not define accelerators
+for any commands at present.  -- rgr, 22-Mar-02.]
+
+<p>[should also describe notation used for commands on commands.html
+page.  -- rgr, 22-Mar-02.]
+
+<p>[should also have a table of modifier keys and abbreviations.  --
+rgr, 22-Mar-02.]
+
+<a name = invoking-mouse-commands>
+<h4>Invoking mouse commands in editor windows</h4>
+
+<p>Mouse commands operate on whatever object the mouse is over when it
+is clicked.  In order to show you what will happen if you click at a
+certain point, the operation for each button (left, middle, and right)
+is shown in the mouse documentation pane at the bottom of the window,
+and the object on which these operations would be performed is
+highlighted on the window.  The mouse documentation pane also shows
+other <a href="glossary.html#chord">mouse chords</a> for which commands
+are defined at this location, including ones that operate on other kinds
+of objects than the one highlighted.
+
+<p>Note that if you have a two-button mouse, you can get the effect of
+the middle mouse button by clicking both left and right buttons
+simultaneously.  [This works on Linux, but I haven't tried it on
+Windows, where I have a three-button mouse.  -- rgr, 22-Mar-02.]  If you
+have a one-button mouse, you should get yourself a new mouse before
+attempting to be productive with ICanCAD.
+
+<p>In order that the three mouse buttons can "share" the higlighting,
+each mouse chord is organized around a common object type.  [finish.  --
+rgr, 22-Mar-02.]
+
+<p>As is conventional in CLIM, the right button on a given modifier
+chord usually provides a menu of operations on the highlighted object.
+
+<p>Chords (proposed):
+
+<p>
+<blockquote>
+<dl>
+  <dt> No modifiers: Parts
+  <dd> <ul>
+	 <li> <tt>Left</tt>:
+	      <ul>
+		<li> On an unselected part:  Selects it, and deselects
+		     all other parts.
+		<li> On a selected part:  Moves the selected part(s).
+		<li> On a <a href="glossary.html#handle">handle</a> of a
+		     selected part:  Stretches the part by relocating
+		     the handle.
+		<li> On the background (in which case nothing is
+		     highlighted):  Unselects all parts.
+	      </ul>
+	 <li> <tt>Middle</tt>:
+	      <ul>
+		<li> On a selected part:  Copies the selected part(s).
+	      </ul>
+	 <li> <tt>Right</tt>: Menu of part operations.
+       </ul>
+  <dt> <tt>Shift</tt>: Parts
+  <dd> <ul>
+         <li> <tt>Shift-Left</tt>:
+	      <ul>
+		<li> On a part:  Toggle part selection.
+		<li> On the background (nothing highlighted):  Select
+		     parts in a region with one corner here.  The second
+		     click specifies whether to add-select, toggle
+		     selection state, or abort.  [Should highlight a
+		     point, which could be considered a bug.  -- rgr,
+		     22-Mar-02.]
+	      </ul>
+	 <li> <tt>Shift-Middle</tt>: Edit part properties.
+	 <li> <tt>Shift-Right</tt>: ??
+       </ul>
+  <dt> <tt>Control</tt>: Points
+  <dd> Points highlight with a small X cursor, snapped to the grid.
+       <ul>
+         <li> <tt>Control-Left</tt>: Recenter the window.
+	 <li> <tt>Control-Middle</tt>: Add another part here (of the
+	      same kind as the last part added).
+	 <li> <tt>Control-Right</tt>: Menu of point operations.
+       </ul>
+  <dt> <tt>Control-Shift</tt>: Connection points
+  <dd> Connection points highlight as a small circle-plus, snapped to
+       the nearest bit of wiring, including use bristles, and are not
+       necessarily on-grid.  Commands that operate on connection points
+       often accept ordinary points as well; these are always on grid,
+       and highlight with the usual small X.
+       <ul>
+         <li> <tt>Control-Shift-Left</tt>: Start a wire.
+	 <li> <tt>Control-Shift-Middle</tt>: ??
+	 <li> <tt>Control-Shift-Right</tt>: Menu of connection point
+	      operations.  [but there aren't any, except "Start a wire."
+	      -- rgr, 22-Mar-02.]
+       </ul>
+</dl>
+</blockquote>
+
+Here are the somewhat less common operations.  These use modifiers that
+may not be available on all window systems.  However, all of these
+commands can be invoked from the "click-right" menus on the
+<tt>Control</tt> and/or <tt>Shift</tt> combinations.
+
+<blockquote>
+<dl>
+  <dt> <tt>Meta</tt>: Uses
+  <dd> <ul>
+	 <li> <tt>Meta-Left</tt>: Push into the use's child def.
+	 <li> <tt>Meta-Middle</tt>: Push into the use's icon def.
+	 <li> <tt>Meta-Right</tt>: Pop back to parent def.  [this
+	      violates the right-button-gets-menu convention.  maybe we
+	      should avoid defining a "Pop" gesture, and let the user do
+	      so if desired.  -- rgr, 4-Apr-01.]
+       </ul>
+  <dt> <tt>Super</tt>: Points
+  <dd> <ul>
+         <li> <tt>Super-Left</tt>: Copy parts in a rectangular region,
+	      starting with this corner.
+	 <li> <tt>Super-Middle</tt>: Cut parts in a rectangular region.
+	 <li> <tt>Super-Right</tt>: ??
+       </ul>
+  <dt> <tt>Meta-Control</tt>: Windowing commands (points)
+  <dd> <ul>
+         <li> <tt>Meta-Control-Left</tt>: Zoom in.
+	 <li> <tt>Meta-Control-Middle</tt>: Rewindow (specify
+	      rectangle).
+	 <li> <tt>Meta-Control-Right</tt>: Zoom out.
+       </ul>
+  <dt> <tt>Super-Meta</tt>: Handles
+  <dd> [oops; Windows users have no alternative way of invoking these.
+       -- rgr, 22-Mar-02.]
+       <ul>
+         <li> <tt>Super-Meta-Left</tt>: Insert a new vertex near this
+	      one (only works on lines, arrows, and polygons that are
+	      selected).
+	 <li> <tt>Super-Meta-Middle</tt>: Delete this vertex (only works
+	      on lines, arrows, and polygons that are selected).
+	 <li> <tt>Super-Meta-Right</tt>: ??
+       </ul>
+</dl>
+</blockquote>
+
+<a name = typing-commands>
+<h4>Typing commands to ICanCAD</h4>
+
+[describe quirks of text command entry, document command and arg
+completion, supplying values with the mouse, C-M-Y stuff.  -- rgr,
+23-Feb-02.]
+
+<a name = library-notes>
+<h3>Libraries, defs, and files</h3>
+
+In brief,
+<dl>
+  <dt> a <b>def</b>
+  <dd> is something you edit, that lives on a file when you are not
+       editing it; and
+  <dt> a <b>library</b>
+  <dd> is a collection of defs that are stored in the same place,
+       i.e. a directory or file folder on a server somewhere.
+</dl>
+Each def has a <a href="glossary.html#def-name">def name</a> that
+uniquely names it in a way that is system- and site-independent.  The
+use of an abstract syntax means that a separate mapping must be defined
+in order to translate library names onto file system directories.  On
+the plus side, it is this mapping that allows def names to be
+site-independent.  For example, the def
+<tt>foo:bar:baz;quux.shape-def</tt> could appear on disk at one site as
+<tt>\\server\designs\foo\bar\baz\quux.sdf</tt> (using the syntax of a
+Windows server) and as
+<tt>/mnt/server/pub/z1/designs/foo/bar/baz/quux.shape-def</tt> (using
+Unix syntax) at another site; designers at either site could create new
+defs that use this def, knowing that designers at the other site would
+see the same design.
+
+<a name = def-name-syntax>
+<h4>Def name syntax</h4>
+
+A def name consists of a <a href="glossary.html#library">library</a>
+name, a design name, and a <a href="glossary.html#view">view</a>.
+Conceptually, these correspond to the directory, file name, and file
+type (or extension) concepts used to name files in many file systems.
+
+<blockquote>
+<pre>
+&lt;def-name&gt;	 ::= [ &lt;library&gt; ] [ &lt;name&gt; ] [ '.' &lt;view&gt; ]
+
+&lt;library&gt;	 ::= &lt;name1&gt; ':' &lt;name2&gt; { ':' &lt;name3&gt; } ';'
+</pre>
+</blockquote>
+
+<tt>&lt;name&gt;</tt> and <tt>&lt;view&gt;</tt> are identifiers.  Case
+is not significant (the corresponding file name is always in lowercase).
+
+<p>A library name always ends with a semicolon, and consists of at least
+two colon-separated identifiers.  The first name is notionally the user
+name, and [finish.  -- rgr, 20-Mar-02.]
+
+<p>[there should be a relative library name syntax.  -- rgr, 20-Mar-02.]
+
+<p>As the syntax shows, not all components must be specified; if not,
+the missing values are usually taken from the default.  If they are all
+specified, the def name is considered to be "fully merged" with the
+default; only fully-merged non-wild names are valid for naming actual
+defs.
+
+<p>[mention completion here?  doesn't fully work yet, though.  -- rgr,
+20-Mar-02.]
+
+<a name = startup>
+<h4>ICanCAD startup and initialization files</h4>
+
+When ICanCAD first starts up, it does the following things, in this
+order:
+<ol>
+  <li> First, ICanCAD looks for an <tt>icancad.lisp</tt> file in the
+       directory from which the executable was started, and loads it if
+       found.  This system-wide version-dependent initialization file is
+       intended to be used for version-specific patching.  If an ICanCAD
+       binary distribution is installed in the standard place, the file
+       will be called
+       <tt>/usr/local/ICanCAD-0.1.17/bin/icancad.lisp</tt> (though maybe
+       with a different version number); if the source version has been
+       loaded into Allegro Common Lisp, this will be something like
+       <tt>/usr/local/acl61/icancad.lisp</tt> (with an Allegro-dependent
+       version number).
+
+       <p>
+  <li> Then, a binary distribution will attempt to install a reasonable
+       default translation rule for the "ICANCAD" logical host, if no
+       such translations exist.  (This is never necessary for the source
+       distribution, for which one must set up the "ICANCAD" logical
+       host in order to load -- and it is easily overruled by explicit
+       initializations in init files, both earlier and later in the
+       startup process).
+
+       <p>
+  <li> Next, ICanCAD loads the system initialization file from
+       <tt>"icancad:icancad.lisp"</tt> if found.  This system-wide
+       initialization file will normally be named
+       <tt>/usr/local/ICanCAD-0.1.17/icancad.lisp</tt>, depending on
+       version, but the directory will also depend on where the
+       "ICANCAD" logical translations put it.  The intent is that this
+       file should be used to establish defaults that should apply to
+       all users, and to initialize the <tt>ICANCAD-DESIGNS</tt>
+       mapping, as described in the <a
+       href="libraries.html#translation">"Mapping def names to local
+       file names"</a> section of the <a
+       href="libraries.html">Libraries</a> page.  If desired,
+       <tt>"icancad:icancad.lisp"</tt> can be made version-independent,
+       in order to share common initializations across different ICanCAD
+       versions.  In that case, the <tt>*icancad-version*</tt> variable
+       may be consulted for the designation of the exact running
+       version.  The value is always a string, e.g. <tt>"0.1.17"</tt>.
+
+       <p>
+  <li> The last initialization file ICanCAD looks is
+       <tt>icancad.lisp</tt> in the user's home directory, which is
+       identified by the value of the <tt>HOME</tt> environment variable
+       (in both Unix and Windows).  This is a good place for users to
+       set personal preferences that override the other setting.
+
+       <p>
+  <li> As a hack, ICanCAD preloads all defs mentioned in the
+       <tt>*special-property-to-net-label-icon-map*</tt> variable, in
+       order to avoid having to load them later during def redisplay.
+
+       <p>
+  <li> Finally, ICanCAD creates the initial window, editing an initial
+       def.  If the <tt>*def*</tt> variable is non-NIL, then that is
+       used; else, an empty def is created in a likely directory.
+</ol>
+(For more detailed information on how Allegro-based applications start
+themselves, see <a
+href="http://www.franz.com/support/documentation/6.1/doc/startup.htm#start-up-description-1">"What
+Lisp does when it starts up"</a> section of the <a
+href="http://www.franz.com/">Allegro Common Lisp</a> documentation.
+Note that ACL will load an init file in the current working directory;
+ICanCAD does not do this, as it has potential security consequences.)
+
+<p>[Bug: There is currently no way to affect this startup sequence, or
+even to shut off the loading of init files; the ACL flags are not
+obeyed.  -- rgr, 15-Dec-01.]
+
+<p>One useful thing that can be done in a user's <tt>~/icancad.lisp</tt>
+is to set a default def that is the first thing viewed when ICanCAD
+starts up.  One does this by setting the <tt>*def*</tt> variable to the
+desired def, usually by calling <tt>find-def</tt>.  This def can itself
+be a work in progress, or it could be a scratch def that contains uses
+of other current projects or frequently referenced defs.  The advantage
+of the latter is that it can be used as a "home page," e.g. by selecting
+it and then <a href='commands.html#com-push'>pushing</a> into the
+desired child def.  It will not cause all referenced defs to be
+preloaded into memory, only the icons for top-level defs, so this "home
+page" def can be made quite large without penalty.
+
+<p>Here is a sample <tt>icancad.lisp</tt> file that selects
+<tt>"rogers:work:current;menu.symbolic"</tt> as the initial def:
+<blockquote>
+<pre>
+;;;; Personal init file.
+(in-package :icancad-user)
+
+;; Set the default def.
+(setq *def* (find-def "rogers:work:current;menu.symbolic"
+                      :if-does-not-exist nil))
+</pre>
+</blockquote>
+As in all Common Lisp source files, a semicolon that is not in a string
+marks the start of a comment that runs through the end of the line.
+Note the <tt>":if-does-not-exist nil"</tt> keyword argument to
+<tt>find-def</tt>, which prevents it from signalling an error if
+<tt>"rogers:work:current;menu.symbolic"</tt> no longer exists.
+
+<p>The first line, <tt>"(in-package :icancad-user)"</tt>, causes the
+rest of the file to be read into the <tt>ICANCAD-USER</tt> package.
+[should probably say more.  -- rgr, 13-Feb-02.]
+
+<a name = file-locking>
+<h4>Def file locking</h4>
+
+[based on emacs model.  not yet implemented, though. -- rgr, 26-Mar-01.]
+
+<p>[file is locked when def is first modified, unlocked when saved (or
+killed or reverted).  -- rgr, 26-Mar-01.]
+
+<a name = undo-redo>
+<h4>Undo and Redo</h4>
+
+Each def remembers how it was modified since being created or read in.
+The ICanCAD <a href="commands.html#com-undo">Undo</a> and <a
+href="commands.html#com-redo">Redo</a> commands move one backwards or
+forwards through this history, with the provision that the "forwards"
+history is thrown away if you do anything that modifies the def other
+than "Redo" or "Undo".
+
+<a name = printing>
+<h3>Printing and hardcopy</h3>
+
+ICanCAD doesn't support printing directly (as of version 0.2.1), but
+does have two commands that can create PostScript files.
+
+<p><a href="commands.html#com-print-def">"Print Def"</a> prints a single
+def to a PostScript file.  If invoked from the menu, it prints the
+current def, e.g. <tt>"foo.schematic"</tt>, to <tt>"foo.ps"</tt>; both
+the def name and the file name can be changed by typing the command.
+
+<p>The <a href="commands.html#com-print-def">"Def Operations"</a>
+command includes <tt>"Print"</tt> as one of the operations that can be
+performed on a def.  All such defs are printed together, in the same
+order in which they appear in the "Operations" dialog.  After you click
+"OK", you will be prompted for the PostScript file name.
+
+<p>[Defs are printed without any sort of border or plot labels
+(i.e. author, save date, def name, revision number, etc.).  And the
+PostScript files are not actually sent to the printer.  See <a
+href="bugs.html#bug-48">bug&nbsp;48</a>.  -- rgr, 26-Apr-02.]
+
+<a name = parts>
+<h3>ICanCAD parts</h3>
+
+[stubs for reference from commands.  -- rgr, 23-Feb-02.]
+
+<a name=rects>
+<h4>Rectangles and oblongs</h4>
+
+<a name=lines>
+<h4>Lines, polygons, and arrows</h4>
+
+<a name=arcs>
+<h4>Circles and circular arcs</h4>
+
+<a name=text-parts>
+<h4>Text parts</h4>
+
+[multiple pins or net labels can be added by separating strings with
+";".  -- rgr, 23-Feb-02.]
+
+<a name=uses>
+<h4>Hierarchical uses</h4>
+
+<a name = creating-circuits>
+<h3>Creating circuits with ICanCAD</h3>
+
+[this section is intended for topics that don't fit well on either the
+schematic or icon pages.  -- rgr, 13-Apr-02.]
+
+<a name = schematic-parameters>
+<h4>Passing parameters to schematic defs</h4>
+
+ICanCAD supports a limited form of def parameterization, in which a def
+can advertise that certain properties of a use can be assigned values in
+the parent def, and expressions using those values can be assigned to
+parameters of child uses.  At the "primitive" level, parameter values
+are used by netlisting tools, e.g. to set a transistor's width and
+length in a Spice netlist.  This is the "ultimate reality" of
+parameters; the scope of what can be parameterized depends on the
+primitives and netlisters support.  It is not possible to affect
+connectivity via ICanCAD parameterization.
+
+<p>In more detail, a def may be parameterized in the following way:
+<ul>
+  <li> Parameter names and defaults (and, in principal, value types) are
+       first declared on a schematic or schematic icon.  This is done
+       through the <a href="commands.html#com-def-properties"><tt>Def
+       Properties</tt></a> command.
+  <li> When a def (schematic or schematic icon) with parameters is
+       instantiated, its passed parameter values are initialized from
+       the def's defaults.
+  <li> Use parameter values may be changed via <a
+       href="commands.html#com-edit-properties">"Edit Properties"</a>
+       during placement, or any time subsequently.  The new value may be
+       an expression, which is defined recursively as follows:
+       <ol>
+	 <li> a Lisp constant, e.g. <tt>"3.5"</tt>, <tt>"NIL"</tt>
+	      (boolean "false"), <tt>:some-keyword</tt> (a keyword
+	      symbol);
+	 <li> a Lisp floating point constant followed immediately by a
+	      case-insensitive SI suffix, e.g. <tt>"3.5u"</tt>,
+	      <tt>"8me"</tt> ("ME" is always used for "mega", and "M"
+	      for "milli", regardless of case);
+	 <li> the value of a property of the <i>parent</i> def, which
+	      may itself be a parameter to the parent,
+	      e.g. <tt>"(&gt;&gt;&nbsp;plength)"</tt>; or
+	 <li> an expression in Lisp syntax that uses a Lisp operator to
+	      combine expression values,
+	      e.g. <tt>"(* (&gt;&gt;&nbsp;pwidth)
+	      (&gt;&gt;&nbsp;scale-factor))"</tt>.
+       </ol>
+       Currently, only parent def parameters are supported, as "sibling"
+       properties introduce potential order-of-evaluation problems
+       (though these are not insurmountable), and the set of operators
+       allowed in the third case should be limited to non-"special"
+       operators defined by Lisp (e.g. not LET, DO, FLET, DEFUN, or
+       user-defined operators).  [But we probably need to allow AND, OR,
+       IF, COND, etc.  -- rgr, 14-Jun-01.]
+  <li> The parameter defaults on the def may be changed subsequently,
+       but existing uses are NOT updated.  [Unfortunately, there is no
+       clean way to do a "search-and-replace" to update old uses with
+       new values.  A single "Update Parent Uses" command that handles
+       parameters, pins, and labels all at once (or some user-chosen
+       subset) would be ideal.  -- rgr, 24-Feb-02.]
+  <li> Expressions are only valid for computing values to pass to child
+       uses.  In particular, bus widths, tap and ripper connections, and
+       use iteration counts are not allowed to depend on def parameters.
+       This leaves the def connectivity completely independent of
+       parameter values, so that it only needs to be extracted once.
+</ul>
+In essence, this means that all you can do with parameters is to pass
+them down so as to affect the primitive device characteristics at the
+bottom level of the hierarchy, such as transistor width and length,
+resistor value, etc.  This is still fairly substantial, though it is not
+as powerful as having "generated" schematics, where the primary
+definition is a chunk of code that constructs the def for a given set of
+parameters.  (It is not even as powerful as the intermediate EDIF
+"Level&nbsp;1" constructs, which support variable bus width, conditional
+instance inclusion, etc.)
+
+<p>[introduce DPL type/prototype/instance terminology for "true" def
+parameterization.  explain why this is not true parameterization.  --
+rgr, 14-Jun-01.]
+
+<p>[Note that this definition of parameter passing is entirely
+"top-down," as you would expect.  The Rel-Janus
+<tt>"(parent&nbsp;foo)"</tt> syntax is something of a misnomer; it
+really refers to the <tt>foo</tt> property of the parent of the use.
+The syntax has been changed in ICanCAD to make it more obvious that the
+expression is being evaluated in the context of the parent def.  (Still
+need to document the new syntax.)  -- rgr, 15-Jun-01.]
+
+<p>[Top-down parameter passing is supported by binding actual parameter
+values on the editing-context object when pushing into a parameterized
+def.  The context is then used as a surrogate for the def when
+evaluating properties.  -- rgr, 18-Jun-01.]
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Fri Apr 26 22:05:39 EDT 2002
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: XML</title>
+</head>
+
+<body bgcolor=white>
+<h2>XML stuff</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="./">Linux resources</a> :
+XML
+<hr>
+
+<p>[Random collection of XML-related links, so I can keep track of what
+I'm learning.  -- rgr, 7-Oct-02.]
+
+<h3>Table of Contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> XML stuff
+       <ol>
+	 <li> Table of Contents
+	 <li> General XML information
+	      <ol>
+		<li> Standards and draft standards
+		<li> <a href="#books">Books</a>
+		<li> Implementations
+	      </ol>
+	 <li> Documents frequently cited by XML Recommendations
+	 <li> <a href="#soap">SOAP, etc.</a>
+	 <li> Scalable Vector Graphics
+	 <li> Bioinformatics and XML
+	 <li> <a href="#glossary">Glossary</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<h3>General XML information</h3>
+
+From the introduction on the <a href="http://www.w3.org/XML/">Extensible
+Markup Language (XML)</a> page:
+
+<blockquote>
+Extensible Markup Language (XML) is a simple, very flexible text format
+derived from SGML (ISO 8879).  Originally designed to meet the
+challenges of large-scale electronic publishing, XML is also playing an
+increasingly important role in the exchange of a wide variety of data on
+the Web and elsewhere.
+</blockquote>
+
+The first sentence is only half true; nothing derived from SGML can
+truly be called "simple."  XML does indeed simplify or eliminate the
+hairier SGML features, and is lexically simpler even than HTML.  The
+basic concepts are easy, especially if you already know HTML; indeed,
+the most important differences between traditional HTML and XHTML, the
+new XML-ized version, are what you <emph>can't</emph> do in XHTML that
+are valid in HTML.  However, [DTD vs. Schema].
+
+<p>Another reason for complexity is that XML is truly extensible; anyone
+can define and publish their own document formats (called an <a
+href="#application">"XML application"</a>), and standard tools will be
+able to parse and operate on such documents to some extent.  For this to
+work, XML needs [metainformation].  So, although it is easy to write
+XML, and even to invent your own XML document formats, it is harder to
+write the "metadocuments" (such as a DTD or schema) that other tools
+will probably need to make sense of the XML.
+
+<p>Unfortunately, all of this information, like XML itself, is fairly
+decentralized.  There are about a dozen W3C standards that form what
+could be considered the "core" set of XML, with numerous internal
+cross-references.  This makes for difficult reading -- even in a Web
+browser.  Worse, these standards were written by different working
+groups over a period of several years, making it harder to read the
+earlier standards without understanding the context in which they were
+written.  For example, <a
+href="http://www.w3.org/TR/REC-xml-names/">Namespaces in XML</a> makes
+pervasive changes to the syntax and meaning of names, which had to be
+retrofitted into earlier standards.
+
+<p>In order to make sense of it all, it helps to have a good general <a
+href="#books">book</a> that covers the XML core concepts in one place.
+Even then, it is best to read lightly through it the first time, without
+expecting to understand everything, in order to get the big picture.
+Then you can fill in the details on the second pass.
+
+<h4>Standards and draft standards</h4>
+
+These are all available from the <a href="http://www.w3.org/">W3C</a> on
+their <a href="http://www.w3.org/TR/">Technical Reports and
+Publications</a> page, directly or indirectly.
+
+<dl compact>
+  <dt> [XML-general]
+  <dd> <a href="http://www.w3.org/XML/">Extensible Markup Language
+       (XML)</a>, a brief description of how it is being developed.
+  <dt> [XML]
+  <dd> <a href="http://www.w3.org/TR/REC-xml">Extensible Markup Language
+       (XML) 1.0 (Second Edition)</a>, W3C Recommendation, 6 October
+       2000.
+  <dt> [XMLNS]
+  <dd> <a href="http://www.w3.org/TR/REC-xml-names/">Namespaces in
+       XML</a>, W3C Recommendation, 14-January-1999.  Defines the
+       oft-used <tt>QName</tt> and <tt>NCName</tt> productions.
+  <dt> [XSchema]
+  <dd> This is pretty hairy, so it's a good thing that somebody thought
+       to break it up:
+       <ul>
+	 <li> <a href="http://www.w3.org/XML/Schema">XML Schema</a> for
+	      an overview, working group progress, implementations, etc.
+	 <li> <a
+	      href="http://www.w3.org/TR/2001/REC-xmlschema-0-20010502/primer.html">
+	      XML Schema Part 0: Primer</a>, W3C Recommendation, 2 May
+	      2001.  This is not officially part of the specification,
+	      but is much more readable for non-implementors.
+	 <li> <a href="http://www.w3.org/TR/xmlschema-1/">XML Schema
+	      Part 1: Structures</a>, W3C Recommendation, 2 May 2001.
+	 <li> <a href="http://www.w3.org/TR/xmlschema-2/">XML Schema
+	      Part 2: Datatypes</a>, W3C Recommendation, 2 May 2001.
+       </ul>
+  <dd> [XHTML]
+  <dt> <a href="http://www.w3.org/TR/xhtml1/">XHTML<sup>tm</sup> 1.0 The
+       Extensible HyperText Markup Language (Second Edition)</a>, A
+       Reformulation of HTML 4 in XML 1.0, W3C Recommendation, 26
+       January 2000, revised 1 August 2002.
+</dl>
+
+[more "meta" things.  -- rgr, 3-Nov-02.]
+<dl>
+  <dt> [Infoset]
+  <dd> <a href="http://www.w3.org/TR/xml-infoset/"> XML Information
+       Set</a>, W3C Recommendation, 24 October 2001.
+  <dt> [XQDM]
+  <dd> <a href="http://www.w3.org/TR/query-datamodel/">XQuery 1.0 and
+       XPath 2.0 Data Model</a>, W3C Working Draft, 16 August 2002.
+       This is one of the competing XML API model candidates; the XML
+       DOM is another.
+  <dt> [DOM]
+  <dd> <a href="http://www.w3.org/DOM/">Document Object Model (DOM)</a>.
+  <dt> [XPath]
+  <dd> <a href="http://www.w3.org/TR/xpath">XML Path Language (XPath)
+       Version 1.0</a>, W3C Recommendation, 16 November 1999.
+  <dt> [XSLT]
+  <dd> <a href="http://www.w3.org/TR/xslt">XSL Transformations (XSLT)
+       Version 1.0</a>, W3C Recommendation, 16 November 1999.  See also
+       <a href="http://www.oasis-open.org/cover/xsl.html"> the Oasis
+       overview of XSL</a>.  Miloslav Nic has written a very
+       nice-looking <a
+       href="http://www.zvon.org/xxl/XSLTreference/Output/index.html">XSLT
+       Reference</a> with a large collection of examples that is also
+       searchable.
+  <dt> [RDF]
+  <dd> <a href="http://www.w3.org/TR/REC-rdf-syntax/">Resource
+       Description Framework (RDF) Model and Syntax Specification</a>,
+       W3C Recommendation, 22 February 1999.  RDF overview information
+       can be found on the <a href="http://www.w3.org/RDF/">Resource
+       Description Framework (RDF) / W3C Semantic Web Activity</a> page.
+</dl>
+
+<a name="books">
+<h4>Books</h4>
+
+<dl>
+  <dt> [XIAN2]
+  <dd> Elliotte Rusty Harold and W. Scott Means, <a
+       href="http://www.cafeconleche.org/books/xian2/">XML in a Nutshell
+       (2e)</a>, O'Reilly, 2002.  $39.95, ISBN 0-596-00292-0.
+       Contains a good general overview of all of the foregoing.
+</dl>
+
+<h4>Implementations</h4>
+
+This is limited to only those implementations with which I have some
+personal experience.  See also the enormous Oasis <a
+href="http://www.oasis-open.org/cover/publicSW.html">Public SGML/XML
+Software</a> list.
+
+<dl>
+  <dt> [CL-XML]
+  <dd> <a href="http://www.setf.de/">CL-XML: Common Lisp support for the
+       'Extensible Markup Language'</a>, written by James Anderson.
+       Supports both SAX-like and XQDM document interfaces.
+  <dt> [ACL-XML]
+  <dd> <a href="http://opensource.franz.com/xmlutils/"> XML/HTML
+       parsers</a> in Common Lisp, by <a
+       href="http://opensource.franz.com/">Franz, Inc.</a> Includes <a
+       href="http://opensource.franz.com/xmlutils/xmlutils-dist/phtml.htm">
+       A Lisp Based HTML Parser</a>, and <a
+       href="http://opensource.franz.com/xmlutils/xmlutils-dist/pxml.htm">
+       A Lisp Based XML Parser</a>.  Both produce output as nested Lisp
+       lists, which can be easier to deal with than SAX and
+       lighter-weight than DOM.
+  <dt> [SOAP::Lite]
+  <dd> <a href="http://soaplite.com/"> <tt>SOAP::Lite</tt></a>, module
+       for Perl, by Paul Kulchenko.  See also the <a href="#soap">SOAP,
+       etc.</a> section.
+</dl>
+
+<h3>Documents frequently cited by XML Recommendations</h3>
+
+<dl>
+  <dt> [URI]
+  <dd> <a href="http://www.ietf.org/rfc/rfc2396.txt">Uniform Resource
+       Identifiers (URI): Generic Syntax</a>, RFC2396.  (Cited as the
+       definitive reference for URIs.)
+  <dt> [HTML40]
+  <dd> <a href="http://www.w3.org/TR/REC-html40/">HTML 4.01
+       Specification</a>, W3C Recommendation, 24 December 1999.  Not an
+       XML application, but will continue to be the dominant Web markup
+       language for some time.  In fact, <a
+       href="http://www.w3.org/TR/xslt">XSLT</a> contains special
+       support for pre-XML incarnations of HTML; 4.0 is the default
+       version when HTML output is chosen.
+  <dt> [CSS2]
+  <dd> <a href="http://www.w3.org/TR/REC-CSS2/">Cascading Style Sheets,
+       Level 2</a>.
+</dl>
+
+<a name='soap'>
+<h3>SOAP, etc.</h3>
+
+<ul>
+  <li> <a href="http://www.w3.org/TR/SOAP/">Simple Object Access
+       Protocol (SOAP) 1.1</a>, W3C Note 8 May 2000.  This describes the
+       existing (pre-standardization) version of the protocol.
+  <li> <a href="http://www.w3.org/2002/ws/">Web Services Activity</a>.
+       This is the home page for the working groups that are adopting
+       SOAP as the "XML Protocol"; this page links to the draft
+       Recommendation for what is effectively "SOAP 1.2".
+  <li> <a href="http://www.w3.org/2000/03/29-XML-protocol-matrix">XML
+       Protocol Comparisons</a>.
+  <li> <a href="http://www.w3.org/TR/wsdl">Web Services Description
+       Language (WSDL) 1.1</a>, used to describe Web services and their
+       interfaces.
+  <li> <a href="http://www.xml.com/pub/a/2001/04/04/soap.html">A Brief
+       History of SOAP</a>, by Don Box, 4 April 2001.
+</ul>
+
+<h3>Scalable Vector Graphics</h3>
+
+<ul>
+  <li> <a
+       href="http://www.w3.org/Graphics/SVG/Overview.htm8">Scalable
+       Vector Graphics</A>
+  <li> <a href="http://www.w3.org/TR/SVG/">Scalable Vector Graphics
+       (SVG)</a> specification, version 1.0.   and the <a
+       href="http://www.w3.org/TR/SVG11/"> SVG version 1.1</a>
+       specification.
+  <li> <a href="http://www.w3.org/Graphics/SVG/Test/">Test suite.</a>
+</ul>
+
+<h3>Bioinformatics and XML</h3>
+
+<ul>
+  <li> <a href="http://www.ebi.ac.uk/xembl/">The XEMBL Project: the
+       EMBL/GenBank/DDBJ databases in XML</A>.
+</ul>
+
+<a name="glossary">
+<h3>Glossary</h3>
+
+<dl>
+       <a name="application">
+  <dt> application, XML
+  <dd> An "XML application" just means an "application of XML" to a
+       given problem area.  It is usually defined by a machine-readable
+       DTD that describes the syntax to a validating parser, together
+       with a human-readable document that defines the semantics.
+       <a name="NCName">
+  <dt> <tt>NCName</tt> [<a
+       href="http://www.w3.org/TR/REC-xml-names/#NT-NCName">Namespaces
+       in XML</a>]
+  <dd> A "no colon name," used as an identifier.  Such names do not
+       belong to any namespace.
+       <a name="QName">
+  <dt> <tt>QName</tt> [<a
+       href="http://www.w3.org/TR/REC-xml-names/#NT-QName">Namespaces in
+       XML</a>]
+  <dd> A "qualified name," with an optional namespace prefix.  Such
+       names are generally understood to belong to a namespace.  A
+       <tt>QName</tt> has at most one colon, which (if present) must be
+       neither the first nor the last character.  Syntactically, this is
+       an <a href="#NCName"> <tt>NCName</tt></a> with an optional prefix
+       (also an <tt>NCName</tt>).
+</dl>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun Apr  6 15:53:21 EDT 2003
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,450 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers:  SSH: Secure Shell</title>
+</head>
+
+<body bgcolor=white>
+<h1>SSH: Secure Shell</h1>
+
+<p><a href="/">Home</a> : <a href="../">Linux</a> : <a href=".">
+Security</a> : SSH
+<hr>
+
+<p>[This page is in the process of being updated for SSH2, and (I hope)
+to make it more readable.  -- rgr, 12-Nov-01.]
+
+<h2>Table of contents</h2>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> SSH: Secure Shell
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#info">General information about SSH</a>
+	      <ol>
+		<li> <a href="#what">What is SSH, and why care?</a>
+		<li> <a href="#notation">Notation</a>
+		<li> <a href="#protocols">SSH protocol versions</a>
+		<li> <a href="#scp">Secure file copying with <tt>scp</tt> and <tt>sftp</tt></a>
+		<li> <a href="#forward">SSH port forwarding</a>
+		<li> <a href="#info">Other SSH information sources</a>
+	      </ol>
+	 <li> <a href="#installing-using">Installing and using SSH</a>
+	      <ol>
+		<li> <a href="#get-client">Obtaining an SSH client</a>
+		<li> <a href="#using">Using your SSH client</a>
+		<li> <a href="#x11">SSH and the X Window System</a>
+		<li> <a href="#su"><tt>ssh</tt> and <tt>su</tt></a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name=info>
+<h2>General information about SSH</h2>
+
+See also the <a href="#info">"Other SSH information sources"</a> section
+below.
+
+<a name = what>
+<h3>What is SSH, and why care?</h3>
+
+The acronym "SSH" stands for "secure shell," and echoes the Unix command
+names <tt>"sh"</tt> (the Bourne shell, the basic command Unix
+interpreter) and <tt>"rsh"</tt> (for "remote shell," part of the
+Berkeley networking tools and a notoriously <i>in</i>secure way to get a
+shell on a remote machine).
+
+<p>SSH is a secure replacement for <tt>rsh</tt> because it provides an
+encrypted "tunnel" through which one can log in to a remote host over an
+insecure network.  But SSH is in fact more than just a replacement,
+because it can use the tunnel to secure other communications as well:
+<ul>
+  <li> If the <a href="#x11">X Window System</a> is running on your
+       local machine, SSH can <a href="#x11">forward X11 connections</a>
+       from the server.
+  <li> The <a href="#scp"><tt>scp</tt> and <tt>sftp</tt> utilities</a>
+       support secure file copying.  (It is not necessary to have an FTP
+       server or client on either machine.)
+  <li> Arbitrary <a href="#forward">port forwarding</a> is also
+       possible.
+</ul>
+More information on what SSH is and what it does can be found in <a
+href="http://www.onsight.com/faq/ssh/">the SSH FAQ</a>.
+
+<a name = notation>
+<h3>Notation</h3>
+
+In this document, "SSH" is used in a number of ways.  These are
+distinguished typographically as follows:
+<ul>
+  <li> In caps, SSH refers to the whole tool suite and/or its various
+       implementations.
+  <li> In lower-case typewriter font, <tt>ssh</tt> is the standard name
+       of the client program under Unix.  (<tt>sshd</tt> is the name of
+       the "daemon", or server program, by the way.)
+  <li> With a number after it (e.g. SSH1 and SSH2), it stands for a
+       particular protocol version.
+</ul>
+
+<a name = protocols>
+<h3>SSH protocol versions</h3>
+
+<p>The first thing you should know about SSH before attempting to use or
+install it is that there are two version of the protocol, SSH1 and SSH2,
+each of which is available in a number of different implementations.
+The two protocol versions are mutually incompatible, so you can't use an
+SSH1 client to talk to an SSH2 server.  However, most recent clients
+support both protocol versions for compatibility.  So the simplest
+algorithm for picking a client version is simply to install a client
+that supports version 2.
+
+<p>It may actually be even be simpler than that, as there is a clear
+reason to prefer SSH protocol version 2.  A number of exploits for SSH1
+were published in February and March of 2001; some of them were known to
+be in use by the cracker community as of late October.  (In fact, I saw
+two "CRC32 compensation attack" attempts on my home machine during
+October 2001.)  Some of the exploits are program bugs in specific
+versions, which have been fixed or mitigated, but some are new exploits
+for well-known holes in the version&nbsp;1 protocol itself, which are
+much harder to address.  The safest way to deal with all of this, in my
+opinion, is to avoid using SSH protocol version&nbsp;1 entirely, since
+SSH2 was better designed (in the consensus opinion of the security
+community -- you don't have to take my word for it).  So, if you ever
+need to talk to an SSH1 server, you would be well advised to persuade
+the sysadmin to upgrade to version 2.
+
+<p>(Actually, one can sometimes use an SSH1 client to talk to an SSH2
+server, but only if the server has been told to use the SSH1 protocol
+whenever a version 1 client attempts to connect.  But, for better
+security, <i>everybody</i> ought to be using an SSH2 client, which is
+why your sysadmin may have already turned off this feature.)
+
+<a name = scp>
+<h3>Secure file copying with <tt>scp</tt> and <tt>sftp</tt></h3>
+
+[finish.  -- rgr, 13-Nov-01.]
+
+<p>You can also have both efficiency and security by using
+<tt>rsync</tt> over an SSH connection.  See the <a
+href="http://rsync.samba.org/rsync/"> <tt>rsync</tt> home page</a> at <a
+href="http://rsync.samba.org/rsync/">
+<tt>http://rsync.samba.org/rsync/</tt></a> for details.
+
+<a name = forward>
+<h3>SSH port forwarding</h3>
+
+<p>SSH can use the same port forwarding magic that it does for X11 with
+other TCP-based protocols.  For instance, it is possible to tunnel
+<tt>POP3</tt> connections so that your mail client at home can pick up
+your mail from work [should find a link for this].  See the <tt>man</tt>
+page for details.
+
+<p>Note that FTP doesn't work well this way, since FTP needs to open
+other connections in order to actually copy files or directory listing;
+you can only encrypt the control connection this way.  That is a help,
+since it means you don't have to send an unencrypted password to the FTP
+server, but if you want the data transmission to be encrypted as well,
+you are better off using <a href="#scp"><tt>scp</tt> or
+<tt>sftp</tt></a> instead.
+
+<a name = info>
+<h3>Other SSH information sources</h3>
+
+<p>General sources of information about SSH are
+<ul>
+  <li> The "official" SSH home page is <a
+       href="http://www.ssh.com/products/ssh/">
+       <tt>http://www.ssh.com/products/ssh/</tt></a>, run by SSH
+       Communication Security.  (This is a commercial product, developed
+       by the original inventor of SSH, but non-commercial users may use
+       it for free.)
+  <li> The SSH FAQ can be found at <a
+       href="http://www.onsight.com/faq/ssh/">
+       <tt>http://www.onsight.com/faq/ssh/</tt></a>, among other places.
+       (An older version of the FAQ can be found at <a
+       href="http://www.faqs.org/faqs/computer-security/ssh-faq/">
+       <tt>http://www.faqs.org/faqs/computer-security/ssh-faq/</tt></a>,
+       but it appears to be a bit dated now.)
+  <li> There is a useful introduction at <a
+       href="http://www.tac.nyc.ny.us/~kim/ssh/">
+       <tt>http://www.tac.nyc.ny.us/~kim/ssh/</tt></a> that covers
+       host-based authentication (i.e. logging in without using
+       passwords.
+  <li> Once you have it installed locally, you should check out the
+       <tt>ssh</tt> man page (for the clients) and the <tt>sshd</tt> man
+       page (for the server) to get the final word on the exact version
+       you are using.
+</ul>
+
+<p>
+<hr>
+<a name = installing-using>
+<h2>Installing and using SSH</h2>
+
+<a name = get-client>
+<h3>Obtaining an SSH client</h3>
+
+You'll need to follow the installation instructions and/or README files
+from wherever you download; I won't attempt to duplicate them here.
+
+<dl>
+  <dt> <b>Windows:</b>
+  <dd> You have many options.  Some of the "pay" options offer a free
+       trial for a limited period, typically one month.
+       <ul>
+	 <li> the SecureCRT shareware product (see <a
+	      href="http://www.vandyke.com/products/securecrt/">
+	      <tt>http://www.vandyke.com/products/securecrt/</tt></a>);
+	 <li> the free PuTTY telnet/ssh client available from <a
+	      href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">
+	      <tt>http://www.chiark.greenend.org.uk/~sgtatham/putty/</tt></a>;
+	      or
+	 <li> F-Secure from F-Secure Corporation (formerly DataFellows);
+	      see the <a
+	      href="http://www.datafellows.com/download-purchase/">
+	      <tt>http://www.datafellows.com/download-purchase/</tt></a>
+	      page.
+	 <li> X-Win32 from <a href="http://www.starnet.com/">Starnet
+	      Communications</a> offers an X11 server for all Windows
+	      flavors that comes with F-Secure SSH built in; if you also
+	      want to run graphics apps on the Unix box, this is
+	      probably your best option.
+       </ul>
+       See also the <a href="#other-sources">"Other SSH sources"</a>
+       listed below.
+
+       <p>
+  <dt> <b>Macintosh:</b>
+  <dd> There are two free options (NiftyTelnet 1.1 SSH at <a
+       href="http://www.lysator.liu.se/~jonasw/freeware/niftyssh/">
+       <tt>http://www.lysator.liu.se/~jonasw/freeware/niftyssh/</tt></a>,
+       and the MindTerm Java SSH client at <a
+       href="http://www.mindbright.se/mindterm/">
+       <tt>http://www.mindbright.se/mindterm/</tt></a>), and one
+       commercial option (F-Secure again; see "Client (v1.0)" under
+       "F-Secure SSH for Macintosh" on <a
+       href="http://www.datafellows.com/download-purchase/">
+       <tt>http://www.datafellows.com/download-purchase/</tt></a>).
+       (There were RSA patent infringement issues with both of these,
+       but the patent has since expired, so they may be more readily
+       available.)
+
+       <p>
+  <dt> <b>UNIX:</b>
+  <dd> There are many options for the various flavors of Unix as well.
+       I have been running the "portable" version of OpenSSH (see <a
+       href="http://www.openssh.org/">
+       <tt>http://www.openssh.org/</tt></a>) since April 2001 and am
+       quite happy with it.  It is called the "portable" version because
+       OpenSSH development is supported by the <a
+       href="http://www.openbsd.org/">OpenBSD operating system
+       project</a>, with which it is bundled, and so the development
+       mainstream is geared toward OpenBSD.  The "portable" version is
+       an offshoot that is patched so that it compiles on a large
+       variety of other Unix systems; see the "For Other OS's" section
+       of the OpenSSH site.  If you want to install OpenSSH from a
+       tarball, you will also need <a
+       href="http://www.openssl.com/">OpenSSL</a>, and possibly zlib,
+       which is stock on (e.g.) Red Hat Linux but not on (e.g.) Tru64.
+
+       <p>
+       <a name = other-sources>
+  <dt> <b>Other SSH sources:</b>
+  <dd> If for some reason these links don't pan out, there are many
+       other ports listed if you follow the links from the <a
+       href="http://www.onsight.com/faq/ssh/ssh-faq-2.html"> "Getting
+       Secure Shell"</a> page of <a
+       href="http://www.onsight.com/faq/ssh/">the SSH FAQ</a>.
+</dl>
+
+<a name = using>
+<h3>Using your SSH client</h3>
+
+On Unix/Linux, type <tt>"ssh <i>username</i>@<i>hostname</i>"</tt>,
+where <tt><i>"hostname"</i></tt> is the full name of the SSH server
+host, and <tt><i>"username"</i></tt> is the user ID you want to use on
+that host.  (And if you can't figure it out for Windows or MacOS, then I
+can't help you, for a variety of reasons.  ;-)
+
+<p>When <tt>ssh</tt> first runs, it creates a client key for itself,
+since both ends of the connection encrypt/authenticate themselves to the
+other party.  When you connect to a host for the first time, it will ask
+the host for its public key, and then alarm you by warning about
+possible spoofing attacks.  This is a loophole whereby an attacker
+pretends to be the server when you first connect, and hands you its key
+instead; you would then be delivering your password directly to the
+attacker when you attempt to log in.  Meanwhile, the fake server run by
+the attacker could then connect as a client to your intended
+destination, log in using the password you supplied, and then forward
+bytes back and forth between the two connections so that you wouldn't
+notice anything wrong.  This is called a "man-in-the-middle" (MITM)
+attack, and is mainly theoretical, as it requires a fair amount of
+sophistication on the part of the attacker, not to mention great good
+luck with timing.  However, "man-in-the-middle" exploit code does exist,
+so it is good to take the following simple precautions:
+<ul>
+  <li> Before you connect to a new machine for the first time, "preload"
+       the server key into your client, if possible.  The server's
+       public key lives in a file with one very long line somewhere on
+       the server machine (in my case,
+       <tt>/usr/local/etc/ssh_host_rsa_key.pub</tt>, since the server is
+       OpenSSH).  Mail this to yourself and insert it into your
+       <tt>~/.ssh/known_hosts2</tt> file prefixed by the host name or IP
+       address and a space, keeping it on a single line.  It should look
+       something like this (with the actual key truncated):
+       <pre>
+       rgrjr.dyndns.org ssh-rsa AAAAB3Nz...bmaELj8= root@h0050da615e79.ne.mediaone.net
+       </pre>
+       (The IP address is a better choice, but not if the host in
+       question has a dynamic IP address.)  Note that this is a public
+       key, so there is no harm in publishing it.  In fact, companies
+       who maintain SSH servers so that their employees can log in from
+       home or while on the road would do well to publish their servers'
+       public keys on their corporate Web site.
+
+       <p>
+  <li> If you can't preload the key, you should at least check that it
+       matches after connecting.  The client will tell you that it has
+       added a new key to <tt>~/.ssh/known_hosts2</tt> for the host to
+       which you just connected; make sure the new value matches the one
+       in <tt>/usr/local/etc/ssh_host_rsa_key.pub</tt> on the server.
+       (Remember that a man-in-the-middle attacker will in fact connect
+       you to your intended destination, but must give you his own
+       public key so that he can decrypt the traffic coming from you.
+       Therefore, if your client and server are using the same public
+       key, there must be a direct connection between you.)
+  <li> If you ever get a warning that a host has changed its key,
+       proceed with caution.  Normally, it is never necessary to change
+       this key, so you might want to try again later.  You can get a
+       false alarm when a machine switches to using a different vendor's
+       SSH server software, as it will be unaware of the old host key
+       and will therefore go ahead and manufacture a new one.  (Upgrades
+       between different versions from the same vendor are not a
+       problem, as the software tries not to step on an existing host
+       key when it installs itself.)  If you believe this is the case,
+       go ahead and connect, then compare the public keys as above; if
+       they do not match, disconnect and contact your sysadmin
+       immediately.
+</ul>
+
+<a name=x11>
+<h3>SSH and the X Window System</h3>
+
+<p>Without an X Window System (X11) server running on your machine, the
+<tt>ssh</tt> client looks like a regular telnet client (with its own
+terminal emulator on Windows and Macintosh systems).  You can run
+anything you want in the shell, but commands are limited to using the
+SSH terminal window as nothing more than a dumb character terminal.  On
+the other hand, if you have an X11 session going (i.e. the
+<tt>DISPLAY</tt> environment variable is set), then the SSH server sets
+<tt>DISPLAY</tt> in the remote session to something that will forward
+X11 requests through the SSH connection.  When you start an X-capable
+application, e.g. <tt>emacs</tt>, the window will pop up directly on
+your screen, just as if you were starting it locally.  Any number of X11
+clients can be connected at the same time (though of course they all
+have to share the same bandwidth resource as the terminal connection).
+
+<p>X11 over the network is a big win because it allows you to work on
+remote Unix systems almost as well as if you were physically there
+(modulo bandwidth issues).  But the X11 protocol is notoriously
+insecure, as it was designed for LAN use in the "good old days" of
+expensive computers with professional sysadmins.  Anyone who can see
+your X11 traffic can passively snoop any passwords you type at the
+keyboard, and anyone who can actually connect to your X11 server will
+have an even easier time of snooping on anything you type.  Hence, the
+way the <a href="http://www.openssh.org/">OpenSSH</a> server sets up X11
+forwarding is to allow only those connections that
+<ol>
+  <li> come from the local machine; and
+  <li> can show "credentials" that prove it's you.
+</ol>
+Both are achieved by placing <a href="xauth.html#cookies">the server
+cookie</a> in a subdirectory of the <tt>/tmp/</tt> directory on a
+local disk drive.  [need more.  -- rgr, 14-Nov-01.]
+
+<p>Note that for X11 forwarding to work, both the client <i>and</i> the
+server must be configured to permit it.  Some SSH servers (notably
+recent releases of <a href="http://www.openssh.org/">OpenSSH</a>) do not
+enable X11 forwarding by default.  Check the <tt>X11Forwarding</tt>
+value in the <tt>/usr/local/etc/sshd_config</tt> file on the server (you
+will need to be root to change anything in this file), and the
+<tt>ForwardX11</tt> value in the <tt>~/.ssh/config</tt> file for the
+client.
+
+<p>If you have Linux (or some other flavor of Unix), you've probably
+already got X11 for free.  If not, you should consider getting X11:
+<ul>
+  <li> If you have a Windows machine, you should consider Exceed (the
+       commercial industry leader; see <a
+       href="http://www.hummingbird.com/products/nc/exceed/index.html">
+       <tt>http://www.hummingbird.com/products/nc/exceed/index.html</tt></a>
+       or X-Win32 (the upstart competitor; see <a
+       href="http://www.starnet.com/products/">
+       <tt>http://www.starnet.com/products/</tt></a>).  I have little
+       experience with Exceed, but have had success with the X-Win32
+       free trial in conjunction with the F-Secure SSH client free
+       trial.  (For an extra $94.00, you can buy the F-Secure SSH client
+       bundled with X-Win32, which is convenient.)
+  <li> If you have a Macintosh system, I've heard good things about the
+       <a href="http://www.microimages.com/">MicroImages</a> MI/X X11
+       server implementation for the Mac, available for free from <a
+       href="http://www.microimages.com/www/html/freestuf/mix/">
+       <tt>http://www.microimages.com/www/html/freestuf/mix/</tt></a>.
+       (They also have a Windows version for a modest fee.)
+  <li> Or check out the vast collection of X11 server reviews and
+       products for Windows and MacOS at <a
+       href="http://www.rahul.net/kenton/xsites.html">
+       <tt>http://www.rahul.net/kenton/xsites.html</tt></a>.
+</ul>
+
+<a name=su>
+<h3><tt>ssh</tt> and <tt>su</tt></h3>
+
+<p>Since the connection is encrypted, feel free to type passwords for
+<tt>"su"</tt> (for example).  But the standard X11 authentication set up
+by the SSH server won't allow you to fire up an <tt>xterm</tt>
+that displays on your local machine.
+
+<p>[fix missing stuff here.  -- rgr, 14-Nov-01.]
+
+<p>Credentials consist of a "magic cookie" -- essentially a big random
+number used as a password -- that must be produced by the connecting
+client.  (The actual protocol name is <tt>"MIT-MAGIC-COOKIE-1"</tt>,
+which rather sounds like something Alice might have wanted to eat to
+make herself smarter.)  The cookie is initialized by the SSH
+server and stored in the <tt>~/.Xauthority</tt> file, which is only
+readable by you (or, sometimes, by root).
+
+<p>So there are two ways you can open windows over SSH from
+another user account:
+<ol>
+  <li> You can open a separate SSH connection from your local
+       machine for each login.  In order to keep them separate, each
+       connection will have a distinct value for the <tt>DISPLAY</tt>
+       environment variable, and independent authorization cookies.
+       (Multiple connections ought to work from any of the Windows or
+       Macintosh implementations, but I haven't tried it myself.)
+  <li> You can copy the cookie from your <tt>.Xauthority</tt> file to
+       the <tt>su</tt> login's <tt>.Xauthority</tt> file.  You will need
+       to do this each time you connect; see the <a href="xauth.html">
+       "Using <tt>xauth</tt> to copy cookies"</a> page to find out how.
+</ol>
+
+<p>From a security standpoint, both of these techniques are nearly
+equivalent.  Your machine is vulnerable to anyone who can log in to any
+account that has an open X11 connection.  The "separate connections"
+technique has the advantage that once you close the "su" connections,
+those users' cookies are obsolete, and can't be used to access the other
+display connections.  (Of course, this difference vanishes for the root
+account; since root can read any file on the system, you are always
+"open" to anyone who can log in as root.)
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Mon Jun 23 22:41:21 EDT 2003
+<!-- hhmts end -->
+</body> </html>

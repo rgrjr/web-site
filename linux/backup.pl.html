@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>backup.pl -- Interface to `dump' and `restore' for automating backups.</title>
+<link rev="made" href="mailto:rogers@rgrjr.dyndns.org" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#options">OPTIONS</a></li>
+	<li><a href="#usage_and_examples">USAGE AND EXAMPLES</a></li>
+	<li><a href="#copyright">COPYRIGHT</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#see_also">SEE ALSO</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>backup.pl -- Interface to `dump' and `restore' for automating backups.</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+    backup.pl [--[no]cd] [--file-name=&lt;name&gt;] [--dump-dir=&lt;dest-dir&gt;]
+              [--test] [--verbose] [--usage|-?] [--help] [--cd-dir=&lt;mv-dir&gt;]
+              [--partition=&lt;block-special-device&gt;] [--level=&lt;digit&gt;]
+              [--volsize=&lt;max-vol-size&gt;] [&lt;partition&gt;] [&lt;level&gt;]</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>This script creates a backup dump using the `dump' program, and
+verifies it with the `restore' program, both of which are published as the
+Dump/Restore ext2/ext3 filesystem backup utilities by Stelian Pop
+(see <a href="http://sourceforge.net/projects/dump/">http://sourceforge.net/projects/dump/</a>).</p>
+<p>The product of this procedure is a dump file on disk somewhere that has
+been verified against the backed-up partition.  If not supplied, a
+suitable name is chosen based on the partition mount point, current
+date, and backup level.  Optionally, the file can be moved to somewhere
+else in the destination file system after it has been verified; this
+makes it easy to use the cd-dump.pl script to write the resulting dump
+<code>file(s)</code> to a CD.  The whole process is readily automatable via cron
+jobs.</p>
+<p>[Writing to tape may work, but I haven't tried it, having no tape on my 
+system.  -- rgr, 21-Oct-02.]</p>
+<p>
+</p>
+<hr />
+<h1><a name="options">OPTIONS</a></h1>
+<dl>
+<dt><strong><a name="item_%2d%2dcd"><strong>--cd</strong></a></strong><br />
+</dt>
+<dt><strong><a name="item_%2d%2dnocd"><strong>--nocd</strong></a></strong><br />
+</dt>
+<dd>
+Specifies whether we should expect that the dump file will eventually be
+written to a CD-R or CD-RW disk.  This affects the defaults for
+<a href="#item_%2d%2ddump%2ddir"><code>--dump-dir</code></a> and <a href="#item_%2d%2dvolsize"><code>--volsize</code></a>.  The default is <a href="#item_%2d%2dcd"><code>--cd</code></a>.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2dtest"><strong>--test</strong></a></strong><br />
+</dt>
+<dd>
+If specified, no commands will be executed.  Instead, the commands will
+just be echoed to the standard error stream.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2dverbose"><strong>--verbose</strong></a></strong><br />
+</dt>
+<dd>
+If specified, extra information messages are printed during the backup.
+Since the output of dump and restore are included unedited, the default
+output is pretty verbose even without this.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2dfile%2dname"><strong>--file-name</strong></a></strong><br />
+</dt>
+<dd>
+If specified, gives the name of the dump file excluding the directory.
+The default looks something like <code>home-20021021-l9.dump</code>, and depends
+on (a) the last component of the directory where the partition is
+normally mounted, e.g. 'home', (b) the current date, e.g. '20021021',
+and (c) the dump level, e.g. '9'.  If some of the default values are
+not acceptable, you can either specify a specific file name, or use
+the <a href="#item_%2d%2dname%2dprefix"><code>--name-prefix</code></a> or <a href="#item_%2d%2ddate"><code>--date</code></a> parameters to override how the
+default name is constructed.  Say if you had <code>'/usr/local'</code> and
+<code>'/seq/local'</code> partitions and needed to make the resulting file names
+distinct, you could say <code>&quot;--name-prefix=usr-local&quot;</code> for the first,
+and <code>&quot;--name-prefix=seq-local&quot;</code> for the second.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2ddate"><strong>--date</strong></a></strong><br />
+</dt>
+<dd>
+Overrides the date value in the default dump file name; see the
+description of the <a href="#item_%2d%2dfile%2dname"><code>--file-name</code></a> option.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2dname%2dprefix"><strong>--name-prefix</strong></a></strong><br />
+</dt>
+<dd>
+Overrides the partition abbreviation (the last file name component of
+the mount point) in the default dump file name; see the description of
+the <a href="#item_%2d%2dfile%2dname"><code>--file-name</code></a> option.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2ddump%2ddir"><strong>--dump-dir</strong></a></strong><br />
+</dt>
+<dd>
+Specifies the directory to which to write the dump file.  For CD backups
+(the default), this defaults to <code>/scratch/backups/cd</code>; for all others, it
+defaults to <code>/mnt/zip</code>.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2dcd%2ddir"><strong>--cd-dir</strong></a></strong><br />
+</dt>
+<dd>
+If specified, names a directory to which we should move the dump file
+after it has been verified successfully.  It doesn't have anything to
+do with CDs per se, it's just that the <code>-cd-dir</code> can be used as the
+communication interface to <code>cd-dump.pl</code> when both are running as cron
+jobs.  If there are files in this directory, then <code>cd-dump.pl</code>
+assumes they are good backups and need to be written to the CD; if
+not, then <code>cd-dump.pl</code> won't bother to waste the bits.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2dpartition"><strong>--partition</strong></a></strong><br />
+</dt>
+<dd>
+The name of a block-special device file for the ext2 or ext3 partition
+that is to be backed up, e.g. <code>/dev/hda12</code>.  There is no default;
+this option must be specified.  A positional partition argument is
+also supported for backward compatibility.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2dlevel"><strong>--level</strong></a></strong><br />
+</dt>
+<dd>
+A digit for the backup level.  Level 0 is a full backup, level 9 is
+the least inclusive incremental backup.  For more details, see
+<a href="#item_dump">dump(8)</a>, or my ``System backups'' page
+(<a href="http://rgrjr.dyndns.org/linux/backup.html">http://rgrjr.dyndns.org/linux/backup.html</a>).  The level defaults to
+9.  A positional level argument is also supported for backward
+compatibility.
+</dd>
+<p></p>
+<dt><strong><a name="item_%2d%2dvolsize"><strong>--volsize</strong></a></strong><br />
+</dt>
+<dd>
+Specifies the size of the largest dump file that the backup medium can
+hold, in 1 kilobyte blocks.  If the backup requires more than this,
+then dump will pause and wait for you to ``change volumes'' (by renaming
+the current dump file) before continuing, which will mess up the
+'restore' phase of the operation.  The default depends on the <a href="#item_%2d%2dcd"><code>--cd</code></a>
+option.
+</dd>
+<p></p></dl>
+<p>
+</p>
+<hr />
+<h1><a name="usage_and_examples">USAGE AND EXAMPLES</a></h1>
+<p>[need some.  -- rgr, 7-Jan-03.]</p>
+<p>
+</p>
+<hr />
+<h1><a name="copyright">COPYRIGHT</a></h1>
+<p>Copyright (C) 2000-2003 by Bob Rogers <code>&lt;rogers@rgrjr.dyndns.org&gt;</code>.
+This script is free software; you may redistribute it
+and/or modify it under the same terms as Perl itself.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p>Bob Rogers <code>&lt;rogers@rgrjr.dyndns.org&gt;</code></p>
+<p>
+</p>
+<hr />
+<h1><a name="see_also">SEE ALSO</a></h1>
+<dl>
+<dt><strong><a name="item_sourceforge">Dump/Restore at SourceForge (<a href="http://sourceforge.net/projects/dump/">http://sourceforge.net/projects/dump/</a>)</a></strong><br />
+</dt>
+<dt><strong><a name="item_dump"><a href="#item_dump">dump(8)</a></a></strong><br />
+</dt>
+<dt><strong><a name="item_restore"><a href="#item_restore">restore(8)</a></a></strong><br />
+</dt>
+<dt><strong><a name="item_backups">System backups (<a href="http://rgrjr.dyndns.org/linux/backup.html">http://rgrjr.dyndns.org/linux/backup.html</a>)</a></strong><br />
+</dt>
+</dl>
+
+</body>
+
+</html>

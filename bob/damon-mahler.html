@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Damon Mahler:  A True Story</title>
+</head>
+
+<body bgcolor=white>
+<h1>Damon Mahler:  A True Story</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/bob/">Stuff about me</a> :
+Humor : Damon Mahler
+<hr>
+
+<p><i>I persuaded an Internet acquaintance of mine to send me the
+following anecdote, received in an email dated 28 March 2000, which I
+reproduce below along with his gloss, and only minor editorial and
+HTMLization changes.  If he recognizes himself, he is welcome to claim
+credit for forwarding this tale, but for now, I'll keep his identity
+quiet, lest someone trace it back to the author.  (The author is unknown
+to me, by the way.)  Enjoy.  -- Bob</i>
+
+<hr>
+<blockquote> Okay, here's the tale from my friend. He has requested that
+he be identified only as "my friend who works at an HTTP mail provider",
+since he has an NDA and a job to protect.
+
+<p>The rest of this . . . is his text.  Along with his final-line
+claimer of truth, I can personally vouch for the fact that he's been
+telling this story since about six or seven months ago, and does work at
+such a company -- this is *not* urban legend.
+</blockquote>
+
+<hr>
+Here's what happened.  One afternoon, I was in the process of helping a
+customer on the phone.  She was sending email to her friends and none of it
+was getting through from her Mailprovider account, and 'AOL is a
+<i>lot</i> simpler 
+than this'.  <i>Oh, boy</i>, think I. <i>Another Asshole On Line.</i>
+We speak for a while, and a while longer -- she's describing the steps she
+goes through sending her email.  Unfortunately, everything she's doing is
+right!  I'm not finding any huge errors in her interactions with our
+interface.  Finally, in desperation, I ask her to spell out the email
+address of her friend, Jane Doe.  She tells me 'It's spelled
+J-A-N-E-space-D-O-E'.  Just as I'm realizing that she's been leaving off our
+friend, the <tt>@domain.foo</tt>, I ask her if she has been getting any
+messages to 
+tell her that her mail has been bouncing.  "No, I haven't. So I know it
+went."  I'm thinking she's got to be lying, and checking in our records -- sure
+enough -- there are 4 <tt>mailer-daemon</tt> notices in her account.  As
+I'm about to 
+ask her about them, she says -- and I quote -- "And I keep getting all
+this spam from a some illiterate named Damon Mahler. He can't even spell
+his name right."
+
+<p>Pressing the mute button, I snickered, then pressed it again. As luck would
+have it, she <i>could</i> be online while we were on the phone, so we accessed
+her account and I had her read the address off the email --
+M-A-I-L-E-R-dash-D-A-E-M-O-N-at-mailprovider-dot-com.  I ask her why she hasn't
+opened them, and she says -- again, I quote, this one's just etched into my
+brain -- "Well, my friend told me that they have viruses in them."
+
+<p>More mutebutton.  More hysterical laughter.  We're now approximately
+25 minutes into the call.  I convince her to read one and she reads off
+our friend, the qmail 'no domain, you doof' message.  I explain the
+<i>entire</i> message to her, line by line, until she understands what
+the message means. She thanks me profusely, I explain to her what an
+email address is and how you need to include the whole darn thing.  We
+hang up.
+
+<p>HOWEVER --
+this isn't the end of our sordid tale.  About 2 hours later, I'm in the
+middle of lunch.  Of course I am. One of my co-workers comes in to tell me
+she's called back to complain about Mailer-Daemon closing her account.  And
+she WON'T tell him about it, despite me suggesting she do so. So fine.  I
+put my damned sandwich down, and pick up the frigging phone.  First thing I
+do is ask if I may log into her account and have a look.
+Here is what happened, in terms that you and I will understand.
+She put <tt>JaneDoe</tt> into the 'To:' field again.  No <tt>@</tt>, no
+<tt>aol</tt>, no <tt>.</tt>, no <tt>com</tt>.
+Just <tt>JaneDoe</tt>.  Just like I told her not to do.
+And of course, Mailer-Daemon came back with 'What the hell are you talking
+about?' -- along with 'this is a permanent error, I've given up trying. Sorry
+it didn't work out.'
+So she <i>replied</i> to <tt>Mailer-Daemon@mailprovider.com</tt>, saying
+<blockquote>
+Mr. Mailer, I'm sorry -- I'm new to the Internet, and I don't
+understand what I'm doing.  Can you please try again?
+</blockquote>
+NOW -- here comes the really funny part.  when you write to
+<tt>mailer-daemon@mailprovider.com</tt> you get a bounce (of course);
+for some reason, at the time, that bounce message was a 554 (I forget
+off hand) saying the addressed account had been closed for abuse.
+
+<p>She read this -- HALF AN HOUR AFTER HER TUTORIAL ON EVERY GODDAMNED
+LINE IN THE BOUNCE MESSAGE -- and assumed Mailer-Daemon was telling her
+he'd closed her account.  Never mind that she also somewhere got the idea
+that Mailer-Daemon was a human being.
+
+<p>I swear to you all that this is true.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Tue Sep 11 21:50:36 EDT 2001
+<!-- hhmts end -->
+</body> </html>

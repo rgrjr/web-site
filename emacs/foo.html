@@ -1,0 +1,504 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Drafts of ACS bboard postings</title>
+</head>
+
+<body bgcolor=white>
+<h1>Drafts of ACS bboard postings</h1>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Drafts of ACS bboard postings
+       <ol>
+	 <li> <tt>emacs</tt> <tt>DEL</tt> key problem
+	 <li> Buggy version
+	 <li> Fixed version
+	 <li> Installing ACS
+	 <li> Bug in "Installing ACS" tip
+	 <li> How to register yourself multiple times
+	 <li> Problems with multiple versions of <tt>utilities.tcl</tt>
+	 <li> Hosts moving
+	 <li> New PS3 spec
+	 <li> Continuing work after bootcamp
+	 <li> Finding things
+	 <li> <tt>tclsh</tt> on Linux
+	 <li> Shell: Telnet OK, Emacs NOT
+	      <ol>
+		<li> <a href="#rgr-below">emacs and paging programs</a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<h2><tt>emacs</tt> <tt>DEL</tt> key problem</h2>
+
+Aha; you're using <tt>"emacs&nbsp;-nw"</tt>!  This means that emacs
+can't tell the difference between C-h and Backspace, because ssh sends
+C-h for both.  It sounds like ssh isn't sending anything for "Delete".
+In any case, we know it's not a Windows or Exceed problem because of the
+<tt>"-nw"</tt> option.
+
+<p>Type <tt>"C-h c DEL"</tt> to find out what ssh is actually sending;
+emacs will either tell you what it's bound to, or sit there with the
+"Describe key briefly:" prompt if nothing was sent.  In any case, you'll
+have to fix that in ssh (and I'm not sure how).
+
+<p>By the way, the "echo" business didn't work the first time because
+the double quotes inside the double quotes got lost by the shell.  You
+would need to fix the .emacs file to look like what James suggested.
+(It didn't work the second time because the first
+<tt>global-set-key</tt> was still in there.)  But the problem with this
+is that <tt>DEL</tt> is usually mode sensitive, so
+<pre>
+    (global-set-key "\C-h" "\C-?")
+</pre>
+is better, because it makes <tt>C-h</tt> do whatever the mode's
+<tt>DEL</tt> does.  (But it's still evil; Cynthia's suggestion is much
+better.)
+
+<h2>Buggy version</h2>
+
+There seem to be problems installing the data model in the 10-Oct
+version of the ACS.  Until these are fixed, you might want to install
+the 23-Sep version instead.  See <a
+href="http://software.arsdigita.com/old-versions-of-the-acs-that-suck/">
+<tt>software.arsdigita.com/old-versions-of-the-acs-that-suck/</tt></a>.
+
+<h2>Fixed version</h2>
+
+There is now an updated 11-Oct version of the ACS on <a
+href="http://software.arsdigita.com/">
+<tt>software.arsdigita.com</tt></a> that seems to work, with one minor
+problem.  When you log into the thing initially, you may find that your
+home page dies because <tt>users_interests</tt> is undefined.
+Stuffing the definition in <tt>www/doc/sql/community-core.sql</tt> into
+<tt>sqlplus</tt> seems to fix this.
+
+<h2>Installing ACS</h2>
+
+Actually, all of this renaming would make all of your PS1 work
+inaccessible.  The only directory that might cause you problems is the
+<tt>/web/student<i>XX</i>/tcl/</tt> directory, so rename or delete
+<tt>ad_header</tt> and <tt>ad_footer</tt> in the <tt>ps1-defs.tcl</tt>
+file (which is already per ACS naming conventions).  Then you can untar
+ACS into your home directory, and do
+<pre>
+    cp -pr ~/acs /web/student<i>XX</i>
+</pre>
+to copy it on top of what's currently in your <tt>student<i>XX</i></tt>
+server tree.
+
+<p>And if you do
+<pre>
+    select email, password from users where password='changeme';
+</pre>
+then you will find another user that needs changing!
+
+<h2>Bug in "Installing ACS" tip</h2>
+
+Oops -- there's a bug in the <tt>cp</tt> command; it should be from
+<tt>~/acs/*</tt> and not just <tt>~/acs</tt>.  The full sequence of Unix
+commands, once you have downloaded the tarfile to your home directory,
+is now:
+<pre>
+    cd
+    gunzip < acs-19991013.tar.gz | tar xvf -
+    cp -pr ~/acs/* /web/student<i>XX</i>
+    restart-aolserver student<i>XX</i>
+    rm -fr acs
+</pre>
+Apologies to those users who were bitten by this.
+
+<h2>How to register yourself multiple times</h2>
+
+Here is a useful trick for testing the ACS, particularly ACS code that
+sends email to random users.  The idea is to re-register yourself using
+distinct variations on your own email address.  You can do this by
+registering random users with email addresses that contain some
+arbitrary string in parentheses, followed by your email address:
+<pre>
+    (foo)rogers@darwin.bu.edu
+</pre>
+The part in parentheses is a valid <a
+href="ftp://ds.internic.net:/rfc/rfc822.txt"> RFC822</a> "comment", so
+it distinguishes this user from my normal email address as far as the
+ACS login dialog is concerned.  But it is invisible to mailers, so I
+still get mail at <tt>rogers@darwin.bu.edu</tt> when logged in at an ACS
+site as <tt>(foo)rogers@darwin.bu.edu</tt>.
+
+<p>In a sense, this pokes a hole in the ACS data model, because it
+destroys the notion that at most one row in the <tt>users</tt> table
+should represent a user in the real world.  So, somebody may plug this
+hole in a future release of the ACS.  But it worked in August, and it
+still works now, so you may as well use it to good effect.
+
+<h2>Problems with multiple versions of <tt>utilities.tcl</tt></h2>
+
+The <b>Your AOLserver installation</b> section at the top of 
+the <a href="http://photo.net/doc/installation.html">
+ArsDigita Community System Installation</a> page has the following to
+say regarding <tt>utilities.tcl</tt>:
+
+<blockquote>
+All ArsDigita software packages, including the ACS, rely on
+a basket of utility procedures that are generally part of the AOLserver
+installation. This used to be distributed separately and put in the
+shared Tcl directory (<tt>/home/nsadmin/modules/tcl</tt>), but is now a
+part of the ACS and exists in
+<tt>[acsdir]/tcl/00-ad-utilities.tcl</tt>. Note that many other files in
+the <tt>tcl</tt> directory depend on utility functions defined in this
+file, which is why it is named as it is, so that it will be loaded
+before any of the other files.
+
+<p>Note that these procedures will now be available to all running
+AOLservers on your machine. If you update the file to our latest
+version, you will only have to do this in one place.
+
+<p><b>Remember to upgrade your utilities.tcl file every time you upgrade
+your ArsDigita Community System software.  Generally there are changes
+and additions to utilities.tcl with every release.</b>
+</blockquote>
+
+(The second paragraph is completely wrong, by the way; this is a
+consequence of what the original version of the first paragraph said.
+The third paragraph is correct, important, and part of the reason why
+the original <tt>utilities.tcl</tt> distribution strategy had to
+change.)
+
+<p>A subtle consequence of this change of strategy is that ACS may break
+if you still have a duplicate copy of <tt>utilities.tcl</tt> in the
+<tt>/home/nsadmin/modules/tcl/</tt> directory.  In particular, it seems
+that the bootcamp machines were set up with the 10-Aug version in
+<tt>/home/nsadmin/modules/tcl/</tt>, but some of the new ACS pages
+(e.g. <tt>/admin/users/search.tcl</tt>) expect the updated version of
+<tt>export_entire_form_as_url_vars</tt> in the new
+<tt>00-ad-utilities.tcl</tt> which takes an optional argument.
+
+<p><b>So be sure to clean all old versions of <tt>utilities.tcl</tt> out
+of the <tt>/home/nsadmin/modules/tcl/</tt> directory.</b>
+
+<h2>Hosts moving</h2>
+
+We've just gotten word that some of the LifeSimple partitions are being
+dismantled tomorrow morning, starting at 8:30.  As a result, six of the
+bootcamp machines will have to be moved, namely host09, host10, host13,
+host14, host15, and host16.  Moving involves shutting the machine down,
+unplugging, physically moving, reconnecting, rebooting, and verifying
+that the machine is back online, so if all goes well, it shouldn't take
+long to move each machine.  Bob Cassels and I will start with host15 and
+host16 this afternoon, since nobody is sitting at those consoles.  We'll
+keep you posted.
+
+<h2>New PS3 spec</h2>
+
+Just to make sure you all know:
+
+<pre>
+   From: philg@mit.edu
+   Date: Wed, 20 Oct 1999 05:39:24 GMT
+
+   A revised pset 3 is available at
+
+   <a href="http://photo.net/teaching/psets/ps3/ps3.adp">http://photo.net/teaching/psets/ps3/ps3.adp</a>
+
+   I clarified some of the user group stuff.  I made the pset a touch
+   easier by clarifying the fact that you only have to version the
+   authored articles (i.e., you don't have to version content sections or
+   templates or whatever).  I put in pointers to documentation on ADPs.
+</pre>
+
+In particular, Exercise 2 says how to apply user groups much more
+explicitly than it used to:
+
+<blockquote>
+Using the Web forms in /admin/ug/ create a new user group type:
+"cm". Create six groups of this type: publisher, information designer,
+graphic designer, programmer, author and editor. Put a couple of users
+in each group.
+</blockquote>
+
+<p>These are fairly extensive, so if you're too far along in your
+implementation, you're welcome to adopt whatever version of the spec you
+choose.  (The spec itself disavows being "gospel," after all.)  But
+consider carefully before you plough onward.  A few hours spent now in
+simplifying your data model could save you many hours of implementation
+chores over the next few days.
+
+<h2>Continuing work after bootcamp</h2>
+
+There are no immediate plans to shut down or reset the
+<tt>host*.bootcamp.arsdigita.com</tt> machines.  But, according to
+Tracy, the network connection into the building goes away on 1 November,
+and so the machines will probably be inaccessible until they are moved
+into ArsDigita's new space, in late December at the earliest.  So if you
+plan on continuing to work on your server, you
+should
+<ol>
+  <li> <tt>tar</tt> your code <b>now</b> and archive it offsite
+       (instructions below).
+  <li> Continue to work via ssh/Exceed, taking periodic <tt>tar</tt>
+       backups at the end of the day.
+  <li> When the connection goes down, you'll know . . .
+  <li> When the machines become available again, we'll post further
+       instructions on this bboard (so you might want to sign up for
+       alerts, if you haven't already done so).
+</ol>
+
+To make a <tt>tar</tt> archive of your stuff, execute the following Unix
+commands in a shell:
+<pre>
+    cd /web/student<i>XX</i>
+    rm -f www/archive.tar.gz  ~/archive.tar.gz
+    tar cf ~/archive.tar .
+    gzip ~/archive.tar
+    cp ~/archive.tar.gz www/
+</pre>
+This creates a 1.8MB gzipped <tt>tar</tt> file of everything in ACS plus
+your subsequent modifications, and "publishes" it on your site as
+<tt>http://student<i>XX</i>.bootcamp.arsdigita.com/archive.tar.gz</tt>
+so you can download it offsite.
+
+<p>To re-install it, assuming you copied it back into your home
+directory, you would pretend it was the ACS, and do
+<pre>
+    cd /web/student<i>XX</i>
+    gunzip &lt; ~/archive.tar | tar xf -
+</pre>
+where it says to untar ACS during the <a
+href="http://photo.net/doc/installation.html">ACS installation
+process</a>.
+
+<p>If anyone would like to post a canned version of this <tt>tar</tt>
+script (preferably with nonzero error checking), especially something
+that grabs only the recently-modified subset, please do.
+
+<h2>Finding things</h2>
+
+Let me give you a general solution.  In emacs, try
+<tt>"M-x&nbsp;grep&nbsp;RET"</tt>, then edit the grep command for which
+you will be prompted in the minibuffer until it looks like this:
+<blockquote>
+grep -n -e bboard_email_alerts_updates `find /web/studentXX/ -name '*.tcl'`
+</blockquote>
+and hit return.  Be sure to mind the forward and backward quotes:  the
+quotes around <tt>"*.tcl"</tt> are forward (apostrophes), and those
+around <tt>"find /web/studentXX/ -name '*.tcl'"</tt> are backward (aka
+"backticks").  See the <a
+href="http://bmerc-www.bu.edu/needle-doc/emacs/#grep">"Finding regular
+expressions in source code"</a> section for how to do more with this.
+
+<h2><tt>tclsh</tt> on Linux</h2>
+
+Forget the <tt>"exec tclsh"</tt> thing; Linux can start <tt>tclsh</tt>
+directly:
+
+<blockquote>
+<pre>
+#!/usr/local/bin/tclsh
+#
+
+proc foo {bar} {
+    puts "foo: $bar"
+}
+
+foo baz
+foo quux
+</pre>
+</blockquote>
+
+and it runs as expected:
+<blockquote>
+<pre>
+rgr&gt; test.tcl
+foo: baz
+foo: quux
+rgr&gt;
+</pre>
+</blockquote>
+
+This is on Red Hat Linux 6.0, using either Tcl 7.6 or 8.0, by the way.
+
+<h2>telnet</h2>
+
+In other words, it works if you regress your machine back to the bad old
+days before DNS.  Whatever makes you happy . . . ;-}
+
+<p>I looked at the <a
+href="http://www.securityportal.com/closet/closet19990915.html">
+securityportal.com article,</a> but didn't find it very convincing.
+Postfix seems to have more centralized configuration, but I consider it
+a feature of qmail that the configuration is decentralized.  The qmail
+documentation is complete, but terse; you'll get along fine as long as
+you don't go into it expecting shrink-wrap style documentation.
+
+<p>And fundamentally, I consider "sendmail compatibility" to be more of
+a bug than a feature.  Just my US$0.02.
+
+<p>BTW, judging from the traffic on the qmail list, there appears to be
+little love lost between the Postfix and qmail camps.  That makes it
+harder to come by a fair comparison.  And I don't know Postfix, so I
+can't make the comparison myself (even if you trusted me not to be
+biased -- ;-).
+
+<h2>Shell: Telnet OK, Emacs NOT</h2>
+
+Let me take the questions one at a time:
+
+<blockquote>
+<ul>
+  <li> How do I get EMACS to do shell commands just like I do outside of
+       EMACS.
+</ul>
+</blockquote>
+
+The short answer is that you can't; the emacs shell buffer is giving you
+editing features, including a command history, that interfere with the
+character-at-a-time input of pagers.  This is the reason you have to hit
+return before the pager sees the space character.  But there's a better
+way to do this, so I'm not convinced this is what you really want; <a
+href="#rgr-below">see below</a>.
+
+<blockquote>
+<ul>
+  <li> How do I set the EMACS configuration so that it starts as a
+       TERM=linux. The base Telnet session starts as "linux" and EMACS
+       shell starts as "dumb"
+</ul>
+</blockquote>
+
+If I understand this correctly, emacs is using "linux" terminal
+emulation, and the emacs shell is not.  The emacs shell says it's "dumb"
+because it is; it doesn't even handle ASCII CR "correctly" (i.e. the way
+a terminal emulator would).  A terminal emulator for emacs shell mode
+could be written, and in principle it wouldn't even be hard, but
+apparently nobody has bothered.  So "dumb" is quite appropriate.
+
+<blockquote>
+<ul>
+  <li> The M-x global-font-lock-mode command appears to have no effect 
+       with my copy of Emacs.  How do I make this work?
+  <li> How do I make this terminal show the code in glorious color?
+</ul>
+</blockquote>
+
+I don't use the emacs font-lock features myself, so I'm afraid I can't
+tell you much.  But I can tell you that
+<tt>M-x&nbsp;global-font-lock-mode</tt> works by arranging for
+<tt>turn-on-font-lock</tt> to be called at appropriate times, but
+<tt>turn-on-font-lock</tt> does nothing if you're coming in over a
+telnet connection.  So much for the direct approach.
+
+<p>For anyone who wants to try to hack their way through this, the
+questions to investigate are:
+<ol>
+  <li> Is the terminal emulator capable of color?  If so, what exactly
+       is it emulating?
+  <li> Is the terminal type in the telnet session set up correctly?
+       More specifically, is "linux" really the right thing for a
+       Windows client? -- remember, it's whatever the client emulator is
+       expecting that counts.  In any case, it seems to me that the
+       telnet client should take care of this, but if not, you might
+       have to do something like this:
+       <pre>
+       else if ($TERM == ansi) then
+	 # probably win95/ie, which loses big.  -- rgr, 8-Jul-99.
+	 set noglob; eval `tset -Q -I -s vt100`; unset noglob
+       endif
+</pre>
+       This is a snippet from my <tt>.login</tt> script.
+  <li> Does emacs support font-lock for terminals at all?  If I fire up
+       emacs in an xterm window, and then do
+       <tt>M-x&nbsp;font-lock-mode</tt> manually, it claims to be
+       fontifying the buffer, but doesn't show anything in color (emacs
+       20.7, XFree86 3.3.6, Linux 2.2.16; your mileage may vary).
+  <li> Does emacs use the terminal color escape codes correctly?  If you
+       can get this far, you're probably into code that's been sparsely
+       tested . . .
+</ol>
+In sum, if you want code colorization/fontification, I think you're much
+better off using X11 forwarding via SSH.
+
+<a name = rgr-below>
+<h3>emacs and paging programs</h3>
+
+What I would really like to know is this:  Do you really want shell mode
+to behave like a 1970's terminal?  And, if so, why?  Because that's all
+pagers like <tt>less</tt> are really good for; they are tools to
+compensate for the lousy one-window/no-mouse user interface that was all
+the technology would support 25 years ago.  Given that you are already
+in emacs, my suggestion would be to use the shell buffer for running
+shell commands, and look at <tt>man</tt> pages using the
+<tt>M-x&nbsp;man</tt> command.  That will put the whole <tt>man</tt>
+page in a buffer, where you can search, scroll, print, cut & paste, etc.
+Successive <tt>M-x&nbsp;man</tt> invocations result in successive
+buffers, which can be viewed in parallel.  (You ought to be able to get
+to cross references by clicking on them with the mouse, but <tt>man</tt>
+pages haven't made it fully into the 90's yet.  Not surprising, given
+that FSF considers them obsolescent.)
+
+<p>Similarly, instead of doing <tt>"ls -l | less"</tt> to see a
+long-format directory listing of the current directory, you can do
+<tt>"M-x&nbsp;dired RET RET"</tt> (or <tt>"C-x&nbsp;d&nbsp;RET"</tt>) to
+see the same listing in a "dired mode" buffer.  The dired buffer can be
+scrolled forward and backward as by <tt>less</tt>, and searched somewhat
+more efficiently, but dired mode also allows you to manipulate the files
+(edit, rename, delete, change permissions, etc.)  with single-character
+commands.
+
+<p>The other approach is to turn off paging entirely (by doing
+<tt>"setenv PAGER cat"</tt> in <tt>csh</tt>), and view the whole
+<tt>man</tt> page or <tt>ls</tt> listing in the shell buffer.  But for
+most purposes, I find it easier to keep these in separate buffers, where
+they are randomly accessible and don't interfere with whatever I'm
+trying to accomplish in the shell.
+
+<p>And the fact that you are running emacs through a terminal emulator
+over a telnet connection doesn't make a difference here.  The emacs user
+interface looks almost the same, and a pager is more of a hindrance than
+a help in either case.
+
+<p>OK, OK; I'll get off the soapbox now.
+
+<p>emacs.  Because nobody should settle for an editor that merely
+edits.
+
+<p>(Sorry, guys, couldn't resist.)
+
+<h2>X Windows</h2>
+
+I assume you are running <a href="http://www.xfree86.org/">XFree86</a>?
+What version?  Find this out as follows:
+
+<blockquote>
+<pre>
+rgr&gt; X -version
+
+XFree86 Version 3.3.6 / X Window System
+(protocol Version 11, revision 0, vendor release 6300)
+Release Date: January 8 1999
+. . .
+rgr&gt; 
+</pre>
+</blockquote>
+
+The only time I've seen this "failed to set default font path
+'unix/:-1'" problem was due to a configuration problem in the
+distributed version of 3.3.6; the workaround was to change the
+appropriate line in <tt>/etc/X11/XF86Config</tt> to read:
+<blockquote>
+<pre>
+FontPath   "tcp/127.0.0.1:7100"
+</pre>
+</blockquote>
+
+That probably won't help you directly, but it might give you a place to
+start poking around.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@darwin.bu.edu">Bob Rogers
+	<tt>&lt;rogers@darwin.bu.edu&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Mon Jul 24 23:39:35 EDT 2000
+<!-- hhmts end -->
+</body> </html>

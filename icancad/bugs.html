@@ -1,0 +1,309 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD known bugs</title>
+</head>
+
+<body bgcolor=white>
+<h2>ICanCAD known bugs</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">ICanCAD</a> :
+Known bugs
+<hr>
+
+<p>Current bugs are marked with red stars; the stars are removed when a
+bug is fixed.  Periodically, fixed bugs are moved to the <a
+href="fixed-bugs.html">"Fixed bugs"</a> page; the last such cleanup was
+done on 14-Apr-02.
+
+<a name = bug-scale>
+<p>The "bug scale" is as follows:
+<dl compact>
+  <dt> <font color=red>*</font>
+  <dd> Minor; there are no plans to fix this bug before the next major
+       release.  Most likely, it will only be fixed if doing so happens
+       to be a convenient side-effect of other work.
+  <dt> <font color=red>**</font>
+  <dd> Moderate; the bug will probably need to be fixed before the next
+       major release, time permitting.
+  <dt> <font color=red>***</font>
+  <dd> Severe; if at all possible, the bug must be fixed before the next
+       major release, if not sooner.
+</dl>
+The scale ends at three stars; anything worse than that will probably
+get fixed before I have a chance to write it up here.  (And anything
+that would be less than one star isn't worth bothering to write up in
+the first place.)
+
+<p>The above grading system effectively defines a "major release" as one
+for which all (or most) severe bugs have been squashed.  When this
+happens, the middle component of the version number gets incremented,
+except that the first component will be incremented instead for major
+"milestone" releases.
+
+<dl compact>
+       <a name=bug-5>
+  <dt> 5.
+  <dd> <font color=red>**</font> The presentation type for def names
+       doesn't support completion.  [Def name completion has been added
+       in 0.1.22, but doesn't allow completion of libraries yet.  --
+       rgr, 19-Mar-02.]
+
+  <dt> 6.
+  <dd> <font color=red>**</font> On Windows, there is no "Meta-" key
+       under CLIM.  This is because the "Alt" key is normally used as
+       the CLIM "Meta-" key, but both "Alt" keys are usurped by Windows.
+       (There must be a way to tell Windows not to do this, because you
+       can tell X-Win32 to regain control of either or both "Alt" keys.)
+       For now, this means you have to select a use and then pick "Push"
+       (or "Push Icon", or "Pop") from the "File" menu instead of just
+       clicking Meta-Left (or Meta-Middle, or Meta-Right, respectively)
+       on the use.
+
+  <dt> 11.
+  <dd> <font color=red>**</font> We ought to preserve the order in which
+       parts are added.  [This is now part of <a
+       href="#enh-9">enhancement 9</a>, below.  -- rgr, 14-Apr-02.]
+
+  <dt> 12.
+  <dd> <font color=red>**</font> "Undo" should restore the value of the
+       <tt>def-modified-p</tt> flag.  Currently, it leaves the def
+       marked as modified when you undo back to when you last saved.  --
+       rgr, 1-Nov-01.
+
+       <a name = bug-15>
+  <dt> 15.
+  <dd> <font color=red>*</font> It would be nice to have a way to shut
+       off grid snapping temporarily (e.g. for just the next command or
+       the next click).  (See also <a href="#bug-20">bug 20</a>.)  --
+       rgr, 2-Nov-01.
+
+  <dt> 17.
+  <dd> <font color=red>**</font> The "Cut Region" command is not yet
+       implemented.  -- rgr, 11-Nov-01.
+
+  <dt> 18.
+  <dd> <font color=red>*</font> The geometry clipping used by the "Copy
+       Region" command is somewhat stubby.  Only lines, arrows, and
+       rectangles are properly clipped to the rectangle.  Polygons are
+       clipped as if they were lines, and arcs are not clipped at all --
+       they are treated just as text and uses, and included whole only
+       if they fall entirely within the rectangle.  (We decided to
+       settle for this for now because it is adequate for schematic
+       editing.)  -- rgr, 11-Nov-01.
+
+       <a name = bug-20>
+  <dt> 20.
+  <dd> <font color=red>*</font> It would be nice to have a way to toggle
+       stretch orthogonality temporarily (e.g. for just the next command
+       or the next click).  (See also <a href="#bug-15">bug 15</a>.)  --
+       rgr, 26-Nov-01.
+
+  <dt> 24.
+  <dd> <font color=red>**</font> Button press events for "Alt-Left"
+       (which sends "Control-Left" on my keyboard, or "Meta-Left" on a
+       standard X11 keyboard) seem to get absorbed in ACL 6.1, at least
+       on Linux.  [Reported to Franz.  -- rgr, 20-Nov-01.]
+
+  <dt> 27.
+  <dd> <font color=red>**</font> If a saved def has errors triggered by
+       display but not by loading (e.g. a missing icon def), ICanCAD
+       won't let you edit the def at all, making the problem effectively
+       unfixable.  (This is pretty severe, but probably won't be an
+       issue for anyone in the near future.)  -- rgr, 14-Dec-01.
+
+       <a name = bug-31>
+  <dt> 31.
+  <dd> <font color=red>*</font> "Undo" histories are never flushed.
+       This constitutes a "memory leak" during a long session.  Most
+       users will not notice this, as the amount of memory involved is
+       comparatively small.  To work around this on systems with tight
+       memory limits, you can periodically revert defs after saving
+       them.  -- rgr, 26-Jan-02.
+
+  <dt> 34.
+  <dd> <font color=red>**</font> ICanCAD rather desperately needs a
+       mode line of some sort, in order to show current def state
+       (whether modified, number of selected parts, etc.).  -- rgr,
+       20-Feb-02.
+
+  <dt> 35.
+  <dd> <font color=red>**</font> Grid drawing is not yet supported.
+       Also, the grid should default based on the IC technology.  --
+       rgr, 1-Mar-02.  [In 0.2.1, the <a
+       href="commands.html#com-set-technology">"Set Technology"</a>
+       command now does this, if the def doesn't already have a grid,
+       and the technology defines a grid for the def's view.  -- rgr,
+       27-Apr-02.]
+
+       <a name = bug-36>
+  <dt> 36.
+  <dd> <font color=red>**</font> If you hold down the "Super-" shift
+       with the mouse over a schematic wire, a connection point will be
+       highlighted (small circle-plus) instead of a point (larger "X"),
+       even though the documentation line correctly shows "Recenter" on
+       Super-Left (and that's what clicking there does), and "Recenter"
+       operates on geometric points rather than connection points.  [I
+       know why this happens -- the reason is fairly arcane, so I won't
+       try to explain it here -- but am not sure how best to fix it.  It
+       doesn't actually do any harm, so I am in no particular rush, but
+       it does give somewhat misleading visual feedback.  And since good
+       visual feedback is one of ICanCAD's strengths, I am keen to fix
+       it.  -- rgr, 15-Mar-02.]
+
+  <dt> 37.
+  <dd> <font color=red>*</font> Net label and pin selection uses the
+       bounding box, as if it were a rectangle; it should use the drawn
+       geometry (text bbox, dot, and connecting line) instead.  -- rgr,
+       19-Mar-02.
+
+  <dt> 39.
+  <dd> <font color=red>*</font> There is a bug in clicking on def names
+       in the interactor in Windows.  If you type "Edit Def&nbsp;",
+       ICanCAD will expect a def name, and you can click on a def name
+       in the output to supply it to "Edit Def."  This CLIM feature
+       seems initially to work, but then the cursor flickers rapidly,
+       and hitting <tt>Enter</tt> does nothing; ICanCAD appears to be in
+       a loop.  -- rgr, 19-Mar-02.  [It's actually not that bad; you can
+       hit the space bar, which will stop the cursor from flickering,
+       and then hit <tt>Enter</tt> to start the command.  Bug report
+       submitted to Franz Inc.  -- rgr, 26-Mar-02.]
+
+  <dt> 40.
+  <dd> <font color=red>**</font> There really ought to be a syntax for
+       relative libraries in def names.  For instance, merging
+       <tt>"..:..;"</tt> with <tt>"rogers:work:test:logic;"</tt> ought
+       to give <tt>"rogers:work;"</tt>.  This would help alleviate the
+       problem that def name completion is not fully supported (see <a
+       href="#bug-5">bug 5</a>).
+
+  <dt> 41.
+  <dd> <font color=red>***</font> If there is no grid in effect, then
+       you can't invoke a mouse command that uses a connection point
+       (e.g. "Start Wire") and have it snap to a wire or bristle.  This
+       is related to <a href="#bug-36">bug 36</a>.  (Some Janus defs
+       seem to have no grid, and ICanCAD does not assign a grid to the
+       def at creation time.)  -- rgr, 22-Mar-02.
+
+  <dt> 45.
+  <dd> <font color=red>**</font> PMOS bubbles sometimes appear to have
+       tiny "ears":
+       <blockquote>
+       <img src="pmos-ears.jpeg">
+       </blockquote>
+       (At least this happens when drawn at certain scales on Martin's
+       laptop in true-color mode).  [Bug reported 24-Mar-02 by Martin
+       Mallinson.]
+
+       <a name = bug-46>
+  <dt> 46.
+  <dd> <font color=red>**</font> Editing a def's parameters is not
+       undoable, nor does it mark the def as modified (i.e. needing to
+       be saved).  [The right way to fix this might be to make parameter
+       editing go through the property interface.  But that might be
+       hairy to get right.  -- rgr, 25-Mar-02.]
+
+       <a name = bug-47>
+  <dt> 47.
+  <dd> Def parameters for the def are not saved in the "native" Janus
+       save format.  [Fixed in 0.2.1.  -- rgr, 25-Apr-02.]
+
+       <a name = bug-48>
+  <dt> 48.
+  <dd> <font color=red>*</font> Printing doesn't really print; see the
+       <a href="general.html#printing">"Printing and hardcopy"</a>
+       section.  At most, it generates a PostScript file, without any
+       margin decorations or titles.  But I can't actually test sending
+       it to a printer, as I don't have a printer on my system; I've
+       been using <tt>ghostview</tt> instead.  -- rgr, 26-Apr-02.
+
+</dl>
+
+<a name = enhancements>
+<h3>Enhancements in the pipeline</h3>
+
+<p>This is just the set of enhancements that are possible in the near
+future, used mostly for me to keep track of stuff that needs to be done.
+The same <a href="#bug-scale">one- to three-star scale</a> as for bugs
+(only in blue) is used to classify the following features.
+
+<p>
+<dl compact>
+  <dt> 1.
+  <dd> <font color=blue>**</font> Multiple windows.  We can't claim to
+       have a decent CAD system without 'em.  [This is hanging fire
+       because of an ACL bug in sharing the menu bar between multiple
+       frames.  Bug reported to Franz on 11-Dec-01.  -- rgr, 13-Dec-01.]
+       [In February, they got back to me with a patch for the immediate
+       problem, and also a better solution.  I am waiting for an
+       opportunity to experiment with the better solution.  -- rgr,
+       26-Mar-02.]
+
+  <dt> 2.
+  <dd> PBIN save.  Not strictly necessary, but should be easy.  [Indeed
+       it was.  -- rgr, 13-Dec-01.]
+
+  <dt> 3.
+  <dd> Hardcopy.  [Added, in a stubby way, in 0.2.1.  See the <a
+       href="general.html#printing">"Printing and hardcopy"</a> section.
+       -- rgr, 26-Apr-02.]
+
+       <a name = enh-4>
+  <dt> 4.
+  <dd> <font color=blue>*</font> Scroll bars on editor windows.  They
+       never worked very well, and Release 0.1.11 broke them entirely.
+       We weren't able to fix this in time for the 0.2 release, so
+       scroll bars were removed from editor windows.  Eventually, they
+       should be put back.  -- rgr, 2-Dec-01.
+
+  <dt> 5.
+  <dd> Need "flip direction" button when wiring, to change the
+       "expected" first jog direction after having placed the first
+       wiring segment.  [Requested by Martin Mallinson on 24-Mar-02.
+       Added in 0.1.23.  -- rgr, 24-Mar-02.]
+
+  <dt> 6.
+  <dd> Elbow connections on wires should draw with rounded corners.
+       [Requested by Martin Mallinson on 24-Mar-02.  Added in 0.1.23 (it
+       was far easier than I thought it would be).  -- rgr, 24-Mar-02.]
+
+  <dt> 7.
+  <dd> ICanCAD really needs an "Eval" command, so that users can get to
+       the Lisp level in the binary versions.  [Added in 0.1.23.  --
+       rgr, 26-Mar-02.]
+
+  <dt> 8.
+  <dd> <font color=blue>***</font> There should be a file-oriented
+       alternative for most of the commands that take def names,
+       e.g. "Open File", "New File", etc.  -- rgr, 14-Apr-02.
+
+       <a name = enh-9>
+  <dt> 9.
+  <dd> <font color=blue>***</font> ICanCAD should behave more like a
+       draw program, especially in icon and symbolic editing modes.  In
+       particular, symbolic parts must be drawn in a predictable order
+       so the user can take advantage of opacity.  This would mean that
+       we'd need to preserve the order in which parts are added, and
+       draw them least recent first (on the bottom).  We'd also have to
+       provide "Raise", "Lower", "To Top", and "To Bottom" commands.
+       And we'll need to clip, though this doesn't interact well with
+       the current <a href="window-internals.html#lazy-refresh">lazy
+       refresh</a> implementation.  Part search (e.g. for selection)
+       must remain most recent first, which argues for storing them in a
+       vector, from which <tt>def-parts</tt> would be derived.  -- rgr,
+       1-Nov-01.
+
+  <dt> 10.
+  <dd> <font color=blue>*</font> The <a
+       href="commands.html#com-def-operations"> "Def Operations"</a>
+       command ought to offer <a href="commands.html#com-update-uses">
+       "Update Uses"</a> as one of the operations.  -- rgr, 6-May-02.
+</dl>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Mon May  6 14:34:29 EDT 2002
+<!-- hhmts end -->
+</body> </html>

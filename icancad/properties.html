@@ -1,0 +1,625 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD property internals</title>
+</head>
+
+<body bgcolor=white>
+<h2>ICanCAD property internals</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">ICanCAD</a> :
+<a href="internals.html">Internals</a> : Properties
+<hr>
+
+<p>Properties are name-to-value mappings that can be associated with any
+ICanCAD object.  The name is a Lisp symbol, and the value can in general
+be any Lisp object.  Some properties are predefined, such as the
+<tt>x1</tt> coordinate of a rectangle, and cannot be arbitrarily
+redefined.  Many such predefined properties also require restricted
+types, or other special attributes.  This section describes the
+mechanism by which property attributes are predefined.
+
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> ICanCAD property internals
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#property-internals">Property internals</a>
+	      <ol>
+		<li> <a href="#prop-desc">Property attributes</a>
+		<li> <a href="#def-param-attributes">Schematic parameterization</a>
+		<li> <a href="#issues">Property design issues</a>
+	      </ol>
+	 <li> <a href="#internal-property-ops">Low-level property operators</a>
+	      <ol>
+		<li> <a href="#define-class-properties"><tt>define-class-properties</tt></a>
+		<li> <a href="#class-property-descriptor"><tt>class-property-descriptor</tt></a>
+		<li> <a href="#object-property-descriptor"><tt>object-property-descriptor</tt></a>
+	      </ol>
+	 <li> <a href="#property-ops">High-level property operations</a>
+	 <li> <a href="#timestamp-ops">Timestamp operations</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name = property-internals>
+<h3>Property internals</h3>
+
+Things in the ICanCAD system are (almost always) implemented as Common
+Lisp Object System (CLOS) objects built on the <tt>basic-thing</tt>
+class.  The ICanCAD property interface allows values to be associated
+with symbolic names on objects, and defines the characteristics of those
+values, including what types are allowed, and whether they can be read,
+written, edited, saved to disk, etc.  The property interface can
+therefore be thought of as an elaboration of the CLOS slot concept.
+Properties are used throughout ICanCAD, from the user interface level
+all the way down into the grody basement details of the implementation.
+
+<p>The property interface hides the low-level implementation details
+from higher-level parts of the implementation as well as from the user,
+by providing high-level <tt>copy-object</tt> and save operations, for
+example.  Furthermore, by abstracting the implementation details into a
+common <i>&lt;object, name, value&gt;</i> model, the property interface
+provides a clean and transparent mechanism for <a
+href="commands.html#com-undo">"Undo"</a> of operations that modify
+properties.  For example, <a
+href="commands.html#com-quick-stretch">reshaping a polygon</a> is
+implemented by assigning a new value to the polygon's <tt>vertices</tt>
+property.  The property interface records the old value in such a way
+that "Undo" can restore it, without requiring the command to do anything
+special.  Furthermore, this even works for more exotic parts (e.g. <a
+href="wiring.html#net-label">net labels</a>) that do not store an
+explicit list of vertices, as long as such parts support setting the
+<tt>vertices</tt> property (e.g. via code that updates the "real"
+underlying data structure).
+
+<a name = prop-desc>
+<h4>Property attributes</h4>
+
+Internally, the behavior of properties on the various ICanCAD objects is
+controlled by <b>property attributes</b>, which are collected into
+<b>property descriptors</b>.  Property attributes are defined
+individually by keyword in <a href="#define-class-properties">
+<tt>define-class-properties</tt></a> forms; property descriptors for a
+given property are returned by the <a href="#class-property-descriptor">
+<tt>class-property-descriptor</tt></a> function, from which the
+attributes may be retrieved using accessors.  Both the attribute keyword
+name and the accessor are given in the attribute listing below.
+Additional property attributes may also be defined.
+
+<p>In between <tt>define-class-properties</tt> and
+<tt>class-property-descriptor</tt> there lies an inheritance mechanism
+that combines attributes for a given property that are defined on
+different classes in much the same way as CLOS slot attributes are
+inherited.  Subclasses can therefore override attributes defined by
+superclasses.
+
+<p>Currently, there is no mechanism for describing per-object property
+descriptors, only per-class property descriptors, with a limited
+exception for supporting def parameterization.  A parameterized def
+defines property descriptors for its parameters that apply when those
+properties are bound on uses of that def.  [The resulting special-case
+code is somewhat kludgy, but probably not worth generalizing.  -- rgr,
+20-Mar-02.]
+
+<p>The attributes below are described in alphabetical order.
+<dl>
+  <dt> <b>:allocation</b> <i>(accessor:</i> <tt>pdesc-allocation</tt><i>)</i>
+  <dd> Property allocation type, also a symbol.  The default is
+       <tt>:virtual</tt> if a non-nil <tt>:reader</tt> attribute exists,
+       <tt>:instance</tt> if a slot with the same name as the property
+       exists, or <tt>:property-list</tt> otherwise.  These are the only
+       legal values for the <tt>:allocation</tt> attribute.  When
+       specifying a property's attributes, there should be no reason to
+       do other than take the default.  [Could also allow
+       <tt>:class</tt>, but not clear how distinguishing this would
+       help.  Probably won't be needed anyway.  -- rgr, 12-Mar-00.]
+
+       <p>
+  <dt> <b>:copy-p</b> <i>(accessor:</i> <tt>pdesc-copy-p</tt><i>)</i>
+  <dd> Whether to copy the property.  This defaults to the value of the
+       <tt>:save-p</tt> attribute (q.v.), and is intepreted identically.
+
+       <p>
+       <a name = default-attr>
+  <dt> <b>:default</b> <i>(accessor:</i> <tt>pdesc-default</tt><i>)</i>
+  <dd> Specifies a value to use if the property is not bound.  If
+       specified, <a href="#get-property"> <tt>get-property</tt></a>
+       returns the specified default value and the symbol
+       <tt>:default</tt> as two values.  The property default defaults
+       to nil (in which case the second <tt>get-property</tt> value is
+       also nil.)  This means that, as far as most code is concerned, a
+       <tt>:default</tt> binding is as good as an explicit value.  Note
+       that it only makes sense to specify a default value for
+       <tt>:property-list</tt> properties; <tt>:instance</tt> props are
+       always bound, and <tt>:virtual</tt> props are perfectly capable
+       of doing their own defaulting.
+
+       <p>
+  <dt> <b>:edit-p</b> <i>(accessor:</i> <tt>pdesc-edit-p</tt><i>)</i>
+  <dd> Whether to allow the property to be edited.  Legal values are
+       <tt>t</tt> to allow editing if bound, <tt>nil</tt> to disallow
+       editing (though the property may still be <a
+       href="#pdesc-viewable-p"> <tt>:viewable-p</tt></a>), or
+       <tt>:always</tt> to make the property editable even if it is not
+       bound.  [<tt>:edit-p</tt> is a new feature, and probably still
+       buggy.  -- rgr, 24-Feb-02.]  Note that having the <a
+       href="#default-attr">default attribute</a> set does not count as
+       being bound for editing; you must also say <tt>":edit-p
+       :always"</tt> for it to show up.  The default for
+       <tt>:edit-p</tt> is <tt>t</tt> is if the property is <a
+       href="#pdesc-writable-p"> <tt>:writable-p</tt></a>, and
+       <tt>nil</tt> otherwise.
+
+       <p>
+  <dt> <b>:name</b> <i>(accessor:</i> <tt>pdesc-name</tt><i>)</i>
+  <dd> Property name, a symbol.
+
+       <p>
+  <dt> <b>:presentation-type</b> <i>(accessor:</i>
+       <tt>pdesc-presentation-type</tt><i>)</i>
+  <dd> [finish.  -- rgr, 12-Mar-00.]
+
+       <p>
+  <dt> <b>:printer</b> <i>(accessor:</i> <tt>pdesc-printer</tt><i>)</i>
+  <dd> A function of two arguments, the value and a stream, that prints
+       a property value.  Defaults to <tt>princ</tt>.  [Should default
+       to <tt>present</tt> instead.  -- rgr, 9-Oct-00.]
+
+       <p>
+  <dt> <b>:prompt</b> <i>(accessor:</i> <tt>pdesc-prompt</tt><i>)</i>
+  <dd> A string used for <tt>edit-properties</tt> prompts when querying
+       for a new value, or to display the property when viewing it.
+       Default is the <tt>symbol-name</tt> of the property name.  This
+       is separated from the value in the <tt>accepting-values</tt> menu
+       with <tt>":&nbsp;"</tt>.
+
+       <p>
+       <a name = pdesc-readable-p>
+  <dt> <b>:readable-p</b> <i>(accessor:</i> <tt>pdesc-readable-p</tt><i>)</i>
+  <dd> Whether the property is readable using <tt>get-property</tt>.
+       This always defaults to T; the intent is to allow subclasses to
+       hide properties inherited from superclases by specifying NIL
+       explicitly.  Note that, regardless of the value of this
+       attribute, the value of this property may still be available by
+       calling some generic function on the object, and will always be
+       readable using <tt>slot-value</tt>.  Such means may be
+       discouraged for users.  [Is there a reason to use values other
+       than T or nil?  -- rgr, 12-Mar-00.]
+
+       <p>
+  <dt> <b>:reader</b> <i>(accessor:</i> <tt>pdesc-reader</tt><i>)</i>
+  <dd> If non-nil, a function (or generic function) of one argument, the
+       instance, that computes and returns a virtual property.  This is
+       implicit for <tt>:instance</tt> and <tt>:property-list</tt>
+       properties, and must not be specified.
+
+       <p>
+  <dt> <b>:save-p</b> <i>(accessor:</i> <tt>pdesc-save-p</tt><i>)</i>
+  <dd> Whether to save the property when the object is written to disk.
+       The value is interpreted as follows:
+       <blockquote>
+       <dl>
+	 <dt> <tt>t</tt>:
+	 <dd> The property is saved.
+	 <dt> <tt>nil</tt>:
+	 <dd> The property is not saved.
+	 <dt> A symbol other than <tt>t</tt> or <tt>nil</tt>:
+	 <dd> The property is saved, using the <tt>:save-p</tt> value as
+	      the property name.
+	 <dt> Otherwise:
+	 <dd> The <tt>:save-p</tt> value is taken to be a function of
+	      one argument that transforms the object into its save
+	      format.  The new value is saved under the original
+	      property name.
+       </dl>
+       </blockquote> 
+       Defaults are as follows:
+       <ul>
+	 <li> Explicit properties are saved, unless declared <a
+	      href="#trivial-p">trivial</a>.
+	 <li> Virtual properties are never saved.
+	 <li> Primitive properties are saved if and only if the slot has
+	      an <tt>:initarg</tt> that is the same as the property
+	      name.
+       </ul> 
+
+       <a name = trivial-p>
+       <p> 
+  <dt> <b>:trivial-p</b> <i>(accessor:</i>
+       <tt>pdesc-trivial-p</tt><i>)</i>
+  <dd> Whether the property should be considered <a
+       href="glossary.html#trivial-property">trivial</a>.  [Specifying
+       this non-nil currently makes the <tt>:timestamps</tt>,
+       <tt>:copy-p</tt>, and <tt>:save-p</tt> attributes all default to
+       NIL.  It also skips storing explicit properties that are on the
+       <tt>make-instance</tt> keyword list when an object is created.
+       -- rgr, 26-Sep-01.]
+
+       <p>
+  <dt> <b>:type</b> <i>(accessor:</i> <tt>pdesc-type</tt><i>)</i>
+  <dd> [finish.  -- rgr, 12-Mar-00.]
+
+       <p>
+       <a name = pdesc-viewable-p>
+  <dt> <b>:viewable-p</b> <i>(accessor:</i> <tt>pdesc-viewable-p</tt><i>)</i>
+  <dd> Whether to allow the property to be viewed in an
+       <tt>edit-properties</tt> window.  This defaults to T across the
+       board, but is used only if the property is not editable.
+
+       <p>
+       <a name = pdesc-writable-p>
+  <dt> <b>:writable-p</b> <i>(accessor:</i> <tt>pdesc-writable-p</tt><i>)</i>
+  <dd> Whether the property is writable using <tt>(setf
+       get-property)</tt>.  For an explicit property, this defaults to
+       T.  For a primitive property, this defaults to T if property has
+       a writer, or the slot has any <tt>:accessor</tt> attributes, and
+       NIL otherwise.  [punting on the slot :accessor; don't know how to
+       determine this, as it's not in the slot descriptor.  -- rgr,
+       26-Sep-00.]  Note that, regardless of the value of this
+       attribute, the value of this property may still be writable by
+       calling some generic function on the object, and will always be
+       writable using <tt>(setf slot-value)</tt>.  Such means sidestep
+       the property interface, and may defeat undo bookkeeping and
+       display updating.
+
+       <p>
+  <dt> <b>:writer</b> <i>(accessor:</i> <tt>pdesc-writer</tt><i>)</i>
+  <dd> A function of two arguments, the new value and the
+       property-containing object, that stores the new property value
+       for a <tt>:virtual</tt> property.  [need to describe caveats; if
+       the writer uses explicit <tt>(setf get-property)</tt> calls
+       itself, that will cause additional <tt>note-modification</tt>
+       triggering.  -- rgr, 6-Oct-00.]
+
+       <p>
+  <dt> <b><i>other</i></b> <i>(accessor:</i>
+       <tt>pdesc-other-attributes</tt><i>)</i>
+  <dd> Attributes not named above are stored on the
+       <tt>pdesc-other-attributes</tt> slot, and may be retrieved via
+       <pre>
+       (getf (pdesc-other-attributes pdesc) attribute)
+       </pre>
+       No special merging or defaulting is done for these; the last
+       value specified overrules.
+</dl>
+
+<a name = def-param-attributes>
+<h4>Schematic parameterization</h4>
+
+<p>The <tt>define-class-properties</tt> mechanism can only define
+property attributes on properties of classes; every instance of the
+class shares the same set of property attributes.  Schematic
+parameterization requires per-def property descriptors, so that the
+<tt>:default</tt> attribute can be set, for example.  This is done by
+storing a def's parameters as a list of property descriptor structures;
+this list is returned by the <tt>def-parameters</tt> function.  Defs and
+schematic uses define methods for the <a
+href="#object-property-descriptor">
+<tt>object-property-descriptor</tt></a> generic function (among others)
+that attempt to integrate these descriptors with the normal def and use
+repertoires.  [The implementation is some what ad hoc; <a
+href="bugs.html#bug-47">at least one bug</a> is known.  -- rgr,
+14-Apr-02.]
+
+<p>The user adds, deletes, and changes def parameters with the <a
+href="commands.html#com-edit-parameters">"Def Parameters"</a> command.
+Note that the property attribute definition interface is still not quite
+visible at the user level.
+
+<a name = issues>
+<h4>Property design issues</h4>
+
+<dl>
+  <dt> A <tt>map-property-descriptors</tt> operation?
+  <dd> Having such a beast would make it easier to hide the special
+       cases for use and def parameters.  -- rgr, 30-Mar-02.
+
+       <p>
+  <dt> A <tt>has-properties-class</tt> class metaclass?
+  <dd> [In fact, I've decided to avoid creating metaclasses for the time
+       being.  It might be cleaner to use a metaclass, but it's not
+       clear to me how portable that would be.  -- rgr, 27-Sep-00.]
+
+       <p>[If we wanted to go whole hog in this direction, we could use
+       meta-enhanced slot definitions that supported <tt>":allocation
+       :property-list"</tt> directly, instead of property descriptors.
+       That could allow <tt>slot-value</tt> and <tt>with-slots</tt> to
+       access property values, which would provide tremendous
+       implementation flexibility.  Essentially, we would be slipping
+       properties in underneath CLOS.  On the other hand, it might
+       defeat some important slot speed optimizations, though, if we
+       have to define <tt>slot-value-using-class</tt> methods.  -- rgr,
+       11-Mar-00.]
+
+       <p>
+  <dt> User-defined parameter types.
+  <dd> Currently, all def parameters are constrained internally to have
+       a <tt>:type</tt> attribute of <tt>T</tt> and a
+       <tt>:presentation-type</tt> attribute of
+       <tt>icc::engineering-expression</tt>; this is what allows users
+       to assign expressions as parameter values.  However, the user
+       should have some control over the ultimate values assigned to
+       primitive parameters, such as requiring that a transistor
+       dimension be a number no smaller than the relevant IC technology
+       minimum design rule rule.  This may require making the
+       presentation type independent of the Lisp type.  Type checking on
+       constant values during "Edit Properties" could be done
+       immediately, but checking expression values might have to wait
+       until flattening time.
+</dl>
+
+<a name = internal-property-ops>
+<h3>Low-level property operators</h3>
+
+See also the <a href="#property-ops">"High-level property
+operations"</a> section below.
+
+<dl>
+  <dt> <a href="#define-class-properties">
+       <b>define-class-properties</b> <i>(class-name options
+       <tt>&amp;body</tt> [[property-def]])</i></a>
+  <dd> Defines all property attributes that are specific to the given
+       class (more below).
+  <dt> <b>edit-property-alist</b> (thing alist)
+  <dd> Internal <tt>edit-properties</tt> grinder.  [Part of the
+       mechanism for handling editing props on multiple parts, not yet
+       implemented.  -- rgr, 12-Oct-00.]
+  <dt> <b>class-direct-property-descriptors</b> (class)
+  <dd> Returns the attribute alist structure defined by
+       <tt>define-class-properties</tt>, in a semi-digested form.  Note
+       that these are not actually property descriptors.
+  <dt> <b>class-property-descriptor-table</b> (class)
+  <dd> Returns a name-to-descriptor hash table for all properties with
+       attributes defined on or inherited by <tt>class</tt> (a CLOS
+       class metaclass object), recomputing them if necessary.
+  <dt> <a href="#class-property-descriptor">
+       <b>class-property-descriptor</b> (class prop-name)</a>
+  <dd> Returns the property descriptor for the given CLOS class and
+       property name (more below).
+  <dt> <a href="#object-property-descriptor">
+       <b>object-property-descriptor</b> (object prop-name)</a>
+  <dd> Returns the property descriptor for the given object and property
+       name (more below).
+</dl>
+
+<a name = define-class-properties>
+<h4><tt>define-class-properties</tt></h4>
+
+<tt>define-class-properties</tt> establishes attributes for a set of
+properties on a given CLOS class.
+
+<p> <b>define-class-properties</b> <i>class-name options
+<tt>&amp;body</tt> [[property-def]]</i>
+<br>=&gt; <i>class-name</i>
+
+<pre>
+property-def ::= (property-name {attr-name attr-value}*)
+</pre>
+
+<p><b>Arguments and values:</b>
+<dl>
+  <dt> <b>class-name</b>
+  <dd> Name of the class for which to define properties.  There should
+       be only one <tt>define-class-properties</tt> form for a given
+       class.  The class does not need to be defined before the
+       <tt>define-class-properties</tt> form is evaluated.
+  <dt> <b>options</b>
+  <dd> Optional extra options to <tt>define-class-properties</tt>.  At
+       this point, none are defined, so this should be specified as
+       <tt>"()"</tt> (i.e. the empty list).
+  <dt> <b>property-name</b>
+  <dd> A non-nil symbol.  Each property should be specified at most once
+       for a given <tt>class-name</tt>.
+  <dt> <b>attr-name</b>
+  <dd> A non-nil symbol.  Each attribute should be specified at most
+       once for a given <tt>property-name</tt> (but this is not
+       checked).
+  <dt> <b>attr-value</b>
+  <dd> A value for the <tt>attr-name</tt> attribute of the
+       <tt>property-name</tt> property of <tt>class-name</tt>.
+</dl>
+
+<a name = class-property-descriptor>
+<h4><tt>class-property-descriptor</tt></h4>
+
+Given a CLOS class and a property name,
+<tt>class-property-descriptor</tt> finds the property descriptor that
+specifies what to do about properties bound on objects of that class.
+
+<pre>
+   (class-property-descriptor <i>class prop-name</i>)
+</pre>
+
+Returns the property descriptor for <tt><i>class</i></tt> (a class
+object, as returned by <a
+href="http://www.xanalys.com/software_tools/reference/HyperSpec/Body/acc_find-class.html#find-class">
+<tt>find-class</tt></a>) and <tt><i>prop-name</i></tt> (a symbol).  A
+descriptor is always returned; if no superclass defines attributes for
+<tt>prop-name</tt>, then the descriptor for the
+<tt>default-explicit-property</tt> symbol is returned (which always
+exists, because it is defined on the <tt>basic-thing</tt> class).  If
+not already done, this causes property attribute inheritance for
+<tt><i>class</i></tt> to be computed.
+
+<a name = object-property-descriptor>
+<h4><tt>object-property-descriptor</tt></h4>
+
+Given an ICanCAD object and a property name,
+<tt>object-property-descriptor</tt> finds the property descriptor that
+specifies what to do about properties bound on that particular object.
+
+<pre>
+   (object-property-descriptor <i>object prop-name</i>)
+</pre>
+
+For the most part, the result will be whatever
+<tt>class-property-descriptor</tt> would return for the class of the
+object and the property name, but defs and schematic uses may return a
+property descriptor for a def parameter instead.  As for
+<tt>class-property-descriptor</tt>, a descriptor is always returned; if
+no superclass defines attributes for <tt>prop-name</tt>, then the
+descriptor for the <tt>default-explicit-property</tt> symbol is returned
+(which always exists, because it is defined on the <tt>basic-thing</tt>
+class).
+
+<a name = property-ops>
+<h3>High-level property operations</h3>
+
+These operations are available to objects built on <tt>basic-thing</tt>.
+<tt>basic-thing</tt> includes an <tt>:after</tt> method on
+<tt>initialize-instance</tt> that captures as explicit properties all
+initargs that do not initialize slots (and are not declared <a
+href="#trivial-p">trivial</a>).
+
+The operations that do not start with <tt>"icc::"</tt> are considered
+"public," and are available to ICanCAD users.
+
+<dl>
+  <dt> <b>&gt;&gt;</b> (&rest names)
+  <dd> This is a shorthand for a series of property accesses.  For
+       instance,
+       <pre>
+       (&gt;&gt; width m1)
+       </pre>
+       returns the value of the <tt>width</tt> property of the
+       transistor named <tt>m1</tt> in the current def.  This is
+       equivalent to
+       <pre>
+       (find-property 'width (find-property 'm1 *def*))
+       </pre>
+       Because <tt>find-property</tt> is used, it is an error if any of
+       these properties are unbound.  [must also explain dotted tail,
+       evaluation of non-atoms.  -- rgr, 24-Feb-02.]
+  <dt> <b>copy-thing</b> (object &rest new-prop-values)
+  <dd> Creates a copy of thing by calling <tt>create-init-plist</tt> on
+       itself, merging any <tt>new-prop-values</tt> given, and passing
+       the result to <tt>make-instance</tt>.  If the special property
+       name <tt>:class</tt> is given, then its value is the name of the
+       class to instantiate; otherwise, <tt>(class-of object)</tt> is
+       used.
+  <dt> <b>icc::create-init-plist</b> (object purpose)
+  <dd> Creates and returns a new list of alternating property names and
+       values for all non-virtual properties currently bound on
+       <tt>object</tt>.  The list is guaranteed to be new, so it can be
+       modified with impugnity.  The <tt>purpose</tt> argument should be
+       either <tt>:copy</tt>, <tt>:save</tt>, or <tt>:edit</tt>; the
+       value is used only to decide which properties to include, by
+       looking up the <tt>:copy-p</tt>, <tt>:save-p</tt>, or
+       <tt>:edit-p</tt> attributes, respectively.  [The <tt>:save</tt>
+       case may also have to do some preliminary work to encode a value
+       for saving to disk, but there is presently no mechanism for this.
+       -- rgr, 11-Oct-00.]
+  <dt> <b>edit-properties</b> (object &amp;key prompt ...)
+  <dd> Allow the user to select new values for <tt>object</tt>'s
+       editable properties in a pop-up dialog, changing those values if
+       the user exists normally, and leaving them untouched if the user
+       aborts.  [still thinking about how this should work.  Probably
+       need some experimentation.  -- rgr, 12-Mar-00.]
+
+       <a name = find-property>
+  <dt> <b>find-property</b> (object property) =&gt; value
+  <dd> <tt>find-property</tt> is like <tt>get-property</tt>, except that
+       it signals an error if the property is unbound.  [should specify
+       the error class.  -- rgr, 27-Sep-00.]
+
+       <a name = get-property>
+  <dt> <b>get-property</b> (object property)<br>&nbsp;=&gt; (values
+       value bound-p)
+  <dd> Returns the value of the property named <tt>property</tt> and t
+       if the property is bound on <tt>object</tt>, or the default value
+       and the keyword symbol <tt>:default</tt> if the <a
+       href="#default-attr">default attribute has been set</a> for this
+       property name and object type, or nil and nil otherwise.
+
+  <dt> <b>(setf get-property)</b> (new-value object prop-name) =&gt;
+       new-value
+  <dd> Assigns <tt>new-value</tt> to the <tt>prop-name</tt> property of
+       <tt>object</tt>.  Parts specialize this to notify the parent def
+       that it is being changed, possibly perform display update [should
+       say more about this?], and record an undo transaction.  Signals
+       an error if the property is not writable.  [should specify the
+       error class.  -- rgr, 11-Oct-00.]
+
+       <a name = make-property-unbound>
+  <dt> <b>make-property-unbound</b> (object prop-name) =&gt; (values
+       was-bound-p old-value)
+  <dd> If <tt>prop-name</tt> is an explicit (<tt>:property-list</tt>)
+       property that has a (non-default) binding, then <tt>t</tt> and
+       the old value are returned as two values.  (Parts specialize this
+       to notify the parent def that it is being changed, possibly
+       perform display update [should say more about this?], and record
+       an undo transaction.  [Some of this is known to be broken.  --
+       rgr, 23-Feb-02.])  If it is an unbound explicit property (whether
+       or not it has a default), then <tt>nil</tt> and <tt>nil</tt> are
+       returned.  If <tt>prop-name</tt> is any other kind of property,
+       an error is signalled.
+
+  <dt> <b>property-bound-p</b> (object prop-name) =&gt; bound-p
+  <dd> Returns one of the following:
+       <ul>
+	 <li> <tt>:instance</tt> if <tt>prop-name</tt> is an
+	      <tt>:instance</tt> property (which is always bound);
+	 <li> <tt>:virtual</tt> if <tt>prop-name</tt> is a <a
+	      href="glossary.html#virtual">virtual property</a> (in
+	      which case it would have to be computed);
+	 <li> <tt>t</tt> if <tt>prop-name</tt> is a
+	      <tt>:property-list</tt> property that is explicitly bound
+	      on <tt>object</tt>;
+	 <li> <tt>:default</tt> if <tt>prop-name</tt> is a
+	      <tt>:property-list</tt> property that is not bound but has
+	      a <a href="#default-attr"><tt>:default</tt> attribute</a>;
+	      or
+	 <li> <tt>nil</tt>, to indicate that <tt>prop-name</tt> is a
+	      <tt>:property-list</tt> property that is not bound and has
+	      no default.
+       </ul>
+       Note that the property may exist but be <a
+       href="#pdesc-readable-p">declared explicitly as "not
+       readable"</a>, in which case it is considered not bound.  A
+       return value of <tt>t</tt> means that <a
+       href="#make-property-unbound"> <tt>make-property-unbound</tt></a>
+       will not fail.  Any non-nil return value means that
+       <tt>find-property</tt> will not fail.  [Except that
+       <tt>:virtual</tt> means that the code that computes the property
+       may decline to return a value.  So far, there are no such
+       properties.  -- rgr, 23-Feb-02.]
+</dl>
+
+<a name = timestamp-ops>
+<h3>Timestamp operations</h3>
+
+[incomplete  -- rgr, 11-Oct-00.]
+
+<p>These operations are mostly defined for
+<tt>has-timestamps-mixin</tt>, which is included in the
+<tt>basic-def</tt> class.
+
+<dl>
+  <dt> <b>icc::get-timestamp</b> (thing timestamp)
+  <dd> Returns the value of a timestamp defined on <tt>thing</tt>, or
+       zero if not defined.  This will always return a non-negative
+       integer.
+  <dt> <b>icc::new-timestamp-tick</b> ()
+  <dd> returns a new value from the monotonic timestamp counter.
+  <dt> <b>note-modification</b> (thing timestamps)
+  <dd> Set <tt>thing</tt>'s timestamp to a new timestamp value.  This is
+       also defined for parts, which do not include the
+       <tt>has-timestamps-mixin</tt> class.  Parts and defs may define
+       daemons on this method (but be careful not to slow the whole show
+       down).
+  <dt> <b>icc::set-timestamp</b> (thing timestamp &optional value)
+  <dd> Set <tt>thing</tt>'s timestamp to <tt>value</tt>, which defaults
+       to <tt>(new-timestamp-tick)</tt>.  If <tt>timestamp</tt> is a
+       list of timestamp names, then all are set to the same value.
+</dl>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sat Apr 27 21:51:59 EDT 2002
+<!-- hhmts end -->
+</body> </html>

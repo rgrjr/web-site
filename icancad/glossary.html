@@ -1,0 +1,416 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>ICanCAD glossary</title>
+</head>
+
+<body bgcolor=white>
+<h2>ICanCAD glossary</h2>
+
+Some of these terms are in common use in the CAD industry (and must be
+defined here because the CAD industry is infamous for inconsistent
+terminology), some are peculiar to ICanCAD (and thereby contribute to
+that well-deserved infamy), and a few are Common Lisp terms explained
+here for the convenience of users.
+
+<dl>
+  <a name = allocation>
+  <dt> <b>allocation</b> (property)
+  <dd> Similar in concept to CLOS slot allocation, storage for a
+       property can be arranged in one of the following ways:
+       <ul>
+	 <li> Primitive, if stored as a CLOS slot;
+	 <li> Explicit, if stored on the  <tt>basic-thing</tt> property
+	      list slot; or
+	 <li> Virtual, if computed rather than stored.
+       </ul>
+       By default, a property is primitive if the object has a CLOS slot
+       of the same name, and explicit otherwise.  However, note that it
+       is possible to shadow this attribute, so the presence of a slot
+       does not automatically mean a primitive property.
+
+  <a name = bristle>
+  <dt> <b>bristle</b> (n.)
+  <dd> A connection point to a schematic <a href="#use">use</a> that
+       makes a physical connection to a <a href="#port">port</a> in the
+       schematic.  The location is defined by a <a href="#pin">pin</a>
+       (q.v.) in the icon.
+
+  <a name = bus>
+  <dt> <b>bus</b> (n.)
+  <dd> A schematic bus represents a collection of physical wires that
+       are treated as a unit; each drawn wire in a schematic can be
+       though of as carrying a bus, and may therefore represent more
+       than one wire in the layout.  Each bus contains one or more <a
+       href="#net">nets</a>, in a specified order, where the number of
+       nets is the bus' <a href="#width">width</a>.  The individual nets
+       can be subscripted, as in <tt>"wide&lt;5&gt;"</tt>, so the bus
+       therefore acts like a one-dimensional array of nets.  Busses can
+       be extracted from other busses with <tt>"wide&lt;3:8&gt;"</tt>.
+       Busses and bus names are local to the schematic in which they
+       appear.  See the <a href="connectivity.html">"ICanCAD Schematic
+       Nets and Busses"</a> section for a full treatment.
+
+  <a name = chord>
+  <dt> <b>chord</b> (of modifiers, as in "mouse chord")
+  <dd> In order to cram as many commands as possible onto a three-button
+       mouse without requiring intermediate menus, ICanCAD takes
+       advantage of the fact that modifier keys such as <tt>"Ctrl"</tt>
+       and <tt>"Shift"</tt> can be held down with the one hand while
+       clicking the mouse with the other hand.  The combination of
+       modifier keys and button is what specifies the command.  The
+       combination of modifier keys is called a modifier chord, by
+       analogy with piano keys.  See the <a
+       href="general.html#invoking-mouse-commands">Invoking mouse
+       commands in editor windows</a> section for more information.
+       Chorded keyboard characters are also used as editing commands
+       when typing in ICanCAD windows and dialogs; see the <a
+       href="general.html#typing-commands">Typing commands to
+       ICanCAD</a> section.
+
+       <a name = cltl2>
+  <dt> <b>CLtL2</b> (Lisp reference)
+  <dd> Popular abbreviation for <b>Common Lisp, the Language, Second
+       Edition</b> by Guy L. Steele Jr. (copyright 1990,
+       Butterworth-Heinemann, and published under the Digital Press
+       imprint).  Most Lisp implementations are somewhere between
+       "CLtL2-compliant" and "ANSI-compliant"; modern Lisps are closer
+       to the ANSI language, but the CLtL2 specification is still
+       relevant, and much more readable for non-implementors.  It has
+       many sections that describe "forthcoming" ANSI features, which is
+       probably why it hasn't required a third edition.
+
+       <a name = connection-pt>
+  <dt> <b>connection point</b>
+  <dd> A place on a schematic that involves making a connection to an
+       existing bit of wiring.  Connection points highlight as a small
+       circle-plus, so that they can be distinguished from ordinary
+       points.
+
+       <a name = context>
+  <dt> <b>context</b> (of a net)
+  <dd> Refers to whether the net is local, global, or a port.  See the
+       <a href="busses.html#context">"Net context"</a> section.
+
+  <a name = def>
+  <dt> <b>def</b>
+  <dd> The basic editable unit of a design.  Some common synonyms used
+       by other systems are module, block, (schematic) page, and cell.
+       Defs are included hierarchically within each other by means of <a
+       href="#use">uses</a>.
+
+  <a name = current-def>
+  <dt> <b>def, current</b>
+  <dd> The def that will be operated on by most commands.  The
+       exceptions are those that specify a def name (e.g. <a
+       href="commands.html#com-edit-def">"Edit Def"</a>), in which case
+       the named def is used, or that are invoked by clicking the mouse
+       in a window, in which case the window's def is obviously meant.
+       The current def is always the value of the <tt>*def*</tt>
+       variable.  [Generally, this will also be the def displayed in the
+       front window, but the code may not be very consistent on this
+       point.  -- rgr, 25-Jan-02.]
+
+       <a name = def-name>
+  <dt> <b>def name</b>
+  <dd> The absolute system-independent name of a def (also,
+       <tt>def-name</tt>, the Lisp object that describes it).  See the
+       <a href="general.html#library-notes">"Notes on libraries, defs,
+       and files"</a> section for details.
+
+       <a name = property-descriptor>
+  <dt> <b>descriptor</b> (property)
+  <dd> A data structure that describes the attributes of a given
+       property, whether primitive or not.  Not all properties need
+       descriptors of their own; if a descriptor is not defined, the one
+       for the property <tt>default-property</tt> is used.
+
+       <a name = device>
+  <dt> <b>device</b>
+  <dd> A device is a <a href="#network">network</a> object that
+       represents a primitive (e.g. a transistor or capacitor).  These
+       are not necessarily IC technology primitives; if the network is
+       to be used for functional simulation, it may contain devices that
+       represent high-level functional blocks such as memories and
+       microprocessors.
+
+       <a name = explicit>
+  <dt> <b>explicit</b> (property <a href="#allocation">allocation</a>)
+  <dd> A property that is stored on the <tt>basic-thing</tt> property
+       list slot when bound.
+
+       <a name = "extraction">
+  <dt> <b>extraction</b> (connectivity)
+  <dd> [finish.  -- rgr, 18-Jan-03.]
+
+       <a name = frame>
+  <dt> <b>frame</b> (n.)
+  <dd> [define CLIM term.  -- rgr, 26-Mar-01.]
+
+  <dt> <b>global</b>
+  <dd> See <a href="#global-net">net, global</a>.
+
+       <a name = handle>
+  <dt> <b>handle</b>
+  <dd> A location on a part that can be grabbed (if the part is
+       selected) in order to reshape it.  All parts have handles, though
+       some (uses and text parts) have only one.
+
+       <a name = keyword>
+  <dt> <b>keyword</b> (Lisp)
+  <dd> In Lisp, <b>keyword symbols</b> are a subset of symbols that
+       start with a single colon, and all belong to the keyword <a
+       href="#package">package</a>, <tt>:left</tt> for example.  Unlike
+       most Lisp symbols, they do not need to be quoted.
+
+       <br> A <b>keyword argument</b> to a Lisp function [should also be
+       defined.  -- rgr, 22-Mar-02].
+
+       <a name = kill-ring>
+  <dt> <b>kill ring</b>
+  <dd> A history of parts recently deleted.  This is called a "ring"
+       because it can be rotated by the <a
+       href="commands.html#com-paste-parts">"Paste"</a> command.  See
+       the <a href="commands.html#intro-kill-ring">"Kill Ring"</a>
+       section for more details.
+
+       <a name = library>
+  <dt> <b>library</b>
+  <dd> Libraries name a group of related defs, and correspond to
+       directories on the file system.  See the <a
+       href="libraries.html">"Libraries"</a> section for more
+       information.
+
+  <a name = net>
+  <dt> <b>net</b>
+  <dd> The portion of a single <a href="#node">electrical node</a> that
+       falls within a given schematic; a one-wire component of a <a
+       href="#bus">bus</a>.  Nets can be connected hierarchically to <a
+       href="#port">ports (port nets)</a> of child <a
+       href="#use">uses</a>, and, as ports themselves, to nets in
+       higher-level schematics; all such nets contribute to the same
+       electrical node.
+
+  <a name = global-net>
+  <dt> <b>net, global</b>
+  <dd> [ugh.  -- rgr, 18-Mar-01.]
+
+  <a name = network>
+  <dt> <b>network</b>
+  <dd> A network is an ICanCAD object that provides a "flat" description
+       of the connectivity of a design hierarchy.  A network consists of
+       interconnected <a href="#node">nodes</a> and <a
+       href="#device">devices</a>.  See the <a
+       href="busses.html#flattening">"Flattening"</a> section for
+       details.
+
+  <a name = node>
+  <dt> <b>node</b>
+  <dd> An electrical node; an equipotential.  Also, the <a
+       href="#network">network</a> object that represents a node.
+       During simulation, a node has exactly one voltage and/or logic
+       state (regardless of how well the simulator may be able to define
+       that state).  Thus <tt>GND</tt> is a common node (ahem) that is
+       represented by separate <a href="#net">nets</a> in each of the
+       schematics that require <tt>GND</tt> connections.
+
+       <a name= package>
+  <dt> <b>package</b> (Lisp)
+  <dd> The Common Lisp object that serves as a symbol table.  As you
+       might therefore expect, a package maps a string to a <a
+       href="#symbol">symbol</a>.  The Lisp <tt>*package*</tt> variable
+       defines the default package for symbols being read into the Lisp
+       system.  See the <a href="general.html#lisp-packages">"Lisp
+       packages"</a> section for more details.
+
+       <a name= parameter>
+  <dt> <b>parameter</b> (to a <a href="#def">def</a>)
+  <dd> ICanCAD supports a limited form of def parameterization, in which
+       a def can advertise that certain properties of a use can be
+       assigned values in the parent def, and expressions using those
+       values can be assigned to parameters of child uses.  It is not
+       possible to affect connectivity via ICanCAD parameterization.
+       See the <a href="general.html#schematic-parameters">"Passing
+       parameters to schematic defs"</a> section for details.
+
+       <a name = pathname>
+  <dt> <b>pathname</b> (Common Lisp)
+  <dd> A file name, or the object that describes it.  The "path" part
+       refers to the series of directory names that form a path from the
+       file system root in a fully-specified file name.  See <a
+       href="http://www.xanalys.com/software_tools/reference/HyperSpec/Body/chap-19.html">
+       Chapter 19</a> of the <a
+       href="http://www.xanalys.com/software_tools/reference/HyperSpec/">
+       Common Lisp HyperSpec</a> for more on Lisp pathnames.
+
+       <a name = logical-pathname>
+  <dt> <b>pathname, logical</b> (Common Lisp)
+  <dd> A machine- and operating-system-independent <a
+       href="#pathname">pathname</a>, sometimes abbreviated "LPN."  See
+       <a href="#cltl2">CLtL2</a> section 23.1.5 for an introduction to
+       logical pathnames with examples and a formal description, and <a
+       href="http://www.xanalys.com/software_tools/reference/HyperSpec/Body/sec_19-3.html">
+       Section 19.3</a> of the <a
+       href="http://www.xanalys.com/software_tools/reference/HyperSpec/">
+       Common Lisp HyperSpec</a> for a purely formal description.
+
+  <a name = pin>
+  <dt> <b>pin</b> (n.)
+  <dd> A part in a schematic icon that represents a connection point to
+       a schematic <a href="#port">port</a>.  Pins have a text string
+       and a "hot spot" that may be positioned independently of each
+       other.  The string names the port, and the hot spot identifies
+       the connection point.  A <a href="#bristle">bristle</a> will be
+       created for each <a href="#use">use</a> of this icon in the same
+       relative position as the hot spot.  Each schematic use therefore
+       has a set of bristles that corresponds to the use's icon's set of
+       pins.  [In reading the code, bear in mind that pins are currently
+       implemented by the <tt>icc::port-dot</tt> class.  -- rgr,
+       20-Mar-02.]
+
+  <a name = port>
+  <dt> <b>port</b>
+  <dd> A <a href="#net">net</a> or <a href="#bus">bus</a> within a given
+       schematic that is declared as a port becomes part of the
+       schematic's electrical interface.  Explicit connections may be
+       made to ports when the schematic is added as a use at the next
+       higher level of hierarchy.
+
+  <a name="possibility">
+  <dt> <b>possibility</b>
+  <dd> An item in a list of "possibilities", usually a set of extractor
+       errors.  A possibility consists of a message, and a set of parts
+       that belong to the same def.  Each possibility can be visited
+       independently; the system keeps track of which ones have been
+       seen.  [might be good to invent better nomenclature.  -- rgr,
+       18-Jan-03.]
+
+       <a name = primitive-prop>
+  <dt> <b>primitive</b> (property <a href="#allocation">allocation</a>)
+  <dd> A property that is stored in a CLOS object slot.
+
+       <a name= symbol>
+  <dt> <b>symbol</b> (Lisp)
+  <dd> The Common Lisp object that names variables and functions, among
+       other things.  In particular, ICanCAD uses Lisp symbols to name
+       properties.  Symbols are normally available in <a
+       href="#package">packages</a>.
+
+       <a name = symbolic>
+  <dt> <b>symbolic</b> (view, of a part or def)
+  <dd> A symbolic part is one with no electrical semantics, such as an
+       arc or a rectangle, as opposed to electrically meaningful
+       "wiring" parts, such as wires and net labels.  [should mention
+       that uses come in symbolic and schematic varieties.  -- rgr,
+       31-Mar-02.]  A symbolic def is one that is neither a schematic
+       nor a schematic icon.  Symbolic parts can be added to any kind of
+       def, as opposed to wiring parts, which are specific to
+       schematics, or pins and labels, which are specific to icons.
+
+       <a name = trivial-property>
+  <dt> <b>trivial</b> (property)
+  <dd> A property is trivial if
+       <ul>
+	 <li> changing it does not "change" the object (i.e. mark it as
+	      modified) when the value changes; and
+	 <li> it is not saved to disk or copied when the object is saved
+	      or copied, including copying to the kill ring.
+       </ul>
+       Trivial properties are generally used for storing temporary
+       values that should only be associated with the specific part.
+       [Whether a property is to be copied or saved may be specified
+       independently, so the notion of "trivial" is a bit ambiguous.  --
+       rgr, 12-Mar-00.]
+
+       <a name = use>
+  <dt> <b>use</b> (n.)
+  <dd> A hierarchical inclusion of one <a href="#def">def</a> inside
+       another.  Often called an "instance" in other CAD systems, which
+       can be confusing to the software developers, who use the term
+       "instance" as an object-oriented programming concept.
+
+       <a name = view>
+  <dt> <b>view</b> (n.)
+  <dd> The "kind" or "purpose" of a def, such as schematic, schematic
+       icon, etc.
+
+       <a name = virtual>
+  <dt> <b>virtual</b> (property <a href="#allocation">allocation</a>)
+  <dd> A property that is computed when requested, rather than being
+       stored anywhere.  These are often functions of other properties,
+       such as the <tt>area</tt> property of a geometric part.  (The
+       <tt>area</tt> of a transistor part may be a different matter, as
+       that is probably a <a href="#parameter">parameter</a>.)
+
+       <a name = width>
+  <dt> <b>width</b> (adj.)
+  <dd> of a bus, the number of bits it contains.
+
+       <a name = active-window>
+  <dt> <b>window, active</b>
+  <dd> [one that is not deactivated (in the clim sense) because it
+       belongs to a <a href="#frame">frame</a> that is currently in a
+       configuration that does not use the window.  need to describe
+       this in user-meaningful terms.  -- rgr, 26-Mar-01.]
+</dl>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sat Jan 18 21:28:41 EST 2003
+<!-- hhmts end -->
+
+<!-- These blank lines make it possible (in Netscape anyway) to have the -->
+<!-- tags on the last page scrolled to the top of the screen.  -.- rgr, -->
+<!-- 29-Mar-01. -->
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

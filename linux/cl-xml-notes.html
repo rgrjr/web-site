@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>CL-XML notes</title>
+</head>
+
+<body bgcolor=white>
+<h2>CL-XML notes</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="./">Linux resources</a> :
+<a href="xml.html">XML</a> : CL-XML notes
+<hr>
+
+<p>[These are notes on <a href="http://www.setf.de/">CL-XML</a>, which
+which I am presently hacking around.  -- rgr, 31-Oct-02.]
+
+<p>[The local documentation tree starts in <a
+href="file:///usr/share/common-lisp/repositories/cl-xml-0.918/documentation/index.html">
+<tt>repositories/cl-xml-0.918/documentation/index.html</tt></a>.
+
+<h3>Table of Contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> CL-XML notes
+       <ol>
+	 <li> Table of Contents
+	 <li> API
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<h3>Classes</h3>
+
+<dl>
+  <dt> <b>xqdm:def-elem-type</b>
+  <dd> Defines the "type" of an element.
+       These are normally the children of
+       DTD objects (e.g. <tt>xqdm::ext-subset-node</tt>).
+       Default <tt>xqdm:node-class</tt> is <tt>xqdm:elem-node</tt>.]
+</dl>
+
+<h3>API</h3>
+
+<dl>
+  <dt> <b>xqdm:bind-definition</b> (definition context)
+  <dd> Adds <tt>definition</tt> to <tt>context</tt>.
+       <tt>definition</tt> may be a <tt>xqdm:def-general-entity</tt>,
+       <tt>xqdm:def-parameter-entity</tt>, <tt>xqdm:def-notation</tt>,
+       or <tt>xqdm:def-elem-type</tt> object.  <tt>context</tt> must be
+       a <tt>xqdm:doc-node</tt> (in which case the object's name is
+       defined in the appropriate mapping), a <tt>hash-table</tt> (in
+       which case the name is mapped to the object), or <tt>null</tt>
+       (in which case the binding is ignored).
+  <dt> <b>xqdm:document</b> (node)
+  <dd> Returns the node's containing document.
+  <dt> <b>xml-parser:construct-element-node</b> (construction-context
+       name attr-plist+ns-node*)
+  <dd> Given a context and an element name, returns a new element of the
+       appropriate class.  [Much hair goes into mapping the name into
+       the right class, but <tt>xqdm:elem-node</tt> is the usual
+       default.]  This must be done after all attributes are parsed, so
+       that namespace declarations can be taken into account, which is
+       why we get a third arg with attribute and namespace nodes.
+  <dt> <b>xqdm:node-class</b> (def-node)
+  <dd> Returns the class to use when instantiating elements with the
+       <tt>def-node</tt>'s name.  [This is only defined for
+       <tt>xqdm:def-elem-type</tt>; are the other classes hardwired?  --
+       rgr, 31-Oct-02.]
+  <dt> <b>xqdm:ordinality</b> (node)
+  <dd> Returns the node's ordinal position [need general definition].
+       For an element, this is as if an index is assigned to each of the
+       start tags in document order, starting with 1 for the root
+       element.
+  <dt> <b>xqdm:root</b> (doc-node)
+  <dd> Returns the document root element.
+  <dt> <b>xqdm:value</b> (node)
+  <dd> Returns the XML "value" of the node [as defined by XPath?],
+       e.g. the string for a text node, the attribute value for an
+       attribute node, the URL for a namespace node, etc.  The value can
+       be modified via <tt>setf</tt> for <tt>xml-path::singleton</tt>,
+       <tt>xqdm:ref-elem-property-node</tt>, <tt>xqdm:value-node</tt>,
+       and <tt>xqdm:pi-node</tt> objects.
+</dl>
+
+Low-level parsing stuff:
+<dl>
+  <dt> <b>xml-parser::|Element-Constructor|</b> (construction-context
+       content* etag stag)
+  <dd> Called when a complete element has been parsed.
+       <tt>stag</tt> is whatever element object
+       <tt>xml-parser::|STag-Constructor|</tt> produced for the start
+       tag, and <tt>etag</tt> is the QName string returned by
+       <tt>xml-parser::|ETag-Constructor|</tt> for the end tag.
+       Installs the content in the element.
+       An error is signalled if the <tt>stag</tt> and <tt>etag</tt>
+       QName's don't match.
+  <dt> <b>xml-parser::|ETag-Constructor|</b> (structure)
+  <dd> Called when an end tag is parsed, passed a string with the tag's
+       QName.
+  <dt> <b>xml-parser:|STag-Constructor|</b> (construction-context
+       attribute-sequence qname)
+  <dd> Called when a start tag is parsed.
+</dl>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Mon Dec 23 21:25:31 EST 2002
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: Ethernet CAT5 Cheat Sheet</title>
+</head>
+
+<body bgcolor=white>
+<h3>Ethernet CAT5 Cheat Sheet</h3>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Linux resources</a> : <a
+href="howto.html">"Howto"</a> : CAT5 Cheat Sheet
+<hr>
+
+<p>Pins are numbered consecutively in order (1 to 8) when looking at the
+outside of a jack in "standard position" (facing the hole with contacts
+up above it), and in reverse order (8 to 1) when looking at the outside
+of a connector (facing the end with the contacts up).  (The difference
+is because you have to rotate the connector 180 degrees around the
+vertical axis in order to plug it in to the jack.)
+
+<p>
+Wire color coding and pin assignments for 10baseT and derived standards:
+<blockquote>
+<table border=2>
+  <tr>
+    <th>Pair</th> <th>Strand</th> <th>Pin</th> <th>Signal</th>
+  </tr>
+  <tr>
+    <td rowspan=2> Orange </td>
+    <td> white/orange  </td> <td> 1 </td> <td> TX+ </td>
+  </tr>
+  <tr>
+    <td> orange </td> <td> 2 </td> <td> TX- </td></tr> 
+  <tr>
+    <td rowspan=2> Green </td>
+    <td> white/green  </td> <td> 3 </td> <td> RX+ </td>
+  </tr>
+  <tr>
+    <td> green  </td> <td> 6 </td> <td> RX- </td>
+  </tr>
+  <tr>
+    <td rowspan=2> Blue </td>
+    <td> white/blue </td> <td> 4 </td> <td> Not used </td>
+  </tr> 
+  <tr>
+    <td> blue   </td> <td> 5 </td> <td> Not used </td>
+  </tr>
+  <tr>
+    <td rowspan=2> Brown </td>
+    <td>white/brown  </td> <td> 7 </td> <td> Not used </td>
+  </tr>
+  <tr>
+    <td> brown  </td> <td> 8 </td> <td> Not used </td>
+  </tr> 
+</table>
+</blockquote>
+[The color code was cribbed from the "cheat sheet" sticker on the inside
+of a jack; I am assuming these pin assignments are standard.  Several
+manufacturers of Category 5 (Cat5) cable use these same colors, so at
+least the color code is conventional.  -- rgr, 6-Jul-01.]
+[But see the <a href="http://thebestpins.com/Default.asp?Pg=Cat5Cable">
+"EIA/TIA 568A & 568B Standard"</a> page, which interchanges white/blue
+and blue.  -- rgr, 1-Jul-03.]
+
+<p>[Note that 100baseT uses all four pairs.  -- rgr, 1-Jul-03.]
+
+<p>So for crimping a connector, put the colors in the following order,
+from left to right looking into the *back* of the connector (the cable
+end, with the contacts up):
+
+<blockquote>
+<table borderwidth=2>
+  <tr>
+    <th> Pin </th>
+    <th> Straight </th>
+    <th> Crossover </th>
+  </tr>
+  <tr>
+    <td> 1</td>
+    <td> white/orange</td>
+    <td> white/green </td>
+  </tr>
+  <tr>
+    <td> 2</td>
+    <td> orange</td>
+    <td> green</td>
+  </tr>
+  <tr>
+    <td> 3</td>
+    <td> white/green</td>
+    <td> white/orange</td>
+  </tr>
+  <tr>
+    <td> 4</td>
+    <td> white/blue</td>
+    <td> white/blue</td>
+  </tr>
+  <tr>
+    <td> 5</td>
+    <td> blue</td>
+    <td> blue</td>
+  </tr>
+  <tr>
+    <td> 6</td>
+    <td> green</td>
+    <td> orange</td>
+  </tr>
+  <tr>
+    <td> 7</td>
+    <td> white/brown</td>
+    <td> white/brown</td>
+  </tr>
+  <tr>
+    <td> 8</td>
+    <td> brown</td>
+    <td> brown</td>
+  </tr>
+</table>
+</blockquote>
+
+Note that for a crossover cable you want to install exactly <b>one</b>
+connector with a crossover, and the other one normally ("straight"); if
+both connectors are crossed over, the result is equivalent to a straight
+cable.  [Note that crossover cables are not always needed with modern
+equipment, since the most recent hubs and switches seem to autodetect
+whether a crossover should have been used, and compensate accordingly.
+-- rgr, 1-Jul-03.]
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Tue Jul  1 18:15:31 EDT 2003
+<!-- hhmts end -->
+</body> </html>

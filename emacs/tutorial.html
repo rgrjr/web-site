@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>emacs tutorial</title>
+</head>
+
+<body bgcolor=white>
+<h1>emacs tutorial</h1>
+
+<p><a href="http://bootcamp.arsdigita.com/pvt/home.tcl">Your
+Workspace</a> : <a href="study.html">Bootcamp preparation</a> : <a
+href=""> Emacs tips</a> : Tutorial outline
+<hr>
+
+<p>Outline of an emacs tutorial presented 4-Oct-99 at the October <a
+href="http://bootcamp.ArsDigita.com/">ArsDigita web developers'
+bootcamp</a> by <a href="mailto:rogers@darwin.bu.edu">Bob Rogers
+<tt>&lt;rogers@darwin.bu.edu&gt;</tt></a>.
+
+<p>[Developed in collaboration with <a
+href="mailto:farshad@cmass.com">Farshad Nayeri</a>, who gave an emacs
+tutorial at the previous bootcamp.]
+
+<h2>Getting started</h2>
+
+<ul>
+  <li> starting and exiting emacs (<tt>C-x&nbsp;C-c</tt>)
+  <li> window layout (windows, mode line, minibuffer, scroll bars)
+  <li> control and meta modify command characters
+       <ul>
+	 <li> Keyboard <tt>control</tt> shift is abbreviated
+	      <tt>"C-"</tt>; e.g. <tt>"C-x"</tt>
+	 <li> "Alt" keys (diamond keys on either side of space bar on
+	      Sparcs) are abbreviated <tt>"M-"</tt> (pronounced "meta"),
+	      e.g. <tt>"M-x"</tt>
+	 <li> <tt>"M-"</tt> can also be typed with the <tt>ESC</tt> or
+	      "escape" key.
+       </ul>
+  <li> most common commands are invoked by single keystrokes
+  <li> standard prefixes are used to cram in more commands:
+       <ul>
+	 <li> <tt>C-x</tt> is usually for "big" commands -- file,
+	      buffer, window manipulation
+	 <li> <tt>C-c</tt> is usually for language-specific commands
+	 <li> <tt>C-h</tt> is for help commands
+	 <li> <tt>M-x</tt> invokes commands by name
+       </ul>
+  <li> getting unstuck (<tt>C-g</tt>, <tt>ESC&nbsp;ESC&nbsp;ESC</tt>,
+       <tt>C-z</tt> lossage)
+  <li> reading and writing files (<tt>C-x&nbsp;C-f</tt>,
+       <tt>C-x&nbsp;C-s</tt>, <tt>C-x&nbsp;C-w</tt>, typing file names
+       with completion in the minibuffer)
+  <li> basic cursor motion:
+       <ul>
+	 <li> line (<tt>C-n</tt>, <tt>C-p</tt>, <tt>C-a</tt>, <tt>C-e</tt>)
+	 <li> character (<tt>C-f</tt>, <tt>C-b</tt>)
+	 <li> word (<tt>M-f</tt>, <tt>M-b</tt>)
+	 <li> buffer (<tt>M-></tt>, <tt>M-<</tt>)
+       </ul>
+       See <a href="emacs_cheat.html">the cheat sheet</a> for more.
+  <li> point and mark, cut and copy (<tt>C-@</tt>, <tt>C-w</tt>,
+       <tt>M-w</tt>)
+  <li> inserting and deleting text (<tt>DEL</tt>, <tt>C-d</tt>,
+       <tt>C-k</tt>, etc.)
+  <li> infinite undo/redo (<tt>C-x&nbsp;u</tt> or <tt>C-_</tt>; it's the
+       same command)
+  <li> "yanking" (pasting) killed text (<tt>C-y</tt>, <tt>M-y</tt>)
+  <li> scrolling (<tt>C-v</tt>, <tt>M-v</tt>, <tt>C-l</tt>)
+  <li> mouse marking, scrolling (<tt>C-w</tt>)
+  <li> searching, text replace (<tt>C-s</tt>, <tt>C-r</tt>,
+       <tt>M-x&nbsp;replace-string</tt>,
+       <tt>M-x&nbsp;query-replace</tt>)
+  <li> more cursor motion (<tt>M-a</tt>, <tt>M-e</tt> for sentences,
+       <tt>M-{</tt>, <tt>M-}</tt> for paragraphs)
+</ul>
+
+<h2>Getting around</h2>
+
+<ul>
+  <li> multiple buffers (<tt>C-x&nbsp;b</tt>, <tt>C-x&nbsp;k</tt>,
+       <tt>C-x&nbsp;C-b</tt>, <tt>C-x&nbsp;s</tt>)
+  <li> multiple windows (<tt>C-x&nbsp;1</tt>, <tt>C-x&nbsp;2</tt>,
+       <tt>C-x&nbsp;o</tt>, <tt>C-M-v</tt>)
+  <li> getting help
+       <ul>
+	 <li> <tt>C-h&nbsp;a</tt> lists matching functions and brief
+	      documentation
+	 <li> <tt>C-h&nbsp;l</tt> is "describe lossage" -- lists the
+	      last 100 keystrokes
+	 <li> <tt>C-h&nbsp;k</tt>
+	 <li> <tt>C-h&nbsp;m</tt> documents buffer modes
+       </ul>
+  <li> mode line, major modes, minor modes (e.g. auto fill)
+  <li> shell-mode (<tt>M-x&nbsp;shell</tt>, <tt>M-p</tt>; see also the
+       <a href="advanced.html#shell-mode">Running a shell within emacs</a>
+       tips)
+  <li> tcl-mode intro (see also the <a
+       href="advanced.html#tcl-mode">Editing Tcl source code</a> tips)
+  <li> info and the online emacs manual (<tt>C-h&nbsp;i</tt>)
+  <li> crash recovery (<tt>M-x&nbsp;recover-file</tt>,
+       <tt>M-x&nbsp;recover-session</tt>)
+</ul>
+
+<h2>More advanced commands</h2>
+
+[These won't be covered at the bootcamp presentation.]
+
+<ul>
+  <li> indentation (<tt>TAB</tt> in language modes,
+       <tt>C-x&nbsp;C-i</tt>)
+  <li> expression commands (<tt>C-M-f</tt>, <tt>C-M-b</tt>,
+       <tt>C-M-k</tt>, <tt>C-M-q</tt>, etc)
+  <li> <tt>C-x&nbsp;ESC&nbsp;ESC</tt>
+       (<tt>M-x&nbsp;repeat-complex-command</tt>)
+  <li> finding source code definitions (<tt>M-.</tt>,
+       <tt>M-x&nbsp;visit-tags-table</tt>, etags program)
+  <li> dired (<tt>C-x&nbsp;d</tt>) and dired mode
+  <li> keyboard macros (<tt>C-x&nbsp;(</tt>, <tt>C-x&nbsp;)</tt>)
+  <li> mark ring (<tt>C-x&nbsp;C-x</tt>, <tt>C-@</tt>, C-SPC)
+  <li> <tt>C-x&nbsp;m</tt> (mail)
+</ul>
+
+<h2>More advanced concepts and tools</h2>
+
+[These won't be covered at the bootcamp presentation.]
+
+<ul>
+  <li> regexp searching (<tt>C-M-s</tt>, <tt>C-M-r</tt>, emacs regexps)
+  <li> "grepping" (<tt>M-x&nbsp;grep</tt>, <tt>C-x&nbsp;`</tt>)
+  <li> compiling (<tt>M-x&nbsp;compile</tt>, <tt>C-x&nbsp;`</tt>)
+  <li> frames (<tt>C-x&nbsp;5</tt> prefix)
+  <li> rectangle commands (<tt>C-x&nbsp;r</tt> prefix)
+  <li> ange-ftp (Internet file access)
+  <li> VC support
+  <li> leim
+  <li> mail-reading programs (several are available)
+</ul>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@darwin.bu.edu">Bob Rogers
+	<tt>&lt;rogers@darwin.bu.edu&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sat May 27 23:22:36 EDT 2000
+<!-- hhmts end -->
+</body> </html>

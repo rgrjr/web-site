@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Overlapping intervals</title>
+</head>
+
+<body bgcolor=white>
+<h1>Overlapping intervals</h1>
+
+<p><i>[referenced from the <a
+href="http://photo.net/bboard/q-and-a-fetch-msg.tcl?msg_id=000car"> Hint
+on testing intervals for overlap</a> thread of the <a
+href="http://photo.net/bboard/q-and-a.tcl?topic=Problem%20Set%202">Problem
+Set 2</a> topic, posted on 7-Oct-99.]</i>
+
+<p><a href="http://bootcamp.arsdigita.com/pvt/home.tcl">Your
+Workspace</a> : <a href="study.html">Bootcamp preparation</a> :
+<a href="study.html#hints">Hints on problem sets</a> :
+Overlapping intervals
+<hr>
+
+<p>Although the second bullet item in Excercise 3b of <a
+href="http://photo.net/teaching/psets/ps2/ps2.adp">Problem Set 2</a>
+refers to the SQL <tt>between</tt> operator, this is something of a red
+herring.  It is much simpler to use the following equation for overlap
+testing:
+
+<blockquote>
+<font size=+1>
+Two intervals i1 = (s1, e1) and i2 = (s2, e2) overlap if and only if
+<pre>
+    s2 &lt; e1 and s1 &lt; e2
+</pre>
+</font>
+</blockquote>
+
+This is for "open intervals," where the endpoints are not part of the
+interval, so "touching" is not considered an overlap.
+
+<p>Is it really this simple?  Consider the following informal proof.
+Although there are four ways for two intervals to overlap, they can only
+fail to overlap in two ways:  either i1 comes before i2, or i2 comes
+before i1.  If i1 is before i2, then e1 (the endpoint of i1) must be
+less than s2 (the start of i2), and similarly for the other nonoverlap
+case.  The "touching" cases involve equalities, which don't count for
+open intervals, so we must use <tt>"&lt;="</tt> to compare endpoints.
+So the test for <i>non</i>overlap becomes
+<pre>
+    e1 &lt;= s2 or e2 &lt;= s1
+</pre>
+and the test for overlap is simply the negation of that.
+
+<p>As a further point, consider that intervals are already internally
+ordered, so we already know that
+<pre>
+    s1 &lt; e1, and
+    s2 &lt; e2.
+</pre>
+(We assume the intervals are non-empty, since an empty open interval is
+pretty trivial.)  This means that if either of the nonoverlap test
+clauses is true, we have complete knowledge of the ordering of all four
+values:
+<pre>
+    e1 &lt;= s2 implies s1 &lt; e1 &lt;= s2 &lt; e2;
+
+    e2 &lt;= s1 implies s2 &lt; e2 &lt;= s1 &lt; e1.
+</pre>
+This shows why we don't need to perform any more comparisons, if we are
+only interested in nonoverlap (or its negation).
+
+<p>To test for rectangle overlap, computer graphics programmers use this
+interval test twice, once for the X coordinates and again for the Y
+coordinates.  This is where I learned the trick.
+
+<p>
+<hr>
+<address><a href="mailto:rogers@darwin.bu.edu">Bob Rogers
+	<tt>&lt;rogers@darwin.bu.edu&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Fri Feb 18 15:01:55 EST 2000
+<!-- hhmts end -->
+</body> </html>

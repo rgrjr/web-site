@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Emacs tips</title>
+</head>
+
+<body bgcolor="#ffffff">
+<h1>Emacs tips</h1>
+
+<p><a href="/"><tt>Home</tt></a> : Emacs tips
+<hr>
+
+<p>This page of <b>emacs usage tips</b> was originally written for my
+fellow <a href="http://photo.net/teaching/boot-camp.html">ArsDigita
+Web/DB bootcampers</a>.  The current version includes stuff incorporated
+from an earlier set of help pages written for my colleagues at <a
+href="http://bmerc-www.bu.edu/">BMERC</a>.
+
+<p>[<b>Note:</b> I am in the process of reorganizing this, so some of
+the links may be broken.  Please bear with me.  -- rgr, 27-May-00.]
+
+<h2>Table of contents</h2>
+
+<p><b>Contents of this page:</b>
+<!-- hhmtoc start -->
+<ol>
+  <li> Emacs tips
+       <ol>
+	 <li> Table of contents
+	 <li> <a href="#notation">Notation conventions</a>
+	 <li> <a href="#learning">Learning emacs</a>
+	      <ol>
+		<li> <a href="#other-learning">Other resources for learning emacs</a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<p><b>Other pages in this set:</b>
+<dl>
+  <dt> <a href="keyboard.html">Keyboard issues</a>
+  <dd> Is emacs designed give you Carpal Tunnel Syndrome (CTS)?  Not if
+       you have a sensible keyboard layout.
+  <dt> <a href="self-doc.html">emacs self-documentation commands</a>
+  <dd> This covers the <tt>C-h</tt> (for "help") commands, which let
+       emacs tell you about itself.
+  <dt> <a href="advanced.html">Advanced emacs usage tips</a>
+  <dd> These are the things that, in my opinion, makes emacs
+       particularly worthwhile; I use them constantly.
+  <dt> <a href="rgr-hacks.html"> Other useful emacs customizations</a>
+  <dd> This is a subset of my own emacs customization code that I have
+       exported for general use.
+</dl>
+
+<a name="notation">
+<h2>Notation conventions</h2>
+
+I use an HTML-ized version of the standard emacs notation:
+<ul>
+  <li> <tt>find-file</tt> is the name of an emacs lisp function (the same 
+       style is used for variables);
+  <li> <tt>C-x C-f</tt> denotes the standard key sequence that invokes 
+       <tt>find-file</tt>, but
+  <li> <tt>M-x find-file</tt> also works to invoke this command.
+  <li> <tt>"C-x C-f foo TAB bar TAB RET"</tt> denotes a specific
+       sequence of characters that invokes one or more commands,
+       possibly with arguments.  The spaces in this string are just for
+       readability and are not to be typed; if a space character is
+       required, it will be written <tt>SPC</tt>.  This example uses 11
+       characters (C-x, C-f, f, o, o, TAB, b, a, r, TAB, and RET); the
+       enclosing quotes don't count.
+  <li> In a defining list of commands,
+       <ul>
+	 <li> <b><tt>C-x&nbsp;C-f</tt></b> (<tt>find-file</tt>)
+       </ul>
+       shows both the standard key sequence, and the command it invokes
+       in parentheses, followed by a description of what it does.  Since
+       different editing modes can use the same key sequence for
+       different commands, it is unambiguous to include both.  (But
+       command names are usually omitted for keys that are rarely
+       rebound.)
+</ul>
+
+<a name=learning>
+<h2>Learning emacs</h2>
+
+The ideal way to learn emacs, really the only way, is to sit down in
+front of it and bang away.  If you have access to emacs, then you have
+several options:
+<ul>
+  <li> Use the built-in emacs tutorial.  Simply start emacs and type
+       <tt>C-h&nbsp;t</tt>; follow instructions from there.
+  <li> Look through the "Other resources" pages below, bring your
+       favorite up in a browser next to emacs, and experiment.
+  <li> Or, get one of the <a href="advanced.html#oreilly">O'Reilly emacs
+       offerings</a> mentioned below, and start playing.
+</ul>
+In your experimentation, be sure to edit source code in Tcl, or a
+language you know.
+
+<p>If you don't have access to emacs, then your options are much more
+limited.  I emphatically don't recommend trying to learn emacs solely
+from a book; you'll only put yourself to sleep.  If you can't <a
+href="ftp://prep.ai.mit.edu/pub/gnu/emacs/">download and install it</a>
+yourself on your machine, then you're best off glancing at, say, the <a
+href="http://www.tc.cornell.edu/Edu/Tutor/Basics/emacs/emacsis.great">
+<tt>emacsis.great</tt> tutorial page</a>, and otherwise waiting until
+you can get your hands on a keyboard.
+
+<a name=other-learning>
+<h3>Other resources for learning emacs</h3>
+
+<p><b>Cheat sheets and other short summaries:</b>
+<ul>
+  <li> <a href="http://www.primenet.com/~cohen/emacs_cheat.html"> Dave
+       Cohen's emacs cheat sheet</a>, written by an alumnus of the
+       August 1999 bootcamp.
+  <li> Also, <a href="emacs_cheat.html">Bob Rogers' extended version</a>
+       of Dave Cohen's emacs cheat sheet.
+  <li> <a href="tutorial.html">Tutorial outline</a> for the tutorial
+       presented at bootcamp on 4-Oct-99.
+  <li> <a href="http://www.refcards.com/about/emacs.html">
+       <tt>www.refcards.org</tt></a> has an information-rich emacs
+       reference card (which doesn't seem to want to print on printers
+       of vintage 1995 or earlier).
+</ul>
+
+<p><b>Tutorials and other longer articles:</b>
+<ul>
+  <li> The Linux <a
+       href="http://www.linuxdoc.org/HOWTO/Emacs-Beginner-HOWTO.html">Emacs
+       Beginner's HOWTO</a> by Jeremy D. Zawodny gives a good overview
+       of emacs that is not specific to Linux.  It is available from <a
+       href="http://www.wcnet.org/jzawodn/emacs/">
+       <tt>http://www.wcnet.org/jzawodn/emacs/</tt></a> as well as from
+       <a
+       href="http://www.linuxdoc.org/HOWTO/Emacs-Beginner-HOWTO.html">
+       <tt>http://www.linuxdoc.org/HOWTO/Emacs-Beginner-HOWTO.html</tt></a>.
+  <li> <a
+       href="http://www.tc.cornell.edu/Edu/Tutor/Basics/emacs/emacsis.great">
+       <tt>emacsis.great</tt> tutorial page</a> (not hypertext), with a
+       topical command summary at the bottom.  This is very dense, and
+       covers a lot of ground.
+  <li> <a href="http://www.faqs.org/faqs/GNU-Emacs-FAQ/">GNU emacs
+       FAQ</a>.  This is also available in emacs itself by typing
+       <tt>"C-h&nbsp;F"</tt> (note that the "F" must be capitalized).
+       The Web version is hypertext, though it isn't very easy to
+       navigate, and it does have a <a
+       href="http://www.faqs.org/faqs/GNU-Emacs-FAQ/reference-pointer/">
+       reference page</a> that points to all kinds of good stuff.  The
+       version within emacs is not hypertext, but it's all on one page,
+       and you can use <tt>C-s</tt> (incremental search) to find things
+       of interest.
+</ul>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@darwin.bu.edu">Bob Rogers
+	<tt>&lt;rogers@darwin.bu.edu&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun Jul 21 14:19:34 EDT 2002
+<!-- hhmts end -->
+</body> </html>

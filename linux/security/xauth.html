@@ -1,0 +1,493 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: Linux security: Using xauth</title>
+</head>
+
+<body bgcolor=white>
+<h2>Using <tt>xauth</tt> to copy cookies</h2>
+
+<p><a href="/">Home</a> : <a href="/linux/">Linux</a> : <a
+href="/linux/security/">Security</a> : <tt>xauth</tt> cookies
+<hr>
+
+<p>[I've reorganized this page for the second time now, so it should be
+much easier to use.  In particular, I've adopted a better taxonomy of
+the various usage situations, and provided <a href="#find-recipe">an
+algorithm</a> for navigating them.  <a
+href="mailto:rogers@rgrjr.dyndns.org">Let me know</a> if you find this
+helpful/have questions or suggestions/etc.  -- rgr, 16-Nov-01.
+
+<h3>Table of Contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Using <tt>xauth</tt> to copy cookies
+       <ol>
+	 <li> Table of Contents
+	 <li> <a href="#intro">Introduction</a>
+	      <ol>
+		<li> <a href="#cookies">X11 Authentication</a>
+		<li> <a href="#xauthority-env-var"><tt>su</tt> and <tt>$XAUTHORITY</tt></a>
+	      </ol>
+	 <li> <a href="#recipes">Cookie copying recipes</a>
+	      <ol>
+		<li> <a href="#find-recipe">Finding the right cookie recipe</a>
+		<li> <a href="#normal">Same user</a>
+		<li> <a href="#local-root"><tt>root</tt> can inherit <tt>$XAUTHORITY</tt>.</a>
+		<li> <a href="#root-can-read"><tt>root</tt> can copy <tt>~<i>serveruser</i>/.Xauthority</tt></a>
+		<li> <a href="#root-cannot-read"><tt>root</tt> cannot read <tt>~<i>serveruser</i>/.Xauthority</tt></a>
+		<li> <a href="#unprivileged-local">Client account is not privileged, same machine</a>
+		<li> <a href="#unprivileged-remote">Client account is not privileged, different machine</a>
+	      </ol>
+	 <li> <a href="#other">Other gotchas</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name = intro>
+<h3>Introduction</h3>
+
+This page describes a series of recipes I have developed for copying X11
+cookies back and forth.  This is part of my security pages for two
+reasons:
+<ol>
+  <li> The more paranoid settings for <a href="ssh.html">SSH (Secure
+       Shell)</a> servers frequently make cookie copying necessary in
+       order to <tt>su</tt> or roam around the remote LAN by means other
+       than further SSH connections.  And SSH servers are getting
+       progressively more paranoid.
+  <li> Copying cookies usually reduces your security to some degree, and
+       might do so drastically if done wrong.  You should be aware of
+       the consequences, and willing to accept them (though you should
+       <i>not</i> assume that I have understood them all or been able to
+       explain them fully; <i>caveat lector</i>).
+</ol>
+
+<a name = cookies>
+<h4>X11 Authentication</h4>
+
+In order to understand how copying cookies can sometimes weaken the
+security of your X11 session, it is necessary to understand what is
+meant by "cookie" and how X11 uses them to control access.  First, we
+need to cover some general background information on X11 authentication.
+
+<p>The two commonest means of controlling access to an X11 display are
+host-based access, and the <tt>MIT-MAGIC-COOKIE-1</tt> protocol.
+
+<dl>
+  <dt> <b>Host-based access.</b>
+  <dd> This allows all connections from a given host, i.e. anyone logged
+       on to that host can connect to your display.  Since this makes it
+       really easy to snoop on on your X11 session.  As long as you did
+       not start X11 yourself (via the <tt>startx</tt> or <tt>xinit</tt>
+       scripts, or something based on one of those), you are probably
+       not using host-based access.  Host-based access does not use
+       cookies, and will not be discussed further.
+  <dt> <b><tt>MIT-MAGIC-COOKIE-1</tt></b>
+  <dd> This is what <tt>xdm</tt> uses by default.
+       [finish.  -- rgr, 14-Sep-01.]
+  <dt> <b><tt>XDM-AUTHORIZATION-1</tt>, <tt>SUN-DES-1</tt>, and
+       <tt>MIT-KERBEROS-5</tt></b>
+  <dd> Depending on the system, other authorization modes may be
+       supported.  These three are all more secure in that a snooper
+       cannot steal your credentials by listening to the authentication
+       dialog, but are more difficult to set up, and are therefore much
+       less common.  This is not surprising because, in my opinion,
+       using (e.g.) Kerberos authentication on an X11 server is like
+       putting a padlock on a tent:  it makes little sense to protect
+       the authentication from snooping when any snooper could just as
+       easily collect all of your keystrokes from the subsequent
+       traffic, including such things as passwords typed in an
+       <tt>xterm</tt>.  If that is a potential problem, then you should
+       be using SSH to encrypt the entire X11 session, in which case the
+       use of <tt>MIT-MAGIC-COOKIE-1</tt> is quite adequate.
+</dl>
+
+<p>[explain how cookies work, <tt>$XAUTHORITY</tt> var,
+<tt>~/.Xauthority</tt> file.  -- rgr, 15-Sep-01.]
+
+<a name = xauthority-env-var>
+<h4><tt>su</tt> and <tt>$XAUTHORITY</tt></h4>
+
+In any case, once you have done <tt>"su"</tt>, the client user will
+inherit the source user's <tt>$XAUTHORITY</tt> value, which is usually
+the wrong thing.  If so, you can do something like:
+<blockquote>
+<pre>
+% old_xauth=$XAUTHORITY
+% XAUTHORITY=~/.Xauthority
+% export XAUTHORITY
+%
+</pre>
+</blockquote>
+(in Bourne shell syntax) to rectify this.
+
+<a name = recipes>
+<h3>Cookie copying recipes</h3>
+
+<p>In all of these descriptions, the following terminology is used:
+<ul>
+  <li> The X11 server (or SSH proxy X11 server) runs on
+       <tt><i>serverhost</i></tt> under <tt><i>serveruser</i></tt>, with
+       a cookie file on <tt><i>cookiehost</i></tt> (which will be owned
+       by <tt><i>serveruser</i></tt>, with permissions that allow nobody
+       else to read it).
+  <li> The X11 client application runs on <tt><i>clienthost</i></tt>
+       under <tt><i>clientuser</i></tt>.
+</ul>
+There are a number of cases depending upon whether the client user is
+privileged, and whether NFS or SSH is involved.  The location of the
+cookie relative to the client (in terms of both host location and user
+ID) turns out to be the critical factor.  Fortunately, the actual
+location of the X11 server (or proxy server) is relatively unimportant.
+
+<p>Note that <tt><i>serveruser</i></tt> is usually your initial login on
+the machine running the display, but this is not true when the
+connection is made via <a href="ssh.html">SSH</a>.  If you have done
+<tt>"ssh&nbsp;user@randomhost.foo.com"</tt>, then SSH will start a proxy
+server on <tt>randomhost</tt> and set <tt>$DISPLAY</tt> in the shell it
+spawns on <tt>randomhost.foo.com</tt> to something like
+<tt>"randomhost:10.0"</tt>.  To connect to the proxy, and hence the
+original display over the encrypted connection, you will need to use
+<tt>user</tt>'s cookie for <tt>"randomhost:10.0"</tt>, so in this case
+<tt>user</tt> will be the <tt><i>serveruser</i></tt> and
+<tt>randomhost</tt> will be the <tt><i>cookiehost</i></tt>.
+
+<a name = find-recipe>
+<h4>Finding the right cookie recipe</h4>
+
+<p>To find a cookie recipe relevant to a given situation, apply the
+following algorithm to the table below it:
+<ol>
+  <li> Starting at the top left corner, run down the column until you
+       come to a question where the answer is "Yes."  [I need links to
+       help for figuring this out.  -- rgr, 16-Nov-01.]
+  <li> Repeat on the questions that appear to the right of the "yes"
+       question.
+  <li> When you come to a statement, which will be the last thing on the
+       row, you are done.  The statement describes your options with
+       links to the appropriate recipes.
+</ol>
+
+<p>
+<table border=2>
+  <tr>
+    <td rowspan=3>Cookie located on same host as client?  (This may or may not be the
+         same as the X11 server host.)</td>
+    <td>Client and server user are the same?</td>
+    <td colspan=3>Normal case <a href="#normal">[1]</a>.</td>
+  </tr>
+  <tr>
+    <td>Client user is root?</td>
+    <td colspan=3>Set XAUTHORITY <a href="#local-root">[2]</a>, 
+         or copy locally <a href="#root-can-read">[3]</a>.</td>
+  </tr>
+  <tr>
+    <td>Different non-root client user?</td>
+    <td colspan=3>Copy cookie between accounts (same 
+         machine) <a href="#unprivileged-local">[5]</a>.</td>
+  </tr>
+  <tr>
+    <td rowspan=5>Cookie located elsewhere on the LAN?</td>
+    <td>Cookie is not exported (e.g. in /tmp/)?</td>
+    <td colspan=3>Copy cookie (unexported case) <a href="#unprivileged-remote">[6]</a>.</td>
+  </tr>
+  <tr>
+    <td rowspan=4>Cookie is exported (e.g. in /home/)?</td>
+    <td>Client and server user are the same?</td>
+    <td colspan=2>Normal case <a href="#normal">[1]</a>.</td>
+  </tr>
+  <tr>
+    <td rowspan=2>Client user is root?</td>
+    <td>"Root squashing" in effect?</td>
+    <td>Copy cookie with local "su" <a href="#root-cannot-read">[4]</a>.</td>
+  </tr>
+  <tr>
+    <td>No "root squashing?"</td>
+    <td>Set XAUTHORITY <a href="#local-root">[2]</a>, 
+         or copy locally <a href="#root-can-read">[3]</a>.</td>
+  </tr>
+  <tr>
+    <td>Different non-root client user?</td>
+    <td colspan=2>Copy cookie between accounts (different 
+         machine) <a href="#unprivileged-remote">[6]</a>.</td>
+  </tr>
+</table>
+
+<p>[<b>Cool hack alert:</b> The table is above is an HTML representation
+of a decision tree, and was generated automatically from <a
+href="xauth.tbl">this data file</a> by <a href="dt2html.pl.text">this
+Perl script</a>.  -- rgr, 16-Nov-01.]
+
+<a name = normal>
+<h4>Same user</h4>
+
+This is the "normal" case; if this doesn't work, something basic is
+wrong.
+<a name = check-xauthority>
+Check the value of <tt>$XAUTHORITY</tt> by typing
+<tt>"echo&nbsp;$XAUTHORITY"</tt> at the shell where you tried to start
+the client.  If this is undefined (you'll get a blank line or "undefined
+variable" message if so) or just plain wrong, try the next recipe.
+
+<p>If an SSH proxy is involved, it may mean that the server doesn't know
+where to find the <tt>xauth</tt> binary, and therefore hasn't set up
+forwarding.  This is a compile-time issue; ask your sysadmin.
+
+<a name = local-root>
+<h4><tt>root</tt> can inherit <tt>$XAUTHORITY</tt>.</h4>
+
+When the client account is <tt>root</tt>, and the cookie file is on a
+disk on the machine where the client application is to be run, then life
+is easy.  This usually means either
+<dl compact>
+  <dt> (a)
+  <dd> <tt>$DISPLAY</tt> points to an X11 server or SSH2 proxy on the
+       client host; or
+  <dt> (b)
+  <dd> <tt>$DISPLAY</tt> was started with <tt>xdm</tt>, and the client
+       host holds the server user's home directory.
+</dl>
+Either way, the client only needs to do a local disk access to get the
+right cookie.  If the client is running as <tt>root</tt>, then that is
+no problem.
+
+<p>For an SSH2 proxy, <tt>$XAUTHORITY</tt> will already point to
+something like <tt>/tmp/ssh-XXwOjqG6/cookies</tt> on the local host,
+which <tt>root</tt> can read, so you should be able to launch X11 apps
+as <tt>root</tt> without doing anything special (as long as you keep
+this value of <tt>$XAUTHORITY</tt> intact).
+
+<p>Otherwise, you need to set <tt>$XAUTHORITY</tt> to point to the
+server user's cookie file.  To do this, use the following (in Bourne
+shell syntax):
+<blockquote>
+<pre>
+% XAUTHORITY=~<i>serveruser</i>/.Xauthority
+% export XAUTHORITY
+%
+</pre>
+</blockquote>
+[I am assuming this is one of the newer Bourne shell implementations
+that supports the <tt>csh</tt> "twiddle" (<tt>"~"</tt>) syntax.  -- rgr,
+15-Nov-01.]  To see if this is going to work, try
+<tt>"xauth&nbsp;list"</tt> from the client account.
+
+<a name = root-can-read>
+<h4><tt>root</tt> can copy <tt>~<i>serveruser</i>/.Xauthority</tt></h4>
+
+<p>If you are <tt>"su&nbsp;root"</tt> and <tt>root</tt> can read your
+<tt>.Xauthority</tt> file directly, then copying the cookie is a
+relatively simple matter.  (Of course, it is not as simple as <a
+href="#local-root">inheriting the <tt>$XAUTHORITY</tt> file</a>,
+but you would need to copy anyway if you want to subsequently connect to
+another host via <tt>rsh</tt> or <tt>telnet</tt> and set
+<tt>$DISPLAY</tt> to point back to the original server.)
+
+<p>For this recipe to work, you must be <tt>root</tt>, and one of the
+following must be true:
+<ul>
+  <li> The <tt>~<i>serveruser</i>/.Xauthority</tt> file is on the local
+       disk; OR
+  <li> The <tt>~<i>serveruser</i>/.Xauthority</tt> file is on a
+       partition mounted via NFS with the <tt>no_root_squash</tt>
+       option.  (To check this, try
+       <tt>"file&nbsp;~<i>serveruser</i>/.Xauthority"</tt>; if you get
+       "Permission denied", then try the next recipe.)
+</ul>
+Either way, copying the cookie poses no additional security risk
+(assuming, in the first case, that <tt>root</tt>'s home directory is on
+the local machine), since <tt>root</tt> can always get the cookie
+anyway.
+
+<p>Here is the recipe for a straight copy:
+<blockquote>
+<pre>
+# whoami
+root
+# echo $XAUTHORITY
+
+# xauth -f ~<i>serveruser</i>/.Xauthority extract - $DISPLAY | xauth merge -
+# 
+</pre>
+</blockquote>
+The first <tt>xauth</tt> invocation takes the cookie for
+<tt>"$DISPLAY"</tt> from your <tt>.Xauthority</tt> file; the second one
+merges it into that of the current account, which is <tt>root</tt>.  If
+this doesn't seem to do anything, <a href="#check-xauthority">check the
+value of <tt>"$XAUTHORITY"</tt></a>.  On some systems, you may have to
+say <tt>"/usr/bin/X11/xauth"</tt> instead of <tt>"xauth"</tt> in both
+places, as <tt>/usr/bin/X11</tt> is not on <tt>root</tt>'s <tt>PATH</tt>
+by default.
+
+<p>[Note:  I just tried this on a Solaris 2.6 machine
+(<tt>kendrew.bu.edu</tt>, to be specific), and it <tt>chown</tt>'ed the
+my <tt>.Xauthority</tt> file to <tt>root</tt>!  Since the permissions on
+this file must be 600, this made it impossible for me to open new X11
+connections.  Once I <tt>chown</tt>'ed it back to myself, things resumed
+working.  I've never had this problem on the Alphas, so it's probably a
+vendor/version thing.  -- rgr, 20-Dec-00.]
+
+<p>If <tt>root</tt> is not the client user, but you happen to be running
+as <tt>root</tt> (on the right machine) in another shell window, you can
+use a slight variation of this recipe to copy directly from
+<tt><i>serveruser</i></tt> to <tt><i>clientuser</i></tt>:
+<blockquote>
+<pre>
+# xauth -f ~<i>serveruser</i>/.Xauthority extract - $DISPLAY | xauth  -f ~<i>clientuser</i>/.Xauthority merge -
+# 
+</pre>
+</blockquote>
+Since both files are named explicitly, <tt>root</tt>'s value of
+<tt>$XAUTHORITY</tt> is irrelevant, but you may need to replace
+<tt>"$DISPLAY"</tt> with the correct value for
+<tt><i>serveruser</i></tt>'s display.
+
+<a name = root-cannot-read>
+<h4><tt>root</tt> cannot read <tt>~<i>serveruser</i>/.Xauthority</tt></h4>
+
+<p>If you are <tt>"su&nbsp;root"</tt> and your home directory is mounted
+via NFS with "root squashing" in effect, then <tt>root</tt> won't be
+able to read your <tt>.Xauthority</tt> file, so the recipe above won't
+work.  In that case, you can regain your priviledge by using
+<tt>"su"</tt>, as follows:
+<blockquote>
+<pre>
+% su -c "xauth -f ~<i>serveruser</i>/.Xauthority extract - $DISPLAY" <i>serveruser</i> | xauth merge -
+</pre>
+</blockquote>
+(Before doing this, you may also need to reset <tt>$XAUTHORITY</tt>;
+see above.)  This executes the command in quotes:
+<blockquote>
+<pre>
+xauth -f ~<i>serveruser</i>/.Xauthority extract - $DISPLAY
+</pre>
+</blockquote>
+as <tt><i>serveruser</i></tt> in order to read the security file, since
+in this case <tt><i>serveruser</i></tt> can do what <tt>root</tt>
+cannot.  Ironically, <tt>su</tt> does not ask for a password, since
+<tt>root</tt> is always privileged to become anyone else.  And NFS does
+not ask for one because it must assume that a process running as a given
+user has already authenticated to the local machine's satisfaction.
+This shows up the slim security advantage of "root squashing" (though it
+is still useful to defend against rogue clients who pretend to be
+<tt>root</tt> via NFS without actually having the password).
+
+<a name = unprivileged-local>
+<h4>Client account is not privileged, same machine</h4>
+
+<p>In principle, you could use the previous recipe for other user ID's
+by making your <tt>.Xauthority</tt> file temporarily world readable, but
+a safer tactic (and simpler, since you can do it all in one shell
+command) is to use <tt>su</tt> to pipe it to/from <tt>xauth</tt> running
+as the other user.  Note that some systems (e.g. Tru64 Unix) do not
+permit random users to run <tt>su</tt>.  In this case, using
+<tt>ssh</tt> (see <a href="#unprivileged-remote">the next recipe</a>)
+should always work.
+
+<p>This recipe is almost the same as the previous one, except that (a)
+you have to supply the other user's password, and (b) you may not need
+to supply <tt>"-f"</tt> to override the <tt>$XAUTHORITY</tt> variable.
+Here is the "pull" version:
+<blockquote>
+<pre>
+% whoami
+<i>clientuser</i>
+% su -c "xauth extract - $DISPLAY" <i>serveruser</i> | xauth merge -
+<i>serveruser</i>'s password: 
+% 
+</pre>
+</blockquote>
+The first <tt>xauth</tt> invocation is run under the
+<tt><i>serveruser</i></tt> user ID by the <tt>su</tt> command, where it
+takes the cookie for <tt>"$DISPLAY"</tt> from that user's default
+<tt>.Xauthority</tt> file; the second one merges the cookie into
+<tt>~<i>clientuser</i>/.Xauthority</tt>.
+
+<p>The "push" version should work just as well:
+<blockquote>
+<pre>
+% whoami
+<i>serveruser</i>
+% xauth extract - $DISPLAY | su -c "/usr/bin/X11/xauth merge -" <i>clientuser</i>
+<i>clientuser</i>'s password: 
+% 
+</pre>
+</blockquote>
+But note that if you needed <a href="#xauthority-env-var">to change the
+value of $XAUTHORITY</a>, you will also need to supply
+<tt>"-f&nbsp;$old_xauth"</tt> after the first <tt>"xauth"</tt> in the
+command line above.
+
+<a name = unprivileged-remote>
+<h4>Client account is not privileged, different machine</h4>
+
+<p>In this case, you need to change host and user ID at the same time,
+and <a href="ssh.html">SSH (Secure Shell)</a> is the perfect tool for
+the job.  Here is the "pull" version:
+<blockquote>
+<pre>
+% whoami
+<i>clientuser</i>
+% hostname
+<i>clienthost</i>
+% ssh <i>serveruser</i>@<i>cookiehost</i> /usr/bin/X11/xauth extract - $DISPLAY | xauth merge -
+<i>serveruser</i>@127.0.0.1's password: 
+% 
+</pre>
+</blockquote>
+The first <tt>xauth</tt> invocation is run under the
+<tt><i>serveruser</i></tt> user ID by the <tt>ssh</tt> command, where it
+pulls the cookie for <tt>"$DISPLAY"</tt> out of
+<tt><i>serveruser</i></tt>'s <tt>.Xauthority</tt> file; the second one
+merges the cookie into the default
+<tt>~<i>clientuser</i>/.Xauthority</tt> file.  The explicit path on the
+first invocation (i.e. using <tt>"/usr/bin/X11/xauth"</tt> instead of
+just <tt>"xauth"</tt>) will probably be required; the <tt>$PATH</tt>
+environment variable used by <tt>sshd</tt> when running commands doesn't
+usually include the X11 executable directory.  If that is the case, then
+<tt>"/usr/bin/X11/xauth"</tt> is usually the correct path.  (On systems
+using XFree86 (including Linux), <tt>"/usr/bin/X11"</tt> will be a
+symlink to <tt>"/usr/X11R6/bin"</tt>, where <tt>xauth</tt> actually
+lives.)  If not, you should open an <tt>ssh</tt> connection to that
+machine with X11 forwarding enabled, and type
+<tt>"which&nbsp;xauth"</tt> in order to find out the exact name.
+
+<p>The "push" version should work just as well:
+<blockquote>
+<pre>
+% whoami
+<i>serveruser</i>
+% xauth extract - $DISPLAY | ssh <i>clientuser</i>@<i>cookiehost</i> /usr/bin/X11/xauth merge -
+<i>clientuser</i>@127.0.0.1's password: 
+% 
+</pre>
+</blockquote>
+But note that if you needed <a href="#xauthority-env-var">to change the
+value of $XAUTHORITY</a>, you will also need to supply
+<tt>"-f&nbsp;$old_xauth"</tt> after the first <tt>"xauth"</tt> in the
+command line above.
+
+<a name = other>
+<h3>Other gotchas</h3>
+
+[this ought to be expanded into a troubleshooting-oriented FAQ.  -- rgr,
+15-Nov-01.]
+
+<p>[e.g. when <tt>$DISPLAY</tt> points to the wrong IP address of a
+multihomed host; this will work from that host, but when you try to
+connect from another machine, the firewall may stop you.  changing
+<tt>$DISPLAY</tt> will probably require copying the cookie to the new
+host name.  -- rgr, 15-Nov-01.]
+
+<p>[sshd problems (reasons why it might not set up X11 forwarding).  --
+rgr, 15-Nov-01.]
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Fri Nov 16 11:09:26 EST 2001
+<!-- hhmts end -->
+</body> </html>

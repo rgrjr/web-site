@@ -1,0 +1,1447 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Local "howto" information</title>
+<style src="howto.css" type="text/css">
+</head>
+
+<body bgcolor=white>
+<h1>Local "howto" information</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="">Linux resources</a> : "Howto"
+<hr>
+
+<p>This page contains "howto" information for random bits of hardware
+and software.  Some of it is general, but some is very specific to my
+configuration, so it may break for yours; use caution when trying any of
+this stuff.
+
+<p><b>See also:</b>
+<ul>
+  <li> <a href="backup.html">System backup</a>
+</ul>
+
+<h2>Table of contents</h2>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Local "howto" information
+       <ol>
+	 <li> Table of contents
+	      <ol>
+		<li> <a href="#glossary">Terminology</a>
+	      </ol>
+	 <li> <a href="#apps">Applications</a>
+	      <ol>
+		<li> <a href="#lisps">Alternative lisps</a>
+		<li> <a href="#emacs">emacs</a>
+		     <ol>
+		       <li> <a href="#vm-bindings">Useful VM bindings</a>
+		       <li> <a href="#ild-bindings">ILD bindings</a>
+		       <li> <a href="#diff">Unified <tt>diff</tt></a>
+		     </ol>
+	      </ol>
+	 <li> <a href="#network">Networking</a>
+	      <ol>
+		<li> <a href="#ether">Ethernet</a>
+		<li> <a href="#net-gen">General IP networking</a>
+		<li> <a href="#boot-recovery">If the network doesn't come up after booting</a>
+		<li> <a href="#perl-dns">DNS tricks using <tt>perl</tt></a>
+	      </ol>
+	 <li> <a href="#servers">Servers</a>
+	      <ol>
+		<li> <a href="#logs">Server logs</a>
+		<li> <a href="#nis">Network Information Service (NIS)</a>
+		<li> <a href="#qmail">The <tt>qmail</tt> mail transport agent</a>
+		<li> <a href="#ezmlm">The <tt>ezmlm</tt> mailing list manager</a>
+		<li> <a href="#netatalk">netatalk</a>
+		<li> <a href="#aolserver">AOLserver</a>
+		     <ol>
+		       <li> <a href="#aol-no-dns">AOLserver without DNS</a>
+		       <li> <a href="#aol-access">The AOLserver <tt>access.log</tt></a>
+		       <li> <a href="#aol-links">AOLserver links</a>
+		     </ol>
+		<li> <a href="#squid">Squid</a>
+		<li> <a href="#ntpd"><tt>ntpd</tt></a>
+		<li> <a href="#samba">Samba</a>
+	      </ol>
+	 <li> <a href="#linux">Linux guts</a>
+	      <ol>
+		<li> <a href="#kernel">Kernel</a>
+		<li> <a href="#mem">Memory management</a>
+		<li> <a href="#rpm"><tt>rpm</tt> and <tt>rpmfind</tt></a>
+		<li> <a href="#xfree86">XFree86</a>
+	      </ol>
+	 <li> <a href="#hardware">Hardware</a>
+	      <ol>
+		<li> <a href="#cd-r">Burning CD-R disks</a>
+		     <ol>
+		       <li> Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options
+		       <li> CD-R how-to
+		     </ol>
+		<li> <a href="#zip">Zip drive</a>
+		<li> <a href="#floppy">Floppy disk</a>
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<a name=glossary>
+<h3>Terminology</h3>
+
+In what follows, I've tried to use the following words consistently:
+<ul>
+  <li> <b>Hard drive</b> means just that, though I have a tendency to
+       say "disk" instead.  Back when I was introduced to magnetic
+       storage, floppies were quite new, so "disk" without qualification
+       always meant a rigid disk.  (Probably one with removable media;
+       you don't see those anymore, because they can't be made very
+       dense.)
+  <li> <b>Disk</b> therefore means <a href="#floppy">floppy disk</a> or
+       <a href="#zip">zip disk</a>.
+  <li> <b>CD</b> covers the fourth kind of disk, though I will sometimes
+       use "CD-R disk" when trying to be more specific.
+</ul>
+
+<p>
+<hr>
+<p>
+<a name = apps>
+<h2>Applications</h2>
+
+<a name = lisps>
+<h3>Alternative lisps</h3>
+
+<p>CLISP on the <tt>http://clisp.cons.org/~haible/clisp.html</tt> page.
+-- rgr, 6-Nov-98.  Version 18 of cmu-cl is available from the <a
+href="http://www.cons.org/cmucl/">
+<tt>http://www.cons.org/cmucl/</tt></a> page.  Version 17 still exists
+in the ftp://ftp.cs.cmu.edu/afs/cs.cmu.edu/project/clisp/release/
+directory; see the
+http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/impl/cmucl/0.html
+page.  LispWorks now sold by <a
+href="http://www.xanalys.com/">"Xanalys"</a> but appears moribund.  --
+rgr, 21-Apr-00.
+
+<a name=emacs>
+<h3>emacs</h3>
+
+<p>To configure emacs so that it installs correctly in the standard
+Linux places, use
+<pre>
+	./configure i586-pc-linux-gnu --prefix=/usr
+</pre>
+Without the <tt>"--prefix=/usr"</tt>, it goes into <tt>/usr/local</tt>
+instead.  And afterwards, do
+<pre>
+	chown -R rogers.rogers /usr/share/emacs/20.7
+	chmod -R g-w /usr/share/emacs/20.7
+</pre>
+in order to fix up the elisp tree.  -- rgr, 7-Jul-00.
+
+<a name = vm-bindings>
+<h4>Useful VM bindings</h4>
+
+<pre>
+ M-g - go to numbered message (uses prefix arg or prompts in minibuffer)
+
+   r - reply (only to the sender of the message)
+   R - reply with included text from the current message
+ M-r - extract and resend bounced message
+   f - followup (reply to all recipients of message)
+   F - followup with included text from the current message
+   z - forward the current message
+
+   s - save current message in a folder (appends if folder already exists)
+   w - write current message to a file without its headers (appends if exists)
+   G - sort messages, prompts for fields to sort by
+   S - save entire folder to disk, does not expunge
+   A - save unfiled messages to their vm-auto-folder-alist specified folders
+   # - expunge deleted messages (without saving folder)
+   q - quit VM, deleted messages not expunged, folder is
+       saved if modified [buffer deleted]
+   x - exit VM with no change to the folder [buffer deleted]
+</pre>
+
+<a name = ild-bindings>
+<h4>ILD bindings</h4>
+
+See also the /usr/share/emacs/ilisp-5.9.3/ild.el source.
+
+<pre>
+    Keystroke c-u? What it does
+
+    m-a            Abort
+    m-c            Continue
+    c-m-n     *    Next stack frame
+    c-m-p     *    Previous stack frame
+    c-c <          Top stack frame
+    c-c >          Bottom stack frame
+    m-b            Backtrace
+    c-m-d          Display all locals
+    c-m-l     *    Display particular local
+    c-c r          Return
+    c-m-r          Retry
+    c-x t          Trap on exit
+    c-c L          Select Lisp interaction buffer
+    c-z c-s        Sets compiler options for maximally debuggablity
+    c-z c-f        Sets compiler options for fastest but least debuggable code
+</pre>
+
+<a name = diff>
+<h4>Unified <tt>diff</tt></h4>
+
+Use this for distributing or submitting patches to a given version of a
+system.
+<pre>
+    diff -uNr original/ new/ > something-or-other.patch
+</pre>
+See also the <tt>info</tt> section titled "diff -> Making Patches".
+
+<p>
+<hr>
+<p>
+<a name = network>
+<h2>Networking</h2>
+
+See also the <a href="security/ssh.html"><b><tt>ssh</tt>: secure
+shell</b></a> and <a href="security/firewall.html"><b><tt>ipchains</tt>
+firewall script</b></a> pages.
+
+<a name = ether>
+<h3>Ethernet</h3>
+
+See my <a href="ether.html">Ethernet Cheat Sheet</a> for Ethernet
+pinouts and wire color code conventions.  (This is on a page of its own
+for easy printing.)
+
+<p>See also <tt>/usr/doc/HOWTO/Ethernet-HOWTO</tt>, <a
+href="http://www.NetworkUptime.com/faqs/ethernet/">
+<tt>comp.dcom.lans.ethernet_FAQ</tt></a> and <a
+href="http://www.scyld.com/network/eepro100.html">
+<tt>http://www.scyld.com/network/eepro100.html</tt></a>.  The
+<tt>/sbin/mii-diag</tt> and <tt>/sbin/eepro-diag</tt> commands
+(downloaded from the latter) report on detailed Ethernet NIC status.
+Sources for these diagnostics (plus a copy of the FAQ) are in the <tt>
+~rogers/linux/ether/ </tt> directory.
+
+<a name = net-gen>
+<h3>General IP networking</h3>
+
+<ul>
+  <li> The <a href="file:/etc/services"> <tt>/etc/services</tt></a> file
+       has the port/protocol to service name mapping.
+  <li> "netstat -t" reports on open TCP connections.
+  <li> Use <tt>"cat /proc/net/dev"</tt> to get a tabular version of
+       <tt>ifconfig</tt> output.
+  <li> At boot time, the <tt>/etc/rc.d/init.d/paranoid</tt> script is
+       started from the <tt>/etc/rc.d/rc.modules</tt> script, then
+       <tt>/etc/rc.d/init.d/network</tt> does the boot-time
+       <tt>/sbin/ifup</tt> calls, and finally
+       <tt>/etc/rc.d/init.d/firewall</tt> is called (both of the latter
+       using proper SysV style from <tt>/etc/rc.d/rc[2345].d/</tt>
+       links).  See also the <a href="security/firewall.html">
+       <b><tt>ipchains</tt> firewall script</b></a> page.
+</ul>
+
+<p>Domain hackery:  ipmasqadm RPM package, then add port forwarding
+(probably only needed for running servers from the internal network).
+See http://www.hiway.net/ domain pointer service.
+
+<a name = boot-recovery>
+<h3>If the network doesn't come up after booting</h3>
+
+Sometimes <tt>eth0</tt> configuration fails when booting, probably due
+to slow DHCP server response.  When that happens, there is no
+connectivity to the outside world, and a number of bad consequences
+follow:
+<ol>
+  <li> The host IP address is unknown, so the firewall script can't
+       configure itself.
+  <li> DNS name resolution is unavailable, which makes <a
+       href="#aolserver">AOLserver</a> and <a href="#squid">Squid</a>
+       fail.
+  <li> Because the world is unreachable (not to mention DNS), <a
+       href="#ntpd"><tt>ntpd</tt></a> can't so much as ask anyone for
+       the time of day.
+</ol>
+
+So to fix all of this, the following things must be done, in this order:
+
+<ol>
+  <li> <b>Bring up the interface.</b>  Do this via
+       <pre>
+       # ifup eth0
+       </pre>
+       as <tt>root</tt>, of course.  This may take a while, and it may
+       fail again, especially if a power outage just ended and the DHCP
+       server is swamped with requests (and may still be booting up
+       itself).  Do <tt>"ifconfig eth0"</tt> to verify that
+       <tt>eth0</tt> really has an IP address.
+
+       <p>
+  <li> <b>Bring up the firewall.</b>  You will want to do this before
+       starting other services.
+       <pre>
+       # /etc/rc.d/init.d/firewall
+       </pre>
+
+       <p>
+  <li> <b>Start the time daemon manually.</b>
+       <pre>
+       # /etc/rc.d/init.d/ntpd start
+       </pre>
+       The system clock will get reset almost immediately, which may
+       make the screen go blank, if it moves further ahead than your
+       screen saver delay interval (mine is 10 minutes).
+
+       <p>
+  <li> <b>Start the remaining services manually.</b>
+       <pre>
+       # /etc/rc.d/init.d/squid start
+       # /etc/rc.d/init.d/nsd start
+       </pre>
+</ol>
+
+<a name=perl-dns>
+<h3>DNS tricks using <tt>perl</tt></h3>
+
+<p>Reverse DNS in <tt>perl</tt>:
+<pre>
+    rgr&gt; perl -e 'use Socket; $iaddr = inet_aton("128.197.54.20"); print join(" ", gethostbyaddr($iaddr, AF_INET)), "\n";'
+    DARWIN.BU.EDU  2 4 \200&Aring;6^T
+    rgr&gt; 
+</pre>
+
+Reverse DNS from a shell (using perl to trim just the host name out of
+the nslookup output):
+<pre>
+    % nslookup -q=PTR 19.200.128.24.in-addr.arpa | perl -ne 'print "$1\n" if /in-addr.arpa\s+name = (.*)$/;'
+    h0050da615e79.ne.mediaone.net
+    % 
+</pre>
+
+<p>
+<hr>
+<p>
+<a name=servers>
+<h2>Servers</h2>
+
+<a name = logs>
+<h3>Server logs</h3>
+
+[this needs updating for suse 8.1.  log rotation is now controlled
+(mostly) by <tt>/etc/logrotate.d/syslog</tt>, which requires tweaking.
+-- rgr, 13-May-03.]  [squid log rotation is controlled by
+<tt>/etc/logrotate.d/squid</tt>, instead of doing
+<tt>"squid&nbsp;-k&nbsp;rotate"</tt>; this also needed tweaking.  --
+rgr, 29-Jun-03.]
+
+<p>I have server logs scattered all over my hard drive:
+<blockquote>
+<table>
+  <tr> <th>What</th> <th>Where</th> </tr>
+  <tr>
+    <td> <a href="#nis">NIS</a></td>
+    <td> Uses <tt>/var/log/messages</tt>.</td>
+  </tr>
+  <tr>
+    <td> <a href="#qmail"><tt>qmail</tt></a></td>
+    <td> Uses <tt>/var/log/maillog</tt> (and <tt>/var/log/messages</tt>
+	 to a lesser extent).</td>
+  </tr>
+  <tr>
+    <td> <a href="#ezmlm"><tt>ezmlm</tt></a></td>
+    <td> Each mailing list gets its own log, in the <tt>Log</tt> file
+	 immediately under the list directory.  Only such things as
+	 subscribe/unsubscribe events are logged.
+  </tr>
+  <tr>
+    <td> <a href="#netatalk">netatalk</a></td>
+    <td> Uses <tt>/var/log/messages</tt>.  [The 1.6 release will have
+	 more logging options.  -- rgr, 29-Aug-02.]
+    </td>
+  </tr>
+  <tr>
+    <td> <a href="#ntpd"><tt>ntpd</tt></a></td>
+    <td> Uses <tt>/var/log/messages</tt>.</td>
+  </tr>
+  <tr>
+    <td> <a href="#aolserver">AOLserver</a></td>
+    <td> <tt>/usr/local/aolserver/servers/rgrjr/modules/nslog/access.log</tt>
+	 for Web hits to the "rgrjr" server, and
+	 <tt>/usr/local/aolserver/log/server.log</tt> for the server
+	 itself.
+    </td>
+  </tr>
+  <tr>
+    <td> <a href="#squid">Squid</a></td>
+    <td> <tt>cache.log</tt>, <tt>access.log</tt>, and <tt>store.log</tt>
+	 in <tt>/var/log/squid/</tt> when using the SuSE-built RPM
+	 version.  More about these below.
+    </td>
+  </tr>
+  <tr>
+    <td> <a href="#samba">Samba</a></td>
+    <td> <tt>/usr/local/samba/log.nmb</tt> and
+	 <tt>/usr/local/samba/var/log.smbd</tt>.
+    </td>
+  </tr>
+</table>
+</blockquote>
+
+Fortunately, the AOLserver, Squid, and Samba servers (all of which are
+installed on <tt>/usr/local</tt>) are the only ones that don't use the
+system logs.
+
+<a name=nis>
+<h3>Network Information Service (NIS)</h3>
+
+After changing one of the configuration files
+(e.g. <tt>/etc/hosts</tt>), the NIS maps need to be rebuilt by doing
+<tt>make</tt> in the domain master directory.  For example, here's what
+I did after editing <tt>/etc/group</tt> to add a new group:
+<blockquote>
+<pre>
+[root@rgr log]# cd /var/yp/ESS-MA/
+[root@rgr ESS-MA]# make -f ../Makefile all
+Updating group.byname...
+Updating group.bygid...
+Updating netid.byname...
+[root@rgr ESS-MA]# 
+</pre>
+</blockquote>
+In this case, <tt>"ESS-MA"</tt> is the name of the "NIS domain," and
+will be different for each installation.  (The fact that it lives in its
+own subdirectory means that you could even make a <tt>/var/yp/TEST/</tt>
+subdirectory for a "TEST" domain if you wanted to experiment without
+messing up the "real" server.)
+
+<p>After this update, the new group was immediately available to
+<tt>ypmatch</tt> on all machines.  [I have no idea what
+<tt>netid.byname</tt> is used for, nor why it needed rebuilding then.
+-- rgr, 7-Aug-01.]
+
+<p>Steps to setting up <tt>ypserv</tt> and <tt>ypbind</tt> on a fresh
+machine:
+<ol>
+  <li> Pick an NISDOMAIN name, e.g. <tt>ESS-MA</tt>.  This has nothing
+       to do with DNS domains, and should be different from same. 
+  <li> Do <tt>"nisdomainname&nbsp;<i>name</i>"</tt> to initialize it.
+  <li> Update the right config file to initialize the NIS domain name at
+       boot time.  (This is in <tt>/etc/sysconfig/network</tt> on
+       RH&nbsp;6.x, and in <tt>/etc/defaultdomain</tt> on
+       SuSE&nbsp;8.0.)
+  <li> Edit <tt>/etc/yp/Makefile</tt> and <tt>/etc/yp/securenets</tt>,
+       following instructions in the file comments.  [In
+       <tt>/etc/yp/securenets</tt>, note that the subnet mask comes
+       <em>before</em> the address.  -- rgr, 19-Oct-02.]
+  <li> Start the server: <tt>"/etc/init.d/ypserv&nbsp;start"</tt>
+  <li> Verify that the server is up and running:  <tt>"rpcinfo -u
+       localhost ypserv"</tt>.
+  <li> Make sure the server gets started on reboot:
+       <tt>"chkconfig&nbsp;--add&nbsp;ypserv"</tt>
+  <li> [ypinit to build the maps]
+  <li> If required, start <tt>yppasswdd</tt>:
+       <pre>
+       /etc/init.d/yppasswdd start
+       chkconfig --add yppasswdd
+</pre>
+  <li> Full testing requires a running client, but you can do
+       <tt>"rpcinfo&nbsp;-p&nbsp;localhost"</tt> to verify that the
+       server is listening.  The output should include something like
+       the following:
+       <pre>
+   program vers proto   port
+    100004    2   udp    905  ypserv
+    100004    1   udp    905  ypserv
+    100004    2   tcp    908  ypserv
+    100004    1   tcp    908  ypserv
+       </pre>
+       The numbers are arbitrary, except that ypserv version 2 should be
+       listed for both TCP and UDP.
+</ol>
+The following steps are necessary to set up the <tt>ypbind</tt> client
+on the server machine:
+<ol start="11">
+  <li> Set the machine up as a client by putting a <tt>"ypserver"</tt>
+       line in <tt>/etc/yp.conf</tt>:
+       <pre>
+       ypserver 192.168.57.1
+</pre>
+       A fixed IP address is best.
+  <li> Start the client: <tt>"/etc/init.d/ypbind&nbsp;start"</tt>
+  <li> Make sure the client gets started on reboot:
+       <tt>"chkconfig&nbsp;--add&nbsp;ypbind"</tt>
+  <li> Ensure that the client and server are talking to each other:
+       <pre>
+       rogers@localhost&gt; <b>ypmatch rgr hosts</b>
+       192.168.57.1	rgr.rgrjr.com	rgr
+       rogers@localhost&gt; <b>ypmatch staff group</b>
+       staff:*:500:
+       rogers@localhost&gt; <b>ypmatch rogers passwd</b>
+       rogers:Rn0LxKrY3l2ou:503:500::/home/rogers:/bin/bash
+       rogers@localhost&gt;
+</pre>
+</ol>
+
+<p>The following steps are necessary to set up the <tt>ypbind</tt>
+client on a machine other than the server:
+<ol>
+  <li> Do <tt>"nisdomainname&nbsp;<i>name</i>"</tt> to initialize the
+       NIS domain name.  This must be the same name you told the server
+       to use.
+  <li> Update the right config file to initialize the NIS domain name at
+       boot time, just as for the server.
+  <li> Set the machine up as a client by putting a <tt>"ypserver"</tt>
+       line in <tt>/etc/yp.conf</tt>:
+       <pre>
+       ypserver 192.168.57.1
+</pre>
+       A fixed IP address is best.
+  <li> Start the client: <tt>"/etc/init.d/ypbind&nbsp;start"</tt>
+  <li> Make sure the client gets started on reboot:
+       <tt>"chkconfig&nbsp;--add&nbsp;ypbind"</tt>
+  <li> Note that under SuSE (at least 8.0), it is necessary to run
+       <tt>yast2</tt> to finish initialization, or people won't be able
+       to log in to NIS users.  The correct information should already
+       be there (or you can enter it via the GUI), but something it does
+       after you click "Finish" is required.  [Maybe changing
+       <tt>/etc/nsswitch.conf</tt>?  Or putting <tt>"+"</tt> lines in
+       <tt>/etc/passwd</tt>, <tt>/etc/group</tt>, and
+       <tt>/etc/shadow</tt>?  -- rgr, 30-Oct-02.]
+  <li> Ensure that the client and server are talking to each other:
+       <pre>
+       rogers@localhost&gt; <b>ypmatch rgr hosts</b>
+       192.168.57.1	rgr.rgrjr.com	rgr
+       rogers@localhost&gt; <b>ypmatch staff group</b>
+       staff:*:500:
+       rogers@localhost&gt; <b>ypmatch rogers passwd</b>
+       rogers:Rn0LxKrY3l2ou:503:500::/home/rogers:/bin/bash
+       rogers@localhost&gt;
+</pre>
+       [This will actually work before <tt>yast2</tt> initialization,
+       but users still won't be able to log in.  -- rgr, 30-Oct-02.]
+</ol>
+
+<p>[troubleshooting?  -- rgr, 19-Oct-02.]
+
+<p>Resources:
+<ul>
+  <li> <a
+       href="http://www.linux-nis.org/nis-howto/HOWTO/NIS-HOWTO.html">
+       The Linux NIS(YP)/NYS/NIS+ HOWTO</a>, by Thorsten Kukuk, v1.2, 4
+       August 2002.
+  <li> <a href="http://www.linux-nis.org/nis/">Linux NIS(YP) Server and
+       Tools</a>, an overview with other links.
+</ul>
+
+<a name=qmail>
+<h3>The <tt>qmail</tt> mail transport agent</h3>
+
+<tt>qmail</tt> is excellent; it's the only server I haven't had to
+upgrade to fix security issues, and I've been running it for nearly
+three years now.  <tt>qmail</tt> now claims to be the <a
+href="http://www.qmail.org/top.html">"second most popular MTA on the
+Internet"</a>, and I'm not surprised.
+
+<ul>
+  <li> Binaries are installed into the <tt>/var/qmail/bin/</tt>
+       directory by default.
+  <li> Messages are identified by a number, e.g. <tt>110876</tt>, which
+       happens to be the inode number of the data file; this guarantees
+       that it is unique.  The message itself is stored in
+       <tt>/var/qmail/queue/mess/</tt>, e.g. as
+       <tt>/var/qmail/queue/mess/16/110876</tt>, and the queue entry in
+       <tt>/var/qmail/queue/local/</tt>
+       (e.g. <tt>/var/qmail/queue/local/16/110876</tt>).  The extra
+       layer of directories keeps any one queue directory from growing
+       too big (which is tremendous overkill for my installation).
+  <li> Global configuration is via control files in the
+       <tt>/var/qmail/control/</tt> dir.  See
+       <tt>"man&nbsp;qmail-control"</tt> for a summary of all control
+       files and the bits of qmail that use them.  Man pages for the
+       referenced programs will give detailed information.
+  <li> Mail delivery configuration is done by <tt>".qmail"</tt> files in
+       the user's home directory (for localparts that start with the
+       user's login name) or the <tt>/var/qmail/alias/</tt> directory
+       (for localparts that start with anything else).
+</ul>
+
+Here is how to:
+
+<dl class="howto">
+  <dt> Find out what's currently waiting to be delivered:
+  <dd> Run <tt>qmail-qread</tt> (as root).  The output will look
+       something like this:
+       <pre>
+       [root@rgrjr control]# qmail-qread 
+       4 Nov 2002 18:17:55 GMT  #206850  1355  &lt;somebody@rgrjr.dyndns.org&gt;
+	       remote	abuse@pubnet.ne.kr
+       12 Nov 2002 15:02:58 GMT  #206852  1891  &lt;nobody@rgrjr.dyndns.org&gt;
+	       remote	abuse@first.net.jo
+       [root@rgrjr control]#
+</pre>
+       For each message in the queue, a summary line is printed,
+       followed by a status line for each recipient.  The summary line
+       starts with the date the message entered the queue, followed by
+       the message ID (preceded by a "#"), the message size in bytes,
+       and the envelope sender.  Each recipient line contains a status
+       code, the keyword <tt>"local"</tt> or <tt>"remote"</tt>, and the
+       recipient address.  In the example above, the status is blank
+       because the message is still being delivered; if a message had
+       already been delivered to other recipients, different codes would
+       have appeared for those deliveries.  In <tt>qmail</tt>, all
+       deliveries are made independently, even when the same message has
+       multiple recipients at the same destination server.
+  <dt> Find files in the queue:
+  <dd> Do <tt>"find /var/qmail/queue -type f"</tt> to find all queued
+       message files.
+  <dt> Force a bounce:
+  <dd> To force a bounce, you need to make its "info" file older than
+       the maximume queue lifetime (in the
+       <tt>/var/qmail/control/queuelifetime</tt>, or 7 days if not
+       present).  For a message with id 206850, this can be done as
+       follows:
+       <pre>
+       find /var/qmail/queue/info -name 206850 | xargs touch -d '8 days ago'
+</pre>
+       See also the <a
+       href="http://cr.yp.to/qmail/faq/admin.html#rejuvenate"> "How do I
+       rejuvenate a message?"</a> FAQ item.  (To "rejuvenate," just
+       leave off the <tt>-d</tt> argument to <tt>touch</tt>.)
+  <dt> Force redelivery attempts:
+  <dd> Do <tt>"kill&nbsp;-ALRM"</tt> on the qmail-send process to force
+       redelivery for all queued messages.  Alternatively,
+       <tt>"/etc/rc.d/init.d/qmail&nbsp;redeliver"</tt> will do this for
+       you.  (See also the <tt>/root/bin/qmail-redeliver</tt> and
+       <tt>/root/bin/qmail-restart</tt> scripts).
+  <dt> Restart after a network outage:
+  <dd> Run <tt>qmail-tcpok</tt> to get <tt>qmail</tt> to reexamine its
+       notion of which hosts are responding.  -- rgr, 13-Mar-00.
+  <dt> Get around SPAM/relay blockers via <tt>smtproutes</tt>:
+  <dd> When I get a bounce message that looks something like this:
+       <pre>
+    &lt;abuse@morning.ru&gt;:
+    Connected to 195.161.98.12 but sender was rejected.
+    Remote host said: 550 5.7.1 Mail from 66.31.124.111 rejected;
+       see <a href="http://www.five-ten-sg.com/blackhole.php">http://www.five-ten-sg.com/blackhole.php</a>?Search=Search&amp;ip=66.31.124.111
+</pre>
+       then it probably means that the recipient's ISP is blocking my IP
+       address.  In this particular case, <a
+       href="http://good.morning.ru/">Morning Network Ltd. of
+       Krasnoyarsk, Russia</a> has their MTA set up to query the <a
+       href="http://www.five-ten-sg.com/"> 510 Software Group</a> about
+       whether it should allow connections from any given IP address;
+       since they know that <tt>66.31.0.0/16</tt> is an AT&amp;T
+       Broadband Northeast customer IP netblock, they classify it as the
+       equivalent to a dial-in line, and tell Morningstar to refuse.
+       Rather than bother the 510 folks to have them stop blocking my IP
+       (which is not really fixed in any case), I just added the
+       following line to the <tt>/var/qmail/control/smtproutes</tt>
+       file:
+       <pre>
+    morning.ru:mail.attbi.com
+</pre>
+       This tells my machine to relay mail for the <tt>morning.ru</tt>
+       domain through <tt>mail.attbi.com</tt> (which will do this for me
+       because I am a customer).  This is becoming necessary for more
+       and more ISPs as they get more sophisticated about blocking SPAM;
+       someday I may have to route everything through AT&amp;T, though
+       that would force me to change
+       <tt>/var/qmail/control/smtproutes</tt> when this server goes
+       down.  Note that it is not necessary to restart the server after
+       changing this file, as <tt>qmail-remote</tt> is forked anew for
+       each remote delivery.
+</dl>
+
+Other <tt>qmail</tt> resources:
+<ul>
+  <li> The home page is at <a href="http://www.qmail.org/top.html">
+       <tt>http://www.qmail.org/top.html</tt></a>.  This page also lists
+       a ton of add-on software for <tt>qmail</tt>.  See <a
+       href="http://www.qmail.org/"><tt>http://www.qmail.org/</tt></a>
+       for a list of mirrors.
+  <li> The FAQ is at <a href="http://cr.yp.to/qmail/faq.html">
+       <tt>http://cr.yp.to/qmail/faq.html</tt></a>.
+  <li> <a href="http://Web.InfoAve.Net/~dsill/lwq.html">Life with
+       qmail</a> by Dave Sill is a first-rate tutorial with detailed
+       installation and setup instructions.
+</ul>
+
+<a name = ezmlm>
+<h3>The <tt>ezmlm</tt> mailing list manager</h3>
+
+The <tt>ezmlm</tt> binaries are in <tt>/usr/bin/ezmlm/</tt>, which is
+not on root's default path.  The easiest way to get these commands is to
+<tt>"su&nbsp;alias"</tt> as root.
+<dl class="howto">
+  <dt> Create a new list:
+  <dd> For the "linux" list, I did
+       <pre>
+       $ ezmlm-make ~alias/linux/ ~alias/.qmail-linux linux rgrjr.dyndns.org
+</pre>
+       as the <tt>alias</tt> user, so <tt>alias</tt> became the list
+       owner.  (If I had done this as <tt>rogers</tt>, the list name in
+       the third argument would have needed to be <tt>rogers-linux</tt>
+       instead of <tt>linux</tt>.)
+
+  <dt> Add or delete a subscriber manually:
+  <dd> To subscribe manually, do
+       <pre>
+       $ ezmlm-sub ~alias/linux/ rogers@rgrjr.dyndns.org
+</pre>
+       as the list owner.  Lists are identified by their top-level
+       directory, <tt>~alias/linux/</tt> in this case.  Unsubscription
+       uses the <tt>ezmlm-unsub</tt> program.
+</dl>
+
+<a name = netatalk>
+<h3>netatalk</h3>
+
+<ul>
+  <li> Current development happens at <a
+       href="http://netatalk.sourceforge.net/">
+       <tt>netatalk.sourceforge.net</tt></a>.  The latest release is
+       1.6.
+  <li> <a href="http://www.anders.com/projects/netatalk/">Linux
+       Netatalk-HOWTO</a> (does not cover the current Sourceforge
+       development stream).
+  <li> Good overview of netatalk setup concepts and issues in the <a
+       href="http://www.idg.net/crd_linux_72770.html"> "AppleTalk
+       services under Linux"</a> article.
+  <li> My UG/FAQ is on the <a
+       href="http://bmerc-www.bu.edu/needle-doc/netatalk.html">
+       <tt>http://bmerc-www.bu.edu/needle-doc/netatalk.html</tt></a>
+       page.
+  <li> Tunneling: See <a
+       href="http://ebv.mimnet.northwestern.edu/%7Eaiyar/appletalk.html">
+       "Tunneling Appletalk Through IP"</a>.  (Never had to do this
+       myself.)
+</ul>
+
+<a name = aolserver>
+<h3>AOLserver</h3>
+
+Why run AOLserver?  It's fast, reliable, and exploits are rare (unlike
+some other servers we could mention).
+
+<p>I am currently running AOLserver 3.4 (as of 7-Sep-01).  Note that
+version 3.2 and prior are subject to a denial-of-service attack (see
+mail from Nate Haggard <tt>&lt;nate <i>at</i>
+securitylogics.com&gt;</tt> to <tt>&lt;bugtraq <i>at</i>
+securityfocus.com&gt;</tt> re "AOLserver 3.0 vulnerability" on 22 Aug
+2001 at 16:51:45 -0600 [should get the ref from <a
+href="http://www.securityfocus.com/">
+<tt>http://www.securityfocus.com/</tt></a>]).
+
+<p><tt>nsd</tt> daemon startup is done by the
+<tt>/etc/rc.d/init.d/nsd</tt> script; the command it uses is is
+<pre>
+	nsd -t /usr/local/aolserver/config.tcl -u nsadmin -g web
+</pre>
+(where the binary is in <tt>/usr/local/aolserver/bin/</tt> on
+<tt>$PATH</tt>).  This must be done as root, so that the daemon can bind
+to port 80.  Add -f to run in "test mode" in foreground, but first be
+sure to do <tt>"/etc/rc.d/init.d/nsd&nbsp;stop"</tt> to make the daemon
+go away.  You can add -k to kill and restart, or -K to kill and leave
+dead (still needs <tt>config.tcl</tt> and <tt>-u/-g</tt> args), but this
+is better done via the init script.
+
+<p>The configuration file for this server,
+<tt>/usr/local/aolserver/config.tcl</tt>, does
+<tt>'set&nbsp;servername&nbsp;"rgrjr"'</tt>, which (I think) is how it
+knows that the pages are kept in the
+<tt>/usr/local/aolserver/servers/rgrjr/pages/</tt> directory.
+
+<a name = aol-no-dns>
+<h4>AOLserver without DNS</h4>
+
+Note that if <tt>nsd</tt> is started when DNS service is not available,
+such as when the external cable modem is unconnected, the
+<tt>nssock.so</tt> module will fail to load, which is fatal.
+<tt>nsd</tt> will exit immediately, but if it was started via
+<tt>/etc/inittab</tt>, the <tt>init</tt> process will notice and try to
+start it up again, putting about 10Mbytes of startup garbage in
+<tt>/usr/local/aolserver/log/server.log</tt> per day.  There may be a
+config file workaround, but in any case, it is cleaner to use a SysV
+startup script.  [I could fix it to omit startup when we can figure out
+that the external network is not usable.  -- rgr, 7-Sep-01.  But that's
+not really necessary; it fails once, but that doesn't hurt anything.  --
+rgr, 15-Dec-02.]
+
+<a name = aol-access>
+<h4>The AOLserver <tt>access.log</tt></h4>
+
+<p>To get a summary of the hits recorded in the access log, try
+<pre>
+	page-hits.pl -nolocal /usr/local/aolserver/servers/rgrjr/modules/nslog/access.log
+</pre>
+
+<p>I [used to] rotate the logs manually every month by the following
+method:
+<ol>
+  <li> Comment out the <tt>/etc/inittab</tt> entry.
+  <li> <tt>"telinit&nbsp;q"</tt>
+  <li> In the <tt>/usr/local/aolserver/log/</tt> directory, rename
+       <tt>server.log</tt> to (e.g.)
+       <tt>server.200008.log</tt>.
+  <li> In <tt>/usr/local/aolserver/servers/rgrjr/modules/nslog</tt>, rename
+       <tt>access.log</tt> to <tt>access.200008.log</tt> (or whatever).
+  <li> Revert to the old <tt>/etc/inittab</tt> version.
+  <li> <tt>"telinit&nbsp;q"</tt>
+  <li> Do <tt>chmod 640</tt> for both <tt>access.log</tt> and
+       <tt>server.log</tt>, since they are otherwise world-readable.
+       [Probably should report this as a bug.  -- rgr, 3-Dec-00.]
+</ol>
+
+<p>[much later . . . ]
+
+<p>Oops, I'm an idiot.  It's much easier to tell the server to rotate
+the logs by sending it a <tt>SIGHUP</tt>, assuming you have
+<tt>"ns_param rollonsignal true"</tt> in the "nslog" section of the
+<tt>/usr/local/aolserver/config.tcl</tt> file.
+
+<p>I currently roll the AOLserver log on the first day of every month
+via a <tt>crontab</tt> entry:
+<blockquote>
+<pre>
+# rotate the AOLserver logs monthly, at midnight on the 1st.  -- rgr, 3-Feb-01.
+0 0 1 * *	kill -HUP `cat /usr/local/aolserver/log/nspid.rgrjr`
+</pre>
+</blockquote>
+This will probably generate some kind of error if the server is not
+running, in which case <tt>cron</tt> will send me email.  That is a good
+thing, as I'll have to roll the log manually in that case.
+
+<a name = aol-links>
+<h4>AOLserver links</h4>
+
+<ul>
+  <li> <a href="http://aolserver.com/">About AOLserver</a>
+  <li> <a href="http://sourceforge.net/projects/aolserver/">
+       Sourceforge.net: Project Info - AOLserver</a>
+  <li> <a href="http://aolserver.com/docs/">AOLserver documentation</a>
+       (terse, at best).  See especially the <a
+       href="http://aolserver.com/docs/admin/"> AOLserver Administration
+       Guides</a> pages.
+</ul>
+
+<a name = squid>
+<h3>Squid</h3>
+
+<a href="http://www.squid-cache.org/">Squid</a> is caching proxy server,
+for which I now have three uses:
+<ol>
+  <li> <b>Web cache.</b> This is the "standard" use for Squid,
+       wherein it uses local RAM and hard drive to speed up Web access.  The
+       extra speed is not so important, as I have a cable modem, but the
+       hard drive cache feature allows me to turn off all browser hard drive
+       caching, which avoids bloating my backups with copies of Web
+       pages.  I have allotted 250MB of hard drive to caching, which lives in
+       <tt>/scratch/squid/cache/</tt>; the <tt>/scratch/</tt> partition
+       is never backed up.  I've been running Squid for more
+       than a year now, and still haven't quite filled it up.
+
+       <p>In order to prevent randoms from using my machine as an
+       anonymizer, this service is only available on the local network.
+       This is because the ACL setup in Squid forbids nonlocal users
+       from accessing nonlocal servers.
+
+       <p>
+       <a name = squid-vhr>
+  <li> <b>Virtual host redirector.</b> Since I have two distinct Web
+       servers running on this machine, I also need Squid to listen to
+       port 80, where it redirects requests for local Web connections to
+       the appropriate server based on the server named in the
+       <tt>"Host:"</tt> header.  [I should explain how to set this up,
+       but that would have to be a separate article.  -- rgr,
+       20-Jul-02.]
+
+       <p>
+  <li> <b>Advertising filter.</b> The same "redirector" technology that
+       supports virtual hosting also serves to rewrite URLs for
+       advertising images into something less annoying, e.g. from a
+       flashing <tt>http://ad.doubleclick.net/</tt> monstrosity to "<img
+       src="/random/doubleclick.png">", a small <a
+       href="http://www.libpng.org/"> <tt>.png</tt> image</a> kept
+       locally.
+</ol>
+Note that these functions can also be performed by <a
+href="http://www.squidguard.org/">squidGuard</a>, which advertises
+itself as "a combined filter, redirector and access controller plugin
+for Squid" that is "free, very flexible, extremely fast, easily
+installed, [and] portable."  But my needs are simpler, so I wrote my
+own.
+
+<dl class="facts">
+  <dt> Documentation
+  <dd> The <a href="http://www.squid-cache.org/Doc/FAQ/"> Squid FAQ</a>
+       is the most useful piece of Squid documentation I have yet found.
+       It is huge, which is a testament to the versatility of Squid.
+
+       <p><a href="http://www.squid-cache.org/Doc/">
+       <tt>http://www.squid-cache.org/Doc/</tt></a> has links to the
+       FAQ, as well as to other works.
+
+       <p>And the default configuration file, installed by the SuSE 8.1
+       RPM into <tt>/etc/squid/squid.conf.default</tt>, is full of
+       comments that describe each of the configuration options in some
+       detail.  (The configuration guide at <a
+       href="http://squid.visolve.com/squid24s1/contents.htm">
+       <tt>squid.visolve.com</tt></a> is mostly a browseable version of
+       these comments, with some added content.)
+
+  <dt> Configuration file
+  <dd> The configuration file is <tt>/etc/squid/squid.conf</tt>.  If you
+       change it, you can cause a running Squid to reread it by
+       <pre>
+       squid -k reconfigure
+</pre>
+       This is much faster than using the SysV script to stop and
+       restart it, because Squid won't have to rebuild its in-memory
+       cache database.  It also causes the redirector to be restarted,
+       which is necessary after modifying it.
+
+       <p>[The SysV script seems to have a bug; stopping doesn't always
+       work in any case.  But maybe that's just because I was too
+       impatient for Squid to exit.  -- rgr, 20-Jul-02.]
+
+       <p>But before you reload the configuration file, you might want
+       to do
+       <pre>
+       squid -k parse
+</pre>
+       in order to ensure that you haven't introduced errors.
+
+  <dt> Listening ports
+  <dd> By default, Squid listens for proxy requests on
+       port&nbsp;3128.  I have also configured mine to listen to
+       port&nbsp;80 for the sake of <a href="#squid-vhr">virtual host
+       redirection</a>, but it only honors requests either for local
+       pages, or requests that originate locally.
+
+  <dt> Access log file
+  <dd> The access log is <tt>/usr/local/squid/logs/access.log</tt>; by
+       default this is in Squid's own internal format.  The
+       <tt> ~rogers/hacks/squid2std.pl </tt> script 
+       See <a
+       href="http://www.squid-cache.org/Doc/FAQ/FAQ-6.html#ss6.6">
+       Squid FAQ #6.6</a> for more details.
+</dl>
+
+<a name = ntpd>
+<h3><tt>ntpd</tt></h3>
+
+See my <a href="ntp.html">Automatic clock setting from an NTP time
+server</a> page, or the <a href="http://www.eecis.udel.edu/~ntp/">NTP
+Time Server</a> home page.  NTP doesn't take much fiddling once it's up.
+
+<a name = samba>
+<h3>Samba</h3>
+
+<a href="http://www.samba.org/">Samba</a> is configured on this machine,
+but not started by default, since I don't often use my Windows machine
+(at least not for Windows; it also runs <a
+href="http://www.suse.com/">SuSE Linux</a>).  To start it, I must do
+<tt>"/etc/rc.d/init.d/samba&nbsp;start"</tt> as root.
+
+<p>In order to get Samba up and running at my site, I found the
+following resources helpful:
+<ol>
+  <li> <a href="http://us3.samba.org/samba/samba.html">SAMBA - opening
+       windows to a wider world</a> (a US mirror of the <a
+       href="http://www.samba.org/">Samba</a> home site).
+  <li> <a href="http://www.linuxdoc.org/HOWTO/SMB-HOWTO.html">SMB
+       HOWTO</a>
+  <li> <a
+       href="http://de.samba.org/samba/ftp/docs/htmldocs/using_samba/">
+       Using Samba</a> (online version of the <a
+       href="http://www.oreilly.com/catalog/samba/">O'Reilly <b>Using
+       Samba</b> book</a>, November 1999).
+  <li> <a
+       HREF="http://www.netspace.net.au/~bmiller/linux/NT-SAMBA-problem.html">
+       Windows NT SP3 and 98 Client SAMBA Problem Page</a> 
+  <li> <a
+       href="file:/usr/local/src/samba-2.2.0/docs/htmldocs/ENCRYPTION.html">
+       LanMan and NT Password Encryption in Samba 2.x</a> [part of the
+       source distribution; I can't seem to find an online version right
+       now.  -- rgr, 1-Dec-01.]
+</ol>
+
+<p>
+<hr>
+<p>
+<a name=linux>
+<h2>Linux guts</h2>
+
+<a name = kernel>
+<h3>Kernel</h3>
+
+<p>Prior to upgrade, I had the following kernel-related code installed
+(but deinstalled <tt>kernel-pcmcia-cs</tt> almost immediately because I
+don't have the hardware):
+<pre>
+    kernel-headers-2.2.5-15
+    kernel-2.2.5-15
+    kernel-pcmcia-cs-2.2.5-15
+    kernelcfg-0.5-5
+    kernel-source-2.2.5-15
+    mkinitrd-2.0-1
+    SysVinit-2.77-2
+    initscripts-4.16-1
+</pre>
+
+<a name=mem>
+<h3>Memory management</h3>
+
+Doing <tt>"cat&nbsp;/proc/meminfo"</tt> generates a report of current
+usage.  See <tt>"man&nbsp;vmstat"</tt> for a tool to keep an eye on
+memory usage.
+
+<a name=rpm>
+<h3><tt>rpm</tt> and <tt>rpmfind</tt></h3>
+
+To install:
+<pre>
+   rpm -ivh /mnt/cdrom/RedHat/RPMS/sag*.rpm
+</pre>
+[Except I only have the CDROM for the Red Hat 6.0 distribution, which is
+pretty out of date by now.  So I download off the net (fast on a cable
+modem!) to a designated <a href="#zip">Zip disk</a>, and install at
+leisure.  -- rgr, 3-Sep-00.]
+
+<p>To query a single package:  <tt>"rpm&nbsp;-qil&nbsp;tripwire"</tt>
+Drop the "-l" to omit file listing.
+
+<p>To query recently installed packages:
+<tt>"rpm&nbsp;-qa&nbsp;--last&nbsp;|&nbsp;head"</tt>
+
+<p><tt>rpmfind</tt>: <a href="file:/usr/doc/rpmfind-1.2/README">
+<tt>/usr/doc/rpmfind-1.2/README</tt></a>
+
+<a name = xfree86>
+<h3>XFree86</h3>
+
+<p>The <tt>"DontZap"</tt> option in the <tt>"ServerFlags"</tt> section
+of the <a href="file:/etc/X11/XF86Config">
+<tt>/etc/X11/XF86Config</tt></a> file disables the
+<tt>Crtl-Alt-Backspace</tt> server abort sequence, letting it through to
+clients.  This option is essential for keeping us Zmacs alumni (who
+expect <tt>C-M-DEL</tt> to be bound to <tt>backward-kill-sexp</tt>) from
+going postal.  -- rgr, 19-Mar-00.
+
+<p>
+<hr>
+<p>
+<a name = hardware>
+<h2>Hardware</h2>
+
+<a name = cd-r>
+<h3>Burning CD-R disks</h3>
+
+<ul>
+  <li> My current CD-RW/DVD-ROM is an <a href="http://www.lge.co.kr/">
+       LG&nbsp;Electronics</a> model <a
+       href="http://www.lgeus.com/Product/CD/gcc_4120b.asp"> GCC-4120
+       rev 2.01</a> combination CD-RW and DVD-ROM.  That is, it can read
+       and write CD, CD-R, and CD-RW media (audio and data), and read
+       DVD and DVD-ROM media (video and data).  This is an ATAPI drive,
+       which means (roughly) that it uses SCSI commands over IDE, and
+       plugs in using the regular IDE ribbon cable that is common for
+       hard drive and CD drives.
+  <li> [In case you're curious, it cost me $99 at <a
+       href="http://www.pcsforeveryone.com/">PCs for Everyone</a>, my
+       favorite hardware shop, located on Charles Street in Cambridge,
+       Massachusetts.  -- rgr, 7-Jul-02.]
+  <li> In order to get it to work properly as a CD-R drive with my
+       oddball Red Hat 6.0/kernel 2.2.19 GNU/Linux system, I needed to
+       put <tt>"modprobe&nbsp;ide-scsi"</tt> in
+       <tt>/etc/rc.d/rc.modules</tt> to get it to use the correct
+       driver.  This broke mounting for reading as <tt>/dev/cdrom</tt>,
+       a symbolic link to <tt>/dev/hdc</tt>, so I changed
+       <tt>/dev/cdrom</tt> to point to <tt>/dev/scd0</tt> instead.
+  <li> All of the software needed to write CDs of various sorts is
+       available in the <a
+       href="http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html">
+       cdrtools</a> package.  For writing data CDs, <tt>mkisofs</tt>
+       packages up the files into an ISO9660 CD image, and
+       <tt>cdrecord</tt> burns the image onto a blank CD.
+  <li> Still scoping out the DVD-player thing.  See the <a
+       href="http://www.linuxjournal.com/article.php?sid=5644&mode=thread&order=0">
+       GNU/Linux DVD Player Review</a> article for an overview of some
+       of the players now available for Linux.
+  <li> [for the record, the "KOnCD" utility that comes with KDE has
+       problems.  its help file is completely useless.  -- rgr, 3-Jul-01.]
+</ul>
+
+<h4>Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options</h4>
+
+This list is far from complete, but a complete list makes a lousy quick
+reference.  Do <tt>"mkisofs --help"</tt> if you want to see all options.
+
+<a name="mkisofs-dash-C">
+<dl>
+  <dt> <b>-C <i>last_sess_start,next_sess_start</i></b>
+  <dd> Used for the second or subsequent session of a multi-session
+       disk.  <tt><i>last_sess_start</i></tt> is the sector number of
+       the first sector in the last session of the disk to which you
+       wish to append, and <tt><i>next_sess_start</i></tt> is the
+       starting sector number of the new session.  These numbers may be
+       retrieved from the disk via
+       <tt>"cdrecord&nbsp;-msinfo&nbsp;..."</tt> [Not clear why this
+       needs to be specified if <tt>"-M&nbsp;<i>device</i>"</tt> is also
+       specified.  -- rgr, 20-Oct-02.]
+  <dt> <b>-f</b>
+  <dd> follow symbolic links.
+  <dt> <b>-hfs</b>
+  <dd> make a Mac filesystem.
+  <dt> <b>-l</b>
+  <dd> allows 31-char file names.
+       <a name="mkisofs-dash-M">
+  <dt> <b>-M ( <i>filename</i> | <i>device</i> )</b>
+  <dd> Specifies an existing ISO9660 image to be merged in second or
+       subsequent session of a multi-session disk, where
+       <tt><i>path</i></tt> is file name and <tt><i>device</i></tt> is a
+       <tt>cdrecord</tt> "SCSI device specifier," e.g. <tt>"1,0,0"</tt>.
+       If you do not specify this option, then all earlier sessions will
+       seem to have vanished from the augmented disk.
+  <dt> <b>-max-iso9660-filenames</b>
+  <dd> allows 37-char names (by flushing the widely-ignored version
+       number feature).
+  <dt> <b>--netatalk</b>
+  <dd> look for <tt>netatalk</tt>-style <tt>.AppleDouble</tt> directory
+       entries.
+  <dt> <b>-o</b>
+  <dd> specifies the output file.
+  <dt> <b>-P</b>
+  <dd> specifies the "publisher."
+  <dt> <b>-relaxed-filenames</b>
+  <dd> removes some file name charset limitations.
+  <dt> <b>-V</b>
+  <dd> specifies the volume name
+</dl>
+The rest of the line consists of at least one directory name.
+
+<p>Here is a useful subset of <tt>cdrecord</tt> options:
+<dl>
+  <dt> <b>-msinfo</b>
+  <dd> Read the session addresses from an existing multisession disk;
+       the result is suitable for passing to the <a
+       href="#mkisofs-dash-C"><tt>cdrecord</tt> <tt>-C</tt> option</a>,
+       and should look something like <tt>"81114,123094"</tt>.  When the
+       second number approaches 700&nbsp;000, then the disk is getting
+       pretty full.  [Note that <tt>df</tt> seems to report the free
+       space for multi-session disks incorrectly.  On the other hand,
+       I'm running the version that came with Red Hat 6.0, which is now
+       more than 2.5 years old.  -- rgr, 20-Oct-02.]
+  <dt> <b>-multi</b>
+  <dd> [finish.  -- rgr, 20-Oct-02.]
+  <dt> <b>-waiti</b>
+  <dd> This option is needed when piping <tt>mkisofs</tt> to
+       <tt>cdrecord</tt> for the second and subsequent track of a
+       multi-session CD.  <tt>mkisofs</tt> needs to read directory
+       information from the existing CD in order to merge it with the
+       new data, so <tt>cdrecord</tt> must be told to wait before trying
+       to access the drive.
+</dl>
+
+<h4>CD-R how-to</h4>
+
+<dl class="howto">
+  <dt> Find out what <tt>-dev=X,Y,Z</tt> to use:
+  <dd> Do the following:
+       <pre>
+       [root@rgrjr /root]# <font color=blue>cdrecord -scanbus</font>
+       Cdrecord 1.10 (i586-pc-linux-gnu) Copyright (C) 1995-2001 J&ouml;rg Schilling
+       Linux sg driver version: 2.1.39
+       Using libscg version 'schily-0.5'
+       scsibus0:
+	       0,0,0	  0) *
+	       0,1,0	  1) *
+	       0,2,0	  2) *
+	       0,3,0	  3) *
+	       0,4,0	  4) *
+	       0,5,0	  5) 'IOMEGA  ' 'ZIP 100 PLUS    ' 'J.66' Removable Disk
+	       0,6,0	  6) *
+	       0,7,0	  7) *
+       scsibus1:
+	       1,0,0	100) 'HL-DT-ST' 'RW/DVD GCC-4120B' '2.01' Removable CD-ROM
+	       1,1,0	101) *
+	       1,2,0	102) *
+	       1,3,0	103) *
+	       1,4,0	104) *
+	       1,5,0	105) *
+	       1,6,0	106) *
+	       1,7,0	107) *
+       [root@rgrjr /root]# 
+</pre>
+       The first time I tried this, it only found <tt>scsibus0</tt>,
+       which is the symptom of not having the <tt>ide-scsi</tt> driver
+       installed for an ATAPI drive.
+
+  <dt> Get drive characteristics:
+  <dd> Once you have the proper
+       <tt>{<i>scsibus</i>,<i>target</i>,<i>lun</i>}</tt> triple, do the
+       following:
+       <pre>
+       [root@rgrjr /root]# <font color=blue>cdrecord -checkdrive -dev=1,0,0</font>
+       Cdrecord 1.10 (i586-pc-linux-gnu) Copyright (C) 1995-2001 J&ouml;rg Schilling
+       scsidev: '1,0,0'
+       scsibus: 1 target: 0 lun: 0
+       Linux sg driver version: 2.1.39
+       Using libscg version 'schily-0.5'
+       Device type    : Removable CD-ROM
+       Version        : 0
+       Response Format: 1
+       Vendor_info    : 'HL-DT-ST'
+       Identifikation : 'RW/DVD GCC-4120B'
+       Revision       : '2.01'
+       Device seems to be: Generic mmc CD-RW.
+       Using generic SCSI-3/mmc CD-R driver (mmc_cdr).
+       Driver flags   : SWABAUDIO
+       [root@rgrjr /root]# 
+</pre>
+       [The <tt>-inq</tt> flag gets a subset of this information, mostly
+       the drive configuration part.  -- rgr, 7-Jul-02.]
+
+  <dt> Put a directory onto a CD (in two steps):
+  <dd> Use something like the following:
+       <pre>
+       mkisofs -f -max-iso9660-filenames -relaxed-filenames -P "Bob Rogers" -V 2003Q1a \
+	       -o foo.iso /scratch/backups/2003Q1a/cd/
+       cdrecord -speed=8 -dev=1,0,0 -data foo.iso
+</pre>
+       The first command makes an ISO9660 CD image out of the contents
+       of an ordinary Linux directory; the second command writes this
+       image to the drive.  It is split up this way into two operations
+       because the writing must be done in real time; the CPU has to
+       ensure that the data gets to the CD in time to be written.  The
+       two operations can be pipelined (see the next item), which
+       eliminates the temp hard drive space usage, but doing them separately
+       ensures that the CD image is burned correctly onto the blank
+       medium.
+
+  <dt> Put a directory onto a CD (in one step):
+  <dd> Use a pipeline that looks something like the following:
+       <pre>
+       mkisofs -max-iso9660-filenames -relaxed-filenames -V 2003Q1a /scratch/backups/cd/2003Q1a \
+                | cdrecord -dev=1,0,0 -speed=8 -
+</pre>
+       On my system, this turns out to be much faster than doing the two
+       steps separately.  The reason is that I have only one hard drive, so
+       making a ISO9660 image file from content on the same hard drive
+       requires lots of seeks, which are time-consuming.
+
+       <p>Note that the drive is theoretically capable of writing a CD-R
+       disk at 4X, 8X, and 12X, but 12X (for me, at least) results in an
+       unreadable CD -- <tt>mount</tt> complains about a bad superblock,
+       among other possibilities.  This is probably because my machine
+       and/or hard drive is not fast enough, and so the pipeline stalls.
+       I notice that the <tt>xload</tt> display shows significantly
+       higher CPU demand when writing at 12X than at 8X or 4X, so
+       perhaps the CPU (a 300MHz Athlon processor) is the limiting
+       factor.  Before the 12X run, I tried using the <tt>-dummy</tt>
+       option, but that was no help; I got no diagnostics from it at
+       all.  However, so far I've only tried writing one CD for each
+       speed.  (The CD-RW write speeds are 2X, 4X, and 8X, but I haven't
+       tried using CD-RW media at all yet.)
+
+       <p>[add <tt>-hfs --netatalk</tt> to make a Mac-readable CD.  --
+       rgr, 22-Sep-02.]
+
+  <dt> Append to a CD: 
+  <dd> This requires creating what is called a "multi-session CD."  Each
+       session is implemented on what would be considered a "track" on
+       an audio disk.  However, note that it is possible to append to a
+       CD only if the <em>previous</em> session was written in such a
+       way as to allow it.  Therefore, you need to think ahead.
+
+       <p>Usually, both <tt>mkisofs</tt> and <tt>cdrecord</tt> need
+       extra instruction on how and whether to write a multi-session CD:
+       <ol>
+	 <li> <tt>mkisofs</tt> options: On the <em>second and
+	      subsequent</em> session image, you must supply the <a
+	      href="#mkisofs-dash-C"><tt>-C</tt></a> and <a
+	      href="#mkisofs-dash-M"><tt>-M</tt></a> options.  Nothing
+	      special is needed for the first session.  However, it is a
+	      good idea to use similar options for all sessions, lest
+	      <tt>mkisofs</tt> get confused by what's already on the CD.
+	 <li> <tt>cdrecord</tt> options: On <em>all but the last</em>
+	      session, you must specify the <tt>-multi</tt> option.  If
+	      you omit <tt>-multi</tt>, then that will be the last
+	      session on the disk.  On the second and all subsequent
+	      sessions, you must also specify <tt>-waiti</tt> if piping
+	      <tt>mkisofs</tt> output directly into <tt>cdrecord</tt>.
+	      (Including <tt>-waiti</tt> for the first session doesn't
+	      hurt, though.)
+       </ol>
+
+       <p>According to the <tt>cdrecord</tt> <tt>man</tt> page,
+       <blockquote>
+       The fixation will be done in a way that allows the CD-Recorder to
+       append additional sessions later.  This is done by generating a
+       TOC with a link to the next program area.  The disk thus written
+       is not 100% compatible to manufactured CDs.
+       </blockquote>
+       [From the version 1.10 description of <tt>"-multi"</tt>, edited
+       slightly for readability.  -- rgr, 20-Oct-02.]
+
+       <p>For example, here's a first session being written to a blank
+       disk in the drive at logical address <tt>"1,0,0"</tt>:
+       <pre>
+       mkisofs /scratch/backups/2003Q1a | cdrecord -dev=1,0,0 -speed=8 -multi -
+</pre>
+       The second and subsequent sessions look like this:
+       <pre>
+       mkisofs -C `cdrecord -dev=1,0,0 -msinfo` -M 1,0,0 /scratch/backups/test \
+            | cdrecord -dev=1,0,0 -speed=8 -multi -waiti -
+</pre>
+       To write a final session, use something based on the second
+       session example but drop the <tt>"-multi"</tt> option.
+
+  <dt> Mount a CD image:
+  <dd> This is a useful trick for mounting the data from a CD without
+       hogging the drive.  It is indispensible for mounting Apple
+       documentation CD's as HFS filesystems, and then re-exporting them
+       via <a href="#netatalk">netatalk</a>.  Either way, what you are
+       mounting will still behave like a CD, though, so you won't be
+       able to change its contents.
+
+       <p>First, you need to put the CD in the drive (but don't mount
+       it), and then copy the raw CD image onto a disk file:
+       <pre>
+       dd if=/dev/cdrom of=/scratch/backups/cd-image.iso9660
+</pre>
+       You may need to substitute <tt>"/dev/cdrom"</tt> with whatever
+       the device is named on your system; see <tt>/etc/fstab</tt> for
+       hints.  Then, mount it wherever you like as an ISO9660 file
+       system via a "loop device:"
+       <pre>
+       mount cd-image.iso9660 /mnt/cdrom -t iso9660 -o loop
+</pre>
+       See the "THE LOOP DEVICE" section of the <tt>mount</tt>
+       <tt>man</tt> page for more details.
+</dl>
+
+<a name=zip>
+<h3>Zip drive</h3>
+
+<dl class="howto">
+  <dt> <a name = zip-mount>
+       Mounting:
+  <dd> Use <tt>"mount&nbsp;/mnt/zip"</tt>.  If this fails with an
+       error message that looks like this
+       <pre>
+       mount: the kernel does not recognize /dev/sda4 as a block device
+              (maybe `insmod driver'?)
+</pre>
+       then this is probably because the machine was booted with the Zip
+       drive off.  If that's the case, then
+       <pre>
+       modprobe imm
+</pre>
+       will probably be sufficient to get <tt>/dev/sda4</tt> recognized,
+       after which the drive can be power cycled without needing to
+       repeat the <tt>modprobe</tt>.  (The boot-time <tt>modprobe</tt>
+       is done in the <a href="file:/etc/rc.d/rc.modules">
+       <tt>/etc/rc.d/rc.modules</tt></a> script.  -- rgr, 28-Dec-99.)
+
+       <p>
+       If <tt>/var/log/messages</tt> says
+       <pre>
+       modprobe: can't locate module block-major-8
+</pre>
+       and <tt>lsmod</tt> shows <tt>imm</tt> already loaded, then do
+       <pre>
+       rmmod imm; modprobe imm
+</pre>
+       to force reloading.  -- rgr, 2-Jul-00.
+
+       <p>
+       <a name = zip-unmount>
+  <dt> Unmounting:
+  <dd> <tt>"umount&nbsp;/mnt/zip"</tt>, and then hit the button to
+       eject.  Doing <tt>"eject&nbsp;/mnt/zip"</tt> seems to work, but
+       only for root.
+
+  <dt> Formatting:
+  <dd> <tt>mke2fs /dev/sda4</tt>
+
+       <a name = no-bad-blocks>
+       <p>You can add the <tt>"-c"</tt> option to check for bad blocks,
+       but I haven't found a bad block yet, and this is what takes most
+       of the time (about 4.5 minutes), as it has to read the entire
+       drive.  (My guess is that bad blocks are detected and "repaired"
+       by the drive, so it's no surprise that I never found one.  --
+       rgr, 7-Aug-01.)
+
+  <dt> Checking for bad blocks:
+  <dd> When doing <tt>badblocks</tt> on Zip, use 98288 for number of
+       blocks -- this is (- (/ (* 2048 96) 2) 16), for 96 cyl, 2048
+       blocks/cyl, 0.5k/block, minus some magic factor.  If there is
+       some reason to suspect the existence of a bad block, one can also
+       use the <tt>"-c"</tt> option to <tt>e2fsck</tt> when checking
+       disk integrity (but see <a href="#no-bad-blocks">the comment
+       under "Formatting"</a> above).
+
+  <dt> Checking file system integrity:
+  <dd> Periodically, when mounting Zip disks, the following warning will
+       appear in <tt>/var/log/messages</tt>:
+       <pre>
+       EXT2-fs warning: maximal mount count reached, running e2fsck is recommended
+</pre>
+       To address this, <b>before</b> mounting the disk, do
+       <pre>
+       e2fsck -f /dev/sda4
+</pre>
+       The <tt>"-f"</tt> option will "Force checking even if the file
+       system seems clean" (from the <tt>man</tt> page); without it,
+       <tt>e2fsck</tt> does a quick check, so <tt>"-f"</tt> is more
+       thorough.  You can also add the <tt>"-c"</tt> option to request
+       bad block checking (but see <a href="#no-bad-blocks">the comment
+       under "Formatting"</a> above).
+
+  <dt> Erasing:
+  <dd> To erase a Zip disk thoroughly (or any other disk device or
+       partition for that matter), you can do a "write" test to check
+       for bad blocks:
+       <pre>
+       badblocks -w /dev/sda4 98288
+</pre>
+       This takes a while, as it writes a number of patterns across the
+       whole disk, and then rereads them.  Each read/write pass takes
+       about nine minutes; the whole process is more than half an hour.
+</dl>
+
+<p>Note the existence of the <tt>mzip</tt> command.
+
+<p>[The "Zip drive backup" section that was here has been renamed and
+given <a href="backup.html">its own page.</a> -- rgr, 7-Aug-01.]
+
+<a name=floppy>
+<h3>Floppy disk</h3>
+
+<dl class="howto">
+  <dt> Formatting:
+  <dd> For a 1.44MB floppy, use:
+       <pre>
+       fdformat /dev/fd0H1440
+</pre>
+       Other densities use different magical device names.
+
+  <dt> Building an <tt>ext2</tt> file system:
+  <dd> <code>mkfs.ext2 -c /dev/fd0H1440</code>
+
+  <dt> Making a boot image:
+  <dd> <code>dd if=/mnt/cdrom/images/boot.img of=/dev/fd0
+       bs=1440k</code>
+</dl>
+
+<p>
+<hr>
+<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+<!-- hhmts start -->
+Last modified: Sun Jun 29 10:18:31 EDT 2003
+<!-- hhmts end -->
+</body> </html>
