@@ -67,7 +67,7 @@ security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/firewall.html linux/security/old-xauth.html \
 	linux/security/ssh.html linux/security/xauth.html \
 	linux/security/alerts/index.html
-perl-pages = perl/index.html perl/sub-memory-leak.html
+perl-pages = perl/index.html perl/sub-memory-leak.html perl/perl6-objects.html
 
 all:	change-history.html
 

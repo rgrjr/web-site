@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+
+<html>
+<head>
+<title>Bob:  Perl:  Perl6 vs. CLOS</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h2>Perl6 Objects vs. the Common Lisp Object System</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Perl</a> : Perl6
+vs. CLOS
+
+<p>[this is a work in progress.  -- rgr, 3-Apr-05.]
+
+<h3>Feature comparison</h3>
+
+<dl class="howto">
+  <dt> Class scoping.
+  <dd> [finish.  -- rgr, 3-Apr-05.]
+  <dt> Method scoping.
+  <dd> Perl6 supports lexical and package scoping for multimethods.
+       Lisp methods, even if named by unexported symbols, are
+       nevertheless visible globally.
+  <dt> Local methods and submethods.
+  <dt> Perl6 has 'em; Lisp does not.
+  <dt> Anonymous metaobjects.
+  <dd> Lisp supports anonymous classes and generic functions; Perl6 does
+       not.  Needless to say, this is only useful if you indent to
+       define methods on them dynamically.
+  <dt> Multiple vs. single dispatch.
+  <dd> Perl6 supports separate syntax for both independently (Perl5 had
+       only single dispatch), but tries to blur the boundaries.
+       Lisp has only multimethod syntax; if you want single dispatch,
+       then only specialize the first argument.
+       [Still trying to figure out the extent of semantic
+       differences.  -- rgr, 3-Apr-05.]
+  <dt> Typed methods and method combination.
+  <dd> Lisp has a concept of "method combination," which controls how to
+       call the matching methods, and how to use their return values;
+       method combinations are user-extensible, one of which is
+       specified by each generic function (at least implicitly), and
+       method combination is done at compile time.  Perl6 has no typed
+       methods, and no explicit notion of method combination, but
+       provides flexible tools for finding and calling methods at
+       dispatch time; some aspects of method combination are provided by
+       the <tt>.*</tt>, <tt>.?</tt>, and <tt>.+</tt> operators [is this
+       for single-dispatch only?], which is under the control of the
+       caller and not the multisub.
+  <dt> Dispatch specializers.
+  <dd> Perl6 supports discrimination based only on the class of the
+       argument, while Lisp additionally supports <tt>EQL</tt>
+       specializers, which are essentially singleton classes.
+  <dt> 
+</dl>
+
+<h3>Puzzles</h3>
+
+<ol>
+  <li> What the heck is a "multi sub" decl for, given the existence of
+       "multi method"?  -- rgr, 3-Apr-05.
+</ol>
+
+<h3>Glossary</h3>
+
+<p>
+<table>
+  <tr>
+    <th>Perl6 name</th>
+    <th>Lisp name</th>
+    <th>Definition</th>
+  </tr>
+  <tr>
+    <td>attribute</td>
+    <td>slot</td>
+    <td> These are state variables.
+	 Both languages support a choice of class or instance scope for
+	 a given attribute/slot.
+    </td>
+  </tr>
+  <tr>
+    <td>long name</td>
+    <td>method name</td>
+    <td> This is how methods are named, and is composed of the short or
+	 GF name plus the list of specializers (called the signature in
+	 Perl6).
+    </td>
+  </tr>
+  <tr>
+    <td>multisub</td>
+    <td>generic function</td>
+    <td> This is how a program invokes multiple-dispatch methods; in
+	 both languages, it looks like an ordinary subroutine call.
+    </td>
+  </tr>
+  <tr>
+    <td><tt>next</tt></td>
+    <td><tt>call-next-method</tt></td>
+    <td> Within a method, this calls the next applicable method.  [is it
+	 possible to change the arglist in perl6?  -- rgr, 3-Apr-05.]
+    </td>
+  </tr>
+  <tr>
+    <td>short name</td>
+    <td>generic function name</td>
+    <td> This is the name invoked by the caller. </td>
+  </tr>
+  <tr>
+    <td>??</td>
+    <td>specializer</td>
+    <td> The restricted type of a multimethod argument, which is said to
+	 be "specialized to that type.
+    </td>
+</table>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>
