@@ -19,7 +19,7 @@ bob-pages = bob/index.html bob/contact.html bob/damon-mahler.html \
 girls-pages = bob/anna/index.html bob/anna/anna-thumbnail-1.jpg \
 	bob/liz/index.html bob/liz/lizzie-at-2-tn.jpg bob/liz/pic-preview.html
 climbing-pages = climbing/index.html climbing/directions.html \
-	climbing/lists.html \
+	climbing/ephemeris.html climbing/lists.html \
 	climbing/tuesday-night.html climbing/tuesday-night-2000.html \
 	climbing/tuesday-night-2001.html climbing/tuesday-night-2002.html \
 	climbing/tuesday-night-2003.html
