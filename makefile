@@ -27,7 +27,18 @@ top-pages = index.html site.css hits.html visitors.html robots.txt \
 bob-pages = bob/index.html bob/contact.html bob/damon-mahler.html \
 		bob/gimp-toc.html bob/resume-extra.html bob/resume.html
 girls-pages = bob/anna/index.html bob/anna/anna-thumbnail-1.jpg \
-	bob/liz/index.html bob/liz/lizzie-at-2-tn.jpg bob/liz/pic-preview.html
+	bob/anna/anna-2-small.jpg bob/anna/anna-2.jpg \
+	bob/anna/anna-3-small.jpg bob/anna/anna-3.jpg \
+	bob/anna/anna-portrait-1.jpg \
+	bob/anna/anna-and-kitten-1.jpg bob/anna/anna-and-kitten-2.jpg \
+	bob/liz/index.html bob/liz/lizzie-at-2-tn.jpg bob/liz/pic-preview.html \
+	bob/liz/3sillies.jpg bob/liz/Anna-Bob1.jpg bob/liz/Anna-Bob2.jpg \
+	bob/liz/Anna1.jpg bob/liz/Anna2.jpg bob/liz/Anna3.jpg \
+	bob/liz/Shelda-Bob1.jpg bob/liz/Shelda-Bob2.jpg \
+	bob/liz/Shelda-Bob3.jpg bob/liz/Shelda-cartwheel.jpg \
+	bob/liz/liz-portrait-1.jpg bob/liz/liz-thumbnail-1.jpg \
+	bob/liz/liz1.jpg bob/liz/liz2.jpg bob/liz/liz4.jpg \
+	bob/liz/scowlingAnna.jpg
 climbing-pages = climbing/index.html climbing/directions.html \
 	climbing/ephemeris.html climbing/lists.html \
 	climbing/tuesday-night.html climbing/tuesday-night-2000.html \
@@ -35,8 +46,11 @@ climbing-pages = climbing/index.html climbing/directions.html \
 	climbing/tuesday-night-2003.html
 # [these still exist, but are obsolete.  -- rgr, 30-Aug-03.]
 # climbing/br-web-review.html climbing/br-work-flow.html
+# [oops; need to include the sun4u.xmodmaprc and i586.xmodmaprc files, which
+# are referenced by the emacs/keyboard.html page.  -- rgr, 1-Dec-04.]
 emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/emacs_cheat.html emacs/keyboard.html \
+	emacs/sun4u.xmodmaprc emacs/i586.xmodmaprc \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
 	emacs/study.html emacs/tutorial.html emacs/vm+qmail.html
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
