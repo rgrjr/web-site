@@ -19,8 +19,13 @@ my %modifications;
 my $html_p = 1;
 my $n_days_ago = 90;
 my $start_date = time2str($date_format_string, time-24*3600*$n_days_ago);
-my $working_directory = '/home/rogers/projects/web-site';
-my $web_root = '/usr/local/aolserver/servers/rgrjr/pages';
+my $web_root;
+for my $dir (qw(/usr/local/aolserver/servers/rgrjr/pages /srv/www/htdocs)) {
+    $web_root = $dir
+	if -d $dir;
+}
+warn "$0:  No web root.\n"
+    unless defined($web_root);
 
 sub record_file_rev_comment {
     my ($file_name, $file_rev, $date_etc, $comment) = @_;
@@ -77,7 +82,7 @@ sub print_file_rev_comments {
 	for my $entry (sort { $a->[0] cmp $b->[0]; } @$date_entry) {
 	    my ($file_name, $file_rev, $date_etc) = @$entry;
 	    my $pretty_file_name
-		= (-r "$web_root/$file_name"
+		= ($web_root && -r "$web_root/$file_name"
 		   ? "<a href='/$file_name'><tt>/$file_name</tt></a>"
 		   : "<tt>$file_name</tt>");
 	    print "  => $pretty_file_name $file_rev:  $date_etc\n";
@@ -94,7 +99,7 @@ sub cvs_log_to_html_log {
     my $state = 'none';
     my $file_name;
     my $line;
-    open(IN, "cd '$working_directory'; cvs -q log -d '>$start_date' |")
+    open(IN, "cvs -q log -d '>$start_date' |")
 	or die "oops; couldn't open pipe from cvs:  $!";
     while (defined($line = <IN>)) {
 	if ($line =~ /^RCS file: /) {
