@@ -42,7 +42,9 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
 linux-pages = linux/index.html linux/tux-small.png \
 	linux/backup.html linux/backup.pl.html \
-	linux/cl-xml-notes.html linux/disk-upgrade.html linux/ether.html \
+	linux/cl-xml-notes.html linux/disk-upgrade.html \
+	linux/ether.html linux/striped-blue.png linux/striped-green.png \
+	linux/striped-brown.png linux/striped-orange.png \
 	linux/gconf.html linux/howto.html linux/ntp.html linux/tmda.html \
 	linux/xml.html
 security-pages = linux/security/index.html linux/security/check-logs.html \
@@ -56,7 +58,11 @@ all:	change-history.html
 change-history.html:	.
 	./cvs-chrono-log.pl change-history-template.html > $@
 
-new-hits.html:	/usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
+# /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
+new-hits.html:	/var/log/apache2/access_log.200410.log
+	../system/scripts/make-popular-pages.pl --nosquid $^ > $@
+	cmp $@.old $@
+june-hits.html:	/var/log/apache2/access.tal.200406.log /var/log/apache2/access_log.200406.log
 	../system/scripts/make-popular-pages.pl --nosquid $^ > $@
 older-hits.html:
 	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200404.log > $@
