@@ -1,0 +1,22 @@
+# Makefile for ACS Tcl tags.
+#
+# This includes all *.tcl files in all subdirectories of the current directory.
+# If you put this in your server top-level directory, this is mostly the ACS
+# system.  Unfortunately, this does not include utilities.tcl; you need to do
+# this again in /home/nsadmin to include NS files.
+#
+#    Modification history:
+#
+# created.  -- rgr, 10-Aug-99.
+# ported to Alpha.  -- rgr, 14-Aug-99.
+#
+
+# the www directory has 1391 *.tcl files, so we need to use the etags pipeline
+# hack to avoid the alpha shell line length limitation.  -- rgr, 14-Aug-99.
+tags:
+	find . -name '*.tcl' \
+	    | etags --language=none \
+		--regex='/[ \t]*\(ad_\)?proc\(_doc\)?[ \t]+\([^ ]+\)/\3/' - \
+		--regex='/[ \t]*create +\(table\|view\)[ \t]+\([^ ()]+\)/\2/' \
+		    `find . -name '*.sql' -print`
+

@@ -1,0 +1,67 @@
+! Hacking Linux keyboards.
+! 
+!    This particular recipe makes my PS/1 keyboard modifiers resemble
+! those of a Lisp Machine.  On the left of the space bar, it turns the
+! left Alt key into "Control-", the stupid flag key left of the left
+! Alt into "Meta-", and the left Ctrl into "Super-", On the right of
+! the space bar, it disables the right Alt key, puts "Control-" on the
+! flag key, and "Meta-" on the "menu" key, and "Super-" on the right
+! Ctrl.  This is inconsistent from right to left, but it more
+! accurately echoes the physical arrangement I have set up on the Sun
+! Sparcstation keyboards at work.  It also disables Caps Lock.
+!
+!    ***Before you try this at home***:
+! 
+!    You need to be sure that your keyboard generates the same
+! keycodes as mine.  I have a vanilla PS/2 keyboard, so these keycode
+! assignments are probably standard, or close to it.  But if yours is
+! different, this xmodmap script will reprogram keys at random, so
+! it's well worth checking.
+! 
+! To check your current keycode assignments in an xterm (or emacs "M-x
+! shell" window), do "xmodmap -pk", and verify that the output is a
+! superset of the following:
+!
+!  keycode	Keysym(s) originally assigned
+!  =======	=============================
+!       37  	0xffe3 (Control_L)	
+!       64  	0xffe9 (Alt_L)	0xffe7 (Meta_L)	
+!       66  	0xffe5 (Caps_Lock)	
+!      109  	0xffe4 (Control_R)	
+!      113  	0xffea (Alt_R)	0xffe8 (Meta_R)	
+!      115  	[left Windows flag, no keysym assigned]
+!      116  	[right Windows flag, no keysym assigned]
+!      117  	[right "menu" key, no keysym assigned]
+! 
+! If you see something different, you need to alter the keycode values
+! in the script to reflect the keycodes your keyboard actually
+! generates.  (Also 50 is Shift_L, and 62 is Shift_R.  But I don't
+! hack those, so they don't matter.)
+!
+!    Modification history:
+!
+! created.  -- rgr, 9-Dec-99.
+! move right modifiers rightwards.  -- rgr, 10-Dec-99.
+! add super keys, improve documentation.  -- rgr, 22-Feb-00.
+
+! Nuke Caps_Lock.  (Delete the next two lines if you want to keep Caps_Lock.)
+clear lock
+keycode 66 =
+! Flush the modifiers before reprogramming them.  (mod1 is Meta-, mod2 is
+! Super-, and mod3 is Hyper-, but we don't use the Hyper- shift.)
+clear control
+clear mod1
+clear mod2
+! nuke the original Ctrl keys.
+! Move keys (and leave the original Alt_R unbound).
+keycode 37 = Super_L
+keycode 115 = Meta_L
+keycode 64 = Control_L
+keycode 113 = 
+keycode 116 = Control_R
+keycode 117 = Meta_R
+keycode 109 = Super_R
+! Reinstall modified modifiers.
+add control = Control_L Control_R
+add mod1 = Meta_L Meta_R
+add mod2 = Super_L Super_R

@@ -1,0 +1,49 @@
+! Hacking Linux keyboards.
+! 
+!    This particular recipe makes my Sun Sparcstation 4 keyboard
+! modifiers resemble those of a Lisp Machine (but without "Hyper-"
+! keys).  On the left of the space bar, it turns the diamond keys into
+! "Control-", the Alt and Compose keys into "Meta-", and the "Caps
+! Lock" and "Alt Graph" keys into "Super-".  This is inconsistent from
+! right to left, but it more accurately echoes the physical
+! arrangement I have set up on the Sun Sparcstation keyboards at work.
+! It also disables the original "Control" key, and effectively
+! disables Caps Lock.
+!
+! On the initial keyboard:
+! 83 is Control_L (labelled "Control", above the left "Shift")
+! 126 is Caps_Lock
+! 26 is Alt_L (labelled "Alt")
+! 127 is Meta_L (labelled with a diamond, left of the space bar)
+! 129 is Meta_R (labelled with a diamond, right of the space bar)
+! 74 is the Multi_key (labelled "Compose")
+! 20 is Mode_switch (labelled "Alt Graph")
+!
+!    Modification history:
+!
+! . . .
+! add super keys, improve documentation.  -- rgr, 11-May-00.
+
+! Nuke Caps_Lock.
+clear lock
+! Flush the modifiers before reprogramming them.  (mod1 is Meta-, mod2 is
+! Super-, and mod3 is Hyper-, but we don't use the Hyper- shift.)
+clear control
+clear mod1
+clear mod2
+! Make the original "Control" key do nothing.
+keycode 83 =
+! Reassign keys (from left to right).
+keycode 126 = Super_L
+keycode 26 = Meta_L
+keycode 127 = Control_L
+keycode 129 = Control_R
+keycode 74 = Meta_R
+keycode 20 = Super_R
+! Reinstall modified modifiers.
+add control = Control_L Control_R
+add mod1 = Meta_L Meta_R
+add mod2 = Super_L Super_R
+! [hmm, this doesn't seem to be necessary on gamow . . . ?  -- rgr, 11-Mar-96.]
+! keysym BackSpace = Delete
+! keysym Delete = BackSpace
