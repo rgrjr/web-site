@@ -5,7 +5,7 @@
 <link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
-<body bgcolor=white>
+<body>
 <h1>Automatic system clock setting with NTP</h1>
 
 <p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
@@ -16,11 +16,10 @@ resources</a> : Automatic clock setting
 my cheapo PC.  Not only did it drift pretty badly, needing resetting
 every three or four weeks in order to keep halfway decent time, but
 every time I booted (at least during Daylight Savings Time), the clock
-would be off by nearly an hour.  So, in November of 2000, 
-I learned how to run an <a
-href="http://www.ntp.org/">NTP time server</a> under Linux.  Since I
-figured I was not the only one with this problem, I then sat down and
-wrote this page.
+would be off by nearly an hour.  So, in November of 2000, I learned how
+to run an <a href="http://www.ntp.org/">NTP time server</a> under Linux.
+Since I figured I was not the only one with this problem, I then sat
+down and wrote this page.
 
 <h2>Table of contents</h2>
 
@@ -239,7 +238,7 @@ DNS name).
 
 The following instructions work for YAST2 under <a
 href="http://www.suse.com/">SuSE 9.0</a> and subsequent releases.
-Something similar is probably provided in other recent Linux distros;
+Something similar is probably provided in other recent GNU/Linux distros;
 poking around in the KDE "Control Center" (or the Gnome equivalent) is
 probably a good bet.
 
@@ -432,10 +431,14 @@ history to use in deciding when and how much to adjust.
   <li> Create an <tt>/etc/init.d/ntpd</tt> start/stop script, and link
        it to the appropriate run levels so that <tt>ntpd</tt> starts on
        boot.  (If the NTP tarball doesn't come with something suitable,
-       <a href="mailto:rogers@rgrjr.dyndns.org">email me</a> and I'll
-       send you my version.)
+       you can start with <a href="ntpd.sh">this
+       <tt>/etc/init.d/ntpd</tt> script</a>, which I used to use under
+       RedHat 6.x; you'll have to tweak it to get it to work with a
+       "modern" GNU/Linux distro.  I don't have an up-to-date version
+       because I am now using the SuSE-supported <tt>xntpd</tt>
+       package.)
   <li> Do <tt>"/etc/init.d/ntpd start"</tt> to get it going.  This
-       should do <a href="#manual-reset">manual reset</a> before
+       should do a <a href="#manual-reset">manual reset</a> before
        starting the server,
   <li> Check the logs for messages confirming that <tt>ntpd</tt> started
        without error.
@@ -597,4 +600,5 @@ high ports.  Despite the drawback, I prefer this option.
 <address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
 $Id$
-</body> </html>
+</body>
+</html>

@@ -76,10 +76,11 @@ reference.  Do <tt>"mkisofs --help"</tt> if you want to see all options.
   <dt> <b>-M ( <i>filename</i> | <i>device</i> )</b>
   <dd> Specifies an existing ISO9660 image to be merged in second or
        subsequent session of a multi-session CD, where
-       <tt><i>path</i></tt> is file name and <tt><i>device</i></tt> is a
-       <tt>cdrecord</tt> "SCSI device specifier," e.g. <tt>"1,0,0"</tt>.
-       If you do not specify this option, then all earlier sessions will
-       seem to have vanished from the augmented CD.
+       <tt><i>filename</i></tt> is the name of a file that contains an
+       ISO9660 image, and <tt><i>device</i></tt> is a <tt>cdrecord</tt>
+       "SCSI device specifier," e.g. <tt>"1,0,0"</tt>.  If you do not
+       specify this option, then all earlier sessions will seem to have
+       vanished from the augmented CD.
   <dt> <b>-max-iso9660-filenames</b>
   <dd> allows 37-char names (by flushing the widely-ignored version
        number feature).
@@ -297,10 +298,10 @@ The rest of the line consists of at least one directory name.
   <dt> Mount a CD image:
   <dd> This is a useful trick for mounting the data from a CD without
        hogging the drive.  It is indispensible for mounting Apple
-       documentation CD's as HFS filesystems, and then re-exporting them
-       via <a href="#netatalk">netatalk</a>.  Either way, what you are
-       mounting will still behave like a CD, though, so you won't be
-       able to change its contents.
+       documentation CDs as HFS filesystems, and then re-exporting them
+       via <a href="howto.html#netatalk">netatalk</a>.  Either way, what
+       you are mounting will still behave like a CD, though, so you
+       won't be able to change its contents.
 
        <p>First, you need to put the CD in the drive (but don't mount
        it), and then copy the raw CD image onto a file on the hard

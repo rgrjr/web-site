@@ -8,6 +8,8 @@
 <body>
 <h1>Local "howto" information</h1>
 
+<p>[still in the process of updating this.  -- rgr, 19-Dec-04.]
+
 <p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
 resources</a> : "Howto"
 <hr>
@@ -21,6 +23,7 @@ this stuff.
 
 Related pages:
 <ul>
+  <li> <a href="ntp.html">Automatic clock setting from an NTP time server</a>
   <li> <a href="qmail.html">The <tt>qmail</tt> mail transport agent</a>
   <li> <a href="squid.html">Squid</a>
   <li> <a href="cd-burning.html">Burning CD-R disks</a>
@@ -61,7 +64,6 @@ These used to be subsections of this page.
 		<li> <a href="#logs">Server logs</a>
 		<li> <a href="#ezmlm">The <tt>ezmlm</tt> mailing list manager</a>
 		<li> <a href="#netatalk">netatalk</a>
-		<li> <a href="#ntpd"><tt>ntpd</tt></a>
 		<li> <a href="#samba">Samba</a>
 	      </ol>
 	 <li> <a href="#linux">Linux guts</a>
@@ -145,12 +147,12 @@ href="http://www.scyld.com/network/eepro100.html">
        <b><tt>ipchains</tt> firewall script</b></a> page.
 </ul>
 
-<a name = boot-recovery>
+<a name="boot-recovery">
 <h3>If the network doesn't come up after booting</h3>
 
-Sometimes <tt>eth0</tt> configuration fails when booting, probably due
-to slow DHCP server response.  When that happens, there is no
-connectivity to the outside world, and a number of bad consequences
+Sometimes the external network configuration fails when booting,
+possibly due to slow DHCP server response.  When that happens, there is
+no connectivity to the outside world, and a number of bad consequences
 follow:
 <ol>
   <li> The host IP address is unknown, so the firewall script can't
@@ -159,7 +161,7 @@ follow:
        href="aolserver.html">AOLserver</a> and <a
        href="squid.html">Squid</a> fail.
   <li> Because the world is unreachable (not to mention DNS), <a
-       href="#ntpd"><tt>ntpd</tt></a> can't so much as ask anyone for
+       href="ntp.html"><tt>ntpd</tt></a> can't so much as ask anyone for
        the time of day.
 </ol>
 
@@ -224,6 +226,15 @@ the nslookup output):
 <a name=servers>
 <h2>Servers</h2>
 
+See also:
+<ul>
+  <li> <a href="ntp.html">Automatic clock setting from an NTP time server</a>
+  <li> <a href="qmail.html">The <tt>qmail</tt> mail transport agent</a>
+  <li> <a href="squid.html">Squid</a>
+  <li> <a href="aolserver.html">AOLserver</a>
+  <li> <a href="nis.html">Network Information Service (NIS)</a>
+</ul>
+
 <a name = logs>
 <h3>Server logs</h3>
 
@@ -258,7 +269,7 @@ places:
     </td>
   </tr>
   <tr>
-    <td> <a href="#ntpd"><tt>ntpd</tt></a></td>
+    <td> <a href="ntp.html"><tt>xntpd</tt></a></td>
     <td> Writes to <tt>/var/log/ntp</tt> via syslog in the default
 	 configuration supplied by SuSE, but this is controlled by the
 	 "logfile" directive in <tt>/etc/ntpd.conf</tt>.  (The default
@@ -354,13 +365,6 @@ not on root's default path.  The easiest way to get these commands is to
        "Tunneling Appletalk Through IP"</a>.  (Never had to do this
        myself.)
 </ul>
-
-<a name = ntpd>
-<h3><tt>ntpd</tt></h3>
-
-See my <a href="ntp.html">Automatic clock setting from an NTP time
-server</a> page, or the <a href="http://www.eecis.udel.edu/~ntp/">NTP
-Time Server</a> home page.  NTP doesn't take much fiddling once it's up.
 
 <a name = samba>
 <h3>Samba</h3>
@@ -461,6 +465,8 @@ going postal.  -- rgr, 19-Mar-00.
 <p>
 <a name = hardware>
 <h2>Hardware</h2>
+
+See also the <a href="cd-burning.html">Burning CD-R disks</a> page.
 
 <a name="zip">
 <h3>Zip drive</h3>
