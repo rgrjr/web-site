@@ -75,12 +75,19 @@ change-history.html:	.
 	./cvs-chrono-log.pl change-history-template.html > $@
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
-new-hits.html:	/var/log/apache2/access_log.200502.log \
+new-hits.html:	/var/log/apache2/access_log.200503.log \
+		/var/log/apache2/access_log.200502.log \
 		/var/log/apache2/access_log.200501.log \
 		/var/log/apache2/access_log.200412.log \
 		/var/log/apache2/access_log.200411.log \
+		/var/log/apache2/access_log.200410.log
+	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
+Q23-hits.html:	/var/log/apache2/access_log.200412.log \
+		/var/log/apache2/access_log.200411.log \
 		/var/log/apache2/access_log.200410.log \
-		/var/log/apache2/access_log.200409.log
+		/var/log/apache2/access_log.200409.log \
+		/var/log/apache2/access_log.200408.log \
+		/var/log/apache2/access_log.200407.log
 	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
 
 compare:
