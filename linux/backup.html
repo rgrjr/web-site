@@ -1,60 +1,322 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> <head>
+<html>
+<head>
 <title>Bob Rogers:  System backups</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
 <body bgcolor=white>
-<h2>System backup</h2>
+<h1>System backup</h1>
 
 <p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
 resources</a> : <a href="howto.html">"Howto"</a> : Backup
 <hr>
 
-<h3>Table of contents</h3>
+<h2>Table of contents</h2>
+
+<p>[Note:  This page is still in the process of being updated.  -- rgr,
+29-May-04.]
 
 <!-- hhmtoc start -->
 <ol>
   <li> System backup
        <ol>
 	 <li> Table of contents
-	 <li> <a href="#dump-vs-tar"><tt>dump</tt> vs. <tt>tar</tt></a>
+	 <li> <a href="#dump-vs-tar">Backup technologies</a>
+	 <li> <a href="#archival">Notes on archival backups</a>
+	      <ol>
+		<li> <a href="#inc-levels">Backup levels</a>
+		<li> <a href="#frequency">Backup frequency</a>
+		<li> <a href="#timing">Backup timing</a>
+		<li> <a href="#cron-backup">Automated backups with <tt>cron</tt></a>
+	      </ol>
 	 <li> <a href="#dump-backups">Making backups with <tt>dump</tt></a>
 	      <ol>
 		<li> <a href="#perl-script">The <tt>backup.pl</tt> perl script</a>
 		<li> <a href="#script">The <tt>backup</tt> shell script</a>
-		<li> <a href="#strategy">Backup strategy</a>
-		<li> <a href="#inc-levels">Backup levels</a>
-		<li> <a href="#backup-log">Backup log file</a>
 	      </ol>
 	 <li> <a href="#tar-backups">Making <tt>tar</tt> backups</a>
+	 <li> <a href="#mirroring">Notes on mirroring backups</a>
 	 <li> <a href="#mac-backup">Backing up Jan's Macintosh</a>
+	 <li> <a href="#ack">Acknowledgements</a>
        </ol>
 </ol>
 <!-- hhmtoc end -->
 
 <a name="dump-vs-tar">
-<h3><tt>dump</tt> vs. <tt>tar</tt></h3>
+<h2>Backup technologies</h2>
 
-<p>There are two "entry-level" backup options for Linux and Unix
-systems in general:
+<p>The baseline motivation behind all backup systems is disaster
+recovery: You want to ensure that your files will survive all hardware
+failures that Murphy's Law might conceivably throw at you.  All backup
+technologies meet this goal by making a copy, but there are really two
+kinds of copying, with distinct characteristics:  Archival, and
+mirroring.
+
+<p><b>Archival</b> backup gives you the ability to travel through time:
+If you suddenly realize that an important file is missing, and you're
+not sure when it was deleted, then the ability to sift through a year of
+backup dumps looking for the missing file can be a life-saver.  In order
+to do this, however, you must keep a lot of data around, and that almost
+always means putting the backup dumps on some sort of offline storage,
+such as CD-R (or CD-RW), Zip, etc.
+
+<p><b>Mirroring</b> backup gives you immediate access to the most recent
+copy of your data; if you deleted that important file just this morning,
+then it's a snap to go get it from the backup drive, without any
+searching.  (If you deleted it two days ago, chances are that you're
+already out of luck.)  At a minimum, mirroring only requires a spare
+disk of comparable size, and is easy to automate completely, as it
+requires no manipulation of offline media.
+
+<p>The three "entry-level" backup options for Linux (and Unix systems
+generally) tend to provide either archival or mirroring, but not both.
+They are:
 <ol>
   <li> The standard Unix <tt>tar</tt> utility.  This is <a
        href="http://www.gnu.org/directory/GNU/tar.html"> GNU
        <tt>tar</tt></a> in free implementations (and even some other
-       Unix flavors), and is the easiest tool for making complete
-       backups of particular directories.
+       Unix flavors), and is the easiest tool for archiving particular
+       directories.  It has the distinct advantage of being supremely
+       portable; "tar" format can be read by all other Unix systems, and
+       even by DOS/Windows and Macintosh.
   <li> The traditional Unix <tt>dump</tt> and <tt>restore</tt> programs.
        Most Linux systems come with the <a
        href="http://dump.sourceforge.net/"> <tt>dump/restore</tt>
        implementation for ext2/ext3</a>, but these are the traditional
-       names for the backup programs in Unix, so
+       names for the archival backup programs in Unix, so
        <tt>"man&nbsp;dump"</tt> will almost always come up with
        something on any Unix system.  <tt>dump</tt> can only operate on
        a whole partition at a time, but it features incremental backup
        capability, so you only need to back up what's changed.
+  <li> The <tt>rsync</tt> program.  Unlike <tt>tar</tt> or
+       <tt>dump</tt>, <a href="http://rsync.samba.org/">
+       <tt>rsync</tt></a> is designed to mirror the content of directory
+       trees over the network, is quite clever about only transferring
+       data that have changed, and can also be set up to do local
+       disk-to-disk copying.
 </ol>
+Fortunately, it is possible to have both archival and mirroring backup,
+for those that need it.  For small to medium installations where high
+availability is important, you can install a hybrid system where
+archival dumps are created on a primary server, copied to a backup
+server for safe-keeping, and also restored onto the backup server's
+disks for quick access in the event that the primary server fails.
 
-<p>For the most part, I use the standard, tried-and-true <tt>ext2</tt>
+<p>And for many small installations, archival backups are sufficient.
+This is all I need at home, in fact.
+
+<p>It is also possible to do mirroring without archival, though I myself
+would not recommend it.  But the low-maintenance of an <tt>rsync</tt>
+solution may make it the most appealing for some -- just be clear that
+you're giving up your "data history" when you pass on archival.
+
+<a name="archival">
+<h2>Notes on archival backups</h2>
+
+In order to reduce the amount of storage required for archival backups,
+it is desirable to skip files that haven't changed since the last
+backup.  Obviously, the first backup must contain everything, but a
+series of subsequent backups need only contain the files changed since
+the last backup; in the event of a disaster, restoring all backups in
+the order in which they were made will return the file system to the
+same state as if it had been restored from a single full backup made on
+the last day.  This scheme still has two drawbacks:  The first is that
+the process of restoring the file system gets to be quite tedious after
+a few weeks, since there are quite a few of them at that point.  Worse
+yet, data will lost if any of those backups is somehow lost or
+corrupted.
+
+<a name="inc-levels">
+<h3>Backup levels</h3>
+
+<p>In order to address these drawbacks, it is useful to define a
+<b>backup level</b> between 0 and 9 that controls how comprehensive to
+make the backup.  Each level <i>k</i> backup contains a snapshot of all
+files changed since the level <i>k-1</i> dump (or the dump made at the
+next <i>lower</i> numeric level if there is no level <i>k-1</i> dump).
+Level 0 is therefore the most comprehensive, and level 9 is the most
+"incremental."  At this point, some additional terminology is in order:
+<ul>
+  <li> A <b>full backup dump</b> is a complete snapshot of the state of
+       the filesystem at the time the backup was made.  Full dumps are
+       defined to be at level 0.
+  <li> A <b>consolidated backup dump</b> is a snapshot made at a later
+       time that only contains those files that have changed since the
+       last full dump.  Consolidated dumps are always at level 1, and
+       are usually made weekly.  When these get to be too large, then
+       it's time for a new full dump.
+  <li> <b>Incremental dumps</b> have levels between 2 and 9 inclusive,
+       and are usually made daily.  A given incremental may or may not
+       reach all the way back to the last consolidated backup, but it
+       certainly won't reach any farther.
+</ul>
+
+<p>In order to reduce the number of incrementals required, one can use
+the "modified Tower of Hanoi algorithm" described in the <tt>dump</tt>
+manpage, which prescribes the following sequence of dump levels:
+<pre>
+    3 2 5 4 7 6 9 8 9 9 ...
+</pre>
+These are for daily backups, which is the absolute minimum period for a
+workgroup server in an office environment.  At the end of the week, a
+consolidated dump is performed, and the daily cycle starts over again.
+At this point, last week's incrementals could be thrown away, as they
+are no longer needed for disaster recovery, but it's a good idea to keep
+them around for at least a month in order to cover the "I didn't mean to
+delete that" syndrome.
+
+<p>In any case, this multilevel backup system turns out to be quite
+effective in reducing the size of backups; even after a month, a
+consolidated dump can be only about 20% of the size of the full dump,
+and the incrementals only 3 to 5%.
+
+<a name="frequency">
+<h3>Backup frequency</h3>
+
+Deciding how often to make backups requires making a tradeoff between
+how many days of work you are willing to lose versus how much effort you
+have to spend on performing each backup.  That is why a high degree of
+automation is a great advantange; it costs essentially nothing to take
+backups every day.  My automated system costs me only 5 to 10 minutes
+per week, mostly to write consolidated backups to CD, and changing the
+daily backup schedule wouldn't affect that at all.
+
+<p>For less automated systems, the cost may be 5 to 10 minutes for each
+backup dump.  A system failure that requires restoring from backups
+could happen at any time during the backup cycle, which means that the
+expected amount of work lost for each failure is half of the usage
+between backup intervals.  In other words, if the system is backed up
+after every 40 hours of use, then the expected loss due to backup
+failure is 20 hours.  It seems reasonable to set the expected loss over
+the course of a year equal to the planned time investment, and then
+solve for the backup frequency in order to find a value that minimizes
+expected total effort.  (Finding the true optimum probably isn't much
+harder, but it's not clear that it's worth the effort.)  If we do that,
+we get:
+
+<blockquote>
+<i>I*f = W*F/(2*f)</i><br>
+<br>
+<i>f<sup>2</sup> = W*F/(2*I)</i><br>
+<br>
+<i>f = sqrt(W*F/(2*I))</i>
+</blockquote>
+
+where
+
+<ul>
+  <li> <i>f</i> = backup frequency (i.e. number of backups per unit
+       time).
+  <li> <i>I</i> = time invested in performing each backup.
+  <li> <i>W</i> = total system usage per unit time.
+  <li> <i>F</i> = expected number of system failures per unit time.
+</ul>
+
+<p>Of course there are other costs to consider, such as inconvenience to
+customers (and staff embarassment) when you have to admit that you lost
+their emails, but these mostly define a "maximum acceptable loss"
+ceiling, underneath which it is still desirable to seek an optimum.
+
+<p>If there is only one user who uses the system for 40 hours per week,
+and who does their own backups, then we have what might be called the
+"standard home office scenario."  For this scenario, and assuming that
+(a) backups take 10 minutes on average, and (b) the system is likely to
+fail once per year on average (which might or might not be pessimistic),
+then we arrive at the following optimal backup frequency for the home
+office:
+
+<blockquote>
+<i>f<sub>opt</sub> = sqrt((120000 min/yr*1 failure/yr)/(2*10min))</i><br>
+<br>
+<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = sqrt(6000) = 77.5 per yr</i>
+</blockquote>
+
+<p>This works out to be three times every two weeks, for a total time
+investment (or expected time lost due to data recovery) of
+<i>77.5*10&nbsp;=&nbsp;775</i> minutes, or about 13 hours.  We might
+want to round this frequency to twice per week, then the time investment
+is 1000 minutes (almost 17 hours!), and the expected time lost is only
+10 hours (a quarter of a week).
+
+<p>Most changes to this minimal scenario have the effect of driving the
+ideal backup frequency up.  If there were ten people using the system
+via file sharing, then the amount of potential lost work is ten times
+higher, and so it becomes worth investing that 10 minutes every working
+day (the actual optimal frequency is nearly 245 backups per year).  If
+the time of the person making backups is only worth half as much as that
+of the average file server user (in which case we should optimize the
+dollar cost), then the "daily is optimal" point would be reached with
+only 4 or 5 additional server users.  The end result is that it rarely
+makes sense for small offices with shared file servers to do backups any
+less often than daily.  If the resulting 41 hours per annum of staff
+time spent on backups becomes excessive, then it's time to increase the
+level of backup automation.
+
+<a name="timing">
+<h3>Backup timing</h3>
+
+Backup timing is also important, though often overlooked.  If the backup
+system makes its copy of a given file while an application is partway
+through updating it, the copy that winds up on the backup medium may be
+inconsistent, and would appear to be corrupted to the application if it
+were ever restored.  For this reason, it is best to make backups at
+times when the file system isn't changing.  The middle of the night is
+therefore ideal.
+
+<p>A particularly nasty case of backup-induced corruption can be caused
+by backing up the files used by a relational database management system
+(RDBMS) to implement tables.  A transaction that updates multiple tables
+may be in different stages of being written to disk for each table, so
+the backup might be inconsistent even if it could be done
+instantaneously.  There are really only two choices for archival backup
+of a database:  Stop the RDBMS server during the backup, or use a
+database client backup program (e.g. <tt>mysqldump</tt> for the <a
+http="http://www.mysql.com/">MySQL system</a>).
+
+<p>For similar reasons, backing up more than once a day is probably not
+worth the bother.  The only predictable period during the day when the
+file system is highly unlikely to change is during the night when all
+users are asleep.  And doing more than one backup during this period
+would be pointless.
+
+<a name='cron-backup'>
+<h3>Automated backups with <tt>cron</tt></h3>
+
+<p>A regular weekly schedule is easy to automate via cron jobs.  The
+<tt>crontab</tt> entries for the full schedule for my <tt>/home</tt>
+partition look like this:
+<blockquote>
+<pre>
+# Backups.
+# at 15 minutes after midnight every night, do a /home backup.
+15 0 * * Mon	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 3
+15 0 * * Tue	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 2
+15 0 * * Wed	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 5
+15 0 * * Thu	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 4
+15 0 * * Fri	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 7
+15 0 * * Sat	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 6
+15 0 * * Sun	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 1
+</pre>
+</blockquote>
+Backups of other partitions are usually done manually on Sundays.  Many
+partitions change only when upgraded, <tt>/boot</tt> and <tt>/usr</tt>
+in particular, so they don't always need to be backed up.  I usually
+skip a partition if the dump would be less than a megabyte.
+
+<p>Once I had the backup creation process fully automated, I tried doing
+them daily, but that got to be excessive; I don't generate as much stuff
+as an office full of people, and I still had to copy the backups to
+offline storage manually.  Consequently, I only did the level 1, 2, 4,
+and 6 dumps in the <a href="#cron-backup"> <tt>crontab</tt> schedule</a>
+above.  Then I got a new machine (in March 2004), which made it possible
+to copy all dumps automatically to the disk on the new machine, so now
+[finish.  -- rgr, 25-May-04.]
+
+<a name='dump-backups'>
+<h2>Making backups with <tt>dump</tt></h2>
+
+<p>For my part, I mostly use the standard, tried-and-true <tt>ext2</tt>
 file system, and its successor <tt>ext3</tt>.  I have some experience
 with <a href="http://www.namesys.com/">ReiserFS</a>, which appears to be
 faster than <tt>ext2/3</tt> (and more reliable than <tt>ext2</tt>), but
@@ -65,34 +327,28 @@ solution for ReiserFS.  (The word on the street is to use <a
 href="http://www.gnu.org/directory/GNU/tar.html"> GNU <tt>tar</tt></a>
 for Reiser partitions, but I've never been able to <tt>tar</tt> to make
 incremental backups correctly.)  So, I use ReiserFS only for those
-partitions I don't plan to back up regularly.
-
-<p>Making the backup is only half of the problem; the dump file also
-needs to be verified by comparing the contents with the original disk
-data.  This is not as essential as it was in the bad old days, when
-media were much less reliable, and hardware was much less clever about
-dealing with media failures.  In fact, I've never yet found a corrupted
-backup file during verification.  However, I've heard enough horror
-stories of people not finding out that their backups were unreadable
-until they needed them, so I don't consider the backup complete until
-it's been verified in its final location.
-
-<a name='dump-backups'>
-<h3>Making backups with <tt>dump</tt></h3>
-
-<p>[need a discussion of backup levels here?  -- rgr, 10-Jan-04.]
+partitions I don't plan to back up.
 
 <p>Both of the following scripts call <tt>dump</tt> to create backup
 files using the same naming convention, and then verify the file using
-<tt>restore</tt>.  Initially, I wrote the <a href="#script">shell script
-version</a> first, then recoded it into Perl when I needed to add
-sufficient functionality that I found the shell syntax too confining.
-The <a href="#perl-script"> <tt>backup.pl</tt> Perl script</a> has a
-number of extra features, plus changed defaults that make it more
-convenient to use for CD-ROM dumps.
+<tt>restore</tt>.  Verification is not as essential as it was in the bad
+old days, when media were much less reliable, and hardware was much less
+clever about working around media failures.  In fact, I've never yet
+found a corrupted backup file during verification.  However, I've heard
+enough horror stories of people not finding out that their backups were
+unreadable until they needed them, so I don't consider the backup
+complete until it's been verified in its final location.  This is why my
+scripts always verify.
+
+<p>Initially, I wrote the <a href="#script">shell script version</a>
+first, then recoded it into Perl when I needed to add sufficient
+functionality that I found the shell syntax too confining.  The <a
+href="#perl-script"> <tt>backup.pl</tt> Perl script</a> has a number of
+extra features, plus changed defaults that make it more convenient to
+use for CD-R dumps.
 
 <a name='perl-script'>
-<h4>The <tt>backup.pl</tt> perl script</h4>
+<h3>The <tt>backup.pl</tt> perl script</h3>
 
 When <tt>backup.pl</tt> is run by root, it creates a <a
 href="http://dump.sourceforge.net/"> <tt>dump</tt></a> format backup
@@ -106,14 +362,10 @@ file and verifies it using <tt>restore</tt>.  Usage for this is
 See <a href="backup.pl.html">the <tt>backup.pl</tt> <tt>man</tt>
 page</a> for argument descriptions, and other details.
 
-<p>For complete (level 0) dumps, as well as the larger level 1 dumps of
-the <tt>/home</tt> partition, the backups should be written to the
+<p>For complete dumps, as well as the larger level 1 dumps of the
+<tt>/home</tt> partition, the backups should be written to the
 <tt>/scratch/backups/cd/to-write/</tt> directory so they can be <a
-href="howto.html#cd-r">written to a CD-R disk</a>.  All other
-incremental dumps are ordinarily made to the <a
-href="howto.html#zip">Zip drive</a>.  The Zip drive is <a
-href="howto.html#zip-mount">mounted beforehand</a> if necessary, but not
-<a href="howto.html#zip-unmount">unmounted afterward</a>.
+href="howto.html#cd-r">written to a CD-R disk</a>.
 
 <p>To see how many bytes are likely to be dumped, use the <tt>"-S"</tt>
 option to <tt>dump</tt>, e.g.
@@ -128,7 +380,7 @@ system as <tt>/home</tt>).
 <p>The <a href="backup.pl"> <tt>backup.pl</tt> Perl script</a> (11793
 bytes).  This script is free software; you may redistribute it and/or
 modify it under the same terms as Perl itself.  Download this into
-<tt>/root/bin/</tt>, make it executable, and you're ready to roll.
+<tt>/usr/local/bin/</tt>, make it executable, and you're ready to roll.
 
 <a name='perl-script-bugs'>
 <p><b>Known bugs:</b>
@@ -168,7 +420,7 @@ modify it under the same terms as Perl itself.  Download this into
 </ol>
 
 <a name = script>
-<h4>The <tt>backup</tt> shell script</h4>
+<h3>The <tt>backup</tt> shell script</h3>
 
 The <tt>backup.sh</tt> shell script is the original version of the <a
 href="#perl-script">Perl script</a>; it is less featureful, but
@@ -196,7 +448,7 @@ where
   <dt> <b><i>dumplevel</i></b>
   <dd> is the backup level, a single digit.  0 is for a full backup, 1
        for most inclusive incremental, 9 for least inclusive incremental
-       (<a href="#inc-levels">see below</a> for more).
+       (<a href="#inc-levels">see above</a> for more details).
 </dl>
 
 <p><b>Downloading:</b>
@@ -213,93 +465,8 @@ it executable, and you're ready to roll.
        section</a> of the Perl script writeup, above.
 </ol>
 
-<a name=strategy>
-<h4>Backup strategy</h4>
-
-<p>The basic strategy is as follows:
-<ol>
-  <li> Full backup (level 0) is done quarterly, usually on the first
-       weekend of the quarter.  These are created manually, and written
-       to CD.
-  <li> Backups of the <tt>/home</tt> partition are created automatically
-       every night via cron jobs.  The <tt>crontab</tt> entries for the
-       full schedule look like this:
-       <a name='cron-backup'>
-       <pre>
-# Backups.
-# at 15 minutes after midnight every night, do a /home backup.
-15 0 * * Mon	/root/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 3
-15 0 * * Tue	/root/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 2
-15 0 * * Wed	/root/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 5
-15 0 * * Thu	/root/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 4
-15 0 * * Fri	/root/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 7
-15 0 * * Sat	/root/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 6
-15 0 * * Sun	/root/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 1
-</pre>
-       Note how a consolidated backup (level 1) is done once a week, on
-       Sunday morning, and the dailies are done according to <a
-       href="#inc-levels">the backup schedule described below</a>.
-  <li> The actual home schedule omits the Monday, Wednesday, and Friday
-       backups, so I move the dump files to CD on Tuesday, Thursday,
-       Saturday, and Sunday.
-  <li> The backup schedule at work is similar, except that I do a level
-       1 backup on Saturday, and nothing on Sunday.  Backups of the main
-       RAID partitions are made to a separate disk, and then copied to
-       another system via the <tt>vacuum.pl</tt> script.  [need link.
-       -- rgr, 11-Jan-04.]
-  <li> Backups of other partitions are usually done manually on Sundays.
-       Many partitions change only when upgraded, <tt>/boot</tt> and
-       <tt>/usr</tt> in particular, so they don't always need to be
-       backed up.  I usually skip a partition if the dump would be less
-       than a megabyte.
-  <li> All dump files are written to CD using the <tt>cd-dump.pl</tt>
-       script.  [need link.  -- rgr, 11-Jan-04.]  (I used to write the
-       small ones to a Zip disk, but my Zip performance went south when
-       I upgraded to SuSE 8.1, so that became too time-consuming.)
-</ol>
-
-<p>I try to schedule system upgrades and <a href="#mac-backup">Macintosh
-file-copy backups</a> for the end of the month, just before the next
-major backup, so the new files don't bloat the incrementals.  But this
-is not as critical as it once was; now that I have <tt>/home</tt> on a
-separate partition, I can keep my files on <tt>/home</tt> backed up and
-leave whatever system upgrades I've applied in the mean time until the
-weekend.
-
-<a name = inc-levels>
-<h4>Backup levels</h4>
-
-The incrementals use the "modified Tower of Hanoi algorithm" described
-in the <tt>dump</tt> manpage, which prescribes the following sequence of
-dump levels:
-<pre>
-    3 2 5 4 7 6 9 8 9 9 ...
-</pre>
-These are for daily backups, which is the absolute minimum period for a
-workgroup server in an office environment.  Once I had the process fully
-automated, I tried doing them daily, but that got to be excessive; I
-don't generate as much stuff as an office full of people.  Consequently,
-I only do the level 1, 2, 4, and 6 dumps in the <a href="#cron-backup">
-<tt>crontab</tt> schedule</a> above.  Four dumps a week is plenty of
-coverage for me -- and copying even those manually keeps be busy enough.
-
-<a name='backup-log'>
-<h4>Backup log file</h4>
-
-<p>I keep my backup log in <a
-href="file:/home/rogers/linux/backup/backups.text">
-<tt>~rogers/linux/backup/backups.text</tt></a>.  This file records what
-backups were taken when, and what Zip disk or CD they live on.  I use it
-to plan where to put the previous night's backup, as well as to decide
-which old backups are no longer useful.  Since I do it regularly, the
-whole process costs only five minutes or so of my time.  Most of the
-work is deciding which disk to use; the actual copying of files usually
-takes only a minute or two.
-
-<p>[maybe should describe the format some day.  -- rgr, 8-Jan-03.]
-
 <a name = tar-backups>
-<h3>Making <tt>tar</tt> backups</h3>
+<h2>Making <tt>tar</tt> backups</h2>
 
 <p>To do a complete <tt>tar</tt> backup (onto an existing Zip ext2fs
 disk), use the <tt>~rogers/linux/backup/backup-home</tt> script, which
@@ -307,14 +474,75 @@ does <tt>"mount&nbsp;/mnt/zip"</tt> if needed and then creates a tar
 file full backup of the <tt>~rogers/</tt> tree in the
 <tt>/mnt/zip/backups/</tt> directory, comparing it when done.
 
+<a name="mirroring">
+<h2>Notes on mirroring backups</h2>
+
+At work, I use <a href="http://rsync.samba.org/"> <tt>rsync</tt></a> to
+mirror the intranet Web server content.  The primary server runs the
+following <tt>cron</tt> job every morning at 01:55:
+<pre>
+    rsync -e ssh -a /srv/www/htdocs /srv/www/cgi-bin rome:/srv/www
+</pre>
+The <tt>-a</tt> switch requests archival copying; according to the
+manual page, <tt>-a</tt> "... is a quick way of saying you want
+recursion and want to preserve almost everything."  This command copies
+the contents of the <tt>/srv/www/htdocs</tt> and
+<tt>/srv/www/cgi-bin</tt> directory trees on the primary server into the
+same locations on <tt>rome</tt>, the standby server.  That way, I only
+need to update the primary server; the standby server is always ready to
+take over, with content that is at most a day out of date.
+
+<p>Note the <tt>"-e&nbsp;ssh"</tt> on the command line; that tells
+<tt>rsync</tt> to use <a href="security/ssh.html"> <tt>ssh</tt></a> to
+establish the remote connection.  In order for this cron job (not to
+mention others) to work unattended, it was necessary to configure
+<tt>ssh</tt> to use "public key authentication," creating a
+public/private key pair and installing the private key on the main
+server and the public key on the standby server.  As a result, no
+password is needed, and the strong encryption techniques used by
+<tt>ssh</tt> are robust enough to permit mirroring to be done securely
+over the public Internet.
+
+<p><tt>rsync</tt> can also be used for disk-to-disk copying within a
+single system.  Here is how Anthony DiSante describes his backup system,
+in which he uses <tt>rsync</tt> in lieu of archival backup:
+
+<blockquote>
+I use rsync for my weekly backups -- I've got two 120GB disks in my
+computer, and I have a 250GB disk in an external firewire enclosure.
+Once the external drive is mounted at <tt>/mnt/backup</tt>, 
+all it takes is this simple command:
+
+<pre>
+    rsync -a --delete --exclude /mnt/backup / /mnt/backup
+</pre>
+
+The <tt>-a</tt> switch is for archival copying, <tt>--exclude</tt> tells
+it not to copy the external drive onto itself, and <tt>--delete</tt>
+means to delete any files on the destination that no longer exist on the
+source.  The result is that, when complete, the disk at
+<tt>/mnt/backup</tt> is an exact copy of my root filesystem (which
+includes both 120GB disks).  <tt>rsync</tt> is of course known for its
+highly efficient remote-update algorithm whereby only the changes in
+files are transmitted; in practice, I find that my weekly backup takes
+about an hour to run on my 172GB of used space.
+</blockquote>
+
+<p>Note that a system-to-system backup of this magnitude might not take
+much longer; probably not much of that 172GB changes from week to week,
+so <tt>rsync</tt> would figure that out and would only transfer the
+differences.  Based on my experience, a full dump of 172GB
+(uncompressed) would require 11 hours to transmit over a local 100BaseT
+connection, so dealing with archival dumps of this size would be a pain.
+
 <a name = mac-backup>
-<h3>Backing up Jan's Macintosh</h3>
+<h2>Backing up Jan's Macintosh</h2>
 
 I try do this before monthly backups (but often forget to do it even
 quarterly).  The basic idea is to use the Finder on the Mac to copy the
-<tt>:Hard&nbsp;Disk:Documents:Jan:</tt> contents to Linux before it gets
-backed up.  Then, extract only the files that have changed, so that
-incrementals don't get bloated.
+<tt>:Hard&nbsp;Disk:Documents:Jan:</tt> contents to Jan's home directory
+share before it gets backed up.  Then, extract only the files that have
+changed, so that incrementals don't get bloated.
 <ol>
   <li> Use the Finder to copy the <tt>:Documents:Jan:</tt> folder via
        the network to the <tt>~jan/backup/</tt> directory, where it will
@@ -358,14 +586,21 @@ incrementals don't get bloated.
        rm -fr Jan
        </pre>
 </ol>
-Of course, I wouldn't need to do anything special if I could just train
+Of course, I wouldn't need to do anything special if I could just get
 Jan to use my Linux box as a file server . . .
+
+<a name="ack">
+<h2>Acknowledgements</h2>
+
+Thanks to Anthony DiSante <tt>&lt;orders <i>at</i> nodivisions
+<i>dot</i> com&gt;</tt> for pointing out that I had neglected to mention
+<tt>rsync</tt>; the resulting reorganization of the material has made
+this page much more comprehensive.
 
 <p>
 <hr>
 <address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
-<!-- hhmts start -->
-Last modified: Sun Jan 11 13:48:47 EST 2004
-<!-- hhmts end -->
-</body> </html>
+$Id$
+</body>
+</html>
