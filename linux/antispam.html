@@ -16,6 +16,44 @@ thoughts on the state of the art.
 resources</a> : Antispam
 <hr>
 
+<h3>Current spam rate</h3>
+
+<p>My "spam rate" as of December 2004 is around 100 messages per day, of
+which some 15 are blocked by TMDA (<a href="#tmda">see below</a>), and
+the rest are for nonworking addresses that bounce (sometimes with a
+little help).  At most, only one or two spam messages per month actually
+reaches my inbox; usually, these are from headhunters who use valid
+return addresses, and can therefore get their message accepted by TMDA.
+These I immediately blacklist.
+
+<p>This "spam-rate" computation is based on recording all
+double-bounces, which happen when the destination address was invalid so
+a bounce was generated, but the bounce itself was also undeliverable.
+This can happen directly, as when a spammer sends to a non-existent
+recipient address with a non-existent return address, or indirectly via
+TMDA.  When TMDA sends a confirmation request, it looks like a bounce to
+the mail system, so if the original sender address is bogus, the
+confirmation gets double-bounced straightaway.  Note that this also
+includes messages destined for old throwaway addresses that get spammed
+frequently (that's why I threw them away); I send these straight into
+the double-bounce logger, since that reduces the load on my server.
+
+<p>This also may include a few random probes from viruses, though not
+from one in particular that sends huge volumes of probes.  This virus
+(possibly <a
+href="http://securityresponse.symantec.com/avcenter/venc/data/w32.klez.e@mm.html">
+W32.Klez.E@mm</a>) sends emails that purport to come from
+<tt>inet@microsoft.com</tt>, which at least makes it easy to eliminate.
+Astonishingly, this virus guesses destination email addresses at random,
+and may send hundreds of random emails over the course of a day before
+it gives up (or somebody wonders why their computer is so slow).  So
+far, the virus' success rate at my site has been zero, probably due in
+part to the fact that I use <a href="qmail.html"> the <tt>qmail</tt>
+mail transport agent</a>, which doesn't check whether the address is
+good at the time it accepts the message; this probably slows the virus
+down.  It may be more effective when it tries to guess addresses at
+<tt>yahoo.com</tt>.
+
 <h3>What I do now</h3>
 
 <p>In order to cut the flow of spam to an acceptable trickle, I use a
@@ -29,7 +67,8 @@ combination of methods:
        <tt>qmail</tt> MTA</a> makes this easy, by giving me an infinite
        supply of addresses I can use.
   <dt> Whitelisting with TMDA
-  <dd> The <a href="http://tmda.net/"> Tagged Message Delivery Agent
+  <dd> <a name="tmda">
+       The <a href="http://tmda.net/"> Tagged Message Delivery Agent
        (TMDA)</a> is usually configured to accept email only from
        specified "whitelist" addresses, never from "blacklist"
        addresses, and only after confirmation from all others.  See my
@@ -37,56 +76,55 @@ combination of methods:
        for why this is so effective.
 </dl>
 
-<p>My current "spam rate" is around 50 messages per day, of which 15 are
-processed by TMDA, and the rest are for nonworking addresses that are
-funneled straight into the bit bucket.  This is based on keeping records
-of double-bounces, which happen when the destination address was invalid
-so a bounce was generated, but the bounce was undeliverable.  This can
-happen directly, as when a spammer sends to a non-existent address, or
-indirectly via TMDA.  When TMDA sends a confirmation request, it looks
-like a bounce to the mail system, so if the original sender address is
-bogus, the confirmation gets double-bounced straightaway.  Finally, I've
-sent email for some old addresses that are spammed frequently, usually
-mailing list throwaways, straight into the double-bounce logger, since
-that reduces the load on my server.
-
 <h3>Discarded solutions</h3>
 
-<p>Here are some things I've tried and discarded:
+<p>Here are some things I've tried and discarded as ineffective or
+impractical:
+
 <dl class="howto">
   <dt> MIME-type filtering.
-  <dd> I used to filter out 95% of all spam by
-       disallowing HTML email and attachments, and providing a separate
-       address for people who wanted to send me attachments, which I
-       kept hidden.
-       (This was even more effective for viruses, which always have
-       attachments these days.)
-       But this had two flaws:
+  <dd> I used to filter out 95% of all spam by disallowing HTML email
+       and attachments, and provided a separate address for people who
+       wanted to send me attachments, which I kept hidden.  (This was
+       even more effective for viruses, which always have attachments
+       these days.)  But this had several flaws:
        <ol>
+	 <li> The world is full of people who won't turn off HTML when
+	      sending a message, either because they can't be bothered,
+	      or they haven't a clue.  (I suspect most of the latter
+	      don't even know that their mail program sends HTML
+	      messages in the first place.  If you're one of those, you
+	      should read about the <a
+	      href="http://www.metacon.ca/ascii/"> ASCII Ribbon
+	      Campaign</a> (among other pages) for why HTML email is a
+	      poor idea, and then <a
+	      href="http://www.harley.com/turn-off-html/"> How to Turn
+	      Off HTML in Your Outgoing Mail Messages </a> page.)
+	 <li> A few such people had used my "hidden" address as my
+	      primary email address in their address book, increasing
+	      the chance that it would be disclosed to spammers.
 	 <li> By December 2003, the total volume of spam had increased
 	      such that stopping 95% of it wasn't good enough.
-	 <li> The world is full of people who have no clue how to turn
-	      off HTML when sending a message -- or even that their mail
-	      program sends HTML messages in the first place.
        </ol>
        That's when I decided I had to switch to TMDA.
   <dt> Content-based filtering.
   <dd> Possibly the best-known example of this category is <a
        href="http://spamassassin.apache.org/"> SpamAssassin</a>, which
        looks for telltale features of spam in the message headers and
-       body, and produces an estimate of whether it thinks the message
-       is spam or not.  I tried this at work, using SpamAssassin to tag
-       messages with <tt>"**** SPAM"</tt> in the "Subject:" line, but it
-       wasn't very effective, though that may be because the database of
-       spam signatures was somewhat old.  I set it up for myself to test
-       it without actually blocking anything; for the office
-       administrator, we configured her mail reader to quarantine any
-       messages with this tag.  But then the office administrator sent
-       me an email with "IMPORTANT!!!!" in the subject and the body in
-       all-caps.  Not surprisingly, SpamAssassin tagged this as spam,
-       which was bad enough, but then the admin didn't see my reply,
-       because the subject still had <tt>"**** SPAM"</tt> in it and got
-       quarantined!
+       body, and produces a "spam score"; if over a certain threshold,
+       the message is considered spam.  I tried this at work, using
+       SpamAssassin to tag messages with <tt>"****&nbsp;SPAM"</tt> in
+       the "Subject:" line, but it wasn't very effective, though that
+       may be at least in part because the database of spam signatures
+       was not as up-to-date as it could have been.  I set it up for
+       myself to test it without actually blocking anything; for the
+       office administrator, we configured her mail reader to quarantine
+       any messages with this tag.  Then one day, the office
+       administrator sent me an email with "IMPORTANT!!!!" in the
+       subject and the body in all-caps.  Not surprisingly, SpamAssassin
+       tagged this as spam, which was bad enough; what was worse was
+       when the admin didn't see my reply, because the subject still had
+       <tt>"****&nbsp;SPAM"</tt> in it and got quarantined!
 </dl>
 
 <p>I have not tried any of the commercial spam-filtering solutions,
