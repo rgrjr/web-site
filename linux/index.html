@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>Linux resources</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
 <body bgcolor=white>
@@ -17,23 +18,32 @@
 
 <ul>
   <li> <a href="security/index.html">Linux Security</a>
-  <li> <a href="howto.html">Local "howto" information</a>
+  <li> <a href="howto.html">Local "howto" information</a> (reorganized
+       20-Dec-04)
+       <ul>
+	 <li> <a href="qmail.html">The <tt>qmail</tt> mail transport agent</a>
+	 <li> <a href="squid.html">Squid</a>
+	 <li> <a href="cd-burning.html">Burning CD-R disks</a>
+	 <li> <a href="aolserver.html">AOLserver</a>
+	 <li> <a href="nis.html">Network Information Service (NIS)</a>
+       </ul>
   <li> <a href="ntp.html">Automatic clock setting from an NTP time
-       server</a>
-  <li> <a href="backup.html">System backup</a>
-  <li> <a href="ether.html">Ethernet CAT5 Cheat Sheet</a>
+       server</a> (updated 18-Jul-04)
+  <li> <a href="backup.html">System backup</a> (updated 19-Aug-04)
+  <li> <a href="ether.html">Ethernet CAT5 Cheat Sheet</a> (updated
+       27-Nov-04)
   <li> <a href="disk-upgrade.html">Linux Hard Disk Upgrade: An
-       Experience</a>
-  <li> <a href="gconf.html">Notes on GConf</a>
+       Experience</a> (updated 24-Dec-04)
+  <li> <a href="gconf.html">Notes on GConf</a> (new as of 25-Apr-04)
+  <li> <a href="tmda.html">Notes on TMDA</a> (new as of 11-Jun-04)
   <li> <a href="antispam.html">Tricks and technologies for dealing with
-       spam</a>
-  <li> <a href="tmda.html">Notes on TMDA</a> (new)
+       spam</a> (new as of 10-Dec-04)
 </ul>
 
-<h2>Links</h2>
+<h2>Links to other sites</h2>
 
-<dl>
-  <dt> <b>General Linux</b>
+<dl class="howto">
+  <dt> General Linux
        <dl>
 	 <dt> <a href="http://www.suse.com/">SuSE</a>
 	      <ul>
@@ -67,13 +77,9 @@
 	 <dt> <a href="http://www.linuxquestions.org/"> LinuxQuestions.org</a>
        </dl>
 
-       <p>
-  <dt> <b>Networking Hardware and Drivers</b>
+  <dt> Networking Hardware and Drivers
   <dd>
        <dl>
-	 <dt> <A HREF="http://www.torque.net/~campbell/"> David
-	      Campbell's hack of PPA</a>
-	 <dd> Covers the Linux driver for the Iomega ZIP drive.
 	 <dt> <A
 	      HREF="ftp://rtfm.mit.edu/pub/usenet-by-hierarchy/comp/dcom/lans/ethernet/comp.dcom.lans.ethernet_FAQ">
 	      Ethernet FAQ</A>
@@ -84,11 +90,12 @@
 	      Linksys Blue Box Router HOWTO</a>
        </dl>
 
-       <p>
-  <dt> <B>General Networking</B>
+  <dt> General Networking
   <dd> <dl>
 	 <dt> <A HREF="http://www.private.org.il/tcpip_rl.html">Uri's
 	      TCP/IP Resources List</A>
+	 <dt> <A HREF="http://cr.yp.to/djbdns.html">djbdns: Domain Name
+	      System tools</A>
 	 <dt> <A HREF="http://www.dns.net/dnsrd/">DNS Resources
 	      Directory (DNSRD)</A>
 	 <dd> Be warned -- DNS is complicated!  (No wonder it breaks so
@@ -97,14 +104,12 @@
        </dl>
 
        <p>
-  <dt> <b>HTML and HTTP</b>
+  <dt> HTML and HTTP
   <dd> <dl>
 	 <dt> <a href="http://werbach.com/barebones/barebones.html">Bare
 	      Bones Guide to HTML</a>
 	 <dt> <a href="http://www.w3.org/TR/html40/#minitoc">HTML 4.01
 	      Specification</a>
-	 <dt> <a href="file:/usr/doc/HTML/html-4.0/cover.html">HTML 4.0
-	      Specification</a> (local copy).
 	 <dt> <a href="http://www.w3.org/TR/REC-html32.html">HTML 3.2
 	      Reference Specification</a>
 	 <dt> <a href="http://www.w3.org/TR/REC-CSS2/">Cascading Style
@@ -114,74 +119,34 @@
 	      Client Side State - HTTP Cookies</a>
        </dl>
 
-       <p>
-  <dt> <B>Appletalk/<tt>netatalk</tt></B>
+  <dt> Appletalk/<tt>netatalk</tt>
   <dd>
        <dl>
 	 <dt> <A HREF="http://www.anders.com/projects/netatalk/">Linux
-	      Netatalk-HOWTO</A>
+	      Netatalk-HOWTO</a> (now dated)
 	 <dt> <A HREF="http://rsug.itd.umich.edu/~tombeau/netatalk/">
-	      <tt>netatalk</tt></A>
+	      <tt>netatalk</tt></A> (even more dated)
+	 <dt> <a href="http://netatalk.sourceforge.net/">
+	      <tt>netatalk.sourceforge.net</tt></a> (where current
+	      development happens)
 	 <dt> <A HREF="http://www.acm.uiuc.edu/lug/broadcast/">
 	      Broadcast for Linux</A>
 	 <dt> <A HREF="http://www.neon.com/atalk_routing.html">
 	      Understanding AppleTalk Routing</A>
-	 <dt> <A HREF="http://www.faqs.org/rfcs/rfc1742.html">rfc1742 -
-	      AppleTalk Management Information Base II</A>
        </dl>
 
-       <p>
-  <dt> <B><tt>qmail</tt>, <tt>ezmlm</tt>, etc.</B>
-  <dd> <dl>
-	 <dt> <A HREF="http://www.qmail.org/top.html">qmail: a
-	      replacement for sendmail</A>
-	 <dd> This is the <tt>qmail</tt> home page.  See also <a
-	      href="http://cr.yp.to/qmail/faq.html">the FAQ</a>.
-	 <dt> <A HREF="http://Web.InfoAve.Net/~dsill/lwq.html">Life with
-	      qmail</A>
-	 <dd> An indispensable companion to the <tt>qmail</tt>
-	      documentation.
-	 <dt> <A HREF="http://cr.yp.to/qmail/sendmail.html">Moving large
-	      sendmail sites to qmail</A>
-	 <dt> <a
-	      href="http://www.palomine.net/qmail/selectiverelay.html">
-	      Selective relaying with <tt>tcpserver</tt> and
-	      <tt>qmail-smtpd</tt></a>
-	 <dt> <A
-	      HREF="http://www.summersault.com/chris/techno/qmail/qmail-antispam.html">
-	      Chris Hardie - <tt>qmail</tt> Anti-Spam HOWTO</A>
-	 <dt> <A HREF="http://www.io.com/~mick/soft/qmhandle.html">
-	      <tt>qmHandle</tt></A>
-	 <dt> <A HREF="http://cr.yp.to/ezmlm.html">The ezmlm home
-	      page.</A>
-	 <dt> <A HREF="http://www.ezmlm.org/faq-0.32/FAQ4.html">EZFAQ
-	      0.32 - SECTION 4</A>
-	 <dt> <A
-	      HREF="http://www.unicom.com/pw/reply-to-harmful.html">"Reply-To"
-	      Munging Considered Harmful</A>
-	 <dd> Why mailing lists shouldn't alter "Reply-to:" fields in
-	      messages.
-       </dl>
-
-       <p>
-  <dt> <b>Security/Privacy</b>
+  <dt> Security/Privacy
   <dd> See the <a href="security/">Linux Security, etc.</a> page.
 
-       <p>
-  <dt> <B>Other Packages</B>
+  <dt> Miscellaneous
   <dd> <dl>
-	 <dt> <A HREF="http://www.rru.com/~meo/gimp/faq-user.html">GIMP User FAQ</A>
-	 <dt> <A HREF="http://manual.gimp.org/">manual.gimp.org</A>
+	 <dt> <a href="http://www.rru.com/~meo/gimp/faq-user.html">GIMP
+	      User FAQ</a> (stylish pages, but nearly unreadable)
+	 <dt> <a href="http://manual.gimp.org/"> <tt>manual.gimp.org</tt></a>
 	 <dt> <A HREF="http://www.cons.org/cmucl/">CMU Common Lisp</A>
-	 <dt> <A HREF="http://cr.yp.to/djbdns.html">djbdns: Domain Name
-	      System tools</A>
 	 <dt> <A HREF="http://www.PLiG.org/xwinman/">Window Managers for X</A>
-       </dl>
-
-       <p>
-  <dt> <b>Miscellaneous</b>
-  <dd>
-       <dl>
+	 <dt> <A HREF="http://czyborra.com/"> <tt>czyborra.com</tt></a>
+	 <dd> Unicode stuff.
 	 <dt> <A
 	      HREF="http://www.canb.auug.org.au/~millerp/rmch/recu-make-cons-harm.html">
 	      Recursive Make Considered Harmful</A>
@@ -189,20 +154,10 @@
 	      makefile split into modular components in order to handle
 	      intermodule dependencies, instead of separate makefiles
 	      with recursive <tt>make</tt> calls.  Worth reading.
-	 <dt> <A HREF="http://czyborra.com/"> <tt>czyborra.com</tt></a>
-	 <dd> Unicode stuff (haven't read it, though).
-	 <dt> <a href="http://webreview.com/swaine/2002/02_04_02.shtml">
-	      Down with the DMCA!</a>
-	 <dd> A list of DMCA "misfeatures" and a call to support
-	      legislation to fix it.  [Except that nowadays this
-	      redirects to the DDJ home page.  -- rgr, 10-Dec-04.]
        </dl>
 
-       <p>
-  <dt> <B>Microsoft bashing</B>
+  <dt> Microsoft bashing
   <dd> <dl>
-	 <dt> <A HREF="http://www.unix-vs-nt.org/kirch/">Microsoft
-	      Windows NT Server 4.0 versus UNIX</A>
 	 <dt> <A HREF="http://www.vcnet.com/bms/">Boycott Microsoft</A>
 	 <dt> <A HREF="http://www.cantrip.org/nobugs.html">FOCUS
 	      Magazine Interview with Bill Gates: Microsoft Code Has No
@@ -212,7 +167,7 @@
 
 <p>
 <hr>
-<address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
+<address><a href="/bob/contact.html">Bob Rogers
 <tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
 $Id$
 </body>
