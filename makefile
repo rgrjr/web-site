@@ -47,6 +47,14 @@ all:	change-history.html
 change-history.html:	change-history-template.html
 	./cvs-chrono-log.pl $^ > $@
 
+new-hits.html:	/usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
+	../system/scripts/make-popular-pages.pl --nosquid $^ > $@
+older-hits.html:
+	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200404.log > $@
+	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200403.log >> $@
+	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200402.log >> $@
+	../system/scripts/make-popular-pages.pl --nosquid /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200401.log >> $@
+
 compare:
 	for file in ${all-pages}; do \
 	    if ! cmp $$file ${web-page-root}/$$file; then \
@@ -85,6 +93,6 @@ reverse-install:
 	done
 
 clean:
-	rm -f comment.text change-history.html
+	rm -f comment.text change-history.html new-hits.html older-hits.html
 wc:
 	wc ${all-pages}
