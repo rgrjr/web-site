@@ -1,5 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> <head>
+<html>
+<head>
 <title>Local "howto" information</title>
 <style src="howto.css" type="text/css">
 </head>
@@ -233,11 +234,11 @@ Sources for these diagnostics (plus a copy of the FAQ) are in the <tt>
   <li> "netstat -t" reports on open TCP connections.
   <li> Use <tt>"cat /proc/net/dev"</tt> to get a tabular version of
        <tt>ifconfig</tt> output.
-  <li> At boot time, the <tt>/etc/rc.d/init.d/paranoid</tt> script is
+  <li> At boot time, the <tt>/etc/init.d/paranoid</tt> script is
        started from the <tt>/etc/rc.d/rc.modules</tt> script, then
-       <tt>/etc/rc.d/init.d/network</tt> does the boot-time
+       <tt>/etc/init.d/network</tt> does the boot-time
        <tt>/sbin/ifup</tt> calls, and finally
-       <tt>/etc/rc.d/init.d/firewall</tt> is called (both of the latter
+       <tt>/etc/init.d/firewall</tt> is called (both of the latter
        using proper SysV style from <tt>/etc/rc.d/rc[2345].d/</tt>
        links).  See also the <a href="security/firewall.html">
        <b><tt>ipchains</tt> firewall script</b></a> page.
@@ -282,13 +283,13 @@ So to fix all of this, the following things must be done, in this order:
   <li> <b>Bring up the firewall.</b>  You will want to do this before
        starting other services.
        <pre>
-       # /etc/rc.d/init.d/firewall
+       # /etc/init.d/firewall
        </pre>
 
        <p>
   <li> <b>Start the time daemon manually.</b>
        <pre>
-       # /etc/rc.d/init.d/ntpd start
+       # /etc/init.d/ntpd start
        </pre>
        The system clock will get reset almost immediately, which may
        make the screen go blank, if it moves further ahead than your
@@ -297,8 +298,8 @@ So to fix all of this, the following things must be done, in this order:
        <p>
   <li> <b>Start the remaining services manually.</b>
        <pre>
-       # /etc/rc.d/init.d/squid start
-       # /etc/rc.d/init.d/nsd start
+       # /etc/init.d/squid start
+       # /etc/init.d/nsd start
        </pre>
 </ol>
 
@@ -612,7 +613,7 @@ Here is how to:
   <dt> Force redelivery attempts:
   <dd> Do <tt>"kill&nbsp;-ALRM"</tt> on the qmail-send process to force
        redelivery for all queued messages.  Alternatively,
-       <tt>"/etc/rc.d/init.d/qmail&nbsp;redeliver"</tt> will do this for
+       <tt>"/etc/init.d/qmail&nbsp;redeliver"</tt> will do this for
        you.  (See also the <tt>/root/bin/qmail-redeliver</tt> and
        <tt>/root/bin/qmail-restart</tt> scripts).
   <dt> Restart after a network outage:
@@ -735,14 +736,14 @@ href="http://www.securityfocus.com/">
 <tt>http://www.securityfocus.com/</tt></a>]).
 
 <p><tt>nsd</tt> daemon startup is done by the
-<tt>/etc/rc.d/init.d/nsd</tt> script; the command it uses is is
+<tt>/etc/init.d/nsd</tt> script; the command it uses is is
 <pre>
 	nsd -t /usr/local/aolserver/config.tcl -u nsadmin -g web
 </pre>
 (where the binary is in <tt>/usr/local/aolserver/bin/</tt> on
 <tt>$PATH</tt>).  This must be done as root, so that the daemon can bind
 to port 80.  Add -f to run in "test mode" in foreground, but first be
-sure to do <tt>"/etc/rc.d/init.d/nsd&nbsp;stop"</tt> to make the daemon
+sure to do <tt>"/etc/init.d/nsd&nbsp;stop"</tt> to make the daemon
 go away.  You can add -k to kill and restart, or -K to kill and leave
 dead (still needs <tt>config.tcl</tt> and <tt>-u/-g</tt> args), but this
 is better done via the init script.
@@ -943,7 +944,7 @@ Time Server</a> home page.  NTP doesn't take much fiddling once it's up.
 but not started by default, since I don't often use my Windows machine
 (at least not for Windows; it also runs <a
 href="http://www.suse.com/">SuSE Linux</a>).  To start it, I must do
-<tt>"/etc/rc.d/init.d/samba&nbsp;start"</tt> as root.
+<tt>"/etc/init.d/samba&nbsp;start"</tt> as root.
 
 <p>In order to get Samba up and running at my site, I found the
 following resources helpful:
@@ -1442,6 +1443,6 @@ given <a href="backup.html">its own page.</a> -- rgr, 7-Aug-01.]
 <address><a href="mailto:rogers@rgrjr.dyndns.org">Bob Rogers
 	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
 <!-- hhmts start -->
-Last modified: Sun Jun 29 10:18:31 EDT 2003
+Last modified: Sun Aug 31 10:53:13 EDT 2003
 <!-- hhmts end -->
 </body> </html>
