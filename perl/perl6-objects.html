@@ -14,6 +14,20 @@ vs. CLOS
 
 <p>[this is a work in progress.  -- rgr, 3-Apr-05.]
 
+<h3>Table of contents</h3>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Perl6 Objects vs. the Common Lisp Object System
+       <ol>
+	 <li> Table of contents
+	 <li> Feature comparison
+	 <li> Puzzles
+	 <li> Glossary
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
 <h3>Feature comparison</h3>
 
 <dl class="howto">
@@ -113,6 +127,34 @@ vs. CLOS
 	 be "specialized to that type.
     </td>
 </table>
+
+<h3>Appendix:  Other MMD implementations</h3>
+
+<ul>
+  <li> <a
+       href="http://www.gwydiondylan.org/gdref/tutorial/multiple-dispatch.html">
+       Dylan</a> (1996).  Dylan draws heavily on CL.  However, its MMD
+       is symmetric (see the <a
+       href="http://gauss.gwydiondylan.org/books/drm/drm_50.html#HEADING50-0">
+       Method Dispatch</a> section of the <a
+       http://gauss.gwydiondylan.org/books/drm/">reference manual</a>),
+       so it says that methods are "ambiguous" when they cannot be
+       ordered.
+  <li> <a href="http://multijava.sourceforge.net/">MultiJava</a>
+       (2000).  This paper has the following quote:
+       <blockquote>
+       Multiple dispatch is found in Common Lisp [Steele Jr. 1990,
+       Paepcke 1993], Dylan [Shalit 1997, Feinberg et al. 1997], and
+       Cecil [Chambers 1992, Chambers 1995].
+       </blockquote>
+       However, this is less relevant since Java is statically typed.
+       Interestingly, MultiJava makes the language more dynamic by
+       introducing open classes.  [<a
+       href="http://portal.acm.org/citation.cfm?id=512562">Maya</a> is
+       another such system; I find it amusing that there is such a huge
+       literature devoted to making Java less broken.  -- rgr,
+       19-Jun-05.]
+</ul>
 
 <p>
 <hr>
