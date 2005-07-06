@@ -17,7 +17,7 @@ my $date_fuzz = 60;		# in seconds.
 my %modifications;
 
 my $html_p = 1;
-my $n_days_ago = 90;
+my $n_days_ago = 180;
 my $start_date = time2str($date_format_string, time-24*3600*$n_days_ago);
 my $web_root;
 for my $dir (qw(/usr/local/aolserver/servers/rgrjr/pages /srv/www/htdocs)) {
