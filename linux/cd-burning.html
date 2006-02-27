@@ -22,6 +22,7 @@ resources</a> : <a href="howto.html">"Howto"</a> : Burning CDs
 	 <li> General notes
 	 <li> <a href="#options">Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options</a>
 	 <li> <a href="#howto">CD-R how-to</a>
+	 <li> <a href="#dvd">Additional magic for burning DVDs</a>
 	 <li> <a href="#cd-dump.pl">Burning CDs with <tt>cd-dump.pl</tt></a>
        </ol>
 </ol>
@@ -73,7 +74,7 @@ reference.  Do <tt>"mkisofs --help"</tt> if you want to see all options.
 
 <a name="mkisofs-dash-C">
 <dl>
-  <dt> <b>-C <i>last_sess_start,next_sess_start</i></b>
+  <dt> <b>-C <i>last_sess_start,next_sess_start</i></b><a href=""></a>
   <dd> Used for the second or subsequent session of a multi-session
        CD.  <tt><i>last_sess_start</i></tt> is the sector number of
        the first sector in the last session of the CD to which you
@@ -117,7 +118,7 @@ The rest of the line consists of at least one directory name.
 
 <p>Here is a useful subset of <tt>cdrecord</tt> options:
 <dl>
-  <dt> <b>-msinfo</b>
+  <dt> <b>-msinfo</b><a href=""></a>
   <dd> Read the session addresses from an existing multisession CD;
        the result is suitable for passing to the <a
        href="#mkisofs-dash-C"><tt>cdrecord</tt> <tt>-C</tt> option</a>,
@@ -142,7 +143,7 @@ The rest of the line consists of at least one directory name.
 <h3>CD-R how-to</h3>
 
 <dl class="howto">
-  <dt> Find out what <tt>-dev=X,Y,Z</tt> to use:
+  <dt> Find out what <tt>-dev=X,Y,Z</tt> to use:<a href=""></a>
   <dd> Do the following:
        <pre>
        [root@rgrjr /root]# <font color=blue>cdrecord -scanbus</font>
@@ -240,24 +241,21 @@ The rest of the line consists of at least one directory name.
        mkisofs -max-iso9660-filenames -relaxed-filenames -V 2003Q1a /scratch/backups/cd/2003Q1a \
                 | cdrecord -dev=1,0,0 -speed=8 -
 </pre>
-       On my system, this turns out to be much faster than doing the two
+       This turns out to be much faster for me than doing the two
        steps separately.  The reason is that I have only one hard drive, so
        making a ISO9660 image file from content on the same hard drive
        requires lots of seeks, which are time-consuming.
 
-       <p>Note that the drive is theoretically capable of writing a CD-R
-       disk at 4X, 8X, and 12X, but 12X (for me, at least) results in an
-       unreadable CD -- <tt>mount</tt> complains about a bad superblock,
-       among other possibilities.  This is probably because my machine
-       and/or hard drive is not fast enough, and so the pipeline stalls.
-       I notice that the <tt>xload</tt> display shows significantly
-       higher CPU demand when writing at 12X than at 8X or 4X, so
-       perhaps the CPU (a 300MHz Athlon processor) is the limiting
-       factor.  Before the 12X run, I tried using the <tt>-dummy</tt>
-       option, but that was no help; I got no diagnostics from it at
-       all.  However, so far I've only tried writing one CD for each
-       speed.  (The CD-RW write speeds are 2X, 4X, and 8X, but I haven't
-       tried using CD-RW media at all yet.)
+       <p>The drive is capable of writing a CD-R disk at 4X, 8X, and
+       12X, but attempting to write at 12X on my old system results in
+       an unreadable CD -- <tt>mount</tt> complains about a bad
+       superblock, among other possibilities.  This is probably because
+       this machine can't shovel the data fast enough, and so the
+       pipeline stalls.  I notice that <tt>xload</tt> shows
+       significantly higher CPU demand when writing at 12X than at 8X or
+       4X, so perhaps the CPU (a 300MHz Athlon processor) is the
+       limiting factor.  My new machine (with a 1.8GHz AMD chip) has no
+       problems writing at full speed.
 
        <p>[add <tt>-hfs --netatalk</tt> to make a Mac-readable CD.  --
        rgr, 22-Sep-02.]
@@ -328,13 +326,42 @@ The rest of the line consists of at least one directory name.
 </pre>
        You may need to substitute <tt>"/dev/cdrom"</tt> with whatever
        the device is named on your system; see <tt>/etc/fstab</tt> for
-       hints.  Then, mount it wherever you like as an ISO9660 file
-       system via a "loop device:"
+       hints.  (If you have a USB burner, it will only show up when
+       powered on and plugged in.)  Then, mount it wherever you like as
+       an ISO9660 file system via a "loop device:"
        <pre>
        mount cd-image.iso9660 /mnt/cdrom -t iso9660 -o loop
 </pre>
        See the "THE LOOP DEVICE" section of the <tt>mount</tt>
        <tt>man</tt> page for more details.
+</dl>
+
+<a name="dvd">
+<h3> Additional magic for burning DVDs</h3>
+
+Some of this may be peculiar to the DVD burner I use at work, which
+<tt>cdrecord</tt> identifies as a MAD DOG 'MD-16XDVD9A2' rev 1.F0.  In
+any case, it doesn't handle track-at-once, which is why we need to
+specify <tt>-dao</tt> and <tt>-tsize</tt>.
+
+<dl class="howto">
+  <dt> Install <tt>cdrecord-ProDVD</tt>:<a href=""></a>
+  <dd> [finish.  -- rgr, 10-Jan-06.]
+
+  <dt> Put a directory onto a DVD (in one step):
+  <dd> The following recipe seems to work for me:
+       <pre>
+       to_write_subdir=.
+       mkisofs_cmd='mkisofs -max-iso9660-filenames -relaxed-filenames -quiet'
+
+       disk_size=`$mkisofs_cmd -print-size $to_write_subdir`
+       $mkisofs_cmd $to_write_subdir \
+	   | cdrecord-wrapper.sh -dao -multi -tsize=${disk_size}s -dev=0,0,0 -
+       </pre>
+       Note that the key thing is to specify <tt>-tsize</tt> to
+       <tt>cdrecord-wrapper.sh</tt>, so you need to run <tt>mkisofs</tt>
+       with the <tt>-print-size</tt> option, ensuring that you use the
+       exact same options in both places.
 </dl>
 
 <a name="cd-dump.pl">
