@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+
+<html>
+<head>
+<title>Bob:  Subversion</title>
+<link href="../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h2>Subversion</h2>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
+resources</a> : Subversion notes
+<hr>
+
+<p>
+<h3>Setting up a Subversion server using Apache and HTTPS</h3>
+
+Much of this is specific to the details of the SuSE 9.0 configuration.
+In particular, I can use Apache 2.0 as distributed by SuSE, but the RPM
+edition of Subversion that ships with 9.0 is so old as to be completely
+useless, so I needed to build Subversion from the tarball; in my case, I
+used Subversion 1.3.0.  Other installations will require larger or
+smaller grains of salt.
+
+<h4>Set up Apache <tt>mod_ssl</tt></h4>
+
+<ol>
+  <li> Create an SSL certificate.  For testing, I created a self-signed
+       cert using a recipe from the OpenSSL <tt>man</tt> page:
+       <pre>
+       openssl req -x509 -newkey rsa:1024 -keyout key.pem -out req.pem
+       </pre>
+       Then, copy <tt>key.pem</tt> to
+       <tt>/etc/apache2/ssl.key/server.key</tt> (this is the private
+       key), and <tt>req.pem</tt> to
+       <tt>/etc/apache2/ssl.crt/server.crt</tt> (this is the self-signed
+       certificate).  Needless to say, I will have to do better if I
+       want anyone else to be able to use this.
+  <li> Configure Apache 2.0 for SSL.  This consists of (a) copying (or
+       renaming) <tt>/etc/apache2/vhosts.d/vhost-ssl.template</tt> to
+       <tt>vhost-ssl.conf</tt> (in the same directory), and (b) changing
+       <tt>/etc/sysconfig/apache2</tt> to add <tt>"-D&nbsp;SSL"</tt> to
+       <tt>APACHE_SERVER_FLAGS</tt> and increase
+       <tt>APACHE_START_TIMEOUT</tt> to 10 seconds (so that you have
+       time to type in a passphrase).
+  <li> Restart Apache via <tt>"/etc/init.d/apache2&nbsp;start"</tt>.
+       This requires supplying the passphrase used to protect the server
+       private key.
+  <li> Verify that SSL is working by visiting the HTTPS version of the
+       site.
+</ol>
+
+<h4>Build Subversion to use Apache and SSL</h4>
+
+<ol>
+  <li> Ensure that the <tt>openssl-devel</tt> and <tt>apache2-devel</tt>
+       packages are installed so that Subversion's <tt>./configure</tt>
+       script can find their respective header files.
+  <li> Configure Subversion as follows:
+       <pre>
+       ./configure --with-ssl --with-apxs=apxs2 --disable-mod-activation
+       </pre>
+       These three options have the following effect:
+       <p>
+       <ul>
+	 <li> The <tt>--with-apxs</tt> option requests Apache shared
+	      library support; the <tt>"apxs2"</tt> value is necessary
+	      for Apache 2.0 under SuSE, where all of the Apache 2.0
+	      directories and binaries have a "2" appended.
+	 <li> OpenSSL is <b>not</b> autodetected, so an explicit
+	      <tt>--with-ssl</tt> is required for "HTTPS" URL support in
+	      the client.
+	 <li> And <tt>--disable-mod-activation</tt> is necessary in
+	      order to tell <tt>apxs2</tt> to skip trying to add
+	      "LoadModule" lines to <tt>httpd.conf</tt>; apparently,
+	      this is a problem with the SuSE setup.
+       </ul>
+       &nbsp;
+  <li> Do <tt>"make"</tt> to compile.
+  <li> As root, do <tt>"make install"</tt>.  (I had to remove the "-a"
+       at the end of the <tt>INSTALL_MOD_SHARED</tt> line in the
+       generated <tt>Makefile</tt> by hand, because I didn't know I
+       needed <tt>--disable-mod-activation</tt> until too late.)
+</ol>
+
+<h4>Configure Apache to use <tt>mod_dav_svn</tt></h4>
+
+[finish.  -- rgr, 18-Mar-06.]
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+	<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>
