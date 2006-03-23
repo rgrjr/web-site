@@ -15,10 +15,19 @@ sched-2004.html:
 sched-2005.html:
 	./tns.pl ${2005-sites} > $@
 
+2006-sites =	wmp  dr   bw   hppa \
+		wmp  dr   bw   hpta  qq \
+		sfp  bw   rr   cr \
+		sfp  hppa rr   dr \
+		sfp  cr   rr   hpta  wmp \
+		r1q  dr   bw         wmp
+sched-2006.html:
+	./tns.pl ${2006-sites} > $@
+
 stats:
 	rm -f $@.tmp
-	for location in ${2005-sites}; do echo $$location >> $@.tmp; done
+	for location in ${2006-sites}; do echo $$location >> $@.tmp; done
 	sort $@.tmp | uniq -c | sort -nr
 
 clean:
-	rm -f $@.tmp sched-2004.html sched-2005.html
+	rm -f $@.tmp sched-2004.html sched-2005.html sched-2006.html
