@@ -72,7 +72,7 @@ perl-pages = perl/index.html perl/sub-memory-leak.html perl/perl6-objects.html
 all:	change-history.html
 
 change-history.html:	.
-	./cvs-chrono-log.pl change-history-template.html > $@
+	./cvs-chrono-log.pl 365 change-history-template.html > $@
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
 current-hits.html:	/var/log/apache2/access_log.200508.log \
