@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
-<title>Bob Rogers: Local "howto" information: Squid</title>
+<title>Bob Rogers: Linux: Howto: Squid</title>
 <link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
@@ -12,8 +12,8 @@
 resources</a> : <a href="howto.html">"Howto"</a> : Squid
 <hr>
 
-<a href="http://www.squid-cache.org/">Squid</a> is caching proxy server,
-for which I now have three uses:
+<a href="http://www.squid-cache.org/">Squid</a> is a caching proxy
+server, for which I now have three uses:
 <ol>
   <li> <b>Web cache.</b> This is the "standard" use for Squid, wherein
        it uses local RAM and hard drive to speed up Web access.  The
@@ -119,6 +119,32 @@ own.
        Apache, etc., though without the "referer" field.  See <a
        href="http://www.squid-cache.org/Doc/FAQ/FAQ-6.html#ss6.6"> Squid
        FAQ #6.6</a> for details of Squid log format.
+
+       <a name="disk-space-over-limit">
+  <dt> "Disk space over limit" errors
+  <dd> Recently, after an unexpected reboot, I started getting piles of
+       the following warnings in the log:
+       <pre>
+       May 29 21:16:48 rgrjr squid[2666]: WARNING: Disk space over limit: -2935640 KB &gt; 256000 KB 
+       </pre>
+       It started immediately after reboot, and was repeated every few
+       minutes.  The last five lines of the normal Squid startup
+       messages showed the same suspicious value:
+       <pre>
+       May 29 21:16:47 rgrjr squid[2666]: Beginning Validation Procedure 
+       May 29 21:16:47 rgrjr squid[2666]:   Completed Validation Procedure 
+       May 29 21:16:47 rgrjr squid[2666]:   Validated 5638 Entries 
+       May 29 21:16:47 rgrjr squid[2666]:   store_swap_size = -2935640k 
+       May 29 21:16:47 rgrjr squid[2666]: storeLateRelease: released 0 objects 
+       </pre>
+       The normal value is 243156k on my system, but negative sizes
+       can't be a good thing.  Googling for <tt>store_swap_size</tt>
+       found the following article:  <a
+       href="http://contribs.org/bugzilla/show_bug.cgi?id=664">"Squid
+       warning in logs (Disk space over limit)"</a>, which in turn lead
+       me to try deleting the <tt>swap.state</tt> and restart Squid.
+       This appears to have worked; <tt>swap.state</tt> seems to have
+       been rebuilt OK, and the warnings have stopped.
 </dl>
 
 <p>
