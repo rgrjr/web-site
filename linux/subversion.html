@@ -44,7 +44,7 @@ smaller grains of salt.
        <tt>APACHE_SERVER_FLAGS</tt> and increase
        <tt>APACHE_START_TIMEOUT</tt> to 10 seconds (so that you have
        time to type in a passphrase).
-  <li> Restart Apache via <tt>"/etc/init.d/apache2&nbsp;start"</tt>.
+  <li> Restart Apache via <tt>"/etc/init.d/apache2&nbsp;restart"</tt>.
        This requires supplying the passphrase used to protect the server
        private key.
   <li> Verify that SSL is working by visiting the HTTPS version of the
@@ -59,24 +59,30 @@ smaller grains of salt.
        script can find their respective header files.
   <li> Configure Subversion as follows:
        <pre>
-       ./configure --with-ssl --with-apxs=apxs2 --disable-mod-activation
+       CFLAGS=`apxs2 -q CFLAGS` ./configure --enable-shared \
+               --with-ssl --with-apxs=`which apxs2` --disable-mod-activation
        </pre>
-       These three options have the following effect:
+       These options have the following effect:
        <p>
        <ul>
+	 <li> <tt>--enable-shared</tt> forces the building of shared
+	      libraries.  (I had thought this was enabled by default; I
+	      was wrong.)
+	 <li> OpenSSL is <b>not</b> autodetected, so an explicit
+	      <tt>--with-ssl</tt> is required for "HTTPS" URL support,
+	      even for the client.
 	 <li> The <tt>--with-apxs</tt> option requests Apache shared
 	      library support; the <tt>"apxs2"</tt> value is necessary
 	      for Apache 2.0 under SuSE, where all of the Apache 2.0
 	      directories and binaries have a "2" appended.
-	 <li> OpenSSL is <b>not</b> autodetected, so an explicit
-	      <tt>--with-ssl</tt> is required for "HTTPS" URL support in
-	      the client.
 	 <li> And <tt>--disable-mod-activation</tt> is necessary in
 	      order to tell <tt>apxs2</tt> to skip trying to add
 	      "LoadModule" lines to <tt>httpd.conf</tt>; apparently,
 	      this is a problem with the SuSE setup.
        </ul>
-       &nbsp;
+       Some of this may be voodoo, but I can tell you that without
+       <tt>--enable-shared</tt> plus the <tt>CFLAGS</tt> magic, Apache
+       segfaulted every time it got a DAV request.
   <li> Do <tt>"make"</tt> to compile.
   <li> As root, do <tt>"make install"</tt>.  (I had to remove the "-a"
        at the end of the <tt>INSTALL_MOD_SHARED</tt> line in the
@@ -85,6 +91,51 @@ smaller grains of salt.
 </ol>
 
 <h4>Configure Apache to use <tt>mod_dav_svn</tt></h4>
+
+<ol>
+  <li> Create the <tt>/shared/svn</tt> directory, and at least one
+       repository under it, and <tt>chown</tt> it to the <tt>wwwrun</tt>
+       user.  I created a <tt>/shared/svn/new-vc/</tt>
+       subdirectory and copied an existing repository there; this shows
+       up on the server as <a href="https://rgrjr.dyndns.org/svn/new-vc/">
+       <tt>https://rgrjr.dyndns.org/svn/new-vc/</tt></a>.
+  <li> Add <tt>dav</tt> and <tt>dav_svn</tt> to the
+       <tt>APACHE_MODULES</tt> list in <tt>/etc/sysconfig/apache2</tt>.
+  <li> Create users in <tt>/etc/svn-auth-file</tt> using
+       <tt>htpasswd</tt>.  See the "Basic HTTP Authentication" section
+       of <a
+       href="http://svnbook.red-bean.com/nightly/en/svn.serverconfig.httpd.html">the
+       SVN book</a> for an example.
+  <li> Add the following to
+       <tt>/etc/apache2/vhosts.d/vhost-ssl.conf</tt> within the
+       <tt>&lt;VirtualHost&gt;</tt> definition:
+       <pre>
+       # Subversion server setup.  -- rgr, 20-Mar-06.
+       &lt;Location /svn&gt;
+	 DAV svn
+	 # any "/svn/foo" URL will map to a repository /shared/svn/foo
+	 SVNParentPath /shared/svn
+
+	 # authentication goo.
+	 AuthType Basic
+	 AuthName "Subversion repository at rgrjr.dyndns.org"
+	 AuthUserFile /etc/svn-auth-file
+	 &lt;LimitExcept GET PROPFIND OPTIONS REPORT&gt;
+	   Require valid-user
+	 &lt;/LimitExcept&gt;
+       &lt;/Location&gt;
+       </pre>
+  <li> Restart the server.
+</ol>
+
+<h4>Test</h4>
+
+<ol>
+  <li> Test checking out:
+       <pre>
+       svn co https://rgrjr.dyndns.org/svn/new-vc/rogers/emacs/new-vc/trunk new-vc2
+       </pre>
+</ol>
 
 [finish.  -- rgr, 18-Mar-06.]
 
