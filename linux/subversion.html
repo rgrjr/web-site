@@ -139,6 +139,35 @@ smaller grains of salt.
 
 [finish.  -- rgr, 18-Mar-06.]
 
+<h4>Migrate <tt>rgr-hacks</tt> to Subversion</h4>
+
+<ol>
+  <li> Create the repository (as root):
+       <pre>
+       svnadmin create /shared/svn/rgr-hacks
+       chown -R rogers /shared/svn/rgr-hacks
+       </pre>
+  <li> Populate it with
+       <pre>
+       cvs2svn --existing-svnrepos -s /shared/svn/rgr-hacks/ /shared/cvsroot/rogers/emacs/rgr-hacks/
+       </pre>
+       Note that by default, <a
+       href="http://cvs2svn.tigris.org/cvs2svn.html">
+       <tt>cvs2svn</tt></a> will stuff everything that is not a branch
+       into a <tt>trunk/</tt> subdirectory.
+  <li> Give it back to the Web server user (as root, of course):
+       <pre>
+       chown -R wwwrun /shared/svn/rgr-hacks
+       </pre>
+  <li> Test by checking out a fresh working copy:
+       <pre>
+       svn co https://rgrjr.dyndns.org/svn/rgr-hacks/trunk rgr-hacks
+       diff -ur rgr-hacks.cvs rgr-hacks
+       </pre>
+       Note that <tt>diff</tt> will find may trivial differences in
+       <tt>$Id$</tt> tags.
+</ol>
+
 <p>
 <hr>
 <address><a href="/bob/contact.html">Bob Rogers
