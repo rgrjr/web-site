@@ -19,7 +19,7 @@ cgi-lib-perl = ${server-root}/lib/perl
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
-serious-pages = ${emacs-pages} ${ilisp-pages} \
+serious-pages = ${emacs-pages} ${ilisp-pages} ${lisp-pages} \
 		${linux-pages} ${security-pages} ${perl-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
 		web-site.html site-map.html change-history.html \
@@ -68,6 +68,7 @@ security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/ssh.html linux/security/xauth.html \
 	linux/security/alerts/index.html
 perl-pages = perl/index.html perl/sub-memory-leak.html perl/perl6-objects.html
+lisp-pages = lisp/index.html
 
 all:	change-history.html
 
