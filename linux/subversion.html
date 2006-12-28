@@ -7,10 +7,10 @@
 </head>
 
 <body>
-<h2>Subversion</h2>
+<h2>Running a Subversion <tt>mod_dav_svn</tt> server</h2>
 
 <p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
-resources</a> : Subversion notes
+resources</a> : Subversion server
 <hr>
 
 <p>
@@ -135,11 +135,17 @@ smaller grains of salt.
        <pre>
        svn co https://rgrjr.dyndns.org/svn/new-vc/rogers/emacs/new-vc/trunk new-vc2
        </pre>
+  <li> Find a version-controlled file in Emacs.
+  <li> View its log (<tt>C-x v l</tt> in Emacs).
+  <li> Modify and save it.
+  <li> Diff it against the original (<tt>C-x v =</tt>).
+  <li> Check it in (<tt>C-x v v</tt>).
+  <li> View the updated log.
 </ol>
 
-[finish.  -- rgr, 18-Mar-06.]
-
 <h4>Migrate <tt>rgr-hacks</tt> to Subversion</h4>
+
+This should work generically.
 
 <ol>
   <li> Create the repository (as root):
@@ -164,7 +170,7 @@ smaller grains of salt.
        svn co https://rgrjr.dyndns.org/svn/rgr-hacks/trunk rgr-hacks
        diff -ur rgr-hacks.cvs rgr-hacks
        </pre>
-       Note that <tt>diff</tt> will find may trivial differences in
+       Note that <tt>diff</tt> will find many trivial differences in
        <tt>&#36;Id:$</tt> tags.
 </ol>
 

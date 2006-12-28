@@ -62,7 +62,8 @@ linux-pages = linux/index.html linux/tux-small.png \
 	linux/striped-brown.png linux/striped-orange.png \
 	linux/gconf.html linux/aolserver.html linux/cd-burning.html \
 	linux/howto.html linux/nis.html linux/qmail.html linux/squid.html \
-	linux/ntp.html linux/ntpd.sh linux/tmda.html linux/xml.html
+	linux/ntp.html linux/ntpd.sh linux/tmda.html \
+	linux/subversion.html linux/xml.html
 security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/firewall.html linux/security/old-xauth.html \
 	linux/security/ssh.html linux/security/xauth.html \
