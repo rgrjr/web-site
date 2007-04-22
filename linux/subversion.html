@@ -153,7 +153,7 @@ This should work generically.
        svnadmin create /shared/svn/rgr-hacks
        chown -R rogers /shared/svn/rgr-hacks
        </pre>
-  <li> Populate it with
+  <li> As <tt>rogers</tt>, populate it with the CVS contents:
        <pre>
        cvs2svn --existing-svnrepos -s /shared/svn/rgr-hacks/ /shared/cvsroot/rogers/emacs/rgr-hacks/
        </pre>
