@@ -399,19 +399,27 @@ memory usage.
 <a name=rpm>
 <h3><tt>rpm</tt> and <tt>rpmfind</tt></h3>
 
-To install:
-<pre>
-   rpm -ivh *.rpm
-</pre>
+<dl class="howto">
+  <dt> Installing
+  <dd> <tt>rpm -ivh *.rpm </tt>
+  <dt> Query a single package
+  <dd> <tt>rpm&nbsp;-qi&nbsp;tripwire</tt>
+  <dt> List package files
+  <dd> <tt>rpm&nbsp;-ql&nbsp;tripwire</tt>
+  <dt> Recently installed packages
+  <dd> <tt>rpm&nbsp;-qa&nbsp;--last&nbsp;|&nbsp;head</tt>
+</dl>
 
-<p>To query a single package:  <tt>"rpm&nbsp;-qil&nbsp;tripwire"</tt>
-Drop the "-l" to omit file listing.
+<p>RPM links:
 
-<p>To query recently installed packages:
-<tt>"rpm&nbsp;-qa&nbsp;--last&nbsp;|&nbsp;head"</tt>
-
-<p><tt>rpmfind</tt>: <a href="file:/usr/doc/rpmfind-1.2/README">
-<tt>/usr/doc/rpmfind-1.2/README</tt></a>
+<UL>
+  <li> <a href="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM
+       Guide</a> by Eric Foster-Johnson
+  <li> <a href="http://fr.rpmfind.net/">Rpmfind.Net</a>
+  <li> <a
+       href="http://susewiki.org/index.php?title=Finding_RPMs">Finding
+       RPMs</a> (SuSE Wiki)
+</ul>
 
 <a name = xfree86>
 <h3>XFree86</h3>
