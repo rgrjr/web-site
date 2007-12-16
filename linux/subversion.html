@@ -13,15 +13,39 @@
 resources</a> : Subversion server
 <hr>
 
+<!-- hhmtoc start -->
+<ol>
+  <li> Running a Subversion <tt>mod_dav_svn</tt> server
+       <ol>
+	 <li> Setting up a Subversion server using Apache and HTTPS
+	      <ol>
+		<li> Set up Apache <tt>mod_ssl</tt>
+		<li> Build Subversion to use Apache and SSL
+		<li> Configure Apache to use <tt>mod_dav_svn</tt>
+		<li> Set up Apache2 to use <tt>mod_authz_svn</tt>
+		<li> Test the new server
+	      </ol>
+	 <li> <a href="#usage">Moving existing repositories to Subversion</a>
+	      <ol>
+		<li> Migrate <tt>rgr-hacks</tt> to Subversion
+		<li> Create a new Subversion repository
+	      </ol>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
 <p>
 <h3>Setting up a Subversion server using Apache and HTTPS</h3>
 
-Much of this is specific to the details of the SuSE 9.0 configuration.
-In particular, I can use Apache 2.0 as distributed by SuSE, but the RPM
-edition of Subversion that ships with 9.0 is so old as to be completely
-useless, so I needed to build Subversion from the tarball; in my case, I
-used Subversion 1.3.0.  Other installations will require larger or
-smaller grains of salt.
+This recipe was used to set my server up initially on SuSE 9.0 (where
+the shipped RPM edition of Subversion is so old as to be completely
+useless, so I built Subversion 1.3.0 from the tarball), and when I
+migrated it to different hardware running <a
+href="http://www.opensuse.org/">openSUSE 10.2</a> (which comes with
+Subversion 1.4.0).
+
+<p>Much of this is specific to the details of the SuSE configuration.
+Other installations will require larger or smaller grains of salt.
 
 <h4>Set up Apache <tt>mod_ssl</tt></h4>
 
@@ -37,7 +61,7 @@ smaller grains of salt.
        <tt>/etc/apache2/ssl.crt/server.crt</tt> (this is the self-signed
        certificate).  Needless to say, I will have to do better if I
        want anyone else to be able to use this.
-  <li> Configure Apache 2.0 for SSL.  This consists of (a) copying (or
+  <li> Configure Apache 2.x for SSL.  This consists of (a) copying (or
        renaming) <tt>/etc/apache2/vhosts.d/vhost-ssl.template</tt> to
        <tt>vhost-ssl.conf</tt> (in the same directory), and (b) changing
        <tt>/etc/sysconfig/apache2</tt> to add <tt>"-D&nbsp;SSL"</tt> to
@@ -52,6 +76,11 @@ smaller grains of salt.
 </ol>
 
 <h4>Build Subversion to use Apache and SSL</h4>
+
+This step is only necessary if you have an old distro release.  If the
+release you have includes at least Subversion 1.2, then you are probably
+better off sticking to the distro version, which is undoubtedly already
+compiled correctly to play nicely with Apache.
 
 <ol>
   <li> Ensure that the <tt>openssl-devel</tt> and <tt>apache2-devel</tt>
@@ -73,7 +102,7 @@ smaller grains of salt.
 	      even for the client.
 	 <li> The <tt>--with-apxs</tt> option requests Apache shared
 	      library support; the <tt>"apxs2"</tt> value is necessary
-	      for Apache 2.0 under SuSE, where all of the Apache 2.0
+	      for Apache 2.x under SuSE, where all of the Apache 2.x
 	      directories and binaries have a "2" appended.
 	 <li> And <tt>--disable-mod-activation</tt> is necessary in
 	      order to tell <tt>apxs2</tt> to skip trying to add
@@ -82,7 +111,7 @@ smaller grains of salt.
        </ul>
        Some of this may be voodoo, but I can tell you that without
        <tt>--enable-shared</tt> plus the <tt>CFLAGS</tt> magic, Apache
-       segfaulted every time it got a DAV request.
+       segfaulted every time it got a WebDAV request.
   <li> Do <tt>"make"</tt> to compile.
   <li> As root, do <tt>"make install"</tt>.  (I had to remove the "-a"
        at the end of the <tt>INSTALL_MOD_SHARED</tt> line in the
@@ -91,6 +120,12 @@ smaller grains of salt.
 </ol>
 
 <h4>Configure Apache to use <tt>mod_dav_svn</tt></h4>
+
+This sets up <tt>mod_dav_svn</tt> to serve multiple repositories (using
+the <tt>SVNParentPath</tt> option) with anonymous read access and
+authenticated write access using the same user credentials for all
+repositories.  See below for a recipe that uses <tt>mod_authz_svn</tt>
+to provide per-directory access control.
 
 <ol>
   <li> Create the <tt>/shared/svn</tt> directory, and at least one
@@ -101,11 +136,14 @@ smaller grains of salt.
        <tt>https://rgrjr.dyndns.org/svn/new-vc/</tt></a>.
   <li> Add <tt>dav</tt> and <tt>dav_svn</tt> to the
        <tt>APACHE_MODULES</tt> list in <tt>/etc/sysconfig/apache2</tt>.
-  <li> Create users in <tt>/etc/svn-auth-file</tt> using
-       <tt>htpasswd</tt>.  See the "Basic HTTP Authentication" section
-       of <a
-       href="http://svnbook.red-bean.com/nightly/en/svn.serverconfig.httpd.html">the
-       SVN book</a> for an example.
+       Note that this list is order-dependent, so <tt>dav</tt> must
+       appear before <tt>dav_svn</tt>.
+  <li> Create users in <tt>/etc/svn-auth-file</tt> using the Apache
+       <tt>htpasswd</tt> utility.  See the <a
+       href="http://svnbook.red-bean.com/nightly/en/svn.serverconfig.httpd.html">
+       Basic HTTP Authentication</a> section of <a
+       href="http://svnbook.red-bean.com/nightly/en/">the SVN book</a>
+       for an example.
   <li> Add the following to
        <tt>/etc/apache2/vhosts.d/vhost-ssl.conf</tt> within the
        <tt>&lt;VirtualHost&gt;</tt> definition:
@@ -116,10 +154,12 @@ smaller grains of salt.
 	 # any "/svn/foo" URL will map to a repository /shared/svn/foo
 	 SVNParentPath /shared/svn
 
-	 # authentication goo.
+	 # how to authenticate.
 	 AuthType Basic
 	 AuthName "Subversion repository at rgrjr.dyndns.org"
 	 AuthUserFile /etc/svn-auth-file
+
+         # require authentication for anything beyond read access.
 	 &lt;LimitExcept GET PROPFIND OPTIONS REPORT&gt;
 	   Require valid-user
 	 &lt;/LimitExcept&gt;
@@ -128,7 +168,74 @@ smaller grains of salt.
   <li> Restart the server.
 </ol>
 
-<h4>Test</h4>
+<h4>Set up Apache2 to use <tt>mod_authz_svn</tt></h4>
+
+<ol>
+  <li> Add <tt>mod_authz_svn</tt> after <tt>dav_svn</tt> in the
+       <tt>APACHE_MODULES</tt> list in <tt>/etc/sysconfig/apache2</tt>.
+  <li> Change the <tt>&lt;Location&nbsp;/svn&gt;</tt> section in the
+       <tt>/etc/apache2/vhosts.d/vhost-ssl.conf</tt> file to look like
+       this:
+       <pre>
+	# Subversion server setup.  -- rgr, 13-Dec-07.
+	&lt;Location /svn&gt;
+	  DAV svn
+	  # any "/svn/foo" URL will map to a repository /shared/svn/foo
+	  SVNParentPath /shared/svn
+
+	  # access control policy file.
+          AuthzSVNAccessFile /etc/svn-access.conf
+
+	  # try anonymous access first, resort to real
+	  # authentication if necessary.
+	  Satisfy Any
+	  Require valid-user
+
+	  # how to authenticate.
+	  AuthType Basic
+	  AuthName "Subversion repository at rgrjr.dyndns.org [new]"
+	  AuthUserFile /etc/svn-auth-file
+	&lt;/Location&gt;
+       </pre>
+
+       The difference between this and the previous
+       <tt>&lt;Location&gt;</tt> recipe is that the
+       <tt>&lt;LimitExcept&gt;</tt> part is is replaced by top-level
+       "Require valid-user" and "Satisfy Any" options, and the
+       <tt>AuthzSVNAccessFile</tt> identifies an access file.  Note that
+       user credentials are still defined with <tt>htpasswd</tt> in
+       <tt>/etc/svn-auth-file</tt> as before.
+  <li> Create the <tt>/etc/svn-access.conf</tt> file with the necessary
+       per-directory permissions.  An early version of mine looks like
+       this:
+       <pre>
+       # Subversion authentication.  See
+       # <a href="http://svnbook.red-bean.com/nightly/en/svn.serverconfig.pathbasedauthz.html">http://svnbook.red-bean.com/nightly/en/svn.serverconfig.pathbasedauthz.html</a>
+       # for details.
+
+       [/]
+       # Allow everyone to read the entire repository, unless overridden.
+       * = r
+       # Give write permission to rogers and rgr.
+       rogers = rw
+       rgr = rw
+
+       [lap-config:/]
+       # This is private, so we need "* =" to revoke anonymous reads, and
+       # "rogers = rw" to reinstate write permission.
+       * =
+       rogers = rw
+       </pre>
+
+       The <tt>"[/]"</tt> paragraph reinstates the anonymous
+       read/authenticated write policy of the previous section for all
+       directories of all repositories, and the final paragraph
+       restricts all access to the <tt>lap-config</tt> repository to
+       <tt>rogers</tt>.
+  <li> Restart the server so that all of this will take effect.
+</ol>
+
+<h4>Test the new server</h4>
 
 <ol>
   <li> Test checking out:
@@ -143,9 +250,21 @@ smaller grains of salt.
   <li> View the updated log.
 </ol>
 
+<a name="usage">
+<h3>Moving existing repositories to Subversion</h3>
+
+Here we give an example of using <tt>cvs2svn</tt> to convert an existing
+CVS repository to Subversion, and of creating a new repository as a
+fresh checkin.
+
 <h4>Migrate <tt>rgr-hacks</tt> to Subversion</h4>
 
-This should work generically.
+This uses <a href="http://cvs2svn.tigris.org/cvs2svn.html">
+<tt>cvs2svn</tt></a>, which is distributed along with openSUSE 10.2.
+For concreteness, we convert the <tt>rgr-hacks</tt> code (online at <a
+href="https://rgrjr.dyndns.org/svn/rgr-hacks/">
+<tt>https://rgrjr.dyndns.org/svn/rgr-hacks/</tt></a>), but this recipe
+should work generically.
 
 <ol>
   <li> Create the repository (as root):
@@ -157,10 +276,8 @@ This should work generically.
        <pre>
        cvs2svn --existing-svnrepos -s /shared/svn/rgr-hacks/ /shared/cvsroot/rogers/emacs/rgr-hacks/
        </pre>
-       Note that by default, <a
-       href="http://cvs2svn.tigris.org/cvs2svn.html">
-       <tt>cvs2svn</tt></a> will stuff everything that is not a branch
-       into a <tt>trunk/</tt> subdirectory.
+       Note that by default, <tt>cvs2svn</tt> will stuff everything that
+       is not a branch into a <tt>trunk/</tt> subdirectory.
   <li> Give it back to the Web server user (as root, of course):
        <pre>
        chown -R wwwrun /shared/svn/rgr-hacks
