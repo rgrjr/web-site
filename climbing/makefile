@@ -33,6 +33,24 @@ sched-2006.html:
 sched-2007.html:
 	./tns.pl ${2007-sites} > $@
 
+2008-sites =	wmp  dr   bw   hppa  wmp \
+		dr   bw   hpta qq \
+		sfp  bw   rr   cr \
+		sfp  hppa rr   dr    wmp \
+		sfp  cr   rr   bw \
+		r1q  hpta dr   bw   wmp
+sched-2008.html:
+	./tns.pl ${2008-sites} > $@
+
+# This is not the best test case, as it depends on the locations.tbl file
+# contents.
+test-tns-1:
+	./tns.pl --holidays 2008-07-04,2008-05-26,2008-09-01 \
+		--start 2008-04-01 --end 2008-9-30 \
+		 ${2008-sites} > $@.tmp
+	cmp $@.tmp $@.html
+	rm -f $@.tmp
+
 stats:
 	rm -f $@.tmp
 	for location in ${2005-sites}; do echo $$location >> $@.tmp; done
