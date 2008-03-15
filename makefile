@@ -107,7 +107,7 @@ Q34-hits.html:	/var/log/apache2/access_log.200412.log \
 	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
 
 compare:
-	for file in ${all-pages}; do \
+	@for file in ${all-pages}; do \
 	    if ! cmp $$file ${web-page-root}/$$file; then \
 		diff -u $$file ${web-page-root}/$$file; \
 	    fi; \
@@ -134,10 +134,10 @@ find-pages-to-update:
 # numbered backups of the original versions.  that way, any changes made
 # directly to the active pageroot will not be lost.  -- rgr, 3-Mar-04.
 check-install-dir:
-	test -d ${web-page-root} || exit 123
+	test -d ${web-page-root}/climbing || exit 123
 install:	check-install-dir install-pages install-cgi
 install-pages:	change-history.html
-	for file in ${all-pages}; do \
+	@for file in ${all-pages}; do \
 	    ${INSTALL} $$file ${web-page-root}/$$file; \
 	done
 install-cgi:
@@ -146,7 +146,7 @@ install-cgi:
 # that need to be moved here.  any local changes will be lost, unless they've
 # already been checked into the CVS repository.
 reverse-install:
-	for file in ${all-pages}; do \
+	@for file in ${all-pages}; do \
 	    if ! cmp $$file ${web-page-root}/$$file; then \
 		install.pl -show -m 444 ${web-page-root}/$$file .; \
 	    fi; \
