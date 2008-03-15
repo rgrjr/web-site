@@ -267,28 +267,56 @@ href="https://rgrjr.dyndns.org/svn/rgr-hacks/">
 should work generically.
 
 <ol>
+  <li> Ensure that all image files (and anything else that shouldn't
+       have EOL conversion done) is marked as "-kb" in the CVS
+       repository.  This doesn't matter for CVS as long as you only
+       develop on Unix-like systems, but <tt>cvs2svn</tt> gets it wrong
+       if these files are not marked properly in the repository.
+       (Unless you specify <tt>--mime-type</tt> and
+       <tt>--eol-from-mime-type</tt> to <tt>cvs2svn</tt>, but I have not
+       tried this.)
+
+       <p>To find these files in a working copy:
+       <pre>
+       rogers@rgr&gt; cd ~/emacs/rgr-hacks
+       rogers@rgr&gt; find . -type f -name Entries \
+		       | xargs -e egrep -n -e '\.(png|jpg|gif)/' \
+		       | fgrep -v /-kb/
+       </pre>
+       To fix them:
+       <pre>
+       rogers@rgr&gt; cvs admin -kb *.jpg
+       rogers@rgr&gt; cvs update
+       </pre>
+       Note that <tt>cvs admin</tt> operates on the repository
+       immediately; the <tt>cvs update</tt> is only needed to update the
+       working copy, but that is useful for subsequent searches.
+
   <li> Create the repository (as root):
        <pre>
-       svnadmin create /shared/svn/rgr-hacks
-       chown -R rogers /shared/svn/rgr-hacks
+       # svnadmin create /shared/svn/rgr-hacks
+       # chown -R rogers /shared/svn/rgr-hacks
        </pre>
   <li> As <tt>rogers</tt>, populate it with the CVS contents:
        <pre>
-       cvs2svn --existing-svnrepos -s /shared/svn/rgr-hacks/ /shared/cvsroot/rogers/emacs/rgr-hacks/
+       rogers@rgr&gt; cvs2svn --existing-svnrepos -s /shared/svn/rgr-hacks/ /shared/cvsroot/rogers/emacs/rgr-hacks/
        </pre>
        Note that by default, <tt>cvs2svn</tt> will stuff everything that
        is not a branch into a <tt>trunk/</tt> subdirectory.
   <li> Give it back to the Web server user (as root, of course):
        <pre>
-       chown -R wwwrun /shared/svn/rgr-hacks
+       # chown -R wwwrun /shared/svn/rgr-hacks
        </pre>
   <li> Test by checking out a fresh working copy:
        <pre>
-       svn co https://rgrjr.dyndns.org/svn/rgr-hacks/trunk rgr-hacks
-       diff -ur rgr-hacks.cvs rgr-hacks
+       rogers@rgr&gt; cd ..
+       rogers@rgr&gt; mv rgr-hacks rgr-hacks.cvs
+       rogers@rgr&gt; svn co https://rgrjr.dyndns.org/svn/rgr-hacks/trunk rgr-hacks
+       rogers@rgr&gt; diff -ur rgr-hacks.cvs rgr-hacks
        </pre>
        Note that <tt>diff</tt> will find many trivial differences in
-       <tt>&#36;Id:$</tt> tags.
+       <tt>&#36;Id:$</tt> tags.  If image files are reported to be
+       different, then you probably need to go back to step 1.
 </ol>
 
 <h4>Create a new Subversion repository</h4>
