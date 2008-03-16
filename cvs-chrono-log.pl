@@ -40,19 +40,32 @@ sub cvs_log_to_html_log {
 	       'vc-chrono-log.rb |');
     my $line;
     open(my $in, $log_command)
-	or die "oops; couldn't open pipe from cvs:  $!";
+	or die "oops; couldn't open pipe from svn:  $!";
+
+    my $print_file_line = sub {
+	# Helper sub that takes care of file markup & formatting.
+	my ($indentation, $file_name, $etc) = @_;
+
+	my $pretty_file_name
+	    = ($web_root && -r "$web_root/$file_name"
+	       ? "<a href='/$file_name'><tt>/$file_name</tt></a>"
+	       : "<tt>$file_name</tt>");
+	print("$indentation=> $pretty_file_name ", escapeHTML($etc), "\n");
+    };
+
     while (defined($line = <$in>)) {
-	if ($line =~ /^( *)=> (\S+) (\S+): +(.*)$/) {
+	if ($line =~ m@^( *)=> /trunk/(\S+): +(.*)$@) {
+	    # SVN output.
+	    $print_file_line->($line =~ //);
+	}
+	elsif ($line =~ /^( *)=> (\S+) (\S+): +(.*)$/) {
+	    # CVS output.
 	    my ($indentation, $file_name, $file_rev, $etc) = $line =~ //;
-	    my $pretty_file_name
-		= ($web_root && -r "$web_root/$file_name"
-		   ? "<a href='/$file_name'><tt>/$file_name</tt></a>"
-		   : "<tt>$file_name</tt>");
-	    print("$indentation=> $pretty_file_name ",
-		  escapeHTML("$file_rev:  $etc\n"));
+	    $print_file_line->($indentation, $file_name,
+			       "$file_rev:  $etc");
 	}
 	elsif ($line =~/author: rogers/) {
-	    # skip.
+	    # boring; skip.
 	}
 	else {
 	    print escapeHTML($line);
