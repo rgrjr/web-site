@@ -34,7 +34,10 @@ warn "$0:  No web root.\n"
 sub cvs_log_to_html_log {
 
     print "<pre>\n";
-    my $log_command = "cvs -q log -d '>$start_date' | vc-chrono-log.rb |";
+    my $log_command
+	= join(' | ',
+	       "svn log --xml --verbose --revision '{$start_date}:HEAD'",
+	       'vc-chrono-log.rb |');
     my $line;
     open(my $in, $log_command)
 	or die "oops; couldn't open pipe from cvs:  $!";
