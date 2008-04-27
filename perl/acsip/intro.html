@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: Introduction</title>
+<link href="../../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Introduction</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="../">Advanced control structures</a> : Introduction
+<hr>
+
+<p>We all know about "for" and "while" loops -- they are implemented
+with gotos -- but what really happens when you "goto" a label that is
+outside the sub?  How does error handling work under the hood?  What's a
+coroutine good for, and how does it work?
+
+<p>The answers to all of these questions involve something called a
+"continuation," which is just a generalized goto.  Ordinary gotos
+transfer control to another location within the same call to the same
+subroutine.  Continuations can also jump to a <b>different</b>
+subroutine invocation, and can pass values just like a sub call.  This
+makes them essential for implementing nonlocal transfer of control.
+
+<p>Here's what I will be discussing:
+
+<ul>
+  <li> Basic Parrot assembly code, and the runtime data structures that
+       support bytecode execution.
+  <li> Function calling as a control structure (e.g. <tt>map</tt> in
+       Perl 5).
+  <li> How to implement various sorts of nonlocal exits using Parrot
+       continuations.
+  <li> How error handling is implemented in terms of continuations.
+  <li> Coroutines impose a thread-like structure on continuation
+       calling.
+</ul>
+
+<p>Here's what I will <b>not</b> be talking about:
+
+<ul>
+  <li> CP-transformation (another view of continuations).
+  <li> Backtracking (see the 28th test case in <a
+       href="https://svn.perl.org/parrot/trunk/t/op/lexicals.t">
+       <tt>t/op/lexicals.t</tt></a> for an example).
+</ul>
+
+<p><a href="index.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="pir-basics.html">[Next]</a>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id: index.html 158 2008-03-15 23:01:17Z rogers $
+</body>
+</html>

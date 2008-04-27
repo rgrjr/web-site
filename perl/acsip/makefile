@@ -8,8 +8,8 @@ INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 all:
 	@echo "Who, me?  Compile?  Get real."
 
-pages = summary.text
+pages = index.html intro.html pir-basics.html
 images = test.svg
 
-install:	${pages} ${images}
+install:	summary.text ${pages} ${images}
 	${INSTALL} $^ /srv/www/htdocs/perl/acsip/

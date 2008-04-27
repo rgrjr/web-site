@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: PIR Basics</title>
+<link href="../../site.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>PIR and Parrot Basics</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="index.html">Advanced control structures</a> : PIR Basics
+<hr>
+
+<h3>PIR is "Parrot Intermediate Representation"</h3>
+
+<ul>
+  <li> PIR is a (higher-level) assembly language for Parrot.
+  <li> Parrot is a register machine, with four register types:  integer,
+       numeric (float), string, and "PMC" (object).
+  <li> The number of registers is unlimited.
+  <li> Each PIR line is nominally a single instruction.
+  <li> Simple control structure are implemented via conditional
+       branching, i.e. <tt>"if <i>condition</i> goto <i>label</i>"</tt>.
+  <li> Subs are defined between <tt>.sub</tt> and <tt>.end</tt>
+       directives.
+</ul>
+
+[probably need a simple example here.  -- rgr, 26-Apr-08.]
+
+<h3>Parrot's runtime data structures</h3>
+
+Parrot needs data structures to represent its internal execution state.
+Most of these can be manipulated as PMC ("Parrot Magic Cookie") objects.
+
+<ul>
+  <li> Each thread is represented by an <tt>Interpreter</tt>.
+  <li> A <tt>Parrot_Context</tt> holds the ephemeral state of a given
+       invocation of a sub (but is not a PMC).  This is traditionally
+       called an <a
+       href="http://en.wikipedia.org/wiki/Call_stack#Structure">
+       "activation record" or "stack frame"</a> in the literature.
+  <li> There are three general kinds of function-like object:
+       <ol>
+	 <li> Subroutines in source code create <tt>Sub</tt> objects
+	      when compiled and loaded.
+	 <li> The <tt>newclosure</tt> instruction takes a <tt>Sub</tt>
+	      and returns a <tt>Closure</tt> that refers to the current
+	      sub's context.
+	 <li> A <tt>Continuation</tt> returns to a previously-created
+	      context, rather than creating a new one.  (An error
+	      handler is a subclass of <tt>Continuation</tt>.)
+       </ol>
+       All of these objects can be called via the <tt>invoke</tt>
+       instruction (or its syntactic sugar).
+</ul>
+
+<p><a href="intro.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="simple.html">[Next]</a>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id: index.html 158 2008-03-15 23:01:17Z rogers $
+</body>
+</html>
