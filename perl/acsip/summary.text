@@ -1,0 +1,139 @@
+
+0.  Introduction
+
+   We all know about "for" and "while" loops -- they are implemented
+with gotos -- but what really happens when you "goto" a label that is
+outside the sub?  How does error handling work under the hood?  What's a
+coroutine good for, and how does it work?
+
+   The answers to all of these questions involve something called a
+"continuation," which is just a generalized goto.  Come find out how
+continuations work in Parrot, and see how they support advanced
+programming techniques.
+
+1.  PMCs and PIR:  Parrot Assembly
+
+   Introduce the basic terminology.  Describe basic PMCs:  Sub, Closure,
+and Continuation.  The key things is that all of these can be called as
+functions.
+
+   Mention that the examples shown are trimmed down for presentation,
+without declarations, but that the full (working) code is linked from
+each page.
+
+2.  Control Structures in PIR
+
+   Show parallel examples of Perl 5 "if" and "while" (which are "simple"
+control structures) with their PIR translations.  This serves mostly as
+an introduction to the abbreviated PIR we will use to highlight control
+issues.
+
+3.  Contexts
+
+   Introduce diagrams of Parrot data structures that show control state,
+initially contexts (aka activation records) linked by Continuation PMCs.
+Normal call/return is stack-like, but heap-allocation of control state
+presents other possibilities.
+
+   Also show a more detailed version of the control state diagram that
+also shows the dynamic environment, i.e. error handlers and other
+dynamically-scoped state.  We won't usually need this level of detail,
+though.
+
+   Each Parrot interpreter records the current control state as a triple
+of the executing context, the current instruction (which will be in this
+context's sub), and the top of the dynamic environment.  Not
+coincidentally, this is exactly what a continuation records in order to
+restore a previous control state.  It does not change any variable
+values; that would be travel in time, rather than space.
+
+   Describe how the "tailcall" instruction works, mention that it
+discards dynamic environment state.
+
+4.  Closures
+
+   Show a Perl 5 example of calling a "map_elts" data structure
+traversal (omitting the "map_elts" internals), using control state
+diagrams to emphasize the fact that the closure can be called from
+arbitrarily deep within "map_elts".  This is a section of its own
+because it needs to introduce a fair amount of new PIR (.lex vars and
+:outer subs), and because closures are used extensively in the rest of
+the presentation.
+
+5.  Actions
+
+   Show how to use "pushaction" to add a cleanup closure to the dynamic
+environment.  Requires detailed control state diagrams to show the
+action entry on the dynamic environment.
+
+6.  Continuations I:  Nonlocal lexical goto
+
+   Start with the "map_tree" Perl example above, and modify it to exit
+prematurely with the first value that meets some criterion.  The issue
+is that the inner sub must "goto" a place in another sub (the definition
+of "advanced control structure"), so we need to (a) create a
+continuation in the outer sub that points to the destination, (b) make
+this continuation available to the inner sub, and (c) arrange to have
+the inner sub call the continuation instead of doing "goto".
+
+   With this background, review that continuations capture the
+executing context, the next instruction to execute in this context's
+sub, and the dynamic environment.  Explain why the dynamic environment
+must be captured by showing a modified example that wraps the closure
+call in a block that needs cleanup.
+
+   Continuations can also go "up the stack" as well as down, and can
+even do a "zipper" maneuver to transfer control between two control
+states that are not directly related to each other (by call/return).
+[But it might be better to save this for the coroutine section, since
+then the pretty diagrams will mean something.  -- rgr, 10-Mar-08.]
+
+   Also show what call-with-current-continuation looks like.  (This is
+mostly for completeness, though we do use it below.)
+
+7.  Continuations II:  Nonlocal lexical return
+
+   This is similar to nonlocal lexical goto, but must pass return
+values.  The overall strategy is the same; the implementation requires
+only an extra "set_params" at the point of call, and "get_results" at
+the point of return.  We must use a Lisp example here, because no Perl 5
+example is possible.  [Perl 6 may allow more; must investigate first.
+-- rgr, 10-Mar-08.]
+
+8.  Continuations III:  Nonlocal dynamic return
+
+   This is what Lisp CATCH and THROW do.  It requires using a global
+variable to keep track of dynamic local exit bindings, with cleanup
+actions to preserve the old state.  Throwing is a simple matter of
+looking up the right continuation, and calling it; catching is more
+elaborate, as it needs to modify the dynamic state.
+
+   Perl 6 has mixed lexical/dynamic goto, which can be implemented using
+a combination of these strategies.
+
+9.  Error handling
+
+   [need to review the state of Parrot error handling.  -- rgr,
+10-Mar-08.]
+
+10.  Continuations IV:  Coroutines
+
+   Coroutines are normally provided as a gloss on continuations; if you
+have continuations, you strictly don't need coroutines, but the latter
+are more intuitive for certain problems.
+
+   Present the "same fringe" problem.  Solve it in an HLL (perhaps
+Scheme, or Lua?) using coroutines.  Show the execution over time at key
+points using execution state diagrams, an excellent example of "zipper"
+transfer.
+
+   Explain in terms of the diagrams how "yield" and resumption are
+implemented:  In both cases, they flipflop between two execution states
+by storing a new continuation to the current state before invoking the
+continuation that takes them to the other state.  [Showing PIR for this
+should be superfluous at this point.  -- rgr, 10-Mar-08.]
+
+11.  Conclusions
+ 
+   You now have everything you need to know to implement advanced
+control structures for a dynamic language in Parrot.  Go for it!
