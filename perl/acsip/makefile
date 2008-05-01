@@ -1,6 +1,6 @@
 # Makefile for "Advanced Control Structures in Parrot"
 #
-# $Id: makefile 157 2008-03-15 22:43:29Z rogers $
+# $Id$
 
 # make INSTALL_OPTS=--diff install
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
@@ -8,8 +8,9 @@ INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 all:
 	@echo "Who, me?  Compile?  Get real."
 
-pages = index.html intro.html pir-basics.html
-images = test.svg
+pages  = index.html intro.html pir-basics.html simple.html
+images = test.svg fact-1.svg
+other  = acsip.css
 
-install:	summary.text ${pages} ${images}
+install:	summary.text ${pages} ${images} ${other}
 	${INSTALL} $^ /srv/www/htdocs/perl/acsip/

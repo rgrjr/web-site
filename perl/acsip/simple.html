@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: Simple Control Structures in PIR</title>
+<link href="acsip.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Simple Control Structures in PIR</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="index.html">Advanced control structures</a> : Simple control
+structures
+<hr>
+
+<p>(This is mostly an excuse for introducing Parrot Intermediate
+Representation.)
+
+<pre class="example">
+## Driver for factorial.
+.sub main :main
+	## Testing factorial.
+	.local pmc result
+	.local int i
+	i = 0
+again:
+	if i &gt; 20 goto done
+	result = factorial(i)
+	print i
+	print '! = '
+	print result
+	print "\n"
+	inc i
+	goto again
+done:
+.end
+
+## Compute n!.
+.sub factorial
+	.param pmc n
+	if n &gt; 1 goto multiply
+	.return (1)
+multiply:
+	.local pmc result, nm1
+	nm1 = new 'Integer'
+	nm1 = n - 1
+	result = factorial(nm1)
+	result = result * n
+	.return (result)
+.end
+</pre>
+<p><a href="fact-1.svg">[while computing factorial(1)]</a>
+
+<p><a href="pir-basics.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="contexts.html">[Next]</a>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>
