@@ -1,3 +1,17 @@
+## Compute n!.
+.sub factorial
+	.param pmc n
+	if n > 1 goto multiply
+	.return (1)
+multiply:
+	.local pmc result, nm1
+	nm1 = new 'Integer'
+	nm1 = n - 1
+	result = factorial(nm1)
+	result = result * n
+	.return (result)
+.end
+
 ## Driver for factorial.
 .sub main :main
 	## Testing factorial.
@@ -14,18 +28,4 @@ again:
 	inc i
 	goto again
 done:
-.end
-
-## Compute n!.
-.sub factorial
-	.param pmc n
-	if n > 1 goto multiply
-	.return (1)
-multiply:
-	.local pmc result, nm1
-	nm1 = new 'Integer'
-	nm1 = n - 1
-	result = factorial(nm1)
-	result = result * n
-	.return (result)
 .end

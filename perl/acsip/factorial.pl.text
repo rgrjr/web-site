@@ -1,0 +1,21 @@
+#! /usr/bin/perl -w
+#
+# Simple recursive factorial implementation.
+
+use strict;
+use warnings;
+
+sub factorial {
+    my $n = shift;
+
+    if ($n > 1) {
+        return $n * factorial($n-1);
+    }
+    else {
+        return 1;
+    }
+}
+
+for my $i (0..20) {
+    print "$i! = ", factorial($i), "\n";
+}
