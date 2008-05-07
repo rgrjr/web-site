@@ -61,13 +61,69 @@ along to return from one context to the previous one.
 6-May-08.]
 
 <p>Here is how <tt>find_if_greater</tt> sets up the exit continuation,
-storing it in a lexical variable so that the inner closure can find it:
+storing it in a lexical variable so that (along with <tt>$limit</tt> and
+<tt>$result</tt>) the inner closure can find it:
 
-<p>[insert PIR.  -- rgr, 6-May-08.]
+<pre class="example">
+.sub find_if_greater
+	.param pmc tree
+	.param pmc limit
+
+	## Create the $result and $limit lexicals.
+	.lex '$limit', limit
+	.local pmc result
+	.lex '$result', result
+	result = new 'Undef'
+
+	## Create an exit continuation
+	.local pmc exit_cont
+	.lex 'exit_cont', exit_cont
+	exit_cont = new 'Continuation'
+	set_addr exit_cont, done
+
+	## Create a closure of our internal sub.
+	.local pmc find_internal, find_closure
+	.const .Sub find_internal = "_find_internal"
+        find_closure = newclosure find_internal
+	map_elts(tree, find_closure)
+
+	## map_elts returned normally.
+	print "Nothing found greater than "
+	print limit
+	print ".\n"
+done:
+	.return (result)
+.end
+</pre>
+<a href="map-elts-find.pir">[view full source]</a>
 
 <p>And here is how the inner closure uses it:
 
-<p>[insert PIR.  -- rgr, 6-May-08.]
+<pre class="example">
+.sub _find_internal :outer('find_if_greater')
+	.param pmc value
+
+	## Test value against limit
+	.local pmc limit
+	# print "Testing $value.\n";
+	limit = find_lex '$limit'
+	unless value &gt; limit goto nope
+
+	## Print and store in $result.
+	print "Found "
+	print value
+	print "\n"
+	store_lex '$result', value
+
+	## Return to find_if_greater.
+	.local pmc exit_cont
+	exit_cont = find_lex 'exit_cont'
+	exit_cont()
+nope:
+	.return ()
+.end
+</pre>
+<a href="map-elts-find.pir">[view full source]</a>
 
 <p><a href="actions.html">[Prev]</a>
 <a href="index.html">[Index]</a>
