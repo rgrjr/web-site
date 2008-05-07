@@ -19,6 +19,19 @@
   <defs
      id="defs7157">
     <marker
+       inkscape:stockid="Arrow2Lstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lstart"
+       style="overflow:visible">
+      <path
+         id="path4360"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) translate(1,0)" />
+    </marker>
+    <marker
        inkscape:stockid="Arrow1Lend"
        orient="auto"
        refY="0"
@@ -63,16 +76,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="731.01397"
-     inkscape:cy="573.92601"
+     inkscape:cx="928.47458"
+     inkscape:cy="373.92601"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:showpageshadow="false"
-     inkscape:window-width="904"
+     inkscape:window-width="1023"
      inkscape:window-height="898"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-x="569"
+     inkscape:window-y="180"
      showborder="true" />
   <metadata
      id="metadata7160">
@@ -178,7 +191,7 @@
          y="682.06323"
          id="tspan8307">result:</tspan></text>
     <rect
-       style="fill:#feffdb;fill-opacity:1"
+       style="fill:#dadaf0;fill-opacity:1"
        id="rect8317"
        width="380.66913"
        height="236.43121"
@@ -233,5 +246,41 @@
          x="673.69891"
          y="483.5502"
          id="tspan8884">...</tspan></text>
+    <rect
+       style="fill:#dafdde;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+       id="rect2495"
+       width="535"
+       height="103"
+       x="239"
+       y="875" />
+    <text
+       xml:space="preserve"
+       style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="333"
+       y="898"
+       id="text3279"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3281"
+         x="333"
+         y="898">Interpreter:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="266"
+       y="943"
+       id="text3283"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3285"
+         x="266"
+         y="943">Context</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Lend)"
+       d="M 466.93066,874.5 L 379.68887,759.8513"
+       id="path3295"
+       inkscape:connector-type="polyline"
+       inkscape:connection-start="#rect2495"
+       inkscape:connection-end="#rect7716" />
   </g>
 </svg>
