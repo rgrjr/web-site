@@ -40,13 +40,85 @@ number_leaves([ 1, 2, 3, [qw(4a 4b)], [["5aa"], "5b"]]);
 
 <p>Here is the output:
 
-<p>[show output.  (need a new &lt;pre&gt; class for that.)  -- rgr,
-6-May-08.]
+<pre class="output">
+&gt; ./map-elts-print.pl
+1: 1
+2: 2
+3: 3
+4: 4a
+5: 4b
+6: 5aa
+7: 5b
+&gt;
+</pre>
 
 <p>And here is an implementation of <tt>number_leaves</tt> and its
 lexical sub:
 
-<p>[show PIR.  -- rgr, 6-May-08.]
+<pre class="example">
+## Produces equivalent output to map-elts-print.pl.text.
+
+.sub map_elts
+	.param pmc tree
+	.param pmc functional
+
+	$I0 = isa tree, 'FixedPMCArray'
+	unless $I0 goto scalar
+	## array case.
+	.local int len, i
+	len = tree	## compute length.
+	i = 0
+again:
+	if i &gt;= len goto done
+	.local pmc elt
+	elt = tree[i]
+	map_elts(elt, functional)
+	inc i
+	goto again
+scalar:
+	## non-array case.
+	functional(tree)
+done:
+.end
+</pre>
+<a href="map-elts-print.pir">[view full source]</a>
+
+<p>And here is an implementation of <tt>number_leaves</tt> and its
+lexical sub:
+
+<pre class="example">
+.sub number_leaves
+	.param pmc tree
+
+	## Create the $count lexical
+	.local pmc count
+	.lex '$count', count
+	count = new 'Integer'
+	count = 0
+
+	## Create a closure of our internal sub.
+	.local pmc number_one_leaf, number_closure
+	.const .Sub number_one_leaf = "_number_one_leaf"
+        number_closure = newclosure number_one_leaf
+	map_elts(tree, number_closure)
+.end
+
+.sub _number_one_leaf :outer('number_leaves')
+	.param pmc thing
+
+	.local pmc count
+	count = find_lex 'count'
+	inc count
+	print count
+	print ": "
+	print thing
+	print "\n"
+.end
+</pre>
+<a href="map-elts-print.pir">[view full source]</a>
+
+<p>Note that we had to implement <tt>$count</tt> as a PMC of class
+<tt>Integer</tt> because integer registers can't be closed over.
 
 <p>[do we need a diagram for this?  -- rgr, 6-May-08.]
 
