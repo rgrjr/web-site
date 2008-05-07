@@ -68,7 +68,7 @@ action entry on the dynamic environment.
 
 6.  Continuations I:  Nonlocal lexical goto
 
-   Start with the "map_tree" Perl example above, and modify it to exit
+   Start with the "map_elts" Perl example above, and modify it to exit
 prematurely with the first value that meets some criterion.  The issue
 is that the inner sub must "goto" a place in another sub (the definition
 of "advanced control structure"), so we need to (a) create a
