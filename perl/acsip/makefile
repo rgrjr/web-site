@@ -11,7 +11,7 @@ PERL   = /usr/bin/perl
 all:	thumbnails 
 
 pages         = index.html intro.html pir-basics.html simple.html \
-		closures.html cont-1.html
+		closures.html actions.html cont-1.html
 perl-scripts  = factorial.pl.text map-elts-print.pl.text map-elts-find.pl.text
 pir-scripts   = factorial.pir     map-elts-print.pir	 map-elts-find.pir
 scripts       = ${perl-scripts} ${pir-scripts}
