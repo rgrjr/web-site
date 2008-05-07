@@ -1,0 +1,40 @@
+#! /usr/bin/perl -w  -*- mode: perl -*-
+
+use strict;
+use warnings;
+
+sub map_elts {
+    my ($tree, $functional) = @_;
+
+    if (ref($tree) eq 'ARRAY') {
+	for my $elt (@$tree) {
+	    map_elts($elt, $functional);
+	}
+    }
+    else {
+	$functional->($tree);
+    }
+}
+
+sub find_if_greater {
+    my ($tree, $limit) = @_;
+
+    my $result;
+    map_elts($tree,
+	     sub { my $value = shift;
+		   # print "Testing $value.\n";
+		   if ($value > $limit) {
+		       print("Found $value\n");
+		       $result = $value;
+		       goto done;
+		   }
+	     });
+    print "Nothing found greater than $limit.\n";
+  done:
+    return $result;
+}
+
+## Test with a silly data structure.
+my $data = [1, 2, 3, [4, 5, 4], [[7, 8, [9, 10]], 11]];
+print "Returned ", find_if_greater($data, 7), ".\n";
+find_if_greater($data, 99);

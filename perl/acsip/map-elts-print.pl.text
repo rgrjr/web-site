@@ -1,0 +1,28 @@
+#! /usr/bin/perl -w  -*- mode: perl -*-
+
+use strict;
+use warnings;
+
+sub map_elts {
+    my ($tree, $functional) = @_;
+
+    if (ref($tree) eq 'ARRAY') {
+	for my $elt (@$tree) {
+	    map_elts($elt, $functional);
+	}
+    }
+    else {
+	$functional->($tree);
+    }
+}
+
+sub number_leaves {
+    my $tree = shift;
+    my $count = 0;
+
+    map_elts($tree,
+	     sub { print(++$count, ": $_[0]\n"); });
+}
+
+## Test with a silly data structure.
+number_leaves([ 1, 2, 3, [qw(4a 4b)], [["5aa"], "5b"]]);

@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: Nonlocal lexical goto</title>
+<link href="acsip.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Continuations I:  Nonlocal lexical goto</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="index.html">Advanced control structures</a> : Nonlocal lexical
+goto
+<hr>
+
+<p>How could we use something like <tt>map_elts</tt> to find the first
+element in the tree matching some criterion?  Perl 5 supports nonlocal
+"goto", which lets us do the following:
+
+<pre class="example">
+## map_elts as before
+
+sub find_if_greater {
+    my ($tree, $limit) = @_;
+
+    my $result;
+    map_elts($tree,
+	     sub { my $value = shift;
+		   # print "Testing $value.\n";
+		   if ($value &gt; $limit) {
+		       print("Found $value\n");
+		       $result = $value;
+		       goto done;
+		   }
+	     });
+    print "Nothing found greater than $limit.\n";
+  done:
+    return $result;
+}
+
+## Test with a silly data structure.
+my $data = [1, 2, 3, [4, 5, 4], [[7, 8, [9, 10]], 11]];
+print "Returned ", find_if_greater($data, 7), ".\n";
+find_if_greater($data, 99);
+</pre>
+<a href="map-elts-print.pl.text">[view full source]</a>
+
+<p>Note that the inner sub is a closure in the sense that it "closes
+over" the lexically-scoped <tt>done</tt> label in the outer sub (even if
+it didn't also close over the <tt>$result</tt> variable).
+
+<p>How can we implement this in Parrot?
+
+<p>[insert diagram of call state at the point of the "goto".  -- rgr,
+6-May-08.]
+
+<p>What we need is a "super-return" that goes directly to the label.
+The natural thing is to use the same kind of gizmos we've been using all
+along to return from one context to the previous one.
+
+<p>[insert revised diagram showing exit continuation.  -- rgr,
+6-May-08.]
+
+<p>Here is how <tt>find_if_greater</tt> sets up the exit continuation,
+storing it in a lexical variable so that the inner closure can find it:
+
+<p>[insert PIR.  -- rgr, 6-May-08.]
+
+<p>And here is how the inner closure uses it:
+
+<p>[insert PIR.  -- rgr, 6-May-08.]
+
+<p><a href="actions.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="cont-2.html">[Next]</a>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id: index.html 158 2008-03-15 23:01:17Z rogers $
+</body>
+</html>

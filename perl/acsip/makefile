@@ -7,15 +7,19 @@ INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
 all:	thumbnails 
 
-pages  = index.html intro.html pir-basics.html simple.html
+pages  = index.html intro.html pir-basics.html simple.html \
+	 closures.html cont-1.html
 images = test.svg fact-1.svg
 other  = acsip.css
 
 thumbnails = fact-1.png
 
 ${thumbnails}:  %.png:  %.svg
-	convert $^ -resize 33% $@
+	convert $^ -resize 25% $@
 thumbnails:	${thumbnails}
 
 install:	summary.text ${pages} ${images} ${thumbnails} ${other}
 	${INSTALL} $^ /srv/www/htdocs/perl/acsip/
+
+clean:
+	rm -f ${thumbnails}

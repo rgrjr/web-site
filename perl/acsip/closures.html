@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: Closures</title>
+<link href="acsip.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Closures</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="index.html">Advanced control structures</a> : Closures
+<hr>
+
+<pre class="example">
+sub map_elts {
+    my ($tree, $functional) = @_;
+
+    if (ref($tree) eq 'ARRAY') {
+	for my $elt (@$tree) {
+	    map_elts($elt, $functional);
+	}
+    }
+    else {
+	$functional-&gt;($tree);
+    }
+}
+
+sub number_leaves {
+    my $tree = shift;
+    my $count = 0;
+
+    map_elts($tree,
+	     sub { print(++$count, ": $_[0]\n"); });
+}
+
+## Test with a silly data structure.
+number_leaves([ 1, 2, 3, [qw(4a 4b)], [["5aa"], "5b"]]);
+</pre>
+<a href="map-elts-print.pl.text">[view full source]</a>
+
+<p>Here is the output:
+
+<p>[show output.  (need a new &lt;pre&gt; class for that.)  -- rgr,
+6-May-08.]
+
+<p>And here is an implementation of <tt>number_leaves</tt> and its
+lexical sub:
+
+<p>[show PIR.  -- rgr, 6-May-08.]
+
+<p>[do we need a diagram for this?  -- rgr, 6-May-08.]
+
+<p><a href="actions.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="cont-2.html">[Next]</a>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id: index.html 158 2008-03-15 23:01:17Z rogers $
+</body>
+</html>
