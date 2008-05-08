@@ -28,11 +28,13 @@ thumbnails:	${thumbnails}
 # produce the same output.  It does not check that these programs are consistent
 # with their excerpts in the HTML.
 test:	test-factorial test-closures test-cont-1
-# Test the factorial.* programs.
+# Test the factorial.* programs.  [This gives different outputs on 32-bit
+# systems; Parrot promotes to BigInts, while Perl uses floats.  -- rgr,
+# 7-May-08.]
 test-factorial:
 	${PARROT} factorial.pir > $@-pir-out.tmp
 	${PERL} factorial.pl.text > $@-perl-out.tmp
-	cmp $@-pir-out.tmp $@-perl-out.tmp
+	-diff -u $@-pir-out.tmp $@-perl-out.tmp
 	rm -f $@-pir-out.tmp $@-perl-out.tmp
 # Test the map-elts-print.* programs.
 test-closures:
