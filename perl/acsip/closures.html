@@ -52,12 +52,9 @@ number_leaves([ 1, 2, 3, [qw(4a 4b)], [["5aa"], "5b"]]);
 &gt;
 </pre>
 
-<p>And here is an implementation of <tt>number_leaves</tt> and its
-lexical sub:
+<p>Here is a PIR implementation of <tt>map_elts</tt>:
 
 <pre class="example">
-## Produces equivalent output to map-elts-print.pl.text.
-
 .sub map_elts
 	.param pmc tree
 	.param pmc functional
