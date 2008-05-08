@@ -9,15 +9,66 @@
 
 <p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
 <a href="index.html">Advanced control structures</a> : Actions
-
-<p><a href="contexts.html">[Prev]</a>
-<a href="index.html">[Index]</a>
-<a href="cont-1.html">[Next]</a>
 <hr>
 
-<p><a href="contexts.html">[Prev]</a>
+<p>Sometimes, when a computation is started, you want to make sure that
+some cleanup code is always executed, no matter how the scope is exited.
+Perl 6 uses <tt>LEAVE</tt> blocks (or <tt>KEEP</tt> or <tt>UNDO</tt>).
+Perl 5 doesn't support this (except indirectly by catching errors).
+Common Lisp uses <tt>unwind-protect</tt>, as in this example:
+
+<pre class="example">
+(in-package :common-lisp-user)
+
+(defun test-1 (x)
+  (multiple-value-bind (v1 v2)
+      (unwind-protect
+	   (test-2 x)
+	(format t "Unwinding.~%"))
+    (format t "Returning ~S and ~S.~%" v1 v2)
+    (list v1 v2 t)))
+
+(defun test-2 (x)
+  (format t "Doing something hairy with ~S.~%" x)
+  (if (numberp x)
+      (values (* x 3) x)
+      (error "~S is not a number." x)))
+</pre>
+<a href="unwind-protect.lisp">[view full source]</a>
+
+<p>In the normal case, we see the "something hairy" message followed by
+the "unwinding" message, and finally the "returning" message:
+
+<pre class="output">
+CL-USER&gt; <b>(test-1 3)</b>
+Doing something hairy with 3.
+Unwinding.
+Returning 9 and 3.
+(9 3 T)
+CL-USER&gt;
+</pre>
+
+<p>If we pass something invalid, we get an error in <tt>test-2</tt>,
+which puts us in the debugger.  Aborting the computation takes us back
+to the prompt, skipping the "returning" message but executing the
+"unwinding" code.
+
+<pre class="output">
+CL-USER&gt; <b>(test-1 "oops")</b>
+Doing something hairy with "oops".
+<i>[trip to the debugger omitted]</i>
+Unwinding.
+; Evaluation aborted.
+CL-USER&gt; 
+</pre>
+
+<p>Parrot implements this via <tt>pushaction</tt>, which adds the sub or
+closure that does the unwinding to environment in a way that is captured
+by continuations.  [finish this.  -- rgr, 8-May-08.]
+
+<p><a href="cont-1.html">[Prev]</a>
 <a href="index.html">[Index]</a>
-<a href="cont-1.html">[Next]</a>
+<a href="cont-2.html">[Next]</a>
 
 <p>
 <hr>
