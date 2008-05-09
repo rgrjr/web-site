@@ -48,6 +48,14 @@ find_if_greater($data, 99);
 over" the lexically-scoped <tt>done</tt> label in the outer sub (even if
 it didn't also close over the <tt>$result</tt> variable).
 
+<pre class="output">
+&gt; <b>map-elts-find.pl</b>
+Found 8
+Returned 8.
+Nothing found greater than 99.
+&gt; 
+</pre>
+
 <p>How can we implement this in Parrot?
 
 <p>[insert diagram of call state at the point of the "goto".  -- rgr,
