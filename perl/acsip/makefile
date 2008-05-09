@@ -15,10 +15,10 @@ pages         = index.html intro.html pir-basics.html simple.html \
 perl-scripts  = factorial.pl.text map-elts-print.pl.text map-elts-find.pl.text
 pir-scripts   = factorial.pir     map-elts-print.pir	 map-elts-find.pir
 scripts       = ${perl-scripts} ${pir-scripts}
-images 	      = test.svg fact-1.svg
+images 	      = fact-1.svg fact-2.svg fact-3.svg
 other  	      = acsip.css summary.text
 
-thumbnails = fact-1.png
+thumbnails = ${images:.svg=.png}
 
 ${thumbnails}:  %.png:  %.svg
 	convert $^ -resize 25% $@

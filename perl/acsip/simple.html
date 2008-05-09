@@ -57,8 +57,20 @@ multiply:
 </pre>
 <a href="factorial.pir">[view full source]</a>
 
+<p>In order to interpret the bytecode for these instructions, Parrot
+needs some runtime data structures to hold variable and control state.
+In the diagrams below, the code is shown in light purple, and the
+<tt>Parrot_Context</tt> (a.k.a. "activation record") structures are in
+light blue.  The interpreter points to what's currently running.
+
 <p><img src="fact-1.png">
-<a href="fact-1.svg">[while computing factorial(1)]</a>
+<a href="fact-1.svg">[in main]</a>
+
+<p><img src="fact-2.png">
+<a href="fact-2.svg">[while computing factorial(1)]</a>
+
+<p><img src="fact-3.png">
+<a href="fact-3.svg">[factorial(0) during factorial(1)]</a>
 
 <p><a href="pir-basics.html">[Prev]</a>
 <a href="index.html">[Index]</a>
