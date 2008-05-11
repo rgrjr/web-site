@@ -56,17 +56,22 @@ Nothing found greater than 99.
 &gt; 
 </pre>
 
-<p>How can we implement this in Parrot?
+<p>How can we implement this in Parrot?  Here's what the call graph
+would look like at the point where we find the first value greater than
+7:
 
-<p>[insert diagram of call state at the point of the "goto".  -- rgr,
-6-May-08.]
+<p><img src="goto-1.png">
+<a href="goto-1.svg">[before storing the 8]</a>
 
 <p>What we need is a "super-return" that goes directly to the label.
 The natural thing is to use the same kind of gizmos we've been using all
 along to return from one context to the previous one.
 
-<p>[insert revised diagram showing exit continuation.  -- rgr,
-6-May-08.]
+<p><img src="goto-2.png">
+<a href="goto-2.svg">[before calling the continuation]</a>
+
+<p><img src="goto-3.png">
+<a href="goto-3.svg">[after calling the continuation]</a>
 
 <p>Here is how <tt>find_if_greater</tt> sets up the exit continuation,
 storing it in a lexical variable so that (along with <tt>$limit</tt> and
@@ -132,6 +137,16 @@ nope:
 .end
 </pre>
 <a href="map-elts-find.pir">[view full source]</a>
+
+<p>To summarize:
+
+<ul>
+  <li> <tt>"new 'Continuation'"</tt> creates a continuation object.
+  <li> <tt>set_addr</tt> initializes it to point to a given instruction
+       in the current context.
+  <li> To go to that location, just invoke the continuation as if it was
+       a <tt>Sub</tt> object.
+</ul>
 
 <p><a href="closures.html">[Prev]</a>
 <a href="index.html">[Index]</a>

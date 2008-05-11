@@ -15,7 +15,7 @@ pages         = index.html intro.html pir-basics.html simple.html \
 perl-scripts  = factorial.pl.text map-elts-print.pl.text map-elts-find.pl.text
 pir-scripts   = factorial.pir     map-elts-print.pir	 map-elts-find.pir
 scripts       = ${perl-scripts} ${pir-scripts}
-images 	      = fact-1.svg fact-2.svg fact-3.svg
+images 	      = fact-1.svg fact-2.svg fact-3.svg goto-1.svg goto-2.svg goto-3.svg
 other  	      = acsip.css summary.text
 
 thumbnails = ${images:.svg=.png}
