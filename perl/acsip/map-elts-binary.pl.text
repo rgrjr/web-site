@@ -1,0 +1,56 @@
+#! /usr/bin/perl -w  -*- mode: perl -*-
+
+# This is equivalent to map-elts-binary.lisp, but even more contrived.
+
+use strict;
+use warnings;
+
+use vars qw($print_base);
+$print_base = 10;
+
+sub int2str {
+    my $value = shift;
+
+    my $high_order = int($value/$print_base);
+    return ($high_order ? int2str($high_order) : '')
+	.($value % $print_base);
+}
+
+sub map_elts {
+    my ($tree, $functional) = @_;
+
+    if (ref($tree) eq 'ARRAY') {
+	for my $elt (@$tree) {
+	    map_elts($elt, $functional);
+	}
+    }
+    else {
+	$functional->($tree);
+    }
+}
+
+sub find_if_greater {
+    my ($tree, $limit) = @_;
+
+    my $result;
+    local $print_base = 2;
+    map_elts($tree,
+	     sub { my $value = shift;
+		   # print "Testing $value.\n";
+		   if ($value > $limit) {
+		       print('Found ', int2str($value), "\n");
+		       $result = $value;
+		       goto done;
+		   }
+	     });
+    $result = "nothing";
+  done:
+    return $result;
+}
+
+## Test with a silly data structure.
+my $data = [1, 2, 3, [4, 5, 4], [[7, 8, [9, 10]], 11]];
+for my $x (qw(6 8 99)) {
+    print("Returned ", find_if_greater($data, $x),
+	  ' for ', int2str($x), ".\n");
+}
