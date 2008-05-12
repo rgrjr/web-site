@@ -21,34 +21,16 @@ functions.
 without declarations, but that the full (working) code is linked from
 each page.
 
-2.  Control Structures in PIR
+2.  Simple Control Structures in PIR
 
-   Show parallel examples of Perl 5 "if" and "while" (which are "simple"
-control structures) with their PIR translations.  This serves mostly as
-an introduction to the abbreviated PIR we will use to highlight control
-issues.
-
-3.  Contexts
+   Show a parallel Perl 5 and PIR example of "if" (a "simple" control
+structure).  This serves mostly as an introduction to the abbreviated
+PIR we will use to highlight control issues.
 
    Introduce diagrams of Parrot data structures that show control state,
 initially contexts (aka activation records) linked by Continuation PMCs.
 Normal call/return is stack-like, but heap-allocation of control state
 presents other possibilities.
-
-   Also show a more detailed version of the control state diagram that
-also shows the dynamic environment, i.e. error handlers and other
-dynamically-scoped state.  We won't usually need this level of detail,
-though.
-
-   Each Parrot interpreter records the current control state as a triple
-of the executing context, the current instruction (which will be in this
-context's sub), and the top of the dynamic environment.  Not
-coincidentally, this is exactly what a continuation records in order to
-restore a previous control state.  It does not change any variable
-values; that would be travel in time, rather than space.
-
-   Describe how the "tailcall" instruction works, mention that it
-discards dynamic environment state.
 
 4.  Closures
 
@@ -60,13 +42,7 @@ because it needs to introduce a fair amount of new PIR (.lex vars and
 :outer subs), and because closures are used extensively in the rest of
 the presentation.
 
-5.  Actions
-
-   Show how to use "pushaction" to add a cleanup closure to the dynamic
-environment.  Requires detailed control state diagrams to show the
-action entry on the dynamic environment.
-
-6.  Continuations I:  Nonlocal lexical goto
+5.  Continuations I:  Nonlocal lexical goto
 
    Start with the "map_elts" Perl example above, and modify it to exit
 prematurely with the first value that meets some criterion.  The issue
@@ -91,7 +67,7 @@ then the pretty diagrams will mean something.  -- rgr, 10-Mar-08.]
    Also show what call-with-current-continuation looks like.  (This is
 mostly for completeness, though we do use it below.)
 
-7.  Continuations II:  Nonlocal lexical return
+6.  Continuations II:  Nonlocal lexical return
 
    This is similar to nonlocal lexical goto, but must pass return
 values.  The overall strategy is the same; the implementation requires
@@ -99,6 +75,22 @@ only an extra "set_params" at the point of call, and "get_results" at
 the point of return.  We must use a Lisp example here, because no Perl 5
 example is possible.  [Perl 6 may allow more; must investigate first.
 -- rgr, 10-Mar-08.]
+
+7.  Actions
+
+   Show how to use "pushaction" to add a cleanup closure to the dynamic
+environment.  This requires a more detailed version of the control state
+diagram in order to show the dynamic environment.
+
+   The interpreter records the current control state as a triple of the
+executing context, the current instruction (which will be in this
+context's sub), and the top of the dynamic environment.  Not
+coincidentally, this is exactly what a continuation records in order to
+restore a previous control state.  It does not change any variable
+values; that would be travel in time, rather than space.
+
+   Describe how the "tailcall" instruction works, mention that it
+discards dynamic environment state.
 
 8.  Continuations III:  Nonlocal dynamic return
 
