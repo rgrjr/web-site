@@ -32,7 +32,7 @@ initially contexts (aka activation records) linked by Continuation PMCs.
 Normal call/return is stack-like, but heap-allocation of control state
 presents other possibilities.
 
-4.  Closures
+3.  Closures
 
    Show a Perl 5 example of calling a "map_elts" data structure
 traversal (omitting the "map_elts" internals), using control state
@@ -42,7 +42,7 @@ because it needs to introduce a fair amount of new PIR (.lex vars and
 :outer subs), and because closures are used extensively in the rest of
 the presentation.
 
-5.  Continuations I:  Nonlocal lexical goto
+4.  Continuations I:  Nonlocal lexical goto
 
    Start with the "map_elts" Perl example above, and modify it to exit
 prematurely with the first value that meets some criterion.  The issue
@@ -67,7 +67,7 @@ then the pretty diagrams will mean something.  -- rgr, 10-Mar-08.]
    Also show what call-with-current-continuation looks like.  (This is
 mostly for completeness, though we do use it below.)
 
-6.  Continuations II:  Nonlocal lexical return
+5.  Continuations II:  Nonlocal lexical return
 
    This is similar to nonlocal lexical goto, but must pass return
 values.  The overall strategy is the same; the implementation requires
@@ -76,7 +76,7 @@ the point of return.  We must use a Lisp example here, because no Perl 5
 example is possible.  [Perl 6 may allow more; must investigate first.
 -- rgr, 10-Mar-08.]
 
-7.  Actions
+6.  Actions
 
    Show how to use "pushaction" to add a cleanup closure to the dynamic
 environment.  This requires a more detailed version of the control state
@@ -92,7 +92,7 @@ values; that would be travel in time, rather than space.
    Describe how the "tailcall" instruction works, mention that it
 discards dynamic environment state.
 
-8.  Continuations III:  Nonlocal dynamic return
+7.  Continuations III:  Nonlocal dynamic return
 
    This is what Lisp CATCH and THROW do.  It requires using a global
 variable to keep track of dynamic local exit bindings, with cleanup
@@ -103,12 +103,12 @@ elaborate, as it needs to modify the dynamic state.
    Perl 6 has mixed lexical/dynamic goto, which can be implemented using
 a combination of these strategies.
 
-9.  Error handling
+8.  Error handling
 
    [need to review the state of Parrot error handling.  -- rgr,
 10-Mar-08.]
 
-10.  Continuations IV:  Coroutines
+9.  Continuations IV:  Coroutines
 
    Coroutines are normally provided as a gloss on continuations; if you
 have continuations, you strictly don't need coroutines, but the latter
@@ -125,7 +125,7 @@ by storing a new continuation to the current state before invoking the
 continuation that takes them to the other state.  [Showing PIR for this
 should be superfluous at this point.  -- rgr, 10-Mar-08.]
 
-11.  Conclusions
+10.  Conclusions
  
    You now have everything you need to know to implement advanced
 control structures for a dynamic language in Parrot.  Go for it!
