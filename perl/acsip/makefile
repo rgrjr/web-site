@@ -6,8 +6,8 @@
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
 PARROT = /usr/src/parrot/parrot
-PERL   = /usr/bin/perl
-LISP   = /usr/local/bin/lisp
+PERL   = perl
+LISP   = lisp
 
 all:	thumbnails 
 
@@ -56,7 +56,7 @@ test-cont-1:
 test-cont-2:
 	${PARROT} map-elts-return.pir > $@-pir-out.tmp
 	${LISP} -load map-elts-return.lisp -eval '(ext:quit)' \
-		| tail +3 > $@-lisp-out.tmp
+		| fgrep -v Loading > $@-lisp-out.tmp
 	cmp $@-pir-out.tmp $@-lisp-out.tmp
 	rm -f $@-pir-out.tmp $@-lisp-out.tmp
 
