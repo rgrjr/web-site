@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: Nonlocal lexical return</title>
+<link href="acsip.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Continuations II:  Nonlocal lexical return</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="index.html">Advanced control structures</a> : Nonlocal lexical
+return
+<hr>
+
+<p><a href="cont-1.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="actions.html">[Next]</a>
+
+<p>Since all we wanted to do on the previous page was return a value
+nonlocally from <tt>find_if_greater</tt>, it would be cleaner to skip
+the lexical and return the value directly.  Common Lisp supports this
+syntactically via <tt>return-from</tt> <a href="#note1">[1]</a>.  Here
+is a functionally equivalent Lisp implementation that uses
+<tt>return-from</tt>:
+
+<pre class="example">
+;; [map-elts omitted.]
+
+(defun find-if-greater (tree limit)
+  (map-elts tree #'(lambda (value)
+		     (when (&gt; value limit)
+		       (format t "Found ~S~%" value)
+		       (return-from find-if-greater value))))
+  "nothing")
+
+;; Test with a silly data structure.
+(defvar data #(1 2 3 #(4 5 4) #(#(7 8 #(9 10)) 11)))
+(dolist (x '(7 99))
+  (format t "Returned ~A for ~A.~%" (find-if-greater data x) x))
+</pre>
+<a href="map-elts-return.lisp">[view full source]</a>
+
+<p>The output is similar:
+
+<pre class="output">
+CL-USER&gt; <b>(load "map-elts-return.lisp")</b>
+Found 8
+Returned 8 for 7.
+Returned nothing for 99.
+T
+CL-USER&gt;
+</pre>
+
+<p>Since we are returning the value directly from a sub, and since the
+sub has its own return continuation, we can just use
+<tt>find_if_greater</tt>'s own return continuation directly.  This
+simplifies <tt>find_if_greater</tt> somewhat; we only need to use
+<tt>interpinfo</tt> to extract the current continuation <a
+href="#note2">[2]</a> and stuff it into <tt>exit_cont</tt>, and no
+longer need the <tt>$result</tt> lexical at all.
+
+<pre class="example">
+.sub find_if_greater
+	.param pmc tree
+	.param pmc limit
+
+	## Create the $limit lexical.
+	.lex '$limit', limit
+
+	## Store our return continuation as exit_cont.
+	.local pmc exit_cont
+	.lex 'exit_cont', exit_cont
+	exit_cont = interpinfo .INTERPINFO_CURRENT_CONT
+
+	## Create a closure of our internal sub.
+	.local pmc find_internal, find_closure
+	.const .Sub find_internal = "_find_internal"
+        find_closure = newclosure find_internal
+	map_elts(tree, find_closure)
+
+	## map_elts returned normally.
+	.return ("nothing")
+.end
+</pre>
+<a href="map-elts-return.pir">[view full source]</a>
+
+<p>Similary, the inner closure only has to invoke the continuation,
+passing the desired return value:
+
+<pre class="example">
+.sub _find_internal :outer('find_if_greater')
+	.param pmc value
+
+	## Test value against limit
+	.local pmc limit
+	# print "Testing $value.\n";
+	limit = find_lex '$limit'
+	unless value &gt; limit goto nope
+
+	## Print what we found.
+	print "Found "
+	print value
+	print "\n"
+
+	## Return it as the result from find_if_greater.
+	.local pmc exit_cont
+	exit_cont = find_lex 'exit_cont'
+	exit_cont(value)
+nope:
+	.return ()
+.end
+</pre>
+<a href="map-elts-return.pir">[view full source]</a>
+
+<p>The situation just before returning looks only slightly different,
+but we have one less continuation object, and a few less instructions to
+execute.
+
+<p><img src="return-1.png">
+<a href="return-1.svg">[before calling the continuation]</a>
+
+<p>And, of course, it takes us directly where we want to go.
+
+<p><img src="return-2.png">
+<a href="return-2.svg">[after calling the continuation]</a>
+
+<p><a href="cont-1.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="actions.html">[Next]</a>
+
+<p>
+<hr>
+
+<h3>Notes</h3>
+
+<dl>
+  <dt> <a name="note1">[1]
+  <dd> In Common Lisp, <tt>return-from</tt> can be used to return from a
+       lexically enclosing block of the same name, and not just from a
+       function definition.  See the <a
+       href="http://www.lispworks.com/documentation/HyperSpec/Body/s_ret_fr.htm">
+       definition of <tt>return-from</tt></a> in the <a
+       href="http://www.lispworks.com/documentation/HyperSpec/Front/">
+       Common Lisp HyperSpec</a> for full details.
+  <dt> <a name="note2">[2]
+  <dd> Not surprisingly, we would also use <tt>"interpinfo
+       .INTERPINFO_CURRENT_CONT"</tt> to implement Scheme's
+       <tt>call-with-current-continuation</tt> feature, which is absent
+       from Common Lisp.
+</dl>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id: actions.html 189 2008-05-11 00:52:19Z rogers $
+</body>
+</html>

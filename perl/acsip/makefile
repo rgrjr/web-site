@@ -7,15 +7,19 @@ INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
 PARROT = /usr/src/parrot/parrot
 PERL   = /usr/bin/perl
+LISP   = /usr/local/bin/lisp
 
 all:	thumbnails 
 
 pages         = index.html intro.html pir-basics.html simple.html \
 		closures.html actions.html cont-1.html
+lisp-scripts  = map-elts-return.lisp
 perl-scripts  = factorial.pl.text map-elts-print.pl.text map-elts-find.pl.text
-pir-scripts   = factorial.pir     map-elts-print.pir	 map-elts-find.pir
-scripts       = ${perl-scripts} ${pir-scripts}
-images 	      = fact-1.svg fact-2.svg fact-3.svg goto-1.svg goto-2.svg goto-3.svg
+pir-scripts   = factorial.pir     map-elts-print.pir	 map-elts-find.pir \
+		map-elts-return.pir
+scripts       = ${perl-scripts} ${lisp-scripts} ${pir-scripts}
+images 	      = fact-1.svg fact-2.svg fact-3.svg goto-1.svg goto-2.svg \
+		goto-3.svg return-1.svg return-2.svg
 other  	      = acsip.css summary.text
 
 thumbnails = ${images:.svg=.png}
@@ -27,7 +31,7 @@ thumbnails:	${thumbnails}
 # This mostly makes sure that the Perl scripts and their PIR implementations
 # produce the same output.  It does not check that these programs are consistent
 # with their excerpts in the HTML.
-test:	test-factorial test-closures test-cont-1
+test:	test-factorial test-closures test-cont-1 test-cont-2
 # Test the factorial.* programs.  [This gives different outputs on 32-bit
 # systems; Parrot promotes to BigInts, while Perl uses floats.  -- rgr,
 # 7-May-08.]
@@ -48,6 +52,13 @@ test-cont-1:
 	${PERL} map-elts-find.pl.text > $@-perl-out.tmp
 	cmp $@-pir-out.tmp $@-perl-out.tmp
 	rm -f $@-pir-out.tmp $@-perl-out.tmp
+# Test the map-elts-return.* programs.
+test-cont-2:
+	${PARROT} map-elts-return.pir > $@-pir-out.tmp
+	${LISP} -load map-elts-return.lisp -eval '(ext:quit)' \
+		| tail +3 > $@-lisp-out.tmp
+	cmp $@-pir-out.tmp $@-lisp-out.tmp
+	rm -f $@-pir-out.tmp $@-lisp-out.tmp
 
 install:	${pages} ${scripts} ${images} ${thumbnails} ${other}
 	${INSTALL} $^ /srv/www/htdocs/perl/acsip/
