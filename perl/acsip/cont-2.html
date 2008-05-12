@@ -18,10 +18,10 @@ return
 
 <p>Since all we wanted to do on the previous page was return a value
 nonlocally from <tt>find_if_greater</tt>, it would be cleaner to skip
-the lexical and return the value directly.  Common Lisp supports this
-syntactically via <tt>return-from</tt> <a href="#note1">[1]</a>.  Here
-is a functionally equivalent Lisp implementation that uses
-<tt>return-from</tt>:
+the lexical and return the value directly.  The Common Lisp
+<tt>return-from</tt> special form supports returning from a function <a
+href="#note1">[1]</a>.  Here is a (nearly) functionally equivalent Lisp
+implementation that uses <tt>return-from</tt>:
 
 <pre class="example">
 ;; [map-elts omitted.]
@@ -35,7 +35,7 @@ is a functionally equivalent Lisp implementation that uses
 
 ;; Test with a silly data structure.
 (defvar data #(1 2 3 #(4 5 4) #(#(7 8 #(9 10)) 11)))
-(dolist (x '(7 99))
+(dolist (x '(6 8 99))
   (format t "Returned ~A for ~A.~%" (find-if-greater data x) x))
 </pre>
 <a href="map-elts-return.lisp">[view full source]</a>
@@ -44,8 +44,10 @@ is a functionally equivalent Lisp implementation that uses
 
 <pre class="output">
 CL-USER&gt; <b>(load "map-elts-return.lisp")</b>
-Found 8
-Returned 8 for 7.
+Found 7
+Returned 7 for 6.
+Found 9
+Returned 9 for 8.
 Returned nothing for 99.
 T
 CL-USER&gt;

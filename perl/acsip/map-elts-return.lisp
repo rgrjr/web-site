@@ -15,5 +15,5 @@
 
 ;; Test with a silly data structure.
 (defvar data #(1 2 3 #(4 5 4) #(#(7 8 #(9 10)) 11)))
-(dolist (x '(7 99))
+(dolist (x '(6 8 99))
   (format t "Returned ~A for ~A.~%" (find-if-greater data x) x))

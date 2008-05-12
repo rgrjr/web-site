@@ -98,17 +98,27 @@ nope:
 	branch4[1] = 11
 	data[4] = branch4
 
+	## Initialize "list".
+	.local pmc list
+	list = new 'FixedIntegerArray'
+	list = 3
+	list[0] = 6
+	list[1] = 8
+	list[2] = 99
+
 	## Main body.
-	$I0 = 7
-next:
-	$P0 = find_if_greater(data, $I0)
+	.local int i, x
+	i = 0
+again:
+	if i >= 3 goto done
+	x = list[i]
+	$P0 = find_if_greater(data, x)
 	print "Returned "
 	print $P0
 	print ' for '
-	print $I0
+	print x
 	print ".\n"
-	if $I0 == 99 goto done
-	$I0 = 99
-	goto next
+	inc i
+	goto again
 done:
 .end
