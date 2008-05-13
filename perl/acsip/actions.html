@@ -124,6 +124,67 @@ following to <tt>find_if_greater</tt>:
 initialize the <tt>*print-base*</tt> global, and to implement
 <tt>*print-base*</tt>-aware printing (not shown).
 
+<p>Parrot saves the action in a linked list called the dynamic
+environment, which also (currently) contains active error handlers.  The
+program starts with an empty dynamic environment, which is represented
+explicitly with a "root" list element:
+
+<p><img src="action-1.png">
+<a href="action-1.svg">[before pushing the action]</a>
+
+<p>Note that the interpreter and the return continuation from
+<tt>find_if_greater</tt> both point to the initial element.
+
+<p>When we invoke <tt>pushaction</tt>, the interpreter points to a new
+dynamic environment element:
+
+<p><img src="action-2.png">
+<a href="action-2.svg">[after pushing the action]</a>
+
+<p>This is still in effect before the exit continuation is called:
+
+<p><img src="action-3.png">
+<a href="action-3.svg">[before calling the continuation]</a>
+
+<p>When the exit continuation is called, the interpreter notices that
+the dynamic environment is being restored to a previous state, and runs
+the action.
+
+<h3>What is a continuation, really?</h3>
+
+We are now in a position to define Parrot continuations precisely:
+
+<blockquote>
+A continuation is an object that captures the following state:
+<ul>
+  <li> An executing context;
+  <li> An instruction in that context's sub; and
+  <li> The dynamic environment at the point of capture.
+</ul>
+All of this state is restored when the continuation is invoked, resuming
+execution with the specified instruction.
+</blockquote>
+
+<p>This has a few consequences worth noting:
+
+<ol>
+  <li> A continuation can only return to some place you've already been,
+       and only if you bothered to create a continuation and store it
+       someplace useful.
+  <li> The <tt>set_addr</tt> instruction that initializes ("takes") the
+       continuation must be in the same sub as the instruction it
+       targets.
+  <li> The captured dynamic environment is always that of the
+       <tt>set_addr</tt> instruction, so the PIR author (compiler or
+       human) must be careful that this environment "makes sense" for
+       the target instruction.
+  <li> Continuations do not capture variable values, so continuation
+       calling does not affect them.  (That would be travelling in time,
+       rather than space.)
+  <li> A continuation may be invoked only in the interpreter that
+       created it.
+</ol>
+
 <p><a href="cont-2.html">[Prev]</a>
 <a href="index.html">[Index]</a>
 <a href="cont-3.html">[Next]</a>
