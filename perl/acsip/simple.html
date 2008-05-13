@@ -21,12 +21,9 @@ Representation.)
 sub factorial {
     my $n = shift;
 
-    if ($n &gt; 1) {
-        return $n * factorial($n-1);
-    }
-    else {
-        return 1;
-    }
+    return ($n &gt; 1
+	    ? $n * factorial($n-1)
+	    : 1);
 }
 
 for my $i (0..20) {
@@ -44,14 +41,20 @@ for my $i (0..20) {
 ## Compute n!.
 .sub factorial
 	.param pmc n
-	if n &gt; 1 goto multiply
-	.return (1)
-multiply:
-	.local pmc result, nm1
+
+	.local pmc result
+	unless n &gt; 1 goto one
+gt_one:
+	.local pmc nm1
 	nm1 = new 'Integer'
 	nm1 = n - 1
 	result = factorial(nm1)
 	result = result * n
+	goto done
+one:
+	result = new 'Integer'
+	result = 1
+done:
 	.return (result)
 .end
 </pre>
