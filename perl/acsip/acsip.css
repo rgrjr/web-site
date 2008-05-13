@@ -6,6 +6,7 @@
 body {
   color: black;
   font-family: helvetica, sans-serif;
+  font-size: 24px;
   margin: 10px;
   background: #EFF;
 }
