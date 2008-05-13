@@ -9,10 +9,11 @@ PARROT = /usr/src/parrot/parrot
 PERL   = perl
 LISP   = lisp
 
-all:	thumbnails 
+all:		thumbnails
 
 pages         = index.html intro.html pir-basics.html simple.html \
-		closures.html actions.html cont-1.html
+		closures.html actions.html cont-1.html cont-2.html \
+		conclusions.html
 lisp-scripts  = map-elts-return.lisp map-elts-binary.lisp
 perl-scripts  = factorial.pl.text map-elts-print.pl.text map-elts-find.pl.text \
 		map-elts-binary.pl.text
