@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: Conclusions</title>
+<link href="acsip.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Conclusions</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="index.html">Advanced control structures</a> : Conclusions
+<hr>
+
+<p>As we have seen:
+
+<ul>
+  <li> Continuations are like an extended form of <tt>goto</tt> that can
+       cross context boundaries.
+  <li> We can use continuations to implement a wide variety of nonlocal
+       control structures.
+  <li> Such control structures extend the applicability of functional
+       programming techniques.
+</ul>
+
+<h3>Further reading</h3>
+
+<dl>
+  <dt> [1]
+  <dd> <a href="http://www.parrotcode.org/">The Parrot home page.</a>
+  <dt> [2]
+  <dd> Henry G. Baker, <a
+       href="http://home.pipeline.com/~hbaker1/Iterator.html">
+       Iterators: Signs of Weakness in Object-Oriented Languages</a>,
+       ACM OOPS Messenger, July 1993.
+
+       Explores the advantages of higher-order functions
+       (e.g. <tt>mapcar</tt> and friends) over iterators as explicit
+       state-holding objects.  Also shows three Lisp implementations of
+       the "samefringe" problem in the discussion of generators.
+  <dt> [3]
+  <dd> <a href="http://rgrjr.dyndns.org/lisp/kea-cl/">Kea Common
+       Lisp</a>
+
+       This is the Parrot-based implementation that led me to figure
+       all this out.
+</dl>
+
+<p><a href="actions.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+[Next]
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>
