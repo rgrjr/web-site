@@ -17,15 +17,20 @@
   <li> PIR is a (higher-level) assembly language for Parrot.
   <li> Parrot is a register machine, with four register types:  integer,
        numeric (float), string, and "PMC" (object).
-  <li> The number of registers is unlimited.
+  <li> The number of registers is effectively unlimited; each sub gets
+       however many it needs.  Registers can be declared explicitly, or
+       implicitly (by naming them <tt>$P32</tt>, for example).
   <li> Each PIR line is nominally a single instruction.
+  <li> Parrot instructions take zero or more registers as operands
+       (there are no stacks), though not all instructions are
+       implemented for all register types.
   <li> Simple control structure are implemented via conditional
        branching, i.e. <tt>"if <i>condition</i> goto <i>label</i>"</tt>.
-  <li> Subs are defined between <tt>.sub</tt> and <tt>.end</tt>
+  <li> Subs are defined in PIR between <tt>.sub</tt> and <tt>.end</tt>
        directives.
+  <li> All sub argument values and results are passed explicitly, with
+       built-in arg checking.
 </ul>
-
-[probably need a simple example here.  -- rgr, 26-Apr-08.]
 
 <h3>Parrot's runtime data structures</h3>
 
@@ -35,9 +40,8 @@ Most of these can be manipulated as PMC ("Parrot Magic Cookie") objects.
 <ul>
   <li> Each thread is represented by an <tt>Interpreter</tt>.
   <li> A <tt>Parrot_Context</tt> holds the ephemeral state of a given
-       invocation of a sub (but is not a PMC).  This is traditionally
-       called an <a
-       href="http://en.wikipedia.org/wiki/Call_stack#Structure">
+       invocation of a sub (but is not a PMC).  This is usually called
+       an <a href="http://en.wikipedia.org/wiki/Call_stack#Structure">
        "activation record" or "stack frame"</a> in the literature.
   <li> There are three general kinds of function-like object:
        <ol>
@@ -51,7 +55,7 @@ Most of these can be manipulated as PMC ("Parrot Magic Cookie") objects.
 	      handler is a subclass of <tt>Continuation</tt>.)
        </ol>
        All of these objects can be called via the <tt>invoke</tt>
-       instruction (or its syntactic sugar).
+       instruction and its cousins.
 </ul>
 
 <p><a href="intro.html">[Prev]</a>
