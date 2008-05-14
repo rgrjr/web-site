@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
-   xmlns:ns="http://creativecommons.org/ns#"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -13,7 +12,7 @@
    height="850"
    id="svg7155"
    sodipodi:version="0.32"
-   inkscape:version="0.45.1"
+   inkscape:version="0.46"
    version="1.0"
    sodipodi:docname="fact-3.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
@@ -86,20 +85,20 @@
      inkscape:showpageshadow="false"
      inkscape:window-width="1023"
      inkscape:window-height="898"
-     inkscape:window-x="248"
-     inkscape:window-y="8"
+     inkscape:window-x="503"
+     inkscape:window-y="40"
      showborder="true"
      width="950px"
      height="850px" />
   <metadata
      id="metadata7160">
     <rdf:RDF>
-      <ns:Work
+      <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-      </ns:Work>
+      </cc:Work>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
@@ -339,37 +338,6 @@
          y="391">.sub factorial</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
-       x="636"
-       y="416"
-       id="text6395"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3455"
-         x="636"
-         y="416">if n &gt; 1 goto multiply</tspan><tspan
-         sodipodi:role="line"
-         id="tspan3457"
-         x="636"
-         y="441">.return (1)</tspan><tspan
-         sodipodi:role="line"
-         id="tspan3459"
-         x="636"
-         y="466">nm1 = n - 1</tspan><tspan
-         sodipodi:role="line"
-         id="tspan3461"
-         x="636"
-         y="491">result = factorial(nm1)</tspan><tspan
-         sodipodi:role="line"
-         id="tspan3463"
-         x="636"
-         y="516">result = result * n</tspan><tspan
-         sodipodi:role="line"
-         id="tspan3465"
-         x="636"
-         y="541">...</tspan></text>
-    <text
-       xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
        x="312.59082"
        y="396.45605"
@@ -387,7 +355,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 257.55058,513.4627 C 308.92376,511.77176 367.04333,514.05924 438.1714,512.81958 C 502.66344,511.69558 506.08594,511.41066 629.01898,510.41066"
+       d="M 257.55058,513.4627 C 308.92376,511.77176 349.04333,517.05924 388.1714,472.81958 C 430.90433,424.50413 492.08594,431.41066 615.01898,430.41066"
        id="path6425"
        sodipodi:nodetypes="csc" />
     <path
@@ -450,7 +418,7 @@
          y="613.88165">Sub</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 261.30131,710.88831 C 309.165,708.84844 375.85526,712.6638 427.18707,677.12606 C 478.51888,641.58832 461.49224,542.69748 471.92213,502.24519 C 488.40527,438.31541 501.83667,435.83627 624.76971,434.83627"
+       d="M 261.30131,710.88831 C 309.165,708.84844 390.21706,721.68576 427.18707,677.12606 C 448.53348,651.39738 446.49224,614.69748 456.92213,574.24519 C 473.40527,510.31541 491.83667,510.83627 614.76971,509.83627"
        id="path2466"
        sodipodi:nodetypes="cssc" />
     <path
@@ -473,17 +441,6 @@
        d="M 466,778 L 466,778"
        id="path3453"
        inkscape:connector-type="polyline" />
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
-       x="541"
-       y="466"
-       id="text3467"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3469"
-         x="541"
-         y="466">multiply:</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 236.89392,746.5 L 237.69729,683.2769"
@@ -491,5 +448,62 @@
        inkscape:connector-type="polyline"
        inkscape:connection-start="#rect2495"
        inkscape:connection-end="#rect2446" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="623"
+       y="416"
+       id="text2760"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan2762"
+         x="623"
+         y="416">nm1 = n - 1</tspan><tspan
+         sodipodi:role="line"
+         x="623"
+         y="436"
+         id="tspan2764">result = factorial(nm1)</tspan><tspan
+         sodipodi:role="line"
+         x="623"
+         y="456"
+         id="tspan2766">result = result * n</tspan><tspan
+         sodipodi:role="line"
+         x="623"
+         y="476"
+         id="tspan2768">goto done</tspan><tspan
+         sodipodi:role="line"
+         x="623"
+         y="496"
+         id="tspan2770">result = new 'Integer'</tspan><tspan
+         sodipodi:role="line"
+         x="623"
+         y="516"
+         id="tspan2772">result = 1</tspan><tspan
+         sodipodi:role="line"
+         x="623"
+         y="536"
+         id="tspan2774">.return (result)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="552"
+       y="495"
+       id="text2776"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan2778"
+         x="552"
+         y="495">zero:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="550"
+       y="536"
+       id="text2780"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan2782"
+         x="550"
+         y="536">done:</tspan></text>
   </g>
 </svg>

@@ -8,7 +8,7 @@ use warnings;
 sub factorial {
     my $n = shift;
 
-    return ($n > 1
+    return ($n > 0
 	    ? $n * factorial($n-1)
 	    : 1);
 }

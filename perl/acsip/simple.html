@@ -21,7 +21,7 @@ Representation.)
 sub factorial {
     my $n = shift;
 
-    return ($n &gt; 1
+    return ($n &gt; 0
 	    ? $n * factorial($n-1)
 	    : 1);
 }
@@ -43,15 +43,15 @@ for my $i (0..20) {
 	.param pmc n
 
 	.local pmc result
-	unless n &gt; 1 goto one
-gt_one:
+	unless n &gt; 0 goto zero
+gt_zero:
 	.local pmc nm1
 	nm1 = new 'Integer'
 	nm1 = n - 1
 	result = factorial(nm1)
 	result = result * n
 	goto done
-one:
+zero:
 	result = new 'Integer'
 	result = 1
 done:

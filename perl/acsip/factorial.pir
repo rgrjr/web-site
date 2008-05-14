@@ -3,15 +3,15 @@
 	.param pmc n
 
 	.local pmc result
-	unless n > 1 goto one
-gt_one:
+	unless n > 0 goto zero
+gt_zero:
 	.local pmc nm1
 	nm1 = new 'Integer'
 	nm1 = n - 1
 	result = factorial(nm1)
 	result = result * n
 	goto done
-one:
+zero:
 	result = new 'Integer'
 	result = 1
 done:
