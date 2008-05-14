@@ -27,10 +27,10 @@ done:
 	.param pmc tree
 
 	## Create the $count lexical
-	.local pmc count
-	.lex '$count', count
-	count = new 'Integer'
-	count = 0
+	.local pmc count1
+	.lex '$count', count1
+	count1 = new 'Integer'
+	count1 = 0
 
 	## Create a closure of our internal sub.
 	.local pmc number_one_leaf, number_closure
@@ -42,10 +42,11 @@ done:
 .sub _number_one_leaf :outer('number_leaves')
 	.param pmc thing
 
-	.local pmc count
-	count = find_lex '$count'
-	inc count	## by side effect.
-	print count
+	.local pmc count2, new_count
+	count2 = find_lex '$count'
+	new_count = n_add count2, 1
+	store_lex '$count', new_count
+	print new_count
 	print ": "
 	print thing
 	print "\n"
