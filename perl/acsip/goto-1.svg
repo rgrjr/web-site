@@ -78,7 +78,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1"
      inkscape:cx="447.05129"
-     inkscape:cy="335.58525"
+     inkscape:cy="336.08525"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -178,26 +178,7 @@
          sodipodi:role="line"
          id="tspan2455"
          x="144.23793"
-         y="172.57993"></tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="138.69888"
-       y="306.06323"
-       id="text8301"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan2459"
-         x="138.69888"
-         y="306.06323">data: [1, 2, ...]</tspan><tspan
-         sodipodi:role="line"
-         id="tspan2461"
-         x="138.69888"
-         y="331.06323">limit: 7</tspan><tspan
-         sodipodi:role="line"
-         id="tspan2463"
-         x="138.69888"
-         y="356.06323">result: </tspan></text>
+         y="172.57993" /></text>
     <rect
        style="fill:#dadaf0;fill-opacity:1"
        id="rect8317"
@@ -246,7 +227,7 @@
          sodipodi:role="line"
          id="tspan2473"
          x="576.69891"
-         y="233.5502"></tspan></text>
+         y="233.5502" /></text>
     <rect
        style="fill:#dafdde;fill-opacity:1;stroke:#000000;stroke-opacity:1"
        id="rect2495"
@@ -509,21 +490,6 @@
          id="tspan5461"
          x="104"
          y="781">_find_internal(8):</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="135"
-       y="808"
-       id="text4924"
-       sodipodi:linespacing="100%"><tspan
-         sodipodi:role="line"
-         id="tspan4926"
-         x="135"
-         y="808">value: 8</tspan><tspan
-         sodipodi:role="line"
-         x="135"
-         y="828"
-         id="tspan4928">limit: 7</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 242.00001,754.32343 L 242.00001,727.67656"
@@ -600,5 +566,39 @@
        d="M 265.30131,890.88831 C 313.165,888.84844 342.15974,889.28112 383.92213,888.24519 C 422.40527,887.31541 510.83667,885.83627 545.76971,885.83627"
        id="path2466"
        sodipodi:nodetypes="csc" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="138"
+       y="302"
+       id="text3267"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3269"
+         x="138"
+         y="302">data: [1, 2, ...]</tspan><tspan
+         sodipodi:role="line"
+         x="138"
+         y="322"
+         id="tspan3271">limit: 7</tspan><tspan
+         sodipodi:role="line"
+         x="138"
+         y="342"
+         id="tspan3273">result1:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="136"
+       y="808"
+       id="text3275"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3277"
+         x="136"
+         y="808">value: 8</tspan><tspan
+         sodipodi:role="line"
+         x="136"
+         y="828"
+         id="tspan3279">limit2: 7</tspan></text>
   </g>
 </svg>

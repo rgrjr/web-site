@@ -27,15 +27,15 @@ done:
 
 .sub find_if_greater
 	.param pmc tree
-	.param pmc limit
+	.param pmc limit1
 
 	## Create the $limit lexical.
-	.lex '$limit', limit
+	.lex '$limit', limit1
 
 	## Store our return continuation as exit_cont.
-	.local pmc exit_cont
-	.lex 'exit_cont', exit_cont
-	exit_cont = interpinfo .INTERPINFO_CURRENT_CONT
+	.local pmc exit_cont1
+	.lex 'exit_cont', exit_cont1
+	exit_cont1 = interpinfo .INTERPINFO_CURRENT_CONT
 
 	## Create a closure of our internal sub.
 	.local pmc find_internal, find_closure
@@ -51,10 +51,10 @@ done:
 	.param pmc value
 
 	## Test value against limit
-	.local pmc limit
+	.local pmc limit2
 	# print "Testing $value.\n";
-	limit = find_lex '$limit'
-	unless value > limit goto nope
+	limit2 = find_lex '$limit'
+	unless value > limit2 goto nope
 
 	## Print what we found.
 	print "Found "
@@ -62,9 +62,9 @@ done:
 	print "\n"
 
 	## Return it as the result from find_if_greater.
-	.local pmc exit_cont
-	exit_cont = find_lex 'exit_cont'
-	exit_cont(value)
+	.local pmc exit_cont2
+	exit_cont2 = find_lex 'exit_cont'
+	exit_cont2(value)
 nope:
 	.return ()
 .end

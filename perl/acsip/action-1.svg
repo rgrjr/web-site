@@ -239,19 +239,19 @@
        id="rect2495"
        width="337"
        height="61"
-       x="193"
-       y="587" />
+       x="190"
+       y="521" />
     <text
        xml:space="preserve"
        style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
-       x="287"
-       y="623"
+       x="284"
+       y="557"
        id="text3279"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
          id="tspan5418"
-         x="287"
-         y="623">Interpreter</tspan></text>
+         x="284"
+         y="557">Interpreter</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
@@ -332,39 +332,16 @@
        transform="matrix(2,0,0,2,110.68815,51.04094)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 356.28384,587.82343 L 356.65716,431.8513"
+       d="M 356.28384,519.82343 L 356.65716,431.8513"
        id="path2505"
        inkscape:connector-type="polyline"
-       inkscape:connection-end="#rect7716"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:connection-end="#rect7716" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 346.2658,390.81643 C 400.63898,391.12549 536.68619,399.7339 535.88662,293.17331 C 535.29776,215.43129 552.80116,216.76439 619.7342,215.76439"
+       d="M 343.2658,373.81643 C 374.47375,373.81643 435.4377,373.07099 492.76599,373.07099 C 552.12635,373.07099 539.18199,356.3531 541.88662,278.17331 C 543.33259,236.37621 552.80116,216.76439 619.7342,215.76439"
        id="path6296"
-       sodipodi:nodetypes="csc" />
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="239"
-       y="338"
-       id="text6358"
-       sodipodi:linespacing="100%"><tspan
-         sodipodi:role="line"
-         id="tspan6360"
-         x="239"
-         y="338">tree: [1, 2, ...]</tspan><tspan
-         sodipodi:role="line"
-         x="239"
-         y="358"
-         id="tspan6362">limit: 7</tspan><tspan
-         sodipodi:role="line"
-         x="239"
-         y="378"
-         id="tspan6364">result:</tspan><tspan
-         sodipodi:role="line"
-         x="239"
-         y="398"
-         id="tspan6366">exit_cont:</tspan></text>
+       sodipodi:nodetypes="cssc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#06ff06;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
        d="M 331,483 L 120,483 C 91.184648,481.98712 78.78483,479.44511 78,441 L 78,105"
@@ -419,13 +396,25 @@
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="236"
-       y="418"
-       id="text10834"
+       x="228"
+       y="341"
+       id="text4180"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
-         id="tspan10836"
-         x="236"
-         y="418">restore_closure: &lt;clo&gt;</tspan></text>
+         id="tspan4182"
+         x="228"
+         y="341">tree: [1, 2, ...]</tspan><tspan
+         sodipodi:role="line"
+         x="228"
+         y="361"
+         id="tspan4186">limit1: 7</tspan><tspan
+         sodipodi:role="line"
+         x="228"
+         y="381"
+         id="tspan4190">exit_cont1:</tspan><tspan
+         sodipodi:role="line"
+         x="228"
+         y="401"
+         id="tspan4192">restore_closure: &lt;clo&gt;</tspan></text>
   </g>
 </svg>

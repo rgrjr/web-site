@@ -1,4 +1,4 @@
-## Produces equivalent output to map-elts-find.pl.text.
+## Produces equivalent output to map-elts-binary.pl.text.
 
 .include 'interpinfo.pasm'
 
@@ -65,20 +65,20 @@ done:
 
 .sub find_if_greater
 	.param pmc tree
-	.param pmc limit
+	.param pmc limit1
 
 	## Create the $limit lexical.
-	.lex '$limit', limit
+	.lex '$limit', limit1
 
 	## Store our return continuation as exit_cont.
-	.local pmc exit_cont
-	.lex 'exit_cont', exit_cont
-	exit_cont = interpinfo .INTERPINFO_CURRENT_CONT
+	.local pmc exit_cont1
+	.lex 'exit_cont', exit_cont1
+	exit_cont1 = interpinfo .INTERPINFO_CURRENT_CONT
 
 	## Save off the old *PRINT-BASE* value.
-	.local pmc old_print_base, new_print_base
-	.lex 'old_print_base', old_print_base
-	old_print_base = get_hll_global '*PRINT-BASE*'
+	.local pmc old_print_base1
+	.lex 'old_print_base', old_print_base1
+	old_print_base1 = get_hll_global '*PRINT-BASE*'
 
 	## Define an action to restore it.
 	.local pmc restore_sub, restore_closure
@@ -87,6 +87,7 @@ done:
 	pushaction restore_closure
 
 	## Set *PRINT-BASE* to 2.
+	.local pmc new_print_base
 	new_print_base = new 'Integer'
 	new_print_base = 2
 	set_hll_global '*PRINT-BASE*', new_print_base
@@ -102,19 +103,19 @@ done:
 .end
 
 .sub _restore_old_print_base :outer('find_if_greater')
-	.local pmc old_print_base
-	old_print_base = find_lex 'old_print_base'
-	set_hll_global '*PRINT-BASE*', old_print_base
+	.local pmc opb
+	opb = find_lex 'old_print_base'
+	set_hll_global '*PRINT-BASE*', opb
 .end
 
 .sub _find_internal :outer('find_if_greater')
 	.param pmc value
 
 	## Test value against limit
-	.local pmc limit
+	.local pmc limit2
 	# print "Testing $value.\n";
-	limit = find_lex '$limit'
-	unless value > limit goto nope
+	limit2 = find_lex '$limit'
+	unless value > limit2 goto nope
 
 	## Print what we found.
 	print "Found "
@@ -122,9 +123,9 @@ done:
 	print "\n"
 
 	## Return it as the result from find_if_greater.
-	.local pmc exit_cont
-	exit_cont = find_lex 'exit_cont'
-	exit_cont(value)
+	.local pmc exit_cont2
+	exit_cont2 = find_lex 'exit_cont'
+	exit_cont2(value)
 nope:
 	.return ()
 .end

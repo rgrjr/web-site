@@ -42,7 +42,7 @@ my $data = [1, 2, 3, [4, 5, 4], [[7, 8, [9, 10]], 11]];
 print "Returned ", find_if_greater($data, 7), ".\n";
 find_if_greater($data, 99);
 </pre>
-<a href="map-elts-print.pl.text">[view full source]</a>
+<a href="map-elts-find.pl.text">[view full source]</a>
 
 <p>Note that the inner sub is a closure in the sense that it "closes
 over" the lexically-scoped <tt>done</tt> label in the outer sub (even if
@@ -80,19 +80,19 @@ storing it in a lexical variable so that (along with <tt>$limit</tt> and
 <pre class="example">
 .sub find_if_greater
 	.param pmc tree
-	.param pmc limit
+	.param pmc limit1
 
 	## Create the $result and $limit lexicals.
-	.lex '$limit', limit
-	.local pmc result
-	.lex '$result', result
-	result = new 'Undef'
+	.lex '$limit', limit1
+	.local pmc result1
+	.lex '$result', result1
+	result1 = new 'Undef'
 
 	## Create an exit continuation
-	.local pmc exit_cont
-	.lex 'exit_cont', exit_cont
-	exit_cont = new 'Continuation'
-	set_addr exit_cont, done
+	.local pmc exit_cont1
+	.lex 'exit_cont', exit_cont1
+	exit_cont1 = new 'Continuation'
+	set_addr exit_cont1, done
 
 	## Create a closure of our internal sub.
 	.local pmc find_internal, find_closure
@@ -102,10 +102,10 @@ storing it in a lexical variable so that (along with <tt>$limit</tt> and
 
 	## map_elts returned normally.
 	print "Nothing found greater than "
-	print limit
+	print limit1
 	print ".\n"
 done:
-	.return (result)
+	.return (result1)
 .end
 </pre>
 <a href="map-elts-find.pir">[view full source]</a>
@@ -117,10 +117,10 @@ done:
 	.param pmc value
 
 	## Test value against limit
-	.local pmc limit
+	.local pmc limit2
 	# print "Testing $value.\n";
-	limit = find_lex '$limit'
-	unless value &gt; limit goto nope
+	limit2 = find_lex '$limit'
+	unless value &gt; limit2 goto nope
 
 	## Print and store in $result.
 	print "Found "
@@ -129,9 +129,9 @@ done:
 	store_lex '$result', value
 
 	## Return to find_if_greater.
-	.local pmc exit_cont
-	exit_cont = find_lex 'exit_cont'
-	exit_cont()
+	.local pmc exit_cont2
+	exit_cont2 = find_lex 'exit_cont'
+	exit_cont2()
 nope:
 	.return ()
 .end

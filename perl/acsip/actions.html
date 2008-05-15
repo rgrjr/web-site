@@ -90,9 +90,9 @@ following to <tt>find_if_greater</tt>:
         ...
 
 	## Save off the old *PRINT-BASE* value.
-	.local pmc old_print_base, new_print_base
-	.lex 'old_print_base', old_print_base
-	old_print_base = get_hll_global '*PRINT-BASE*'
+	.local pmc old_print_base1
+	.lex 'old_print_base', old_print_base1
+	old_print_base1 = get_hll_global '*PRINT-BASE*'
 
 	## Define an action to restore it.
 	.local pmc restore_sub, restore_closure
@@ -101,6 +101,7 @@ following to <tt>find_if_greater</tt>:
 	pushaction restore_closure
 
 	## Set *PRINT-BASE* to 2.
+	.local pmc new_print_base
 	new_print_base = new 'Integer'
 	new_print_base = 2
 	set_hll_global '*PRINT-BASE*', new_print_base
@@ -113,9 +114,9 @@ following to <tt>find_if_greater</tt>:
 
 <pre class="example">
 .sub _restore_old_print_base :outer('find_if_greater')
-	.local pmc old_print_base
-	old_print_base = find_lex 'old_print_base'
-	set_hll_global '*PRINT-BASE*', old_print_base
+	.local pmc opb
+	opb = find_lex 'old_print_base'
+	set_hll_global '*PRINT-BASE*', opb
 .end
 </pre>
 <a href="map-elts-binary.pir">[view full source]</a>

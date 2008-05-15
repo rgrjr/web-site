@@ -77,8 +77,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="575.6262"
-     inkscape:cy="222.21983"
+     inkscape:cx="627.5623"
+     inkscape:cy="262.21983"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -339,32 +339,9 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 346.2658,390.81643 C 400.63898,391.12549 536.68619,399.7339 535.88662,293.17331 C 535.29776,215.43129 552.80116,216.76439 619.7342,215.76439"
+       d="M 349.2658,378.81643 C 394.45265,378.81643 440.30729,378.07099 482.26599,378.07099 C 539.07826,378.07099 535.88662,350.53361 535.88662,293.17331 C 535.88662,224.41297 552.80116,216.76439 619.7342,215.76439"
        id="path6296"
-       sodipodi:nodetypes="csc" />
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="239"
-       y="338"
-       id="text6358"
-       sodipodi:linespacing="100%"><tspan
-         sodipodi:role="line"
-         id="tspan6360"
-         x="239"
-         y="338">tree: [1, 2, ...]</tspan><tspan
-         sodipodi:role="line"
-         x="239"
-         y="358"
-         id="tspan6362">limit: 7</tspan><tspan
-         sodipodi:role="line"
-         x="239"
-         y="378"
-         id="tspan6364">result:</tspan><tspan
-         sodipodi:role="line"
-         x="239"
-         y="398"
-         id="tspan6366">exit_cont:</tspan></text>
+       sodipodi:nodetypes="cssc" />
     <rect
        style="fill:#c4f5c8;fill-opacity:1;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect2254"
@@ -395,39 +372,24 @@
     <rect
        style="fill:#dadaf0;fill-opacity:1"
        id="rect8863"
-       width="293.66913"
+       width="376.66913"
        height="103.43121"
-       x="587.66541"
-       y="531.78442" />
+       x="554.66541"
+       y="528.78442" />
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="602"
-       y="555"
+       x="569"
+       y="552"
        id="text8865"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
          id="tspan8867"
-         x="602"
-         y="555">restore_old_print_base:</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="622"
-       y="589"
-       id="text8879"
-       sodipodi:linespacing="100%"><tspan
-         sodipodi:role="line"
-         id="tspan8881"
-         x="622"
-         y="589">opb = find_lex 'opb'</tspan><tspan
-         sodipodi:role="line"
-         x="622"
-         y="609"
-         id="tspan8883">set_hll_global '*p-b', opb</tspan></text>
+         x="569"
+         y="552">restore_old_print_base:</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 124,347 L 137,347 C 168.60702,346.51784 162.68936,384.28156 162.5,447 C 164.05833,530.30641 160.21787,545.48919 206,546 L 594,546"
+       d="M 124,347 L 137,347 C 168.60702,346.51784 162.68936,384.28156 162.5,447 C 164.05833,530.30641 160.21787,545.48919 206,546 L 563,546"
        id="path8885"
        sodipodi:nodetypes="ccccc" />
     <rect
@@ -480,5 +442,43 @@
          x="611"
          y="442"
          id="tspan10754">. . .</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="230.48438"
+       y="344.23926"
+       id="text4180"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan4182"
+         x="230.48438"
+         y="344.23926">tree: [1, 2, ...]</tspan><tspan
+         sodipodi:role="line"
+         x="230.48438"
+         y="364.23926"
+         id="tspan4186">limit1: 7</tspan><tspan
+         sodipodi:role="line"
+         x="230.48438"
+         y="384.23926"
+         id="tspan4190">exit_cont1:</tspan><tspan
+         sodipodi:role="line"
+         x="230.48438"
+         y="404.23926"
+         id="tspan4192">restore_closure: &lt;clo&gt;</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="571"
+       y="588"
+       id="text4379"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan4381"
+         x="571"
+         y="588">opb = find_lex 'old_print_base'</tspan><tspan
+         sodipodi:role="line"
+         x="571"
+         y="608"
+         id="tspan4383">set_hll_global '*PRINT-BASE*', opb</tspan></text>
   </g>
 </svg>

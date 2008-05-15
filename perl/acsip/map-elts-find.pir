@@ -25,19 +25,19 @@ done:
 
 .sub find_if_greater
 	.param pmc tree
-	.param pmc limit
+	.param pmc limit1
 
 	## Create the $result and $limit lexicals.
-	.lex '$limit', limit
-	.local pmc result
-	.lex '$result', result
-	result = new 'Undef'
+	.lex '$limit', limit1
+	.local pmc result1
+	.lex '$result', result1
+	result1 = new 'Undef'
 
 	## Create an exit continuation
-	.local pmc exit_cont
-	.lex 'exit_cont', exit_cont
-	exit_cont = new 'Continuation'
-	set_addr exit_cont, done
+	.local pmc exit_cont1
+	.lex 'exit_cont', exit_cont1
+	exit_cont1 = new 'Continuation'
+	set_addr exit_cont1, done
 
 	## Create a closure of our internal sub.
 	.local pmc find_internal, find_closure
@@ -47,20 +47,20 @@ done:
 
 	## map_elts returned normally.
 	print "Nothing found greater than "
-	print limit
+	print limit1
 	print ".\n"
 done:
-	.return (result)
+	.return (result1)
 .end
 
 .sub _find_internal :outer('find_if_greater')
 	.param pmc value
 
 	## Test value against limit
-	.local pmc limit
+	.local pmc limit2
 	# print "Testing $value.\n";
-	limit = find_lex '$limit'
-	unless value > limit goto nope
+	limit2 = find_lex '$limit'
+	unless value > limit2 goto nope
 
 	## Print and store in $result.
 	print "Found "
@@ -69,9 +69,9 @@ done:
 	store_lex '$result', value
 
 	## Return to find_if_greater.
-	.local pmc exit_cont
-	exit_cont = find_lex 'exit_cont'
-	exit_cont()
+	.local pmc exit_cont2
+	exit_cont2 = find_lex 'exit_cont'
+	exit_cont2()
 nope:
 	.return ()
 .end

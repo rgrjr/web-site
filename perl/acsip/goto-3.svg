@@ -78,7 +78,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1"
      inkscape:cx="492.78965"
-     inkscape:cy="336.08525"
+     inkscape:cy="217.08525"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -183,7 +183,7 @@
        style="fill:#dadaf0;fill-opacity:1"
        id="rect8317"
        width="342.66913"
-       height="177.43121"
+       height="141.43121"
        x="537.84387"
        y="88.687714" />
     <path
@@ -277,8 +277,8 @@
     <rect
        style="fill:#dadaf0;fill-opacity:1"
        id="rect6389"
-       width="376.66913"
-       height="220.43121"
+       width="375.66913"
+       height="184.43121"
        x="528.66541"
        y="283.28439" />
     <text
@@ -292,41 +292,6 @@
          id="tspan2477"
          x="540"
          y="311">.sub find_if_greater:</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="609"
-       y="330"
-       id="text6395"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan6270"
-         x="609"
-         y="330">...</tspan><tspan
-         sodipodi:role="line"
-         id="tspan6272"
-         x="609"
-         y="355">find_closure = newclosure ...</tspan><tspan
-         sodipodi:role="line"
-         id="tspan6274"
-         x="609"
-         y="380">map_elts(tree, find_closure)</tspan><tspan
-         sodipodi:role="line"
-         id="tspan6276"
-         x="609"
-         y="405">print &quot;Nothing ...&quot;</tspan><tspan
-         sodipodi:role="line"
-         id="tspan6278"
-         x="609"
-         y="430">print limit</tspan><tspan
-         sodipodi:role="line"
-         id="tspan6280"
-         x="609"
-         y="455">print &quot;.\n&quot;</tspan><tspan
-         sodipodi:role="line"
-         id="tspan6282"
-         x="609"
-         y="480">.return (result)</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
@@ -356,37 +321,14 @@
        transform="matrix(2,0,0,2,-4.56112,15.46655)" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 233.2658,355.81643 C 284.63898,354.12549 354.18686,382.01275 393.88662,425.17331 C 423.72305,457.61071 463.80116,474.76439 530.7342,473.76439"
+       d="M 233.2658,355.81643 C 284.63898,354.12549 353.18686,351.01275 392.88662,394.17331 C 422.72305,426.61071 463.80116,441.76439 530.7342,440.76439"
        id="path6296"
        sodipodi:nodetypes="csc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
-       d="M 268.2658,446.81643 C 319.63898,445.12549 338.17484,450.1697 379.14918,461.39648 C 423.90519,473.65942 460.26768,475.06976 531.7342,473.76439"
+       d="M 268.2658,446.81643 C 320.63898,446.12549 349.30485,450.74426 391.14918,443.39648 C 440.90519,434.65942 458.26768,440.06976 529.7342,440.76439"
        id="path6298"
        sodipodi:nodetypes="csc" />
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="126"
-       y="303"
-       id="text6358"
-       sodipodi:linespacing="100%"><tspan
-         sodipodi:role="line"
-         id="tspan6360"
-         x="126"
-         y="303">tree: [1, 2, ...]</tspan><tspan
-         sodipodi:role="line"
-         x="126"
-         y="323"
-         id="tspan6362">limit: 7</tspan><tspan
-         sodipodi:role="line"
-         x="126"
-         y="343"
-         id="tspan6364">result:</tspan><tspan
-         sodipodi:role="line"
-         x="126"
-         y="363"
-         id="tspan6366">exit_cont:</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 241.85827,492.5 L 242.96369,396.8513"
@@ -397,13 +339,71 @@
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
-       x="539"
-       y="481"
+       x="538"
+       y="444"
        id="text7660"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
          id="tspan7662"
-         x="539"
-         y="481">done:</tspan></text>
+         x="538"
+         y="444">done:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="120"
+       y="301"
+       id="text3731"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3733"
+         x="120"
+         y="301">tree: [1, 2, ...]</tspan><tspan
+         sodipodi:role="line"
+         x="120"
+         y="321"
+         id="tspan3735">limit1: 7</tspan><tspan
+         sodipodi:role="line"
+         x="120"
+         y="341"
+         id="tspan3739">result1: 8</tspan><tspan
+         sodipodi:role="line"
+         x="120"
+         y="361"
+         id="tspan3743">exit_cont1:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:100%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans;-inkscape-font-specification:Sans"
+       x="603"
+       y="324"
+       id="text3745"
+       sodipodi:linespacing="100%"><tspan
+         sodipodi:role="line"
+         id="tspan3747"
+         x="603"
+         y="324">...</tspan><tspan
+         sodipodi:role="line"
+         x="603"
+         y="344"
+         id="tspan3749">find_closure = newclosure ...</tspan><tspan
+         sodipodi:role="line"
+         x="603"
+         y="364"
+         id="tspan3751">map_elts(tree, find_closure)</tspan><tspan
+         sodipodi:role="line"
+         x="603"
+         y="384"
+         id="tspan3753">print &quot;Nothing ...&quot;</tspan><tspan
+         sodipodi:role="line"
+         x="603"
+         y="404"
+         id="tspan3757">print limit1</tspan><tspan
+         sodipodi:role="line"
+         x="603"
+         y="424"
+         id="tspan3761">print &quot;.\n&quot;</tspan><tspan
+         sodipodi:role="line"
+         x="603"
+         y="444"
+         id="tspan3763">.return (result1)</tspan></text>
   </g>
 </svg>
