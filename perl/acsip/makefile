@@ -11,7 +11,7 @@ LISP   = lisp
 
 all:		thumbnails
 
-pages         = index.html intro.html pir-basics.html simple.html \
+pages         = index.html preface.html intro.html pir-basics.html simple.html \
 		closures.html actions.html cont-1.html cont-2.html \
 		conclusions.html
 lisp-scripts  = map-elts-return.lisp map-elts-binary.lisp

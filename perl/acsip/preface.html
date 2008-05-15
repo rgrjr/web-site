@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: Preface</title>
+<link href="acsip.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Advanced Control Structures in Parrot</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="../">Advanced control structures</a> : Preface
+<hr>
+
+<p>We all know about "for" and "while" loops -- they are implemented
+with gotos -- but what really happens when you "goto" a label that is
+outside the sub?  How does error handling work under the hood?  What's a
+coroutine good for, and how does it work?
+
+<p>The answers to all of these questions involve something called a
+"continuation," which is just a generalized goto.  Ordinary gotos
+transfer control to another location within the same call to the same
+subroutine.  Continuations can also jump to a <b>different</b>
+subroutine invocation, and can pass values just like a sub call.  This
+makes them essential for implementing nonlocal transfer of control.
+
+<p><a href="index.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="intro.html">[Next]</a>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id$
+</body>
+</html>
