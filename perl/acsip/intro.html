@@ -11,7 +11,15 @@
 <a href="../">Advanced control structures</a> : Introduction
 <hr>
 
-<p>Here's what I will be discussing:
+<p>We all know that a control structure is a way of changing the
+sequence of program actions.  Simple control structures are implemented
+using <tt>goto</tt>, which jumps somewhere else in the same sub
+invocation.  Advanced control structures involve jumps <b>between</b>
+subs.  This includes such things as language constructs for exception
+handling.  Dynamic languages support at least some of these features,
+which are also known collectively as nonlocal control transfers.
+
+<p>Here's what I will be covering:
 
 <ul>
   <li> Basic Parrot assembly code, and the runtime data structures that
@@ -19,16 +27,28 @@
   <li> Function calling as a control structure (e.g. <tt>map</tt> in
        Perl 5).
   <li> How to implement various sorts of nonlocal control transfers
-       using Parrot continuations.
+       using Parrot continuations, with working sample code.
   <li> How error handling is implemented in terms of continuations.
   <li> How coroutines provide a thread-like interface to continuation
        calling.
 </ul>
 
+<p>You might be interested in this because:
+
+<ul>
+  <li> You are writing a compiler for a language that needs these
+       features; or
+  <li> You write in a dynamic language, and want to know how this stuff
+       works under the hood.
+</ul>
+
 <p>Here's what I will <b>not</b> be talking about:
 
 <ul>
-  <li> CP-transformation (another view of continuations).
+  <li> <a
+       href="http://en.wikipedia.org/wiki/Continuation_passing_style">
+       Continuation-passing style</a> and CP-transformation (another
+       view of continuations).
   <li> Backtracking (see the 28th test case in <a
        href="https://svn.perl.org/parrot/trunk/t/op/lexicals.t">
        <tt>t/op/lexicals.t</tt></a> for an example).
