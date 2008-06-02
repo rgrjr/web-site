@@ -34,9 +34,11 @@ thumbnails:	${thumbnails}
 # This mostly makes sure that the Perl scripts and their PIR implementations
 # produce the same output.  It does not check that these programs are consistent
 # with their excerpts in the HTML.
-test:	test-factorial test-closures test-cont-1 test-cont-2 test-action
+test:		test-factorial test-closures test-cont-1 test-cont-2 \
+		test-action test-cont-3
+	@echo All tests pass.
 # Test the factorial.* programs.  [This gives different outputs on 32-bit
-# systems; Parrot promotes to BigInts, while Perl uses floats.  -- rgr,
+# systems:  Parrot promotes to BigInts, while Perl uses floats.  -- rgr,
 # 7-May-08.]
 test-factorial:
 	${PARROT} factorial.pir > $@-pir-out.tmp
@@ -69,6 +71,19 @@ test-action:
 		| fgrep -v Loading > $@-lisp-out.tmp
 	cmp $@-pir-out.tmp $@-lisp-out.tmp
 	${PERL} map-elts-binary.pl.text > $@-perl-out.tmp
+	cmp $@-pir-out.tmp $@-perl-out.tmp
+	rm -f $@-*-out.tmp
+# Test nonlocal dynamic exit (Continuations III).
+test-cont-3:
+	${PARROT} map-elts-throw.pir > $@-pir-out.tmp
+	${LISP} -load map-elts-throw.lisp -eval '(ext:quit)' \
+		| fgrep -v Loading > $@-lisp-out.tmp
+	cmp $@-pir-out.tmp $@-lisp-out.tmp
+	${PERL} map-elts-throw.pl.text > $@-perl-out.tmp
+	cmp $@-pir-out.tmp $@-perl-out.tmp
+	${LISP} -load map-elts-throw-closure.lisp -eval '(ext:quit)' \
+		| fgrep -v Loading > $@-clo-out.tmp
+	cmp $@-pir-out.tmp $@-clo-out.tmp
 	rm -f $@-*-out.tmp
 
 install:	${pages} ${scripts} ${diagrams} ${thumbnails} ${other}

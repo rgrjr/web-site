@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Bob Rogers: ACSIP: Nonlocal dynamic return</title>
+<link href="acsip.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Continuations III: Nonlocal dynamic return</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="index.html">Advanced control structures</a> : Nonlocal dynamic
+return
+<hr>
+
+<!-- hhmtoc start -->
+<ol>
+  <li> Continuations III: Nonlocal dynamic return
+       <ol>
+	 <li> <a href="#example">A dynamic return example</a>
+	 <li> <a href="#closures">Implementation using closures</a>
+	 <li> <a href="#continuations">Implementation using continuations</a>
+	 <li> <a href="#dynamic-goto">But what about nonlocal dynamic goto?</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+
+<p>So far we have only considered lexical cases, where we can stuff the
+continuation into a lexically-available register.  That does not work
+when the code that exits is in a different module from the place to
+which it must return.  In that case, it may be possible to arrange a
+dynamic return convention.  Lisp provides this via <a
+href="http://www.lispworks.com/documentation/HyperSpec/Body/s_catch.htm">
+<tt>catch</tt></a> and <a
+href="http://www.lispworks.com/documentation/HyperSpec/Body/s_throw.htm">
+<tt>throw</tt></a>, where <tt>throw</tt> transfers control to the
+innermost matching <tt>catch</tt> in its dynamic extent.
+
+<a name="example">
+<h3>A dynamic return example</h3>
+
+<p>So let's split the <a href="map-elts-return.lisp">
+map-elts-return.lisp</a> example into a <tt>process-elts</tt> portion
+which is in "our" application and calls <tt>maps-elts</tt>, and a
+<tt>process-elt</tt> portion that is somewhere else, but needs to return
+the successful value:
+
+<pre class="example">
+(defun process-elt (elt limit)
+  (when (&gt; elt limit)
+    (format t "Found ~S~%" elt)
+    (throw 'found elt)))
+
+(defun process-elts (tree arg)
+  (catch 'found
+    (map-elts tree #'(lambda (value)
+		       (process-elt value arg)))
+    "nothing"))
+</pre>
+<a href="map-elts-throw.lisp">[view full source]</a> -- <a
+href="map-elts-return.lisp">[compare to <tt>map-elts-return.lisp</tt>
+source]</a> -- <a href="map-elts-throw.pl.text">[compare to
+<tt>map-elts-throw.pl</tt> source]</a>
+
+<p>By design, the output is the same as for the
+<tt>map-elts-return.lisp</tt> example:
+
+<pre class="output">
+CL-USER&gt; <b>(load "map-elts-throw.lisp")</b>
+Found 7
+Returned 7 for 6.
+Found 9
+Returned 9 for 8.
+Returned nothing for 99.
+T
+CL-USER&gt; 
+</pre>
+
+<a name="closures">
+<h3>Implementation using closures</h3>
+
+<p>This could be done indirectly via lexical <tt>return</tt>.  Let us
+simplify things by assuming we only want to return a single value.
+Furthermore, let's use the <tt>*catch-list*</tt> global to store the
+information needed to return to a given <tt>catch</tt>:
+
+<pre class="example">
+(defvar *catch-list* nil
+  "Currently available throw tags.  This is either NIL,
+or a three-element array of [tag, closure, outer], where:
+
+    tag     is the catch tag,
+    closure is the thing to call to throw to it, and
+    outer   is the next outer *catch-list* entry.")
+</pre>
+<a href="map-elts-throw-closure.lisp">[view full source]</a>
+
+<p><tt>clo-throw</tt> just needs to walk this structure to find the
+innermost tag:
+
+<pre class="example">
+(defun clo-throw (tag value)
+  (do ((tail *catch-list*
+             (aref tail 2)))
+      ((null tail)
+        (error "No such tag:  ~S" tag))
+    (if (eq (aref tail 0) tag)
+        (funcall (aref tail 1) value))))
+</pre>
+<a href="map-elts-throw-closure.lisp">[view full source]</a>
+
+<p><tt>clo-catch</tt> must rebind <tt>*catch-list*</tt> with the new tag
+and closure, and invoke the body of the catch within the new dynamic
+environment:
+
+<pre class="example">
+(defun clo-catch (tag body-function)
+  (let ((*catch-list*
+	  (vector tag
+		  #'(lambda (value)
+		      (return-from clo-catch value))
+		  *catch-list*)))
+    (funcall body-function)))
+</pre>
+<a href="map-elts-throw-closure.lisp">[view full source]</a>
+
+<p>In order to use <tt>clo-catch</tt>, it is necessary to bundle the
+body of the <tt>catch</tt> into a closure of its own:
+
+<pre class="example">
+(defun process-elts (tree arg)
+  (clo-catch
+    'found
+    #'(lambda ()
+	(map-elts tree #'(lambda (value)
+			   (process-elt value arg)))
+	"nothing")))
+</pre>
+<a href="map-elts-throw-closure.lisp">[view full source]</a>
+
+<a name="continuations">
+<h3>Implementation using continuations</h3>
+
+<p>But it would be cleaner simply to return directly.  To do so, we can
+record a continuation instead of a closure.  Fortunately, this means
+that we can use the <tt>clo-throw</tt> code above for our PIR version of
+<tt>throw</tt>:
+
+<pre class="example">
+.sub Throw
+	.param string tag
+	.param pmc value
+
+	## Get the current $catch_list value.
+	.local pmc catch_list
+	catch_list = get_hll_global '$catch_list'
+
+again:
+	## While not null,
+	if null catch_list goto oops
+	.local string pair_tag
+	pair_tag = catch_list[0]
+	if tag != pair_tag goto next
+	## Got a winner.
+	.local pmc continuation
+	continuation = catch_list[1]
+	.return continuation(value)
+next:
+	## Next pair.
+	catch_list = catch_list[2]
+	goto again
+oops:
+	error("No such tag:  ~S", tag)
+.end
+</pre>
+<a href="map-elts-throw.pir">[view full source]</a>
+
+<p>This makes <tt>process_elt</tt> (not shown) pretty simple; it just
+has to do the test and maybe call <tt>Throw</tt>.
+
+<p>Pushing the <tt>*catch-list*</tt> information for a new
+<tt>catch</tt> context is straightforward.  In order to implement
+<tt>catch</tt>, we need to:
+
+<ol>
+  <li> Save the old <tt>*CATCH-LIST*</tt> value.
+  <li> Push an action to restore it on exit.
+  <li> Find our return continuation.
+  <li> Associate the tag and the continuation in the
+       <tt>*CATCH-LIST*</tt> global.
+  <li> Evaluate the catch body.
+</ol>
+
+<p>But this is just the same global variable and continuation
+manipulation as done by <a href="map-elts-binary.pir">
+<tt>find_if_greater</tt> in <tt>map-elts-binary.pir</tt></a>, only it's
+the continuation (in part) that goes into the new global value.
+
+<pre class="example">
+.sub catch
+	.param string tag
+	.param pmc catch_body
+
+	## Save off the old $catch_list value.
+	.local pmc ocl1
+	.lex 'old_catch_list', ocl1
+	ocl1 = get_hll_global '$catch_list'
+
+	## Define an action to restore it.
+	.local pmc restore_sub, restore_closure
+	.const .Sub restore_sub = '_restore_old_catch_list'
+	restore_closure = newclosure restore_sub
+	pushaction restore_closure
+
+	## Push a catch entry with our return continuation.
+	.local pmc exit_cont
+	exit_cont = interpinfo .INTERPINFO_CURRENT_CONT
+	.local pmc new_catch_list
+	new_catch_list = new 'FixedPMCArray'
+	new_catch_list = 3
+	new_catch_list[0] = tag
+	new_catch_list[1] = exit_cont
+	new_catch_list[2] = ocl1
+	set_hll_global '$catch_list', new_catch_list
+
+	## Call the catch body.
+	.local pmc result
+	result = catch_body()
+	.return (result)
+.end
+</pre>
+<a href="map-elts-throw.pir">[view full source]</a>
+
+<p>Given <tt>catch</tt>, the PIR version of <tt>process_elts</tt> is
+simple, if fragmented:
+
+<pre class="example">
+.sub process_elts
+	.param pmc tree1
+	.param pmc limit1
+
+	## Create the $limit and $tree lexicals.
+	.lex '$limit', limit1
+	.lex '$tree', tree1
+
+	## Create a closure of our internal sub.
+	.local pmc internal_sub, internal_closure1
+	.lex "internal_closure", internal_closure1
+	.const .Sub internal_sub = "_process_elts_internal"
+        internal_closure1 = newclosure internal_sub
+
+	## Create a body closure, and call catch with it.
+	.local pmc body_sub, body_closure, result
+	.const .Sub body_sub = "_process_elts_body"
+        body_closure = newclosure body_sub
+	result = catch("found", body_closure)
+	.return (result)
+.end
+
+## Implement the catch body within process_elts.
+.sub _process_elts_body :outer('process_elts')
+	## [no params.]
+
+	.local pmc tree2, internal_closure2
+	internal_closure2 = find_lex 'internal_closure'
+	tree2 = find_lex '$tree'
+	map_elts(tree2, internal_closure2)
+
+	## map_elts returned normally.
+	.return ("nothing")
+.end
+</pre>
+<a href="map-elts-throw.pir">[view full source]</a>
+(<tt>_process_elts_internal</tt> not shown)
+
+<a name="dynamic-goto">
+<h3>But what about nonlocal dynamic goto?</h3>
+
+That would be the fourth entry in the matrix of lexical vs. dynamic and
+return vs. goto, but after seeing dynamically-scoped return, dynamic
+goto is nothing special.  Besides, I am not aware of any languages with
+dynamically-scoped goto.  (Except, of course, for the <a
+href="http://dev.perl.org/perl6/doc/design/syn/S04.html#The_goto_statement">
+Perl 6 <tt>goto</tt></a>, which is both dynamic and lexical, the
+implementation of which is left as an excercise for the student.)
+
+<p><a href="actions.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="conclusions.html">[Next]</a>
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id: index.html 158 2008-03-15 23:01:17Z rogers $
+</body>
+</html>

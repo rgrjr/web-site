@@ -1,0 +1,80 @@
+#! /usr/bin/perl -w  -*- mode: perl -*-
+
+use strict;
+use warnings;
+
+sub map_elts {
+    my ($tree, $functional) = @_;
+
+    if (ref($tree) eq 'ARRAY') {
+	for my $elt (@$tree) {
+	    map_elts($elt, $functional);
+	}
+    }
+    else {
+	$functional->($tree);
+    }
+}
+
+### Implementation of catch & throw via closures:
+
+use vars qw($catch_list);
+$catch_list = undef;
+
+sub clo_throw {
+    my ($tag, $value) = @_;
+
+    my $tail = $catch_list;
+    while (defined($tail)) {
+	$tail->[1]->($value)
+	    if $tail->[0] eq $tag;
+	$tail = $tail->[2];
+    }
+    die "No such tag:  '$tag'";
+}
+
+sub clo_catch {
+    # NB:  This only returns a single value, in scalar context.
+    my ($tag, $catch_body) = @_;
+
+    my $value;
+    local $catch_list
+	= [ $tag, 
+	    sub { $value = $_[0];
+		  goto done;
+	    },
+	    $catch_list
+	];
+    $value = $catch_body->();
+  done:
+    return $value;
+}
+
+### Element processing using the above:
+
+sub process_elt {
+    my ($elt, $limit) = @_;
+
+    # print "Testing $elt.\n";
+    if ($elt > $limit) {
+	print("Found $elt\n");
+	clo_throw("found", $elt);
+    }
+}
+
+sub process_elts {
+    my ($tree, $limit) = @_;
+
+    clo_catch("found",
+	      sub {
+		  map_elts($tree,
+			   sub { process_elt(shift, $limit); });
+		  "nothing";
+	      });
+}
+
+## Test with a silly data structure.
+my $data = [1, 2, 3, [4, 5, 4], [[7, 8, [9, 10]], 11]];
+for my $x (qw(6 8 99)) {
+    print "Returned ", process_elts($data, $x), " for $x.\n";
+}
