@@ -14,13 +14,15 @@ all:		thumbnails
 
 pages         = index.html preface.html intro.html pir-basics.html simple.html \
 		closures.html actions.html cont-1.html cont-2.html \
-		coroutines.html conclusions.html
-lisp-scripts  = map-elts-return.lisp map-elts-binary.lisp
+		cont-3.html coroutines.html conclusions.html
+lisp-scripts  = map-elts-return.lisp map-elts-binary.lisp \
+		map-elts-throw-closure.lisp map-elts-throw.lisp
 perl-scripts  = factorial.pl.text map-elts-print.pl.text map-elts-find.pl.text \
-		map-elts-binary.pl.text same-fringe.flatten.pl.text
+		map-elts-binary.pl.text map-elts-throw.pl.text \
+		same-fringe.flatten.pl.text
 lua-scripts   = same-fringe.flatten.lua same-fringe.coro.lua
 pir-scripts   = factorial.pir map-elts-print.pir map-elts-find.pir \
-		map-elts-return.pir map-elts-binary.pir
+		map-elts-return.pir map-elts-binary.pir map-elts-throw.pir
 scripts       = ${perl-scripts} ${lisp-scripts} ${lua-scripts} ${pir-scripts}
 diagrams      = fact-1.svg fact-2.svg fact-3.svg goto-1.svg goto-2.svg \
 		goto-3.svg return-1.svg return-2.svg \
