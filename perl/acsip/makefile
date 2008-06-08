@@ -5,9 +5,10 @@
 # make INSTALL_OPTS=--diff install
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
+LISP   = lisp
+LUA    = lua
 PARROT = /usr/src/parrot/parrot
 PERL   = perl
-LISP   = lisp
 
 all:		thumbnails
 
@@ -35,7 +36,7 @@ thumbnails:	${thumbnails}
 # produce the same output.  It does not check that these programs are consistent
 # with their excerpts in the HTML.
 test:		test-factorial test-closures test-cont-1 test-cont-2 \
-		test-action test-cont-3
+		test-action test-cont-3 test-cont-4
 	@echo All tests pass.
 # Test the factorial.* programs.  [This gives different outputs on 32-bit
 # systems:  Parrot promotes to BigInts, while Perl uses floats.  -- rgr,
@@ -85,6 +86,16 @@ test-cont-3:
 		| fgrep -v Loading > $@-clo-out.tmp
 	cmp $@-pir-out.tmp $@-clo-out.tmp
 	rm -f $@-*-out.tmp
+# Test the same-fringe.* programs.
+test-cont-4:
+	${LUA} same-fringe.coro.lua > $@-coro.tmp
+	${LUA} same-fringe.map.lua > $@-map.tmp
+	cmp $@-coro.tmp $@-map.tmp
+	${LUA} same-fringe.flatten.lua > $@-flatten.tmp
+	cmp $@-coro.tmp $@-flatten.tmp
+	${PERL} same-fringe.flatten.pl.text > $@-perl.tmp
+	cmp $@-coro.tmp $@-perl.tmp
+	rm -f $@-*.tmp
 
 install:	${pages} ${scripts} ${diagrams} ${thumbnails} ${other}
 	${INSTALL} $^ /srv/www/htdocs/perl/acsip/

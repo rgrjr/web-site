@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Bob Rogers: ACSIP: Coroutines</title>
+<link href="acsip.css" title="Default" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Continuations IV: Coroutines</h1>
+
+<p><a href="/"><tt>Home</tt></a> : <a href="/perl/">Perl/Parrot</a> :
+<a href="index.html">Advanced control structures</a> : Coroutines
+<hr>
+
+<p><a href="cont-3.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="conclusions.html">[Next]</a>
+
+<p>So far, we have only looked at language features that leave one
+context forever, returning to an earlier context that is still in
+progress (which does what is called <a
+href="http://en.wikipedia.org/wiki/Call_stack#Unwinding"> stack
+unwinding</a>).  But continuations can also take us in the other
+direction, and even back and forth.
+
+<blockquote>
+The continuation that obeys only obvious stack semantics,
+O grasshopper, is not the true continuation.<br>
+<i>-- Guy Steele, as quoted by <a
+href="http://paulgraham.com/quotes.html">Paul Graham</a></i>
+</blockquote>
+
+<p>This can be desirable when we must interleave multiple computations
+with complex state (and can't use threading).  For example:
+
+<ul>
+  <li> Hardware simulation (and other "interacting black box"
+       scenarios).
+  <li> Simulation of background jobs in non-threaded code.
+  <li> Parallel traversal.
+</ul>
+
+<p>An example of the last case is the "same fringe" problem, the object
+of which is to test whether two trees have the same leaves under some
+traversal order, i.e. <b>regardless of internal structure</b>.
+
+<p>Suppose we wanted to suspend and then resume our enumeration of 
+
+<p>
+<hr>
+<address><a href="/bob/contact.html">Bob Rogers
+<tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
+$Id: index.html 158 2008-03-15 23:01:17Z rogers $
+</body>
+</html>

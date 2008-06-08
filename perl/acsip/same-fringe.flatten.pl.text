@@ -1,0 +1,74 @@
+#!/usr/bin/perl -w  -*- mode: perl -*-
+
+use strict;
+use warnings;
+
+sub map_elts {
+    my ($tree, $functional) = @_;
+
+    if (ref($tree) eq 'ARRAY') {
+	for my $elt (@$tree) {
+	    map_elts($elt, $functional);
+	}
+    }
+    else {
+	$functional->($tree);
+    }
+}
+
+sub flatten {
+    # Return an arrayref of tree elements.
+    my $tree = shift;
+
+    my $result = [ ];
+    map_elts($tree, 
+	     sub { push(@$result, $_[0]); });
+    return $result;
+}
+
+sub same_fringe_p {
+    # Find out whether two trees have the same leaves
+    # the hard way:  By flattening both first.
+    my ($tree1, $tree2) = @_;
+
+    # Flatten . . .
+    my $elts1 = flatten($tree1);
+    my $elts2 = flatten($tree2);
+    my $size = @$elts1;
+
+    # . . . and check elements.
+    return
+	unless $size == @$elts2;
+    for my $i (0..@$elts1-1) {
+	return
+	    unless $elts1->[$i] eq $elts2->[$i];
+    }
+
+    # Must not have found a difference.
+    return 1;
+}
+
+sub do_test {
+    # Test case helper sub.
+    my ($test, $s1, $s2) = @_;
+
+    my $result = same_fringe_p($s1, $s2);
+    print($test, "\t", $result ? 'true' : 'false', "\n");
+}
+
+# Basic test structure.
+my $s1 = [1, 2, [3, 4], [[5, [6, 7], 8], 9, [10, 11]]];
+do_test(test1 => $s1, $s1);
+# Same structure, different values.
+my $s2 = [1, 2, [3, 4], [[5, [6, 8], 7], 9, [10, 11]]];
+do_test(test2 => $s1, $s2);
+# Different structure, different values.
+my $s3 = [1, 2, [3, 4], [[5, [6, 7]], 9, [10, 11]]];
+do_test(test3 => $s1, $s3);
+# Different structure, same values.
+my $s4 = [1, [2, [3], 4], [5, [[[6, 7], 8], 9, [10, 11]]]];
+do_test(test4 => $s1, $s4);
+# Different structure, prefix values.
+my $s5 = [1, [2, [3], 4], [5, [[[6, 7], 8], 9]]];
+do_test(test5 => $s1, $s5);
+do_test(test6 => $s5, $s1);
