@@ -25,7 +25,7 @@ perl-scripts  = factorial.pl.text map-elts-print.pl.text map-elts-find.pl.text \
 lua-scripts   = same-fringe.flatten.lua same-fringe.coro.lua
 pir-scripts   = factorial.pir map-elts-print.pir map-elts-find.pir \
 		map-elts-return.pir map-elts-binary.pir map-elts-throw.pir \
-		same-fringe.coro.pir
+		same-fringe.cont.pir coro-consts.pasm same-fringe.coro.pir
 scripts       = ${perl-scripts} ${lisp-scripts} ${lua-scripts} ${pir-scripts}
 diagrams      = fact-1.svg fact-2.svg fact-3.svg goto-1.svg goto-2.svg \
 		goto-3.svg return-1.svg return-2.svg \
@@ -95,18 +95,24 @@ test-cont-3:
 # Test the same-fringe.* programs.
 test-cont-4:
 	${LUA} same-fringe.coro.lua > $@-coro.tmp
-	${LUA} same-fringe.map.lua > $@-map.tmp
-	cmp $@-coro.tmp $@-map.tmp
+	# ${LUA} same-fringe.map.lua > $@-map.tmp
+	# cmp $@-coro.tmp $@-map.tmp
 	${LUA} same-fringe.flatten.lua > $@-flatten.tmp
 	cmp $@-coro.tmp $@-flatten.tmp
 	${PERL} same-fringe.flatten.pl.text > $@-perl.tmp
 	cmp $@-coro.tmp $@-perl.tmp
 	${PARROT} same-fringe.coro.pir > $@-pir.tmp
 	cmp $@-coro.tmp $@-pir.tmp
+	${PARROT} same-fringe.cont.pir > $@-cont.tmp
+	cmp $@-coro.tmp $@-cont.tmp
 	rm -f $@-*.tmp
 
 install:	${pages} ${scripts} ${diagrams} ${thumbnails} ${other}
 	${INSTALL} $^ /srv/www/htdocs/perl/acsip/
+
+wc:
+	wc ${pages}
+	wc ${scripts}
 
 clean:
 	rm -f ${thumbnails}
