@@ -103,7 +103,7 @@ equal:
 	.param pmc tree2
 
 	.local int result
-	(result) = same_fringe_p(tree1, tree2)
+	result = same_fringe_p(tree1, tree2)
 	.local string result_str
 	result_str = 'true'
 	if result goto true
