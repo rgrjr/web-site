@@ -36,12 +36,93 @@ with complex state (and can't use threading).  For example:
   <li> Hardware simulation (and other "interacting black box"
        scenarios).
   <li> Simulation of background jobs in non-threaded code.
-  <li> Parallel traversal.
+  <li> Parallel tree traversal.
 </ul>
 
 <p>An example of the last case is the "same fringe" problem, the object
 of which is to test whether two trees have the same leaves under some
-traversal order, i.e. <b>regardless of internal structure</b>.
+traversal order, i.e. <b>regardless of internal structure</b>.  The
+obvious solution is to flatten the trees into two arrayrefs, and then
+compare element by element:
+
+<pre class="example">
+sub same_fringe_p {
+    # Find out whether two trees have the same leaves
+    # the hard way:  By flattening both first.
+    my ($tree1, $tree2) = @_;
+
+    # Flatten . . .
+    my $elts1 = flatten($tree1);
+    my $elts2 = flatten($tree2);
+    my $size = @$elts1;
+
+    # . . . and check elements.
+    return
+	unless $size == @$elts2;
+    for my $i (0..@$elts1-1) {
+	return
+	    unless $elts1-&gt;[$i] eq $elts2-&gt;[$i];
+    }
+
+    # Must not have found a difference.
+    return 1;
+}
+</pre>
+<a href="same-fringe.flatten.pl.text">[view full source]</a>
+
+<p>It would be much nicer to be able to run these two tree traversals in
+parallel; that way we could quit early if we found a difference.  This
+example uses <a href="http://www.lua.org/manual/5.1/manual.html#2.11">
+Lua coroutines</a> to do just that:
+
+<pre class="example">
+function same_fringe_p(tree1, tree2)
+   <i>-- Return true iff the two trees have the same leaves.</i>
+   local coro1 = coroutine.wrap(enumerate_elts)
+   local coro2 = coroutine.wrap(enumerate_elts)
+
+   local leaf1 = coro1(tree1)
+   local leaf2 = coro2(tree2)
+   while leaf1 ~= nil and leaf2 ~= nil do
+      if leaf1 ~= leaf2 then
+	 <i>-- print('mismatch of', leaf1, 'vs', leaf2)</i>
+	 return false
+      end
+      <i>-- print('matching', leaf1, 'and', leaf2)</i>
+      leaf1 = coro1()
+      leaf2 = coro2()
+   end
+   <i>-- We win if we finish both trees simultaneously.</i>
+   return leaf1 == nil and leaf2 == nil
+end
+</pre>
+<a href="same-fringe.coro.lua">[view full source]</a>
+<a href="same-fringe.flatten.lua">[flattening version]</a>
+
+<p>The <tt>enumerate_elts</tt> function is just like <tt>map_elts</tt>
+except that it passes each element to <tt>coroutine.yield</tt> instead
+of a designated functional.
+
+<pre class="example">
+function enumerate_elts(tree)
+   <i>-- Yield each of the leaves in turn.</i>
+   if type(tree) == 'table' then
+      for i = 1, table.getn(tree) do
+	 enumerate_elts(tree[i])
+      end
+   else
+      <i>-- It's a leaf.</i>
+      coroutine.yield(tree)
+   end
+end
+</pre>
+<a href="same-fringe.coro.lua">[view full source]</a>
+<a href="same-fringe.flatten.lua">[flattening version]</a>
+
+<pre class="example">
+</pre>
+<a href="same-fringe.coro.lua">[view full source]</a>
+<a href="same-fringe.flatten.lua">[flattening version]</a>
 
 <p>Suppose we wanted to suspend and then resume our enumeration of 
 
