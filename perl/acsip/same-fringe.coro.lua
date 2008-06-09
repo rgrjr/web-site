@@ -1,6 +1,7 @@
 -- Solving the "same fringe" problem using Lua coroutines.
 
 function enumerate_elts(tree)
+   -- Yield each of the leaves in turn.
    if type(tree) == 'table' then
       -- Note that table.foreach doesn't work in this case,
       -- because it introduces a C call boundary across
