@@ -138,32 +138,41 @@ nope:
 	set_hll_global '*PRINT-BASE*', print_base
 
 	## Initialize $data.
-	.local pmc data, branch3, branch4, branch40, branch402
+	.local pmc data
+	## data contains [1, 2, 3, [4, 5, 4], [[7, 8, [9, 10]], 11]]
 	data = new 'FixedPMCArray'
 	data = 5
 	data[0] = 1
 	data[1] = 2
 	data[2] = 3
-	branch3 = new 'FixedPMCArray'
-	branch3 = 3
-	branch3[0] = 4
-	branch3[1] = 5
-	branch3[2] = 4
-	data[3] = branch3
-	branch4 = new 'FixedPMCArray'
-	branch4 = 2
-	branch40 = new 'FixedPMCArray'
-	branch40 = 3
-	branch40[0] = 7
-	branch40[1] = 8
-	branch402 = new 'FixedPMCArray'
-	branch402 = 2
-	branch402[0] = 9
-	branch402[1] = 10
-	branch40[2] = branch402
-	branch4[0] = branch40
-	branch4[1] = 11
-	data[4] = branch4
+	.local pmc data_3
+	## data_3 contains [4, 5, 4]
+	data_3 = new 'FixedPMCArray'
+	data_3 = 3
+	data_3[0] = 4
+	data_3[1] = 5
+	data_3[2] = 4
+	data[3] = data_3
+	.local pmc data_4
+	## data_4 contains [[7, 8, [9, 10]], 11]
+	data_4 = new 'FixedPMCArray'
+	data_4 = 2
+	.local pmc data_4_0
+	## data_4_0 contains [7, 8, [9, 10]]
+	data_4_0 = new 'FixedPMCArray'
+	data_4_0 = 3
+	data_4_0[0] = 7
+	data_4_0[1] = 8
+	.local pmc data_4_0_2
+	## data_4_0_2 contains [9, 10]
+	data_4_0_2 = new 'FixedPMCArray'
+	data_4_0_2 = 2
+	data_4_0_2[0] = 9
+	data_4_0_2[1] = 10
+	data_4_0[2] = data_4_0_2
+	data_4[0] = data_4_0
+	data_4[1] = 11
+	data[4] = data_4
 
 	## Initialize "list".
 	.local pmc list
