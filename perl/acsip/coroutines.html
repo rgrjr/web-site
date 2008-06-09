@@ -16,8 +16,7 @@
 <a href="conclusions.html">[Next]</a>
 
 <p>So far, we have only looked at language features that leave one
-context forever, returning to an earlier context that is still in
-progress (which does what is called <a
+context forever, returning to an earlier context (i.e. <a
 href="http://en.wikipedia.org/wiki/Call_stack#Unwinding"> stack
 unwinding</a>).  But continuations can also take us in the other
 direction, and even back and forth.
@@ -29,8 +28,8 @@ O grasshopper, is not the true continuation.<br>
 href="http://paulgraham.com/quotes.html">Paul Graham</a></i>
 </blockquote>
 
-<p>This can be desirable when we must interleave multiple computations
-with complex state (and can't use threading).  For example:
+<p>Traveling in both directions allows us to interleave multiple
+computations with complex state.  This has uses in:
 
 <ul>
   <li> Hardware simulation (and other "interacting black box"
@@ -40,9 +39,9 @@ with complex state (and can't use threading).  For example:
 </ul>
 
 <p>An example of the last case is the "same fringe" problem, the object
-of which is to test whether two trees have the same leaves under some
-traversal order, i.e. <b>regardless of internal structure</b>.  The
-obvious solution is to flatten the trees into two arrayrefs, and then
+of which is to test whether two trees have the same leaves (the
+"fringe") under some traversal order, i.e. <b>regardless of internal
+structure</b>.  The obvious solution is to flatten the trees, and then
 compare element by element:
 
 <pre class="example">
@@ -71,9 +70,10 @@ sub same_fringe_p {
 <a href="same-fringe.flatten.pl.text">[view full source]</a>
 
 <p>It would be much nicer to be able to run these two tree traversals in
-parallel; that way we could quit early if we found a difference.  This
-example uses <a href="http://www.lua.org/manual/5.1/manual.html#2.11">
-Lua coroutines</a> to do just that:
+parallel; that way we could quit when we found the first difference.
+This example uses a pair of <a
+href="http://www.lua.org/manual/5.1/manual.html#2.11"> Lua
+coroutines</a> to do just that:
 
 <pre class="example">
 function same_fringe_p(tree1, tree2)
@@ -85,10 +85,8 @@ function same_fringe_p(tree1, tree2)
    local leaf2 = coro2(tree2)
    while leaf1 ~= nil and leaf2 ~= nil do
       if leaf1 ~= leaf2 then
-	 <i>-- print('mismatch of', leaf1, 'vs', leaf2)</i>
 	 return false
       end
-      <i>-- print('matching', leaf1, 'and', leaf2)</i>
       leaf1 = coro1()
       leaf2 = coro2()
    end
