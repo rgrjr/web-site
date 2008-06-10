@@ -18,6 +18,7 @@
 	 <li> <a href="#samefringe">The "same fringe" problem</a>
 	 <li> <a href="#parrot-samefringe">Parrot implementation of "same fringe"</a>
 	 <li> <a href="#parrot-coro">Parrot implementation of coroutines</a>
+	 <li> <a href="#issues">Issues and alternatives</a>
        </ol>
 </ol>
 <!-- hhmtoc end -->
@@ -340,6 +341,21 @@ the caller.
 </pre>
 <a href="same-fringe.cont.pir">[view full source]</a>
 
+<a name="issues">
+<h3>Issues and alternatives</h3>
+
+There are a few loose ends:
+
+<ul>
+  <li> The Lua coroutine API uses an implicit "current coroutine" as the
+       target of <tt>coroutine.yield</tt>, but we had to make do with
+       passing a coroutine explicitly.  That is because Parrot currently
+       has no way to do this:  Stuffing the current coroutine in a
+       global would preclude nesting, and <tt>pushaction</tt> only works
+       for restoring bindings on exit, not re-establishing them on
+       re-entry.
+</ul>
+
 <p><a href="cont-3.html">[Prev]</a>
 <a href="index.html">[Index]</a>
 <a href="conclusions.html">[Next]</a>
@@ -348,6 +364,6 @@ the caller.
 <hr>
 <address><a href="/bob/contact.html">Bob Rogers
 <tt>&lt;rogers@rgrjr.dyndns.org&gt;</tt></a></address>
-$Id: index.html 158 2008-03-15 23:01:17Z rogers $
+$Id$
 </body>
 </html>

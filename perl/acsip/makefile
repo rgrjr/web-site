@@ -110,6 +110,9 @@ test-cont-4:
 install:	${pages} ${scripts} ${diagrams} ${thumbnails} ${other}
 	${INSTALL} $^ /srv/www/htdocs/perl/acsip/
 
+propset:	${pages} ${scripts} ${other}
+	svn propset svn:keywords 'Author Date Id Revision' $^
+
 wc:
 	wc ${pages}
 	wc ${scripts}
