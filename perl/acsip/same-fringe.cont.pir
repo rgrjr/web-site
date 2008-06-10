@@ -5,7 +5,7 @@
 
 .include "coro-consts.pasm"
 
-## Create a coroutine "object" primed to call the given function.
+## Make a coroutine "object" primed to call the functional.
 .sub coroutine_wrap
 	.param pmc functional
 
@@ -13,7 +13,7 @@
 	coro = new 'FixedPMCArray'
 	coro = 2
 	coro[.CORO_STATE] = .CORO_OUTSIDE_STATE
-	coro[.CORO_FUN] = functional
+	coro[.CORO_CONT] = functional
 	.return (coro)
 .end
 
@@ -24,12 +24,12 @@
 
 	## Find where to go.
 	.local pmc coro_fun
-	coro_fun = coro[.CORO_FUN]
+	coro_fun = coro[.CORO_CONT]
 
 	## Remember where to return when we yield.
 	.local pmc cc
 	cc = interpinfo .INTERPINFO_CURRENT_CONT
-	coro[.CORO_FUN] = cc
+	coro[.CORO_CONT] = cc
 
 	## Update the state.
 	coro[.CORO_STATE] = .CORO_INSIDE_STATE
@@ -41,10 +41,10 @@
 
 	## If we returned normally, then the coroutine is dead.
 	coro[.CORO_STATE] = .CORO_DEAD_STATE
-	## Note that coro[.CORO_FUN] will normally have been
+	## Note that coro[.CORO_CONT] will normally have been
 	## changed magically behind our backs by a subsequent
 	## yield/resume, so we can't just return directly.
-	cc = coro[.CORO_FUN]
+	cc = coro[.CORO_CONT]
 	.return cc(result :flat)
 .end
 
@@ -55,21 +55,19 @@
 
 	## Find where to go.
 	.local pmc coro_fun
-	coro_fun = coro[.CORO_FUN]
+	coro_fun = coro[.CORO_CONT]
 
 	## Remember where to return when we are resumed.
 	.local pmc cc
 	cc = interpinfo .INTERPINFO_CURRENT_CONT
-	coro[.CORO_FUN] = cc
+	coro[.CORO_CONT] = cc
 
 	## Update state, and continue "outside" execution.
 	coro[.CORO_STATE] = .CORO_OUTSIDE_STATE
 	.return coro_fun(args :flat)
 .end
 
-## Recursive coroutine to enumerate tree elements.  Each element that is not a
-## FixedPMCArray is yielded in turn.
-
+## Yield each of the leaves in turn.
 .sub enumerate_elts
 	.param pmc coro
 	.param pmc tree
@@ -83,9 +81,6 @@
 	size = tree
 again:
 	if i >= size goto done
-	## print "[coro recur: elt "
-	## print i
-	## print "]\n"
 	.local pmc elt
 	elt = tree[i]
 	enumerate_elts(coro, elt)
@@ -93,12 +88,8 @@ again:
 	goto again
 
 leaf:
-	## Found a tree leaf.
-	## print "[leaf "
-	## print tree
-	## print "]\n"
+	## It's a leaf.
 	coroutine_yield(coro, tree)
-	goto done
 
 done:
 	## Return nothing, to match the Lua conventions.
@@ -114,28 +105,23 @@ done:
 	.param pmc tree1
 	.param pmc tree2
 
-	.local pmc coro_class
-	coro_class = get_class 'Parrot::Coroutine'
-
+	## Create coroutines.
 	.local pmc coro1, coro2
 	.const .Sub enum_elts = "enumerate_elts"
 	coro1 = coroutine_wrap(enum_elts)
 	coro2 = coroutine_wrap(enum_elts)
 
+	## Start traversal.
 	.local pmc leaf1, leaf2
 	leaf1 = coroutine_resume(coro1, coro1, tree1)
 	leaf2 = coroutine_resume(coro2, coro2, tree2)
 
+	## While both are not null,
 loop:
 	if null leaf1 goto empty_first
 	if null leaf2 goto not_equal
 
-	## Now have results from both.
-	## print "[got "
-	## print leaf1
-	## print ' and '
-	## print leaf2
-	## print "]\n"
+	## Compare leaves.
 	if leaf1 == leaf2 goto next
 	.return (0)
 
@@ -145,7 +131,7 @@ next:
 	leaf2 = coroutine_resume(coro2)
 	goto loop
 
-	## Compute the final return value.
+	## We win if we finish both trees simultaneously.
 empty_first:
 	if null leaf2 goto equal
 not_equal:
