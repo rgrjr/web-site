@@ -11,9 +11,17 @@
 <a href="index.html">Advanced control structures</a> : Coroutines
 <hr>
 
-<p><a href="cont-3.html">[Prev]</a>
-<a href="index.html">[Index]</a>
-<a href="conclusions.html">[Next]</a>
+<!-- hhmtoc start -->
+<ol>
+  <li> Continuations IV: Coroutines
+       <ol>
+	 <li> <a href="#samefringe">The "same fringe" problem</a>
+	 <li> <a href="#parrot-samefringe">Parrot implementation of "same fringe"</a>
+	 <li> <a href="#parrot-coro">Parrot implementation of coroutines</a>
+       </ol>
+</ol>
+<!-- hhmtoc end -->
+<hr>
 
 <p>So far, we have only looked at language features that leave one
 context forever, returning to an earlier context (i.e. <a
@@ -37,6 +45,9 @@ computations with complex state.  This has uses in:
   <li> Simulation of background jobs in non-threaded code.
   <li> Parallel tree traversal.
 </ul>
+
+<a name="samefringe">
+<h3>The "same fringe" problem</h3>
 
 <p>An example of the last case is the "same fringe" problem, the object
 of which is to test whether two trees have the same leaves (the
@@ -117,12 +128,221 @@ end
 <a href="same-fringe.coro.lua">[view full source]</a>
 <a href="same-fringe.flatten.lua">[flattening version]</a>
 
-<pre class="example">
-</pre>
-<a href="same-fringe.coro.lua">[view full source]</a>
-<a href="same-fringe.flatten.lua">[flattening version]</a>
+<p>In summary, the Lua coroutine API provides (for our purposes) three
+calls:
 
-<p>Suppose we wanted to suspend and then resume our enumeration of 
+<ul>
+  <li> <tt>coroutine.wrap</tt> creates a function object from which we
+       can yield;
+  <li> Calling this function starts the coroutine (and resumes it after
+       yielding); and
+  <li> <tt>coroutine.yield</tt> returns a result back to the "outside"
+       caller.
+</ul>
+
+<a name="parrot-samefringe">
+<h3>Parrot implementation of "same fringe"</h3>
+
+<p>We will approximate the Lua API with three PIR routines called
+<tt>coroutine_wrap</tt>, <tt>coroutine_resume</tt>, and
+<tt>coroutine_yield</tt>, respectively.  To keep things simple, we'll
+pass around an explicit coroutine "object".
+
+<p>Under these assumptions, <tt>same_fringe_p</tt> in PIR is a
+straightforward translation of the Lua version:
+
+<pre class="example">
+.sub same_fringe_p
+	.param pmc tree1
+	.param pmc tree2
+
+	## Create coroutines.
+	.local pmc coro1, coro2
+	.const .Sub enum_elts = "enumerate_elts"
+	coro1 = coroutine_wrap(enum_elts)
+	coro2 = coroutine_wrap(enum_elts)
+
+	## Start traversal.
+	.local pmc leaf1, leaf2
+	leaf1 = coroutine_resume(coro1, coro1, tree1)
+	leaf2 = coroutine_resume(coro2, coro2, tree2)
+
+	## While both are not null,
+loop:
+	if null leaf1 goto empty_first
+	if null leaf2 goto not_equal
+
+	## Compare leaves.
+	if leaf1 == leaf2 goto next
+	.return (0)
+
+	## Set up for the next iteration.
+next:
+	leaf1 = coroutine_resume(coro1)
+	leaf2 = coroutine_resume(coro2)
+	goto loop
+
+	## We win if we finish both trees simultaneously.
+empty_first:
+	if null leaf2 goto equal
+not_equal:
+	.return (0)
+equal:
+	.return (1)
+.end
+</pre>
+<a href="same-fringe.cont.pir">[view full source]</a>
+<a href="same-fringe.coro.pir">[<tt>Parrot::Continuation</tt> version]</a>
+
+<p><tt>enumerate_elts</tt> is almost the same as <tt>map_elts</tt>
+(e.g. in <a href="map-elts-find.pir"> <tt>map-elts-find.pir</tt></a>):
+
+<pre class="example">
+## Yield each of the leaves in turn.
+.sub enumerate_elts
+	<b>.param pmc coro</b>
+	.param pmc tree
+
+	$I0 = isa tree, 'FixedPMCArray'
+	unless $I0 goto leaf
+
+	## Loop through array elements, recurring on each.
+	.local int size, i
+	i = 0
+	size = tree
+again:
+	if i &gt;= size goto done
+	.local pmc elt
+	elt = tree[i]
+	enumerate_elts(coro, elt)
+	inc i
+	goto again
+
+leaf:
+	## It's a leaf.
+	<b>coroutine_yield</b>(coro, tree)
+
+done:
+<b>	## Return nothing, to match the Lua conventions.
+	.local pmc nil
+	null nil
+	.return (nil)
+</b>.end
+</pre>
+<a href="same-fringe.cont.pir">[view full source]</a>
+
+<a name="parrot-coro">
+<h3>Parrot implementation of coroutines</h3>
+
+<p>It turns out that the coroutine "object" only needs two slots, a
+state code and a continuation, which we can implement using an array of
+length two.
+
+<ul>
+  <li> The state can be "inside" when the coroutine is running,
+       "outside" when it has yielded (and initially), and "dead" when
+       the initial function finally returns.
+  <li> The coroutine continuation starts out as the initial function,
+       and is replaced with a continuation that takes us to the "other
+       side" whenever we switch.
+</ul>
+
+<pre class="example">
+## Make a coroutine "object" primed to call the functional.
+.sub coroutine_wrap
+	.param pmc functional
+
+	.local pmc coro
+	coro = new 'FixedPMCArray'
+	coro = 2
+	coro[.CORO_STATE] = .CORO_OUTSIDE_STATE
+	coro[.CORO_CONT] = functional
+	.return (coro)
+.end
+</pre>
+<a href="same-fringe.cont.pir">[view full source]</a>
+<a href="same-fringe.coro.pir">[<tt>Parrot::Continuation</tt> version]</a>
+
+<p><tt>coroutine_yield</tt> must only be called in the "inside" state.
+At that time, the coroutine continuation is the continuation of the most
+recent <tt>coroutine_resume</tt> call.  This is where
+<tt>coroutine_yield</tt> needs to go, so it must:
+
+<ol>
+  <li> extract the current coroutine continuation;
+  <li> replace it with the current continuation, which will be called by
+       the next <tt>coroutine_resume</tt>;
+  <li> update the state; and
+  <li> call the current coroutine continuation.
+</ol>
+
+<p>The final call takes the args passed to <tt>coroutine_yield</tt>,
+returning them thereby from the most recent <tt>coroutine_resume</tt>
+call.
+
+<pre class="example">
+## Return values from "inside" the coroutine.
+.sub coroutine_yield
+	.param pmc coro
+	.param pmc args :slurpy
+
+	## Find where to go.
+	.local pmc coro_fun
+	coro_fun = coro[.CORO_CONT]
+
+	## Remember where to return when we are resumed.
+	.local pmc cc
+	cc = interpinfo .INTERPINFO_CURRENT_CONT
+	coro[.CORO_CONT] = cc
+
+	## Update state, and continue "outside" execution.
+	coro[.CORO_STATE] = .CORO_OUTSIDE_STATE
+	.return coro_fun(args :flat)
+.end
+</pre>
+<a href="same-fringe.cont.pir">[view full source]</a>
+
+<p><tt>coroutine_resume</tt> must be called when in the "outside" state,
+and is uncannily similar to <tt>coroutine_yield</tt>.  The essential
+difference is that calling the coroutine continuation can return,
+because it may be the initial function.  When this happens, we mark the
+coroutine as dead, and return the values from the initial function to
+the caller.
+
+<pre class="example">
+## Resume or initiate the coroutine from "outside."
+.sub coroutine_resume
+	.param pmc coro
+	.param pmc args :slurpy
+
+	## Find where to go.
+	.local pmc coro_fun
+	coro_fun = coro[.CORO_CONT]
+
+	## Remember where to return when we yield.
+	.local pmc cc
+	cc = interpinfo .INTERPINFO_CURRENT_CONT
+	coro[.CORO_CONT] = cc
+
+	## Update the state.
+	coro[.CORO_STATE] = .CORO_INSIDE_STATE
+
+	## Call the coro_fun with our args.
+	.local pmc result
+	(result :slurpy) = coro_fun(args :flat)
+
+	## If we returned normally,
+        ## then the coroutine is dead.
+	coro[.CORO_STATE] = .CORO_DEAD_STATE
+	cc = coro[.CORO_CONT]
+	.return cc(result :flat)
+.end
+</pre>
+<a href="same-fringe.cont.pir">[view full source]</a>
+
+<p><a href="cont-3.html">[Prev]</a>
+<a href="index.html">[Index]</a>
+<a href="conclusions.html">[Next]</a>
 
 <p>
 <hr>
