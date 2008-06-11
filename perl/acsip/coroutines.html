@@ -17,6 +17,7 @@
        <ol>
 	 <li> <a href="#samefringe">The "same fringe" problem</a>
 	 <li> <a href="#parrot-samefringe">Parrot implementation of "same fringe"</a>
+	 <li> <a href="#parrot-exec">Parrot execution of "same fringe"</a>
 	 <li> <a href="#parrot-coro">Parrot implementation of coroutines</a>
 	 <li> <a href="#issues">Issues and alternatives</a>
        </ol>
@@ -232,6 +233,39 @@ done:
 </pre>
 <a href="same-fringe.cont.pir">[view full source]</a>
 
+<a name="parrot-exec">
+<h3>Parrot execution of "same fringe"</h3>
+
+<p>Let us pick a "false" test case:
+
+<pre class="example">
+local s1 = {1, 2, {3, 4}, {{5, {6, 7}, 8}, 9, {10, 11}}}
+-- Different structure, different values.
+local s3 = {1, 2, {3, 4}, {{5, {6, 7}}, 9, {10, 11}}}
+print('test3', same_fringe_p(s1, s3))
+</pre>
+<a href="same-fringe.coro.lua">[view full source]</a>
+
+<p>Here's what it looks like before <tt>coro1</tt> yields its first
+value:
+
+<p><img src="coro-1.png">
+<a href="coro-1.svg">[before the first yield]</a>
+
+<p>Here's what it looks like immediately after the first yield:
+
+<p><img src="coro-2.png">
+<a href="coro-2.svg">[after the first yield]</a>
+
+<p>And here's the view some time later, before <tt>coro2</tt> yields the
+9 that turns out to be the first difference:
+
+<p><img src="coro-3.png">
+<a href="coro-3.svg">[shortly before the end]</a>
+
+<p>At this point, <tt>coro1</tt> has more active <tt>enumerate_elts</tt>
+contexts, because the <tt>s1</tt> structure is deeper at this point.
+
 <a name="parrot-coro">
 <h3>Parrot implementation of coroutines</h3>
 
@@ -347,13 +381,20 @@ the caller.
 There are a few loose ends:
 
 <ul>
-  <li> The Lua coroutine API uses an implicit "current coroutine" as the
+  <li> The <a href="http://www.lua.org/manual/5.1/manual.html#2.11">Lua
+       coroutine API</a> uses an implicit "current coroutine" as the
        target of <tt>coroutine.yield</tt>, but we had to make do with
        passing a coroutine explicitly.  That is because Parrot currently
        has no way to do this:  Stuffing the current coroutine in a
        global would preclude nesting, and <tt>pushaction</tt> only works
        for restoring bindings on exit, not re-establishing them on
-       re-entry.
+       re-entry.  It would be nice to have a solution that avoids both
+       problems.
+  <li> Our old friend <tt>map_elts</tt> would have done the job of
+       <tt>enumerate_elts</tt> if passed a closure that yields its
+       argument.  (It wouldn't have even needed to be a closure if we
+       had a "current coroutine" concept.)  However, this would have
+       made the PIR translation harder to follow.
 </ul>
 
 <p><a href="cont-3.html">[Prev]</a>

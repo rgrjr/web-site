@@ -29,7 +29,8 @@ pir-scripts   = factorial.pir map-elts-print.pir map-elts-find.pir \
 scripts       = ${perl-scripts} ${lisp-scripts} ${lua-scripts} ${pir-scripts}
 diagrams      = fact-1.svg fact-2.svg fact-3.svg goto-1.svg goto-2.svg \
 		goto-3.svg return-1.svg return-2.svg \
-		action-1.svg action-2.svg action-3.svg
+		action-1.svg action-2.svg action-3.svg \
+		coro-1.svg coro-2.svg coro-3.svg
 other  	      = acsip.css summary.text
 
 thumbnails = ${diagrams:.svg=.png}
