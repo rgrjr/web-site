@@ -221,7 +221,7 @@
          sodipodi:role="line"
          id="tspan2467"
          x="624.69891"
-         y="199.5502">$P0 = find_if_greater(data, 7)</tspan><tspan
+         y="199.5502">$P0 = find_if_greater(data, x)</tspan><tspan
          sodipodi:role="line"
          id="tspan2469"
          x="624.69891"
