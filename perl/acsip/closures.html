@@ -11,6 +11,14 @@
 <a href="index.html">Advanced control structures</a> : Closures
 <hr>
 
+<p>Closures are useful control structures because they allow lexical
+scopes to be broken up into multiple subs and still have communication
+between them.
+
+<p>Let's say we have an application with a complicated tree data
+structure (which we will model with arrays).  We can separate traversal
+of this data structure from anything that needs to use it:
+
 <pre class="example">
 sub map_elts {
     my ($tree, $functional) = @_;
