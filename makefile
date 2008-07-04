@@ -2,7 +2,7 @@
 #
 # $Id$
 
-# make INSTALL_OPTS=--noinstall install
+# make INSTALL_OPTS=--diff install
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
 # [suse standard locations (since 8.1 anyway).  -- rgr, 29-May-04.]
@@ -63,7 +63,7 @@ linux-pages = linux/index.html linux/tux-small.png \
 	linux/gconf.html linux/aolserver.html linux/cd-burning.html \
 	linux/howto.html linux/nis.html linux/qmail.html linux/squid.html \
 	linux/ntp.html linux/ntpd.sh linux/tmda.html \
-	linux/subversion.html linux/xml.html
+	linux/subversion.html linux/svn-dump.html linux/xml.html
 security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/firewall.html linux/security/old-xauth.html \
 	linux/security/ssh.html linux/security/xauth.html \
@@ -71,10 +71,15 @@ security-pages = linux/security/index.html linux/security/check-logs.html \
 perl-pages = perl/index.html perl/sub-memory-leak.html perl/perl6-objects.html
 lisp-pages = lisp/index.html
 
-all:	change-history.html
+all:	change-history.html linux/svn-dump.html
 
 change-history.html:	.
 	./cvs-chrono-log.pl 365 change-history-template.html > $@
+
+linux/svn-dump.html:
+	svn cat https://rgrjr.dyndns.org/svn/scripts/trunk/svn-dump.pl > $@.pl
+	pod2html $@.pl > $@
+	rm -f $@.pl
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
 current-hits.html:	/var/log/apache2/access_log.200508.log \
