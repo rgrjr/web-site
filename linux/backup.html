@@ -27,18 +27,18 @@ resources</a> : <a href="howto.html">"Howto"</a> : Backup
 		<li> <a href="#timing">Backup timing</a>
 		<li> <a href="#cron-backup">Automated backups with <tt>cron</tt></a>
 	      </ol>
-	 <li> <a href="#dump-backups">Making backups with <tt>dump</tt></a>
+	 <li> <a href="#archival-tools">Tools for archival backup dumps</a>
 	      <ol>
-		<li> <a href="#perl-script">The <tt>backup.pl</tt> perl script</a>
-		<li> <a href="#script">The <tt>backup</tt> shell script</a>
+		<li> <a href="#dump-backups">Archival backups with <tt>dump</tt></a>
+		<li> <a href="#dar-backups">Archival backups with DAR</a>
+		<li> <a href="#perl-script">The <tt>backup.pl</tt> Perl script</a>
+		<li> <a href="#vacuum.pl">Copying dump files with <tt>vacuum.pl</tt></a>
 	      </ol>
-	 <li> <a href="#vacuum.pl">Copying dump files with <tt>vacuum.pl</tt></a>
 	 <li> <a href="#mirroring">Notes on mirroring backup</a>
 	      <ol>
 		<li> <a href="#web-mirror">Mirroring case history 1:  Web server content</a>
 		<li> <a href="#disk-mirror">Mirroring case history 2:  Full disk copy</a>
 	      </ol>
-	 <li> <a href="#mac-backup">Backing up Jan's Macintosh</a>
 	 <li> <a href="#ack">Acknowledgements</a>
        </ol>
 </ol>
@@ -318,21 +318,20 @@ to copy all dumps automatically to the disk on the new machine.
 
 <p>
 <hr>
-<a name='dump-backups'>
-<h2>Making backups with <tt>dump</tt></h2>
+<a name="archival-tools">
+<h2>Tools for archival backup dumps</h2>
 
-<p>For my part, I mostly use the standard, tried-and-true <tt>ext2</tt>
-file system, and its successor <tt>ext3</tt>.  I have some experience
-with <a href="http://www.namesys.com/">ReiserFS</a>, which appears to be
-faster than <tt>ext2/3</tt> (and more reliable than <tt>ext2</tt>), but
-still prefer <tt>ext3</tt>, because <a
-href="http://dump.sourceforge.net/"> <tt>dump</tt> and
-<tt>restore</tt></a> don't understand ReiserFS, and there appears to be
-no good incremental backup solution for ReiserFS.  (The word on the
-street is to use <a href="http://www.gnu.org/directory/GNU/tar.html">
-GNU <tt>tar</tt></a>, but I've never been able to get <tt>tar</tt> to
-make usable incremental backups.)  So, I use ReiserFS only for those
-partitions I don't plan to back up.
+<a name='dump-backups'>
+<h3>Archival backups with <tt>dump</tt></h3>
+
+<p>Historically, I used the standard, tried-and-true <tt>ext2</tt> file
+system, and its successor <tt>ext3</tt>, both of which are required for
+the <a href="http://dump.sourceforge.net/"> <tt>dump</tt> and
+<tt>restore</tt></a> programs, in large part because there was no good
+incremental backup solution for ReiserFS.  So, I used ReiserFS only for
+those partitions I don't plan to back up.  More recently I have used DAR
+for backups on all partitions; it has some advantages and disadvantages
+over <tt>dump</tt>; <a href="#dar-backups>see below</a> for details.
 
 <p>An interesting characteristic of <tt>dump</tt> is that it accesses
 the raw device file (i.e. <tt>/dev/hda5</tt>) instead of going through
@@ -364,43 +363,23 @@ the file system read-only before creating a backup.  (I've been meaning
 to experiment with this myself, but it hasn't been a high enough
 priority.)
 
-<p>Both of the following scripts call <tt>dump</tt> to create backup
-files using the same naming convention, and then verify the file using
-<tt>restore</tt>.  Verification is not as essential as it was in the bad
-old days, when media were much less reliable, and hardware was much less
-clever about working around media failures.  In fact, I've never yet
-found a corrupted backup file during verification.  However, I've heard
-enough horror stories of people not finding out that their backups were
-unreadable until they needed them, so I don't consider the backup
-complete until it's been verified in its final location.  This is why my
-scripts always verify.
+The <a href="#perl-script"><tt>backup.pl</tt> Perl script</a> described
+below can be used to call <tt>dump</tt> to create backup files, and then
+verify them using <tt>restore</tt>.  Verification is not as essential as
+it was in the bad old days, when media were much less reliable, and
+hardware was much less clever about working around media failures.  In
+fact, I've never yet found a corrupted backup file during verification.
+However, I've heard enough horror stories of people not finding out that
+their backups were unreadable until they needed them, so I don't
+consider the backup complete until it's been verified in its final
+location.  This is why my scripts always verify.
 
-<p>Initially, I wrote the <a href="#script">shell script version</a>
-first, then recoded it into Perl when I needed to add sufficient
-functionality that I found the shell syntax too confining.  The <a
-href="#perl-script"> <tt>backup.pl</tt> Perl script</a> has a number of
-extra features, plus changed defaults that make it more convenient to
-use for CD-R dumps.
-
-<a name='perl-script'>
-<h3>The <tt>backup.pl</tt> perl script</h3>
-
-When <tt>backup.pl</tt> is run by root, it creates a <a
-href="http://dump.sourceforge.net/"> <tt>dump</tt></a> format backup
-file and verifies it using <tt>restore</tt>.  Usage for this is
-<pre>
-    backup.pl [--[no]cd] [--file-name=&lt;name&gt;] [--dump-dir=&lt;dest-dir&gt;]
-              [--test] [--verbose] [--usage|-?] [--help] [--cd-dir=&lt;mv-dir&gt;]
-              [--partition=&lt;block-special-device&gt;] [--level=&lt;digit&gt;]
-              [--volsize=&lt;max-vol-size&gt;] [&lt;partition&gt;] [&lt;level&gt;]
-</pre>
-See <a href="backup.pl.html">the <tt>backup.pl</tt> <tt>man</tt>
-page</a> for argument descriptions, and other details.
-
-<p>For complete dumps, as well as the larger level 1 dumps of the
-<tt>/home</tt> partition, the backups should be written to the
-<tt>/scratch/backups/cd/to-write/</tt> directory so they can be <a
-href="cd-burning.html">written to a CD-R disk</a>.
+<p>Initially, I wrote a shell script version, then recoded it into Perl
+when I needed to add sufficient functionality that I found the shell
+syntax too confining.  The <tt>backup.pl</tt> Perl script has a number
+of extra features, plus changed defaults that make it more convenient to
+use for CD-R and DVD dumps (which is why the shell script is no longer
+published.)
 
 <p>To see how many bytes are likely to be dumped, use the <tt>"-S"</tt>
 option to <tt>dump</tt>, e.g.
@@ -410,116 +389,105 @@ option to <tt>dump</tt>, e.g.
 for a level 2 dump of the <tt>/dev/hda9</tt> partition (mounted on my
 system as <tt>/home</tt>).
 
-<p><b>Downloading:</b>
+<a name="dar-backups">
+<h3>Archival backups with dar</h3>
 
-<p>The <a href="backup.pl"> <tt>backup.pl</tt> Perl script</a> (11793
-bytes).  This script is free software; you may redistribute it and/or
-modify it under the same terms as Perl itself.  Download this into
-<tt>/usr/local/bin/</tt>, make it executable, and you're ready to roll.
+"dar" stands for <a href="http://dar.linux.free.fr/">Disk ARchive</a>,
+and has a number of advantages with respect to <tt>dump</tt>:
 
-<a name='perl-script-bugs'>
-<p><b>Known bugs:</b>
-<ol>
-  <li> Multi-volume backups can be a pain, especially to a Zip disk.  If
-       the backup fills the volume, <tt>dump</tt> will stop and say
-       <pre>
-       DUMP: Change Volumes: Mount volume #2
-       DUMP: Is the new volume mounted and ready to go?: ("yes" or "no") 
-</pre>
-       You then have to
-       <ol>
-	 <li> start up a separate shell;
-	 <li> unmount the filled Zip disk;
-	 <li> mount the new Zip disk (building a file system on it if
-	      necessary); and
-	 <li> go back to the first shell and respond, "Yes".
-       </ol>
-       And then the verification phase of the script doesn't work, since
-       <tt>restore</tt> complains that the first volume is no longer
-       mounted.  It is necessary to remount the first volume, type
-       <pre>
-       restore -C -y -f <i>dump-file-name</i>
-</pre>
-       and then replay the whole dance when <tt>restore</tt> asks for
-       succeeding volumes.  -- rgr, 15-Jul-00.
-  <li> Multivolume dumps to a directory are somewhat less painful,
-       though still not automatic.  When dumping, the dump files must be
-       renamed into new directories so that <tt>dump</tt> can put
-       subsequent volumes in the same place.  I usually create
-       subdirectories under <tt>/scratch/backups/</tt> with reasonable
-       "volume names," e.g. <tt>2002Q1a</tt>, <tt>2002Q1b</tt>, etc.
-       The verification must also be started manually, specifying each
-       of the file names in their order of creation.  [But at least I
-       don't have to keep swapping Zip disks in and out of the drive.
-       -- rgr, 1-Feb-02.]
-</ol>
+<ul>
+  <li> dar can backup arbitrary directory trees, and not just ext2/3
+       partitions.
+  <li> dar's compression operates on individual files (like Zip), so an
+       unreadable media block will not prevent recovery of all later
+       files.
+  <li> dar manages volume naming by itself (it calls them "slices"),
+       rather than requiring all volumes to be explicitly named.  (This
+       is taken care of for <tt>dump</tt> by the <tt>backup.pl</tt>
+       script, so it doesn't make much practical difference.)
+  <li> dar can create a "catalog" file to help it go directly to the
+       right slice when restoring just a few files.  This is useful when
+       restoring files off of DVD (but you still have to keep the first
+       and last slice around).
+</ul>
 
-<a name = script>
-<h3>The <tt>backup</tt> shell script</h3>
+<p>Unfortunately, there are also a few disadvantages:
 
-The <tt>backup.sh</tt> shell script is the original version of the <a
-href="#perl-script">Perl script</a>; it is less featureful, but
-therefore simpler to use and modify, and defaults to <a
-href="howto.html#zip">Zip drive</a> backups.  Usage for this is
+<ul>
+  <li> dar doesn't have a concept of "backup level"; to get an
+       incremental dump, you must specify the previous dump set (or a
+       catalog).  <tt>backup.pl</tt> handles this by finding the right
+       dump, but you must still keep all current dumps (or catalogs)
+       online.
+  <li> dar puts two dots in the file name; <tt>mkisofs</tt> (and
+       <tt>growisofs</tt>) turns the first one into an underscore when
+       burning a CD/DVD.  This makes it a pain to restore directly from
+       removable media.  (If somebody knows how to shut this off, please
+       let me know.)
+  <li> dar doesn't have an equivalent to <tt>dump</tt>'s "-S" option for
+       estimating backup sizes.
+</ul>
+
+<a name='perl-script'>
+<h3>The <tt>backup.pl</tt> Perl script</h3>
+
+When <tt>backup.pl</tt> is run by root, it creates and verifies a set of
+backup files using either <a href="http://dump.sourceforge.net/">
+<tt>dump</tt> and <tt>restore</tt></a> or <a
+href="http://dar.linux.free.fr/"> the DAR program</a>.  Usage is
+
 <pre>
-    backup [-test] [-cd] [<i>partition</i>] <i>dumplevel</i>
+    backup.pl [--test] [--verbose] [--usage|-?] [--help]
+              [--date=&lt;string&gt;] [--name-prefix=&lt;string&gt;]
+              [--file-name=&lt;name&gt;]
+	      [--dump-program=&lt;dump-prog&gt;] [--[no]dar]
+	      [--restore-program=&lt;restore-prog&gt;]
+	      [--gzip | -z] [--bzip2 | -y]
+              [--cd-dir=&lt;mv-dir&gt;] [--dump-dir=&lt;dest-dir&gt;]
+	      [--dest-dir=&lt;destination-dir&gt;]
+              [--[no]cd] [--volsize=&lt;max-vol-size&gt;]
+	      [--partition=&lt;block-special-device&gt; | &lt;partition&gt; ]
+              [--level=&lt;digit&gt; | &lt;level&gt;]
 </pre>
-where
-<dl>
-  <dt> <b>-test</b>
-  <dd> causes the <tt>dump</tt> and <tt>restore</tt> commands to be
-       echoed instead of executed.
-  <dt> <b>-cd</b>
-  <dd> causes the <tt>dump</tt> to be written to the
-       <tt>/scratch/backups/</tt> directory, with a maximum volume size
-       appropriate for 700MB CD-R disks.  Selecting a level 0 (complete)
-       backup also forces the <tt>-cd</tt> option.  By default, backups
-       are written to <tt>/mnt/zip/</tt> with a maximum volume size for
-       a Zip100 disk.
-  <dt> <b><i>partition</i></b>
-  <dd> is the partition to be backed up, and defaults to
-       <tt>/dev/hda9</tt> for the <tt>/home</tt> partition (on my disk,
-       anyway).
-  <dt> <b><i>dumplevel</i></b>
-  <dd> is the backup level, a single digit.  0 is for a full backup, 1
-       for most inclusive incremental, 9 for least inclusive incremental
-       (<a href="#inc-levels">see above</a> for more details).
-</dl>
+See <a href="backup.pl.html">the <tt>backup.pl</tt> <tt>man</tt>
+page</a> for argument descriptions, known bugs, and other details.
 
-<p><b>Downloading:</b>
+<p>Download <tt>backup.pl</tt> into <tt>/usr/local/bin/</tt>, make it
+executable, and you're ready to roll.
 
-<p>The <a href="backup.sh"> <tt>backup.sh</tt> shell script</a> (3844
-bytes).  I have placed this into the public domain, so you are free to
-hack it any way you want.  Download this into <tt>/root/bin/</tt>, make
-it executable, and you're ready to roll.
+[wrong; also requires <tt>Backup::DumpSet</tt> in order to do
+incremental DAR dumps.  -- rgr, 4-Jul-08.]
 
-<p><b>Known bugs:</b>
-<ol>
-  <li> Multi-volume backups are are a pain, just as for the Perl script.
-       For details, see <a href="#perl-script-bugs">the "bugs"
-       section</a> of the Perl script writeup, above.
-</ol>
+<ul>
+  <li> Download the backup script: <a
+       href="https://rgrjr.dyndns.org/svn/scripts/trunk/backup.pl">
+       <tt>backup.pl</tt></a> (Perl license)
+  <li> View detailed documentation: <a href="backup.pl.html">
+       <tt>backup.pl.html</tt></a>
+</ul>
 
 <a name="vacuum.pl">
-<h2>Copying dump files with <tt>vacuum.pl</tt></h2>
+<h3>Copying dump files with <tt>vacuum.pl</tt></h3>
 
 <tt>vacuum.pl</tt> copies dump files from place to place, being careful
-to copy only current backups, and paranoid about network corruption.
+to copy only current backups, and guarding against network corruption.
 Usage for this is
 <pre>
     vacuum.pl [--test] [--verbose] [--usage|-?] [--help]
               [--from=&lt;source-dir&gt;] [--to=&lt;dest-dir&gt;]
-              [--mode=(mv|cp)] [--prefix=&lt;tag&gt;] [--min-free-left=&lt;size&gt;]
+              [--mode=(mv|cp)] [--prefix=&lt;tag&gt;]
+              [--since=&lt;date-string&gt;] [--min-free-left=&lt;size&gt;]
 </pre>
 See <a href="vacuum.pl.html">the <tt>vacuum.pl</tt> <tt>man</tt>
-page</a> for argument descriptions, and other details.
+page</a> for argument descriptions, known bugs, and other details.
 
-<p><b>Downloading:</b>
-
-<p>The <a href="vacuum.pl"> <tt>vacuum.pl</tt> Perl script</a>.  This
-script is free software; you may redistribute it and/or modify it under
-the same terms as Perl itself.  Download into <tt>/usr/local/bin/</tt>,
-make it executable, and you're ready to roll.
+<ul>
+  <li> Download the vacuum script: <a
+       href="https://rgrjr.dyndns.org/svn/scripts/trunk/vacuum.pl">
+       <tt>vacuum.pl</tt></a> (Perl license)
+  <li> View detailed documentation: <a href="vacuum.pl.html">
+       <tt>vacuum.pl.html</tt></a>
+</ul>
 
 <p>For another useful tool for manipulating backups, see the <a
 href="cd-burning.html#cd-dump.pl">Burning CDs with
@@ -623,60 +591,6 @@ be extended to use two or more identically-configured external drives,
 which are updated in rotation.  This requires no more effort than for a
 single drive, but begins to provide some archival history, for those who
 can afford the additional hardware.
-
-<a name = mac-backup>
-<h2>Backing up Jan's Macintosh</h2>
-
-I try do this before monthly backups (but often forget to do it even
-quarterly).  The basic idea is to use the Finder on the Mac to copy the
-<tt>:Hard&nbsp;Disk:Documents:Jan:</tt> contents to Jan's home directory
-share before it gets backed up.  Then, extract only the files that have
-changed, so that incrementals don't get bloated.
-<ol>
-  <li> Use the Finder to copy the <tt>:Documents:Jan:</tt> folder via
-       the network to the <tt>~jan/backup/</tt> directory, where it will
-       become <tt>~jan/backup/Jan/</tt>.
-  <li> Blow away the Netscape cache in the <tt>~jan/backup/Jan/</tt>
-       directory.  Something like
-       <pre>
-       cd ~jan/backup/
-       rm -fr Jan/Netscape/Jan\ Rogers/Cache\ :c4
-       </pre>
-       should do the trick.
-  <li> Use <tt>cp-if-newer.pl</tt> to copy changed files to
-       <tt>~jan/backup/latest/</tt>:
-       <pre>
-       cp-if-newer.pl -pfR --dst-kludge Jan latest
-       </pre>
-       This will copy only those files that have changed, which makes
-       less work for incremental backups.  Add the <tt>"-v"</tt> option
-       to see what actually gets copied.  (And don't ask about
-       <tt>--dst-kludge</tt>; you don't wanna know.)
-
-       <p>[<tt>cp-if-newer.pl</tt> is more or less equivalent to doing
-       the following with <tt>cp</tt>:
-       <pre>
-       cd ~jan/backup/Jan/
-       cp -ufR . ../latest
-       chown -R jan.jan ../latest
-       </pre>
-       except that <tt>.AppleDouble</tt> entries are created with the
-       current date, so they are always copied even if unchanged.
-       <tt>cp-if-newer.pl</tt> treats <tt>.AppleDouble</tt> directories
-       specially, using the date of the "data fork" file in order to
-       prevent this.  The source directory must be specified as
-       <tt>"."</tt>, because <tt>cp</tt> always prepends this to the
-       destination path.]
-
-       <p>
-  <li> <tt>~jan/backup/Jan/</tt> is no longer needed, so blow that
-       away, too.
-       <pre>
-       rm -fr Jan
-       </pre>
-</ol>
-Of course, I wouldn't need to do anything special if I could just get
-Jan to use my Linux box as a file server . . .
 
 <a name="ack">
 <h2>Acknowledgements</h2>

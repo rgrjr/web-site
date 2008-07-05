@@ -20,7 +20,8 @@ cgi-lib-perl = ${server-root}/lib/perl
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
 serious-pages = ${emacs-pages} ${ilisp-pages} ${lisp-pages} \
-		${linux-pages} ${security-pages} ${perl-pages}
+		${linux-pages} ${generated-pages} \
+		${security-pages} ${perl-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
 		web-site.html site-map.html change-history.html \
 		random/doubleclick.png
@@ -55,6 +56,7 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
 	emacs/study.html emacs/tutorial.html emacs/vm+qmail.html
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
+generated-pages = linux/svn-dump.html linux/backup.pl.html linux/vacuum.pl.html
 linux-pages = linux/index.html linux/tux-small.png \
 	linux/antispam.html linux/backup.html \
 	linux/cl-xml-notes.html linux/disk-upgrade.html \
@@ -63,7 +65,7 @@ linux-pages = linux/index.html linux/tux-small.png \
 	linux/gconf.html linux/aolserver.html linux/cd-burning.html \
 	linux/howto.html linux/nis.html linux/qmail.html linux/squid.html \
 	linux/ntp.html linux/ntpd.sh linux/tmda.html \
-	linux/subversion.html linux/svn-dump.html linux/xml.html
+	linux/subversion.html linux/xml.html
 security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/firewall.html linux/security/old-xauth.html \
 	linux/security/ssh.html linux/security/xauth.html \
@@ -71,15 +73,25 @@ security-pages = linux/security/index.html linux/security/check-logs.html \
 perl-pages = perl/index.html perl/sub-memory-leak.html perl/perl6-objects.html
 lisp-pages = lisp/index.html
 
-all:	change-history.html linux/svn-dump.html
+all:	change-history.html ${generated-pages}
 
 change-history.html:	.
 	./cvs-chrono-log.pl 365 change-history-template.html > $@
 
-linux/svn-dump.html:
+linux/svn-dump.html:	linux
 	svn cat https://rgrjr.dyndns.org/svn/scripts/trunk/svn-dump.pl > $@.pl
 	pod2html $@.pl > $@
 	rm -f $@.pl
+linux/backup.pl.html:	linux
+	svn cat https://rgrjr.dyndns.org/svn/scripts/trunk/backup.pl \
+		> linux/backup.pl
+	pod2html linux/backup.pl > $@
+	rm -f linux/backup.pl
+linux/vacuum.pl.html:	linux
+	svn cat https://rgrjr.dyndns.org/svn/scripts/trunk/vacuum.pl \
+		> linux/vacuum.pl
+	pod2html linux/vacuum.pl > $@
+	rm -f linux/vacuum.pl
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
 current-hits.html:	/var/log/apache2/access_log.200508.log \
