@@ -21,8 +21,8 @@ resources</a> : Subversion server
 	      <ol>
 		<li> Set up Apache <tt>mod_ssl</tt>
 		<li> Build Subversion to use Apache and SSL
-		<li> Configure Apache to use <tt>mod_dav_svn</tt>
-		<li> Set up Apache2 to use <tt>mod_authz_svn</tt>
+		<li> <a href="#mod_dav_svn">Configure Apache to use <tt>mod_dav_svn</tt></a>
+		<li> <a href="#mod_authz_svn">Set up Apache2 to use <tt>mod_authz_svn</tt></a>
 		<li> Test the new server
 	      </ol>
 	 <li> <a href="#usage">Moving existing repositories to Subversion</a>
@@ -127,13 +127,21 @@ add <tt>/usr/local/bin/</tt> to <tt>$PATH</tt>.
        needed <tt>--disable-mod-activation</tt> until too late.)
 </ol>
 
+<a name="mod_dav_svn">
 <h4>Configure Apache to use <tt>mod_dav_svn</tt></h4>
 
-This sets up <tt>mod_dav_svn</tt> to serve multiple repositories (using
-the <tt>SVNParentPath</tt> option) with anonymous read access and
+This section shows how to set up <tt>mod_dav_svn</tt> to serve multiple
+repositories (using <a
+href="http://svnbook.red-bean.com/en/1.1/ch06s04.html"> the
+<tt>SVNParentPath</tt> option</a>) with anonymous read access and
 authenticated write access using the same user credentials for all
-repositories.  See below for a recipe that uses <tt>mod_authz_svn</tt>
-to provide per-directory access control.
+repositories.  The next section modifies this recipe to use
+<tt>mod_authz_svn</tt>, which provide per-directory access control.
+Even if you don't want to provide anonymous access, or need
+per-directory control, I recommend starting here in order to test basic
+<tt>mod_dav_svn</tt> functionality before adding authentication.  In
+particular, an anonymous checkout doesn't need any authentication, so is
+useful for isolating authentication problems from more basic ones.
 
 <ol>
   <li> Create the <tt>/shared/svn</tt> directory, and at least one
@@ -147,7 +155,9 @@ to provide per-directory access control.
        Note that this list is order-dependent, so <tt>dav</tt> must
        appear before <tt>dav_svn</tt>.
   <li> Create users in <tt>/etc/svn-auth-file</tt> using the Apache
-       <tt>htpasswd</tt> utility.  See the <a
+       <tt>htpasswd</tt> utility (which is actually called
+       <tt>htpasswd2</tt> if you have the <tt>apache2</tt> RPMs
+       installed under openSUSE).  See the <a
        href="http://svnbook.red-bean.com/nightly/en/svn.serverconfig.httpd.html">
        Basic HTTP Authentication</a> section of <a
        href="http://svnbook.red-bean.com/nightly/en/">the SVN book</a>
@@ -176,6 +186,7 @@ to provide per-directory access control.
   <li> Restart the server.
 </ol>
 
+<a name="mod_authz_svn">
 <h4>Set up Apache2 to use <tt>mod_authz_svn</tt></h4>
 
 <ol>
@@ -211,7 +222,7 @@ to provide per-directory access control.
        <tt>&lt;LimitExcept&gt;</tt> part is is replaced by top-level
        "Require valid-user" and "Satisfy Any" options, and the
        <tt>AuthzSVNAccessFile</tt> identifies an access file.  Note that
-       user credentials are still defined with <tt>htpasswd</tt> in
+       user credentials are still defined with <tt>htpasswd2</tt> in
        <tt>/etc/svn-auth-file</tt> as before.
   <li> Create the <tt>/etc/svn-access.conf</tt> file with the necessary
        per-directory permissions.  An early version of mine looks like
@@ -288,7 +299,7 @@ should work generically.
        <tt>--eol-from-mime-type</tt> to <tt>cvs2svn</tt>, but I have not
        tried this.)
 
-       <p>To find these files in a working copy:
+       <p>To find binary files in a CVS working copy:
        <pre>
        rogers@rgr&gt; cd ~/emacs/rgr-hacks
        rogers@rgr&gt; find . -type f -name Entries \
@@ -303,6 +314,27 @@ should work generically.
        Note that <tt>cvs admin</tt> operates on the repository
        immediately; the <tt>cvs update</tt> is only needed to update the
        working copy, but that is useful for subsequent searches.
+
+       <p>Somewhat more problematic are files that are supposed to have
+       DOS-style "CRLF" line endings, regardless of which OS they are
+       checked out on.  Even if marked "-kb", <tt>cvs2svn</tt> still
+       treats these as "text/plain" and initializes their
+       <tt>svn:eol-style</tt> to "native".
+
+       <p>To find CRLF files (approximately) in a CVS working copy:
+       <pre>
+       rogers@rgr&gt; find . -type f | fgrep -v /CVS/ | xargs fgrep -l '\r'
+       </pre>
+       Since these often have "*.text" or other file extensions that are
+       also used for files that should have "native" EOL style, there is
+       no good way for <tt>cvs2svn</tt> to tell them apart, so I just
+       fix them after the conversion (see below).
+
+       <p>See also <a
+       href="http://cvs2svn.tigris.org/faq.html#eol-fixup"> "How do I
+       fix up end-of-line translation problems?"</a> in the <a
+       href="http://cvs2svn.tigris.org/faq.html"> <tt>cvs2svn</tt>
+       FAQ</a>.
 
   <li> Create the repository (as root):
        <pre>
@@ -319,6 +351,22 @@ should work generically.
        <pre>
        # chown -R wwwrun /shared/svn/rgr-hacks
        </pre>
+
+  <li> Deal with any exceptions to <tt>cvs2svn</tt>'s default EOL-style
+       rules.  Find these files by using the recipe provided in the
+       first item (being careful to exclude image and other true binary
+       files!), and then do:
+       <pre>
+       rogers@rgr&gt; xargs svn propset svn:eol-style CRLF &lt; dos-eol-files.text
+       rogers@rgr&gt; xargs perl -pi.bk -e 's/$/\r/;' &lt; dos-eol-files.text
+       </pre>
+       After testing, do:
+       <pre>
+       rogers@rgr&gt; svn ci -m 'Fix svn:eol-style on DOS-like files.'
+       rogers@rgr&gt; find . -name '*.bk' | xargs rm
+       </pre>
+       to commit and clean up.
+
   <li> Test by checking out a fresh working copy:
        <pre>
        rogers@rgr&gt; cd ..
@@ -480,6 +528,8 @@ consolidated into a single new <tt>*.svndump</tt> file.
 <ul>
   <li> <a href="http://svnbook.red-bean.com/">Version Control With
        Subversion</a> (the "Red Bean book").
+  <li> <a href="http://cvs2svn.tigris.org/faq.html"> The
+       <tt>cvs2svn</tt> FAQ</a>.
 </ul>
 
 <p>
