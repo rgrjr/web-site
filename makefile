@@ -94,12 +94,12 @@ linux/vacuum.pl.html:	linux
 	rm -f linux/vacuum.pl
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
-current-hits.html:	/var/log/apache2/access_log.200508.log \
-		/var/log/apache2/access_log.200507.log \
-		/var/log/apache2/access_log.200506.log \
-		/var/log/apache2/access_log.200505.log \
-		/var/log/apache2/access_log.200504.log \
-		/var/log/apache2/access_log.200503.log
+current-hits.html:	/var/log/apache2/access_log-20081201.bz2 \
+			/var/log/apache2/access_log-20081101.bz2 \
+			/var/log/apache2/access_log-20081001.bz2 \
+			/var/log/apache2/access_log-20080901.bz2 \
+			/var/log/apache2/access_log-20080801.bz2 \
+			/var/log/apache2/access_log-20080701.bz2
 	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
 Q12-hits.html:	/var/log/apache2/access_log.200506.log \
 		/var/log/apache2/access_log.200505.log \
