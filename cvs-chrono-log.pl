@@ -22,7 +22,7 @@ my $html_p = 1;
 my $n_days_ago = shift(@ARGV);
 my $start_date = time2str($date_format_string, time-24*3600*$n_days_ago);
 my $web_root;
-for my $dir (qw(/usr/local/aolserver/servers/rgrjr/pages /srv/www/htdocs)) {
+for my $dir (qw(/srv/www/htdocs /var/www/html)) {
     $web_root = $dir, last
 	if -d $dir;
 }
