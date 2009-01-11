@@ -41,28 +41,58 @@ resources</a> : Subversion server
 
 This recipe was used to set my server up initially on SuSE 9.0 (where
 the shipped RPM edition of Subversion is so old as to be completely
-useless, so I built Subversion 1.3.0 from the tarball), and when I
-migrated it to different hardware running <a
+useless, so I built Subversion 1.3.0 from the tarball), and again when I
+migrated it to new hardware running <a
 href="http://www.opensuse.org/">openSUSE 10.2</a> (which comes with
 Subversion 1.4.0).
 
-<p>Much of this is specific to the details of the SuSE configuration.
-Other installations will require larger or smaller grains of salt.
+<p>Much of this is specific to the details of the SuSE configuration
+(though I'm starting to include CentOS information as well).  Other
+installations will require larger or smaller grains of salt.
 
 <h4>Set up Apache <tt>mod_ssl</tt></h4>
 
-<ol>
+<ol class="steps">
+  <li> On CentOS it is also necessary to install the <tt>mod_ssl</tt>
+       and <tt>mod_dav_svn</tt> packages in addition to <tt>httpd</tt>.
+       The main SSL configuration file is put in
+       <tt>/etc/httpd/conf.d/ssl.conf</tt>.
   <li> Create an SSL certificate.  For testing, I created a self-signed
        cert using a recipe from the OpenSSL <tt>man</tt> page:
        <pre>
-       openssl req -x509 -newkey rsa:1024 -keyout key.pem -out req.pem
+       openssl req -x509 -newkey rsa:1024 -sha1 -days 90 -keyout key.pem -out req.pem
        </pre>
-       Then, copy <tt>key.pem</tt> to
-       <tt>/etc/apache2/ssl.key/server.key</tt> (this is the private
-       key), and <tt>req.pem</tt> to
-       <tt>/etc/apache2/ssl.crt/server.crt</tt> (this is the self-signed
-       certificate).  Needless to say, I will have to do better if I
-       want anyone else to be able to use this.
+       Be sure to specify <tt>-sha1</tt>; if you don't, you will get
+       MD5.  The <tt>-x509</tt> is what makes <tt>openssl req</tt>
+       generate a self-signed certificate.  Specifying <tt>-days 90</tt>
+       produces a cert valid for 90 days; the default is thirty (and
+       this is ignored if you generate a proper signing request instead
+       of a self-signature).  This recipe is based on the "req(1)"
+       <tt>man</tt> page, which explains what all the options mean.
+  <li> Copy <tt>key.pem</tt> and <tt>req.pem</tt> to the appropriate
+       destination directory:
+       <blockquote>
+       <table>
+	 <tr>
+	   <th>OS</th>
+	   <th><tt>key.pem</tt> (private key)</th>
+	   <th><tt>req.pem</tt> (certificate)</th>
+	 </tr>
+	 <tr>
+	   <td>OpenSUSE</td>
+	   <td><tt>/etc/apache2/ssl.key/server.key</tt></td>
+	   <td><tt>/etc/apache2/ssl.crt/server.crt</tt></td>
+	 </tr>
+	 <tr>
+	   <td>CentOS</td>
+	   <td><tt>/etc/pki/tls/private/server.key</tt></td>
+	   <td><tt>/etc/pki/tls/certs/server.crt</tt></td>
+	 </tr>
+       </table>
+       </blockquote> 
+       In all cases, it is probably desirable to replace the word
+       "server" with something specific to the server in question --
+       just be sure you do the same for the SSL config file.
   <li> Configure Apache 2.x for SSL.  This consists of (a) copying (or
        renaming) <tt>/etc/apache2/vhosts.d/vhost-ssl.template</tt> to
        <tt>vhost-ssl.conf</tt> (in the same directory), and (b) changing
@@ -89,7 +119,7 @@ default <tt>/usr/local/bin/</tt> location.  In order to use <a
 href="#backup">the backup script described below</a>, you may need to
 add <tt>/usr/local/bin/</tt> to <tt>$PATH</tt>.
 
-<ol>
+<ol class="steps">
   <li> Ensure that the <tt>openssl-devel</tt> and <tt>apache2-devel</tt>
        packages are installed so that Subversion's <tt>./configure</tt>
        script can find their respective header files.
@@ -143,7 +173,7 @@ per-directory control, I recommend starting here in order to test basic
 particular, an anonymous checkout doesn't need any authentication, so is
 useful for isolating authentication problems from more basic ones.
 
-<ol>
+<ol class="steps">
   <li> Create the <tt>/shared/svn</tt> directory, and at least one
        repository under it, and <tt>chown</tt> it to the <tt>wwwrun</tt>
        user.  I created a <tt>/shared/svn/new-vc/</tt>
@@ -189,7 +219,7 @@ useful for isolating authentication problems from more basic ones.
 <a name="mod_authz_svn">
 <h4>Set up Apache2 to use <tt>mod_authz_svn</tt></h4>
 
-<ol>
+<ol class="steps">
   <li> Add <tt>mod_authz_svn</tt> after <tt>dav_svn</tt> in the
        <tt>APACHE_MODULES</tt> list in <tt>/etc/sysconfig/apache2</tt>.
   <li> Change the <tt>&lt;Location&nbsp;/svn&gt;</tt> section in the
@@ -260,7 +290,7 @@ This requires having converted/imported at least one repository first;
 see <a href="#usage">the next section</a> if this is an initial
 installation.
 
-<ol>
+<ol class="steps">
   <li> Test checking out:
        <pre>
        svn co https://rgrjr.dyndns.org/svn/new-vc/rogers/emacs/new-vc/trunk new-vc2
@@ -289,7 +319,7 @@ href="https://rgrjr.dyndns.org/svn/rgr-hacks/">
 <tt>https://rgrjr.dyndns.org/svn/rgr-hacks/</tt></a>), but this recipe
 should work generically.
 
-<ol>
+<ol class="steps">
   <li> Ensure that all image files (and anything else that shouldn't
        have EOL conversion done) is marked as "-kb" in the CVS
        repository.  This doesn't matter for CVS as long as you only
@@ -386,7 +416,7 @@ href="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.import.html">
 <tt>svn import</tt></a>, rather than from the contents of a CVS
 repository.
 
-<ol>
+<ol class="steps">
   <li> Create an empty repository on the server (as root):
        <pre>
        rgrjr:~ # svnadmin create /shared/svn/lap-config
@@ -397,7 +427,8 @@ repository.
   <li> Move the files into a new <tt>tmp/trunk</tt> directory.
        <tt>tmp</tt> needs to contain everything that is to go into the
        new repository; the name "tmp" will not appear in the repository,
-       but everything below it will.  <tt>tmp/trunk</tt> is the <a
+       but everything below it will.  A <tt>"trunk"</tt> subdirectory
+       under the repository root is the <a
        href="http://svnbook.red-bean.com/nightly/en/svn.tour.importing.html#svn.tour.importing.layout">
        recommended place to put the main development version</a> of a
        system.
