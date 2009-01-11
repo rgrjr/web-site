@@ -23,12 +23,13 @@ resources</a> : Subversion server
 		<li> Build Subversion to use Apache and SSL
 		<li> <a href="#mod_dav_svn">Configure Apache to use <tt>mod_dav_svn</tt></a>
 		<li> <a href="#mod_authz_svn">Set up Apache2 to use <tt>mod_authz_svn</tt></a>
-		<li> Test the new server
+		<li> <a href="#test">Test the new server</a>
 	      </ol>
 	 <li> <a href="#usage">Moving existing repositories to Subversion</a>
 	      <ol>
-		<li> Migrate <tt>rgr-hacks</tt> to Subversion
-		<li> Create a new Subversion repository
+		<li> <a href="#from-cvs">Migrate <tt>rgr-hacks</tt> from CVS to Subversion</a>
+		<li> <a href="#import">Create a new Subversion repository via import</a>
+		<li> <a href="#move">Move a Subversion repository to a new server</a>
 	      </ol>
 	 <li> <a href="#backup">Backup of Subversion repositories</a>
 	 <li> <a href="#references">References</a>
@@ -284,6 +285,7 @@ useful for isolating authentication problems from more basic ones.
   <li> Restart the server so that all of this will take effect.
 </ol>
 
+<a name="test">
 <h4>Test the new server</h4>
 
 This requires having converted/imported at least one repository first;
@@ -291,10 +293,17 @@ see <a href="#usage">the next section</a> if this is an initial
 installation.
 
 <ol class="steps">
+  <li> Test basic server availability.  In a Web browser, just visit the
+       top-level repository URL (e.g. <a
+       href="https://rgrjr.dyndns.org/svn/rgr-hacks/">
+       <tt>https://rgrjr.dyndns.org/svn/rgr-hacks/</tt></a>) and you
+       should be able to browse the entire repository at its latest
+       revision.
   <li> Test checking out:
        <pre>
-       svn co https://rgrjr.dyndns.org/svn/new-vc/rogers/emacs/new-vc/trunk new-vc2
-       </pre>
+       svn co https://rgrjr.dyndns.org/svn/rgr-hacks/trunk rgr-hacks</pre>
+       and look at the new working copy in the <tt>rgr-hacks</tt>
+       subdirectory.
   <li> Find a version-controlled file in Emacs.
   <li> View its log (<tt>C-x v l</tt> in Emacs).
   <li> Modify and save it.
@@ -310,7 +319,8 @@ Here we give an example of using <tt>cvs2svn</tt> to convert an existing
 CVS repository to Subversion, and of creating a new repository as a
 fresh checkin.
 
-<h4>Migrate <tt>rgr-hacks</tt> to Subversion</h4>
+<a name="from-cvs">
+<h4>Migrate <tt>rgr-hacks</tt> from CVS to Subversion</h4>
 
 This uses <a href="http://cvs2svn.tigris.org/cvs2svn.html">
 <tt>cvs2svn</tt></a>, which is distributed along with openSUSE 10.2.
@@ -409,7 +419,8 @@ should work generically.
        different, then you probably need to go back to step 1.
 </ol>
 
-<h4>Create a new Subversion repository</h4>
+<a name="import">
+<h4>Create a new Subversion repository via import</h4>
 
 This shows how to populate a repository from scratch using <a
 href="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.import.html">
@@ -498,6 +509,74 @@ repository.
        </pre> 
        This creates a normal working copy.
 </ol>
+
+<a name="move">
+<h4>Move a Subversion repository to a new server</h4>
+
+This shows how to move an existing Subversion repository using <a
+href="http://svnbook.red-bean.com/nightly/en/svn.ref.svnadmin.c.dump.html">
+<tt>svnadmin dump</tt></a> and <a
+href="http://svnbook.red-bean.com/nightly/en/svn.ref.svnadmin.c.load.html">
+<tt>svnadmin load</tt></a>.  It goes without saying that commits must be
+disabled on both servers during the move.
+
+<ol class="steps">
+  <li> If you don't already have <a href="#backup">backup dump files</a>
+       handy (or there are too many of them), create a dump file of the
+       entire existing repo:
+       <pre>
+       rogers@home&gt; svnadmin dump /shared/svn/rgr-hacks/ &gt; rgr-hacks.svndump
+       * Dumped revision 0.
+       . . .
+       * Dumped revision 469.
+       * Dumped revision 470.
+       * Dumped revision 471.
+       rogers@home&gt; </pre>
+
+       In this case, an 8.6MB file was generated for a repository that
+       is only 5.7MB.  If dumping creates a file that is unmanageably
+       large, you might want to use the <tt>--deltas</tt> option of <a
+       href="http://svnbook.red-bean.com/nightly/en/svn.ref.svnadmin.c.dump.html">
+       <tt>svnadmin dump</tt></a>.  <b>Note</b> that <tt>svnadmin
+       dump</tt> requires a path to the repository, not a URL, so this
+       must be done on the original server.  <b>Note also</b> that this
+       command only writes to standard output, hence the redirection.
+  <li> Copy to the new server:
+       <pre>
+       rogers@home&gt; scp rgr-hacks.svndump rgrjr.com:
+       rgr-hacks.svndump                              100% 8652KB 540.7KB/s   00:16    
+       rogers@home&gt; </pre>
+  <li> Create the new repository on the destination server:
+       <pre>
+       # svnadmin create /var/www/subversion/rgr-hacks
+       # </pre>
+  <li> Load the dump file into the new repository:
+       <pre>
+       # svnadmin load /var/www/subversion/rgr-hacks &lt; rgr-hacks.svndump
+       &lt;&lt;&lt; Started new transaction, based on original revision 1
+
+       . . .
+
+       &lt;&lt;&lt; Started new transaction, based on original revision 471
+	    * editing path : trunk/rgr-perl-hacks.el ... done.
+
+       ------- Committed revision 471 &gt;&gt;&gt;
+
+       # </pre>
+       (<tt>svnadmin load</tt> is even more verbose than <tt>svnadmin
+       dump</tt>, so this transcript is even more severely truncated.)
+  <li> Give ownership of the new repository to the Web user:
+       <pre>
+       # chown -R wwwrun.www /var/www/subversion/rgr-hacks
+       # </pre>
+  <li> Test the new server as <a href="#test">described above</a>.
+</ol>
+
+See also the <a
+href="http://svnbook.red-bean.com/nightly/en/svn.reposadmin.maint.html#svn.reposadmin.maint.migrate">
+Migrating Repository Data Elsewhere</a> section of the <a
+href="http://svnbook.red-bean.com/nightly/en/index.html"> Subversion
+book</a>.
 
 <a name="backup">
 <h3>Backup of Subversion repositories</h3>
