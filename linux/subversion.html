@@ -570,6 +570,19 @@ disabled on both servers during the move.
        # chown -R wwwrun.www /var/www/subversion/rgr-hacks
        # </pre>
   <li> Test the new server as <a href="#test">described above</a>.
+  <li> Working copies created from the old server can be switched to the
+       new one:
+       <pre>
+       svn switch --relocate https://rgrjr.dyndns.org/svn/rgr-hacks/ https://www.rgrjr.com/svn/rgr-hacks/</pre>
+
+       The <tt>--relocate</tt> option means to move the working copy to
+       the same version of the same repository but in a different
+       location, so <a
+       href="http://svnbook.red-bean.com/nightly/en/svn.ref.svn.c.switch.html">
+       <tt>svn switch</tt></a> only needs to rewrite the URLs.  In
+       particular, this means the working copy doesn't need to be
+       up-to-date, nor do any modified files need to be committed.  It's
+       also quite fast.
 </ol>
 
 See also the <a
