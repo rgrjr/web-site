@@ -89,19 +89,29 @@ my $secs_per_week = 7*$secs_per_day;
 sub after_holiday_p {
     # If a holiday falls on a Monday or Tuesday of the same week, then climbing
     # should happen on Wednesday.
-    my $time = shift;
+    my ($time, $debug) = @_;
 
     for my $holiday (@holidays) {
 	my $interval = $time-$holiday;
-	return 1
+	warn "$debug time $time, holiday $holiday, interval $interval"
+	    if $debug;
+	return $interval
 	    if $interval > 0 && $interval < 2*$secs_per_day;
     }
     return 0;
 }
 
-# Figure out the dates.
+# Check start and end dates against holidays.
 die "$0:  Must specify --start and --end dates.\n"
     unless $start_time && $end_time;
+for my $holiday (@holidays) {
+    warn("Holiday at ", time2str('%d %b %Y', $holiday), ' is not between ',
+	 time2str('%d %b %Y', $start_time), ' and ', 
+	 time2str('%d %b %Y', $end_time), ".\n")
+	if $holiday < $start_time || $holiday > $end_time;
+}
+
+# Figure out the dates.
 my $time = $start_time;
 my @dates;
 while ($time <= $end_time) {
