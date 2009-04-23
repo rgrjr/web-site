@@ -23,15 +23,15 @@ resources</a> : Subversion server
 		<li> Build Subversion to use Apache and SSL
 		<li> <a href="#mod_dav_svn">Configure Apache to use <tt>mod_dav_svn</tt></a>
 		<li> <a href="#mod_authz_svn">Set up Apache2 to use <tt>mod_authz_svn</tt></a>
-		<li> <a href="#test">Test the new server</a>
 	      </ol>
+	 <li> <a href="#test">Test the new server</a>
 	 <li> <a href="#usage">Moving existing repositories to Subversion</a>
 	      <ol>
 		<li> <a href="#from-cvs">Migrate <tt>rgr-hacks</tt> from CVS to Subversion</a>
 		<li> <a href="#import">Create a new Subversion repository via import</a>
-		<li> <a href="#move">Move a Subversion repository to a new server</a>
 	      </ol>
 	 <li> <a href="#backup">Backup of Subversion repositories</a>
+	 <li> <a href="#move">Move a Subversion repository to a new server</a>
 	 <li> <a href="#references">References</a>
        </ol>
 </ol>
@@ -286,14 +286,25 @@ useful for isolating authentication problems from more basic ones.
 </ol>
 
 <a name="test">
-<h4>Test the new server</h4>
+<h3>Test the new server</h3>
 
 This requires having converted/imported at least one repository first;
 see <a href="#usage">the next section</a> if this is an initial
 installation.
 
 <ol class="steps">
-  <li> Test basic server availability.  In a Web browser, just visit the
+  <li> Test basic server availability by doing
+       <pre>
+       rogers@rgr&gt; <b>svn ls https://rgrjr.dyndns.org/svn/rgr-hacks/</b>
+       branches/
+       tags/
+       trunk/
+       rogers@rgr&gt; </pre>
+
+       This is the expected output for a repository created by
+       <tt>cvs2svn</tt>; if you look in <tt>trunk/</tt>, you will see
+       the version-controlled files in the top-level directory.
+  <li> Test server browsability.  In a Web browser, just visit the
        top-level repository URL (e.g. <a
        href="https://rgrjr.dyndns.org/svn/rgr-hacks/">
        <tt>https://rgrjr.dyndns.org/svn/rgr-hacks/</tt></a>) and you
@@ -510,8 +521,62 @@ repository.
        This creates a normal working copy.
 </ol>
 
+<a name="backup">
+<h3>Backup of Subversion repositories</h3>
+
+Backups of Subversion repositories are done using the <a
+href="http://svnbook.red-bean.com/en/1.0/re31.html"> <tt>svnadmin
+dump</tt></a> command.  I have written a wrapper script, <a
+href="https://rgrjr.dyndns.org/svn/scripts/trunk/svn-dump.pl">
+<tt>svn-dump.pl</tt></a>, that creates incremental dumps in the current
+directory of one or more repositories.  This script is suitable for
+running from a <tt>cron</tt> job:
+
+<pre>
+    # Back up Subversion repositories daily at 00:50.  This is ten minutes before
+    # the normal /home partition backup time. 
+    50 0 * * *	cd /home/rogers/projects/svn-dump &amp;&amp; svn-dump.pl /shared/svn/*
+</pre>
+
+Since all <tt>mod_dav_svn</tt> repositories on my server are
+subdirectories of <tt>/shared/svn/</tt>, this catches everything with a
+single command.  The files that are created look like this:
+
+<pre>
+    rogers@rgr&gt; ls -lt /home/rogers/projects/svn-dump
+    total 5468
+    -rw-r--r-- 1 rogers users   79596 06-29 00:50 web-site-213-235.svndump
+    -rw-r--r-- 1 rogers users   19269 06-29 00:50 rgr-hacks-397-414.svndump
+    -rw-r--r-- 1 rogers users   24044 06-29 00:50 kea-cl-558-568.svndump
+    -rw-r--r-- 1 rogers users  172628 05-16 00:50 web-site-164-212.svndump
+    -rw-r--r-- 1 rogers users    3210 04-14 00:50 hacks-4-4.svndump
+    -rw-r--r-- 1 rogers users   56310 03-31 00:50 kea-cl-523-557.svndump
+    -rw-r--r-- 1 rogers users 2264449 03-16 00:50 web-site-0-163.svndump
+    -rw-r--r-- 1 rogers users    4476 03-03 00:50 rgr-hacks-392-396.svndump
+    -rw-r--r-- 1 rogers users     903 02-05 00:50 rgr-hacks-391-391.svndump
+    . . .
+</pre>
+
+Most files with only a few revisions are quite small, since each file
+records only the incremental changes since the last dump.  The
+<tt>web-site-0-163.svndump</tt> file is large since that is the first
+dump since converting this repository from CVS.
+
+<p>Periodically, in order to reduce the clutter of small
+<tt>*.svndump</tt> files, I delete the most recent files, and the next
+time the <tt>svn-dump.pl</tt> <tt>cron</tt> job runs, these files are
+consolidated into a single new <tt>*.svndump</tt> file.
+
+<ul>
+  <li> Download the backup script: <a
+       href="https://rgrjr.dyndns.org/svn/scripts/trunk/svn-dump.pl">
+       <tt>svn-dump.pl</tt></a> (Perl license)
+  <li> View detailed documentation: <a href="svn-dump.html">
+       <tt>svn-dump.html</tt></a>
+</ul>
+
 <a name="move">
-<h4>Move a Subversion repository to a new server</h4>
+<h3>Move a Subversion repository to a new server</h3>
 
 This shows how to move an existing Subversion repository using <a
 href="http://svnbook.red-bean.com/nightly/en/svn.ref.svnadmin.c.dump.html">
@@ -590,60 +655,6 @@ href="http://svnbook.red-bean.com/nightly/en/svn.reposadmin.maint.html#svn.repos
 Migrating Repository Data Elsewhere</a> section of the <a
 href="http://svnbook.red-bean.com/nightly/en/index.html"> Subversion
 book</a>.
-
-<a name="backup">
-<h3>Backup of Subversion repositories</h3>
-
-Backups of Subversion repositories are done using the <a
-href="http://svnbook.red-bean.com/en/1.0/re31.html"> <tt>svnadmin
-dump</tt></a> command.  I have written a wrapper script, <a
-href="https://rgrjr.dyndns.org/svn/scripts/trunk/svn-dump.pl">
-<tt>svn-dump.pl</tt></a>, that creates incremental dumps in the current
-directory of one or more repositories.  This script is suitable for
-running from a <tt>cron</tt> job:
-
-<pre>
-    # Back up Subversion repositories daily at 00:50.  This is ten minutes before
-    # the normal /home partition backup time. 
-    50 0 * * *	cd /home/rogers/projects/svn-dump &amp;&amp; svn-dump.pl /shared/svn/*
-</pre>
-
-Since all <tt>mod_dav_svn</tt> repositories on my server are
-subdirectories of <tt>/shared/svn/</tt>, this catches everything with a
-single command.  The files that are created look like this:
-
-<pre>
-    rogers@rgr&gt; ls -lt /home/rogers/projects/svn-dump
-    total 5468
-    -rw-r--r-- 1 rogers users   79596 06-29 00:50 web-site-213-235.svndump
-    -rw-r--r-- 1 rogers users   19269 06-29 00:50 rgr-hacks-397-414.svndump
-    -rw-r--r-- 1 rogers users   24044 06-29 00:50 kea-cl-558-568.svndump
-    -rw-r--r-- 1 rogers users  172628 05-16 00:50 web-site-164-212.svndump
-    -rw-r--r-- 1 rogers users    3210 04-14 00:50 hacks-4-4.svndump
-    -rw-r--r-- 1 rogers users   56310 03-31 00:50 kea-cl-523-557.svndump
-    -rw-r--r-- 1 rogers users 2264449 03-16 00:50 web-site-0-163.svndump
-    -rw-r--r-- 1 rogers users    4476 03-03 00:50 rgr-hacks-392-396.svndump
-    -rw-r--r-- 1 rogers users     903 02-05 00:50 rgr-hacks-391-391.svndump
-    . . .
-</pre>
-
-Most files with only a few revisions are quite small, since each file
-records only the incremental changes since the last dump.  The
-<tt>web-site-0-163.svndump</tt> file is large since that is the first
-dump since converting this repository from CVS.
-
-<p>Periodically, in order to reduce the clutter of small
-<tt>*.svndump</tt> files, I delete the most recent files, and the next
-time the <tt>svn-dump.pl</tt> <tt>cron</tt> job runs, these files are
-consolidated into a single new <tt>*.svndump</tt> file.
-
-<ul>
-  <li> Download the backup script: <a
-       href="https://rgrjr.dyndns.org/svn/scripts/trunk/svn-dump.pl">
-       <tt>svn-dump.pl</tt></a> (Perl license)
-  <li> View detailed documentation: <a href="svn-dump.html">
-       <tt>svn-dump.html</tt></a>
-</ul>
 
 <a name="references">
 <h3>References</h3>
