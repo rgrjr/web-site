@@ -25,12 +25,16 @@ bozo, and move you to my blacklist.)
 <p>I apologize for the inconvenience of making legitimate users jump
 through an extra hoop in order to send me mail, but I consider this a
 reasonable price to pay for not having to wade through literally
-hundreds of junk messages that arrive at my addresses each day,
-or put up with the inevitable errors that a
-content-based filtering system would make.  At least you only have to
-confirm once, as opposed to making sure that none of your "Subject:"
-lines ever have the words "viagra", "oxycontin", "investor alert",
-"enlargement", . . . or any likely misspellings of the foregoing.
+hundreds of junk messages that arrive at my addresses each day, or to
+put up with the inevitable false-positive errors that a content-based
+filtering system would make. (In April 2009 my server got an average of
+about 6000 spams per day, one every 15 seconds; fortunately, most of
+those went to obsolete addresses, so TMDA only saw about 300 per day.
+But even that is still way too much to wade through.)  On the bright
+side, you only have to confirm once, as opposed to making sure that none
+of your "Subject:" lines ever have the words "viagra", "oxycontin",
+"investor alert", "enlargement", . . . or any likely misspellings of the
+foregoing.
 
 <p>The beauty of whitelisting as opposed to content-based antispam
 solutions is that it insists merely that each sender use a valid return
@@ -50,12 +54,17 @@ you will get tons of bounce messages for spam sent to people who changed
 their email
 address, probably to get away from the spam, and a few confirmation
 messages from people like me who use <a href="http://tmda.net/">TMDA</a>
-or similar systems.  If you get "joe-jobbed" and want to <a
-href="contact.html">get in touch</a> with me,
-I'd be happy to move you to my
-blacklist so that spam that uses your forged address is simply dropped,
-but this will only stop the confirmation requests that come from my
-addresses.
+or similar systems.  But since I have TMDA configured to skip the
+challenge for messages that <a href="http://spamassassin.apache.org/">
+Spamassassin</a> tags as probable spam, you are not likely to be
+bothered by backscatter coming from my domain.  However, if you do get
+"joe-jobbed" and are seeing lots of challenges coming from TMDA
+installations, you can easily deflect them simply by configuring your
+mail software to drop bounces (which you will probably want to do
+anyway).  Failing that, you can <a href="contact.html">get in touch</a>
+with me, and I'll be happy to move you to my blacklist so that spam that
+uses your forged address is simply dropped (but this will only stop the
+confirmation requests that come from my addresses).
 
 <p>
 <hr>
