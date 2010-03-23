@@ -18,12 +18,15 @@ resources</a> : Antispam
 
 <h3>Current spam rate</h3>
 
-<p>My "spam rate" as of December 2004 is around 100 messages per day, of
-which some 15 are blocked by TMDA (<a href="#tmda">see below</a>), and
-the rest are for nonworking addresses that bounce (sometimes with a
-little help).  At most, only one or two spam messages per month actually
-reaches my inbox; usually, these are from headhunters who use valid
-return addresses, and can therefore get their message accepted by TMDA.
+<p>My server's "spam rate" as of April 2009 is nearly 6000 messages per
+day, of which some 350 are held by TMDA (<a href="#tmda">see below</a>),
+and the rest are for nonworking addresses that bounce.  The rate seems
+to hold steady for three to six months, and then suddenly doubles; in
+December 2004 it was only around 100 messages per day with 15 blocked by
+TMDA.  At most, only one or two spam messages per month actually reaches
+my inbox; usually, these use a return address that points to a
+badly-configured autoresponder that responds to bounces, which TMDA
+accepts as a confirmation.
 These I immediately blacklist.
 
 <p>This "spam-rate" computation is based on recording all
@@ -74,6 +77,21 @@ combination of methods:
        addresses, and only after confirmation from all others.  See my
        <a href="/bob/tmda.html">Why I use TMDA to reduce spam</a> page
        for why this is so effective.
+  <dt> Tagging with <a href="http://spamassassin.apache.org/">
+       Spamassassin</a>
+  <dd> <a href="http://spamassassin.apache.org/"> SpamAssassin</a> is
+       the best-known example in the "content filtering" category.  It
+       looks for telltale features of spam in the message headers and
+       body, and produces a "spam score"; if over a certain threshold,
+       the message is considered spam.  As mentioned below, I only use
+       Spamassassin to suppress challenges for probable spam to a valid
+       address, so correspondents who are whitelisted need not worry
+       about mentioning anything (like spam) that might get their
+       message discarded.  Not only does this reduce the outgoing load
+       on my server, it reduces the chance of adding to someone's
+       backscatter misery.  And TMDA still holds on to the message for
+       two weeks, so I have a chance to look for it if I suspect
+       something is missing.
 </dl>
 
 <h3>Discarded solutions</h3>
@@ -107,12 +125,13 @@ impractical:
 	      such that stopping 95% of it wasn't good enough.
        </ol>
        That's when I decided I had to switch to TMDA.
-  <dt> Content-based filtering.
-  <dd> Possibly the best-known example of this category is <a
-       href="http://spamassassin.apache.org/"> SpamAssassin</a>, which
-       looks for telltale features of spam in the message headers and
-       body, and produces a "spam score"; if over a certain threshold,
-       the message is considered spam.  I tried this at work, using
+  <dt> Traditional content-based filtering.
+  <dd> The way <a
+       href="http://spamassassin.apache.org/"> SpamAssassin</a> is
+       traditionally used is to redirect messages based on the "spam
+       score"; if over a certain threshold, the message is considered
+       spam, and is sent to the recipient's quarantine folder.
+       I tried this at work, using
        SpamAssassin to tag messages with <tt>"****&nbsp;SPAM"</tt> in
        the "Subject:" line, but it wasn't very effective, though that
        may be at least in part because the database of spam signatures
@@ -124,7 +143,7 @@ impractical:
        subject and the body in all-caps.  Not surprisingly, SpamAssassin
        tagged this as spam, which was bad enough; what was worse was
        when the admin didn't see my reply, because the subject still had
-       <tt>"****&nbsp;SPAM"</tt> in it and got quarantined!
+       <tt>"****&nbsp;SPAM"</tt> in it and the message got quarantined!
 </dl>
 
 <p>I have not tried any of the commercial spam-filtering solutions,
