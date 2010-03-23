@@ -53,6 +53,16 @@ sched-2009.html:
 		--start 2009-04-07 --end 2009-9-30 \
 		${2009-sites} > $@
 
+2010-sites =	wmp  dr   bw   hppa \
+		wmp  dr   hpta qq \
+		sfp  bw   rr   cr   sfp \
+		cq   hppa rr   dr   wmp \
+		sfp  cr   rr   bw  \
+		hpta dr   bw   wmp
+sched-2010.html:
+	./tns.pl --holidays 2010-05-24,2010-7-04,2010-9-6 \
+		--start 2010-04-06 --end 2010-9-30 ${2010-sites} > $@
+
 # This is not the best test case, as it depends on the locations.tbl file
 # contents.
 test-tns-1:
