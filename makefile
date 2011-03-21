@@ -42,7 +42,6 @@ girls-pages = bob/anna/index.html bob/anna/anna-thumbnail-1.jpg \
 	bob/liz/liz1.jpg bob/liz/liz2.jpg bob/liz/liz4.jpg \
 	bob/liz/scowlingAnna.jpg
 climbing-pages = climbing/index.html climbing/directions.html \
-	climbing/ephemeris.html climbing/lists.html \
 	climbing/tuesday-night.html climbing/tuesday-night-2000.html \
 	climbing/tuesday-night-2001.html climbing/tuesday-night-2002.html \
 	climbing/tuesday-night-2003.html climbing/tuesday-night-2004.html
