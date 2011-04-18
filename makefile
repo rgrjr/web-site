@@ -45,8 +45,6 @@ climbing-pages = climbing/index.html climbing/directions.html \
 	climbing/tuesday-night.html climbing/tuesday-night-2000.html \
 	climbing/tuesday-night-2001.html climbing/tuesday-night-2002.html \
 	climbing/tuesday-night-2003.html climbing/tuesday-night-2004.html
-# [these still exist, but are obsolete.  -- rgr, 30-Aug-03.]
-# climbing/br-web-review.html climbing/br-work-flow.html
 # [oops; need to include the sun4u.xmodmaprc and i586.xmodmaprc files, which
 # are referenced by the emacs/keyboard.html page.  -- rgr, 1-Dec-04.]
 emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
