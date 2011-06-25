@@ -51,7 +51,7 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/emacs_cheat.html emacs/keyboard.html \
 	emacs/sun4u.xmodmaprc emacs/i586.xmodmaprc \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
-	emacs/study.html emacs/tutorial.html
+	emacs/tutorial.html
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
 generated-pages = linux/svn-dump.html linux/backup.pl.html linux/vacuum.pl.html
 linux-pages = linux/index.html linux/tux-small.png \
@@ -59,7 +59,7 @@ linux-pages = linux/index.html linux/tux-small.png \
 	linux/cl-xml-notes.html linux/disk-upgrade.html \
 	linux/ether.html linux/striped-blue.png linux/striped-green.png \
 	linux/striped-brown.png linux/striped-orange.png \
-	linux/gconf.html linux/aolserver.html linux/cd-burning.html \
+	linux/gconf.html linux/cd-burning.html \
 	linux/howto.html linux/nis.html linux/qmail.html linux/squid.html \
 	linux/ntp.html linux/ntpd.sh linux/tmda.html \
 	linux/subversion.html linux/xml.html
