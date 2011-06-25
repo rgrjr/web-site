@@ -19,7 +19,7 @@ cgi-lib-perl = ${server-root}/lib/perl
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
-serious-pages = ${emacs-pages} ${ilisp-pages} ${lisp-pages} \
+serious-pages = ${emacs-pages} ${lisp-pages} \
 		${linux-pages} ${generated-pages} \
 		${security-pages} ${perl-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
@@ -52,7 +52,6 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/sun4u.xmodmaprc emacs/i586.xmodmaprc \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
 	emacs/tutorial.html
-ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
 generated-pages = linux/svn-dump.html linux/backup.pl.html linux/vacuum.pl.html
 linux-pages = linux/index.html linux/tux-small.png \
 	linux/antispam.html linux/backup.html \
