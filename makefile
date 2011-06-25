@@ -51,7 +51,7 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/emacs_cheat.html emacs/keyboard.html \
 	emacs/sun4u.xmodmaprc emacs/i586.xmodmaprc \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
-	emacs/study.html emacs/tutorial.html emacs/vm+qmail.html
+	emacs/study.html emacs/tutorial.html
 ilisp-pages = emacs/ilisp/index.html emacs/ilisp/new-meta-point.html
 generated-pages = linux/svn-dump.html linux/backup.pl.html linux/vacuum.pl.html
 linux-pages = linux/index.html linux/tux-small.png \
