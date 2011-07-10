@@ -5,16 +5,16 @@
 # make INSTALL_OPTS=--diff install
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
 
+ifeq "${shell ls /var/www/vhosts 2>/dev/null}" ""
 # [suse standard locations (since 8.1 anyway).  -- rgr, 29-May-04.]
 server-root = /srv/www
 web-page-root=${server-root}/htdocs
+else
+# [hacked for mediatemple (dv) server.  -- rgr, 10-Jul-11.]
+server-root = /var/www/vhosts/rgrjr.com
+web-page-root=${server-root}/httpdocs
+endif
 cgi-bin = ${server-root}/cgi-bin
-cgi-lib-perl = ${server-root}/lib/perl
-# [old aolserver locations.  -- rgr, 17-Jul-04.]
-# server-root = /usr/local/aolserver/servers/rgrjr
-# web-page-root = ${server-root}/pages
-# cgi-bin = ${server-root}/modules/cgi
-# cgi-lib-perl = ${server-root}/modules/lib/perl
 
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
