@@ -37,7 +37,7 @@ sub cvs_log_to_html_log {
     my $log_command
 	= join(' | ',
 	       "svn log --xml --verbose --revision '{$start_date}:HEAD'",
-	       'vc-chrono-log.rb |');
+	       'vc-chrono-log.pl |');
     my $line;
     open(my $in, $log_command)
 	or die "oops; couldn't open pipe from svn:  $!";
