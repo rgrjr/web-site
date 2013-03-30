@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Convert the file-oriented "cvs log" output into a historical narrative, in
-# reverse chronological order.
+# Convert vc-chrono-log.pl output from "svn log" to HTML.
 #
 # [created.  -- rgr, 24-Jul-03.]
 #
@@ -31,7 +30,7 @@ warn "$0:  No web root.\n"
 
 ### Subroutine.
 
-sub cvs_log_to_html_log {
+sub insert_html_log {
 
     print "<pre>\n";
     my $log_command
@@ -41,28 +40,15 @@ sub cvs_log_to_html_log {
     my $line;
     open(my $in, $log_command)
 	or die "oops; couldn't open pipe from svn:  $!";
-
-    my $print_file_line = sub {
-	# Helper sub that takes care of file markup & formatting.
-	my ($indentation, $file_name, $etc) = @_;
-
-	my $pretty_file_name
-	    = ($web_root && -r "$web_root/$file_name"
-	       ? "<a href='/$file_name'><tt>/$file_name</tt></a>"
-	       : "<tt>$file_name</tt>");
-	print("$indentation=> $pretty_file_name ", escapeHTML($etc), "\n");
-    };
-
     while (defined($line = <$in>)) {
 	if ($line =~ m@^( *)=> /trunk/(\S+): +(.*)$@) {
-	    # SVN output.
-	    $print_file_line->($line =~ //);
-	}
-	elsif ($line =~ /^( *)=> (\S+) (\S+): +(.*)$/) {
-	    # CVS output.
-	    my ($indentation, $file_name, $file_rev, $etc) = $line =~ //;
-	    $print_file_line->($indentation, $file_name,
-			       "$file_rev:  $etc");
+	    my ($indentation, $file_name, $etc) = $line =~ //;
+	    # warn "woop $file_name";
+	    my $link_file_name
+		= ($web_root && -r "$web_root/$file_name"
+		   ? "<a href='/$file_name'><tt>/$file_name</tt></a>"
+		   : "<tt>$file_name</tt>");
+	    print("$indentation=> $link_file_name ", escapeHTML($etc), "\n");
 	}
 	elsif ($line =~/author: rogers/) {
 	    # boring; skip.
@@ -78,7 +64,7 @@ sub cvs_log_to_html_log {
 
 while (<>) {
     if ($_ =~ /^\s*<!--\s+insert-log\s*-->\s*$/) {
-	cvs_log_to_html_log();
+	insert_html_log();
     }
     else {
 	print;

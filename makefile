@@ -72,7 +72,7 @@ lisp-pages = lisp/index.html
 all:	change-history.html ${generated-pages}
 
 change-history.html:	.
-	./cvs-chrono-log.pl 365 change-history-template.html > $@
+	./htmlize-log.pl 365 change-history-template.html > $@
 
 linux/svn-dump.html:	linux
 	svn cat https://rgrjr.dyndns.org/svn/scripts/trunk/svn-dump.pl > $@.pl
