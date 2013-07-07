@@ -24,7 +24,6 @@ this stuff.
 Related pages:
 <ul>
   <li> <a href="ntp.html">Automatic clock setting from an NTP time server</a>
-  <li> <a href="squid.html">Squid</a>
   <li> <a href="cd-burning.html">Burning CD-R disks</a>
        <ol>
 	 <li> <a href="cd-burning.html#options">Selected
@@ -143,8 +142,7 @@ follow:
 <ol>
   <li> The host IP address is unknown, so the firewall script can't
        configure itself.
-  <li> DNS name resolution is unavailable, which makes <a
-       href="squid.html">Squid</a> fail.
+  <li> DNS name resolution is unavailable.
   <li> Because the world is unreachable (not to mention DNS), <a
        href="ntp.html"><tt>ntpd</tt></a> can't so much as ask anyone for
        the time of day.
@@ -182,7 +180,6 @@ So to fix all of this, the following things must be done, in this order:
        <p>
   <li> <b>Start the remaining services manually.</b>
        <pre>
-       # /etc/init.d/squid start
        # /etc/init.d/apache2 start
        </pre>
 </ol>
@@ -215,6 +212,9 @@ Use the links in the next section for server-specific pages.
 
 <a name = logs>
 <h3>Server logs</h3>
+
+<p>[this does not cover the "modern" <tt>logrotate</tt> package.  --
+rgr, 7-Jul-13.]</p>
 
 <p>The various servers I run keep their log files in the following
 places:
@@ -257,13 +257,6 @@ places:
     </td>
   </tr>
   <tr>
-    <td> <a href="squid.html">Squid</a></td>
-    <td> <tt>cache.log</tt>, <tt>access.log</tt>, and <tt>store.log</tt>
-	 in <tt>/var/log/squid/</tt>.  More about these log files on my
-	 <a href="squid.html#squid-log-file">Squid page</a>.
-    </td>
-  </tr>
-  <tr>
     <td> <a href="#samba">Samba</a></td>
     <td> <tt>/var/log/samba/log.nmb</tt> and
 	 <tt>/var/log/samba/log.smbd</tt>.  Note that by default, SuSE
@@ -273,14 +266,6 @@ places:
   </tr>
 </table>
 </blockquote>
-
-<p>[for suse 8.1, log rotation is now controlled (mostly) by
-<tt>/etc/logrotate.d/syslog</tt>, which requires tweaking.  -- rgr,
-13-May-03.]  [squid log rotation is controlled by
-<tt>/etc/logrotate.d/squid</tt>, instead of doing
-<tt>"squid&nbsp;-k&nbsp;rotate"</tt>; this also needed tweaking.  --
-rgr, 29-Jun-03.]  [need to write up tweaking notes, describe the
-<tt>logrotate</tt> package in outline.  -- rgr, 5-Jun-04.]
 
 <a name = netatalk>
 <h3>netatalk</h3>
