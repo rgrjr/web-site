@@ -50,12 +50,7 @@ W32.Klez.E@mm</a>) sends emails that purport to come from
 Astonishingly, this virus guesses destination email addresses at random,
 and may send hundreds of random emails over the course of a day before
 it gives up (or somebody wonders why their computer is so slow).  So
-far, the virus' success rate at my site has been zero, probably due in
-part to the fact that I use <a href="qmail.html"> the <tt>qmail</tt>
-mail transport agent</a>, which doesn't check whether the address is
-good at the time it accepts the message; this probably slows the virus
-down.  It may be more effective when it tries to guess addresses at
-<tt>yahoo.com</tt>.
+far, the virus' success rate at my site has been zero.
 
 <h3>What I do now</h3>
 
@@ -64,11 +59,10 @@ combination of methods:
 
 <dl class="howto">
   <dt> Disposable addresses
-  <dd> I have long used special-purpose email addresses to subscribe to
-       mailing lists; when the temporary address starts getting spammed,
-       I change to a new address.  <a href="qmail.html">The
-       <tt>qmail</tt> MTA</a> makes this easy, by giving me an infinite
-       supply of addresses I can use.
+  <dd> I used to use special-purpose email addresses to subscribe to
+       mailing lists, e.g. "rogers-foo1", "rogers-foo2", etc.  When the
+       temporary address starts getting spammed, I resubscribe with a
+       new address.
   <dt> Whitelisting with TMDA
   <dd> <a name="tmda">
        The <a href="http://tmda.net/"> Tagged Message Delivery Agent
