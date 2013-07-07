@@ -58,7 +58,7 @@ linux-pages = linux/index.html linux/tux-small.png \
 	linux/disk-upgrade.html \
 	linux/ether.html linux/striped-blue.png linux/striped-green.png \
 	linux/striped-brown.png linux/striped-orange.png \
-	linux/gconf.html linux/cd-burning.html \
+	linux/cd-burning.html \
 	linux/howto.html linux/nis.html \
 	linux/ntp.html linux/ntpd.sh linux/tmda.html \
 	linux/subversion.html linux/xml.html
