@@ -26,7 +26,7 @@ top-pages = index.html site.css hits.html visitors.html robots.txt \
 		web-site.html site-map.html change-history.html \
 		random/doubleclick.png
 bob-pages = bob/index.html bob/contact.html bob/damon-mahler.html \
-		bob/tmda.html bob/gimp-toc.html bob/resume-extra.html \
+		bob/tmda.html bob/resume-extra.html \
 		bob/resume.html
 girls-pages = bob/anna/index.html bob/anna/anna-thumbnail-1.jpg \
 	bob/anna/anna-2-small.jpg bob/anna/anna-2.jpg \
