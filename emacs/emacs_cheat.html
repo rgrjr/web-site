@@ -70,8 +70,8 @@ UNDO: <tt>C-_</tt> ("control underscore")
 	   </tr>
 	   <tr>
 	     <td>Sentences</td>
-	     <td><tt>M-a</tt></td>
 	     <td><tt>M-e</tt></td>
+	     <td><tt>M-a</tt></td>
 	     <td><tt>M-k</tt></td>
 	     <td><tt>C-x&nbsp;DEL</tt></td>
 	   </tr>
@@ -143,11 +143,11 @@ UNDO: <tt>C-_</tt> ("control underscore")
 	   <tr>
 	     <td valign=top colspan=2>
 		  <i>To make cut/copy/paste behave as it does in
-		  Macintosh and Windows apps, do
-		  <tt>M-x&nbsp;pc-selection-mode</tt>, or put
+		  other apps, do
+		  <tt>M-x&nbsp;cua-mode</tt>, or put
 		  <pre>
-    (pc-selection-mode)</pre>
-		  in your <tt>.emacs</tt> file to enable this in every
+    (cua-mode)</pre>
+		  in your <tt>.emacs</tt> to enable in every
 		  session.</i>
 	     </td>
 	   </tr>
@@ -311,6 +311,10 @@ UNDO: <tt>C-_</tt> ("control underscore")
 	     <td valign=top>List buffers; shows in other window</td>
 	   </tr>
 	   <tr>
+	     <td valign=top><tt>C-x&nbsp;k</tt></td>
+	     <td valign=top>Kill buffer; prompts for buffer name</td>
+	   </tr>
+	   <tr>
 	     <th colspan=2>
 		  <font size=+2>Searching/Replacing</font>
 	     </th>
@@ -325,6 +329,16 @@ UNDO: <tt>C-_</tt> ("control underscore")
 	     <td valign=top>Incremental search backward</td>
 	   </tr>
 	   <tr>
+	     <td valign=top><tt>C-M-s</tt></td>
+	     <td valign=top>Regexp search forward (there are
+		  differences in Emacs regexp syntax wrt Perl,
+		  etc.)</td>
+	   </tr>
+	   <tr>
+	     <td valign=top><tt>C-M-r</tt></td>
+	     <td valign=top>Regexp search backward</td>
+	   </tr>
+	   <tr>
 	     <td valign=top><tt>M-x replace-string RET</tt></td>
 	     <td valign=top>String replace from here to end of buffer;
 		  prompts for string and replacement</td>
@@ -334,6 +348,15 @@ UNDO: <tt>C-_</tt> ("control underscore")
 	     <td valign=top>String replace from here to end of buffer,
 		  querying for each occurrence</td>
 	   </tr>
+	   <tr>
+	     <td valign=top><tt>M-x grep RET</tt></td>
+	     <td valign=top>Prompts for a <tt>grep</tt> command, shows
+		  hits in a buffer</td>
+	   </tr>
+	   <tr>
+	     <td valign=top><tt>C-x `</tt></td>
+	     <td valign=top>Visit next <tt>grep</tt> hit</td>
+	   </tr>
 	 </table>
     </td>
   </tr>
@@ -342,17 +365,15 @@ UNDO: <tt>C-_</tt> ("control underscore")
 
 <h3>Other resources for learning emacs</h3>
 
-[This is from the <a href="">Emacs tips</a> page.]
-
 <ul>
   <li> Dave Cohen's original emacs cheat sheet at
        <tt>http://www.primenet.com/~cohen/emacs_cheat.html</tt> <i>(dead
        link)</i>, written by an alumnus of the August bootcamp.
   <li> <a href="tutorial.html">Tutorial outline</a> for the tutorial
        presented at bootcamp on 4-Oct-99.
-  <li> <a
-       href="http://www.pdc.kth.se/training/Tutor/Basics/emacs/emacsis.great">
-       <tt>emacsis.great</tt> tutorial page</a> (not hypertext), with a
+  <li>
+       <tt>http://www.pdc.kth.se/training/Tutor/Basics/emacs/emacsis.great</tt>
+       <i>(dead link)</i> tutorial page (not hypertext), with a
        topical command summary at the bottom.  This is very dense, and
        covers a lot of ground.
   <li> <a href="http://www.faqs.org/faqs/GNU-Emacs-FAQ/">GNU emacs
