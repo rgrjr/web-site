@@ -204,34 +204,25 @@ servers that are willing to provide time service.  Using more than one
 server is desirable for the sake of redundancy, in case of host downtime
 or network outages.  (Using more than two improves accuracy -- the more
 the better, up to a point -- but two servers are quite adequate for
-one-second accuracy.)  See the <a
-href="http://www.eecis.udel.edu/~mills/ntp/servers.html"> Public NTP
-Time Servers page
-(<tt>http://www.eecis.udel.edu/~mills/ntp/servers.html</tt>)</a>.  Other
+one-second accuracy.)  See the public NTP time server lists
+at <a
+href="http://support.ntp.org/bin/view/Servers/WebHome">
+<tt>http://support.ntp.org/bin/view/Servers/WebHome</tt></a>.  Other
 resources are listed on the <a href="http://www.ntp.org/">Network Time
-Protocol (NTP) project site</a>.  You are welcome to use <a href="/">
-<tt>rgrjr.dyndns.org</tt></a> as one of the NTP servers with which you
-synchronize, and you might want to pick another stratum 2 or 3 machine
-from the <a href="http://www.eecis.udel.edu/~mills/ntp/servers.html">
-Public NTP Time Servers page
-(<tt>http://www.eecis.udel.edu/~mills/ntp/servers.html</tt>)</a>.  Be
-sure to read the ground rules first before picking a server, and notify
-the contact person if requested.  And if you do use <a href="/">my
-machine</a>, please <a href="/bob/contact.html">send me an
-email</a> to let me know.
+Protocol (NTP) project site</a>.
+
+<p>(I used to offer public time service on
+<tt>rgrjr.dyndns.org</tt></a>, but am no longer able to do that, as my
+NTP server was being abused for DDOS attacks.  Unfortunately, this is
+difficult to prevent.)
 
 <a name="use-dns">
-<p>Note that it is best to refer to time servers by domain name
-(e.g. <tt>rgrjr.dyndns.org</tt>), rather than IP address
-(e.g. <tt>192.168.3.5</tt>), since IP addresses are often reassigned.
+<p>Note that it is best to refer to time servers by domain name, rather
+than IP address, since IP addresses are often reassigned.
 In fact, a large site may even use an alias (<tt>CNAME</tt> record) such
 as <tt>"time.bu.edu"</tt> to point to a designated time server host; the
 server can then be moved to a different host with minimal disruption
-simply by reassigning the alias.  Other hosts, such as mine, have
-dynamically-assigned IP addresses that may change on short notice (which
-is why I use the free <a href="http://www.dyndns.org">
-<tt>dyndns.org</tt> dynamic DNS service</a> to give myself a portable
-DNS name).
+simply by reassigning the alias.
 
 <a name="builtin-ntpd">
 <h3>Adjusting the clock with a built-in NTP daemon</h3>
