@@ -11,7 +11,6 @@ use warnings;
 
 use Date::Parse;
 use Date::Format;
-use CGI qw(escapeHTML);
 
 my $date_format_string = '%Y-%m-%d %H:%M';
 my $date_fuzz = 60;		# in seconds.
@@ -28,15 +27,23 @@ for my $dir (qw(/srv/www/htdocs /var/www/html)) {
 warn "$0:  No web root.\n"
     unless defined($web_root);
 
-### Subroutine.
+### Subroutines.
+
+sub escapeHTML {
+    # Helper for writing HTML output.
+    my ($string) = @_;
+
+    $string =~ s{&}{&amp;}g;
+    $string =~ s{<}{&lt;}g;
+    $string =~ s{>}{&gt;}g;
+    $string =~ s{"}{&quot;}g;
+    return $string;
+}
 
 sub insert_html_log {
 
     print "<pre>\n";
-    my $log_command
-	= join(' | ',
-	       "svn log --xml --verbose --revision '{$start_date}:HEAD'",
-	       'vc-chrono-log.pl |');
+    my $log_command = qq{git log --since '{$start_date}' | vc-chrono-log.pl |};
     my $line;
     open(my $in, $log_command)
 	or die "oops; couldn't open pipe from svn:  $!";
