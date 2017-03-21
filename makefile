@@ -74,19 +74,11 @@ change-history.html:	.
 	./htmlize-log.pl 365 change-history-template.html > $@
 
 linux/svn-dump.html:	linux
-	svn cat https://rgrjr.dyndns.org/svn/scripts/trunk/svn-dump.pl > $@.pl
-	pod2html $@.pl > $@
-	rm -f $@.pl
+	pod2html ../scripts/svn-dump.pl > $@
 linux/backup.pl.html:	linux
-	svn cat https://rgrjr.dyndns.org/svn/scripts/trunk/backup.pl \
-		> linux/backup.pl
-	pod2html linux/backup.pl > $@
-	rm -f linux/backup.pl
+	pod2html ../scripts/backup.pl > $@
 linux/vacuum.pl.html:	linux
-	svn cat https://rgrjr.dyndns.org/svn/scripts/trunk/vacuum.pl \
-		> linux/vacuum.pl
-	pod2html linux/vacuum.pl > $@
-	rm -f linux/vacuum.pl
+	pod2html ../scripts/vacuum.pl > $@
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
 current-hits.html:	/var/log/apache2/access_log-20081201.bz2 \
@@ -140,14 +132,14 @@ find-pages-to-update:
 	find . -name '*.html' | sort > html-files.text
 	fgrep -l site.css `cat html-files.text` > updated-files.text
 	comm -3 html-files.text updated-files.text 
-	# rm -f html-files.text updated-files.text
+	rm -f html-files.text updated-files.text
 
 # note that install.pl installs only when it sees a difference, and makes
 # numbered backups of the original versions.  that way, any changes made
 # directly to the active pageroot will not be lost.  -- rgr, 3-Mar-04.
 check-install-dir:
 	test -d ${web-page-root}/climbing || exit 123
-install:	check-install-dir install-pages install-cgi
+install:	check-install-dir install-pages
 install-pages:	change-history.html
 	@for file in ${all-pages}; do \
 	    ${INSTALL} $$file ${web-page-root}/$$file; \
