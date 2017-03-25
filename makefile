@@ -1,6 +1,5 @@
 # Makefile for home Web site maintenance.
 #
-# $Id$
 
 # make INSTALL_OPTS=--diff install
 INSTALL = install.pl --show -m 444 ${INSTALL_OPTS}
