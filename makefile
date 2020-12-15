@@ -17,29 +17,15 @@ cgi-bin = ${server-root}/cgi-bin
 
 # [the use of "pages" here is a misnomer.  -- rgr, 30-Aug-03.]
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
-home-site-pages = ${bob-pages} ${girls-pages} ${climbing-pages}
+home-site-pages = ${bob-pages} ${climbing-pages}
 serious-pages = ${emacs-pages} ${lisp-pages} \
 		${linux-pages} ${generated-pages} \
 		${security-pages} ${perl-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
 		web-site.html site-map.html change-history.html \
 		random/doubleclick.png
-bob-pages = bob/index.html bob/contact.html bob/damon-mahler.html \
-		bob/tmda.html bob/resume-extra.html \
+bob-pages = bob/index.html bob/contact.html bob/resume-extra.html \
 		bob/resume.html
-girls-pages = bob/anna/index.html bob/anna/anna-thumbnail-1.jpg \
-	bob/anna/anna-2-small.jpg bob/anna/anna-2.jpg \
-	bob/anna/anna-3-small.jpg bob/anna/anna-3.jpg \
-	bob/anna/anna-portrait-1.jpg \
-	bob/anna/anna-and-kitten-1.jpg bob/anna/anna-and-kitten-2.jpg \
-	bob/liz/index.html bob/liz/lizzie-at-2-tn.jpg bob/liz/pic-preview.html \
-	bob/liz/3sillies.jpg bob/liz/Anna-Bob1.jpg bob/liz/Anna-Bob2.jpg \
-	bob/liz/Anna1.jpg bob/liz/Anna2.jpg bob/liz/Anna3.jpg \
-	bob/liz/Shelda-Bob1.jpg bob/liz/Shelda-Bob2.jpg \
-	bob/liz/Shelda-Bob3.jpg bob/liz/Shelda-cartwheel.jpg \
-	bob/liz/liz-portrait-1.jpg bob/liz/liz-thumbnail-1.jpg \
-	bob/liz/liz1.jpg bob/liz/liz2.jpg bob/liz/liz4.jpg \
-	bob/liz/scowlingAnna.jpg
 climbing-pages = climbing/index.html climbing/directions.html \
 	climbing/tuesday-night.html climbing/tuesday-night-2000.html \
 	climbing/tuesday-night-2001.html climbing/tuesday-night-2002.html \
@@ -59,7 +45,7 @@ linux-pages = linux/index.html linux/tux-small.png \
 	linux/striped-brown.png linux/striped-orange.png \
 	linux/cd-burning.html \
 	linux/howto.html linux/nis.html \
-	linux/ntp.html linux/ntpd.sh linux/tmda.html \
+	linux/ntp.html linux/ntpd.sh \
 	linux/subversion.html linux/xml.html
 security-pages = linux/security/index.html linux/security/check-logs.html \
 	linux/security/firewall.html linux/security/old-xauth.html \
