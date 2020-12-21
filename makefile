@@ -47,8 +47,8 @@ linux-pages = linux/index.html linux/tux-small.png \
 	linux/howto.html linux/nis.html \
 	linux/ntp.html linux/ntpd.sh \
 	linux/subversion.html linux/xml.html
-security-pages = linux/security/index.html linux/security/check-logs.html \
-	linux/security/firewall.html linux/security/old-xauth.html \
+security-pages = linux/security/index.html \
+	linux/security/firewall.html \
 	linux/security/ssh.html linux/security/xauth.html
 perl-pages = perl/index.html perl/perl6-objects.html
 lisp-pages = lisp/index.html

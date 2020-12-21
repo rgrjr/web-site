@@ -1,10 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html> <head>
-<title>Bob Rogers: Linux Security, etc.</title>
+<title>Bob Rogers: Linux security</title>
+<link href="../../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
 <body bgcolor=white>
-<h1>Linux Security, etc.</h1>
+<h1>Linux security</h1>
 
 <p><a href="/">Home</a> : <a href="/linux/">Linux</a> : Security
 <hr>
@@ -19,31 +20,19 @@ HOWTO</a>, and consider purchasing a recent book on the subject.
 
 <h2>Articles</h2>
 
-<dl>
+<dl class="howto">
   <dt> <a href="firewall.html"><b>An <tt>ipchains</tt> firewall
        script</b></a>
+  </dt>
   <dd> A solid firewall is your first line of defense against crackers.
        It is advisable for dialup users, and essential for users of
        high-bandwidth always-on connections (e.g. DSL, ISDN, cable
        modems -- anything faster than 56K), since such machines are more
        attractive as targets.
-  <dt> <b>Eliminate unnecessary services</b>
-  <dd> If you don't need (e.g.) an FTP server, then you can eliminate
-       any vulnerabilities related to FTP server bugs by simply not
-       running the service.  (And FTP in particular is prone to
-       problems; see <a href="http://cr.yp.to/ftp/security.html">
-       <tt>http://cr.yp.to/ftp/security.html</tt></a> for an
-       exposition.)  [finish.  -- rgr, 30-Apr-00.]
-  <dt> <a href="check-logs.html"><b>The <tt>check-logs.pl</tt>
-       script</b></a>
-  <dd> System log files exist so that sysadmins can track down problems;
-       in terms of security, they are also useful for monitoring
-       suspicious activity.  Unfortunately, logs are also full of reams
-       of useless drivel (that is, until you need some of that drivel to
-       diagnose a system problem).  Consequently, most sysadmins wind up
-       writing or installing log analysis scripts that sift the logs to
-       their satisfaction.  I chose to write my own.
-  <dt> <a href="ssh.html">SSH: Secure Shell</a>
+       [note that Linux kernels now use <tt>iptables</tt>, so this is
+       way out of date.  -- rgr, 21-Dec-20.]
+  </dd>
+  <dt> <a href="ssh.html">SSH: Secure Shell</a> </dt>
   <dd> For logging in to other machines without giving away your
        passwords (or anything else, for that matter).  Also can be used
        to forward connections securely through untrusted networks.  If
@@ -52,67 +41,37 @@ HOWTO</a>, and consider purchasing a recent book on the subject.
        world that is equipped with an SSH client, which can be really
        convenient.  However, it is important to keep your SSH server
        up-to-date; one of my friends got his machine cracked this way.
+  </dd>
 </dl>
 
 <h2>General security links</h2>
 
-<dl>
+<dl class="howto">
   <dt> <A HREF="http://cr.yp.to/ftp/security.html">djb's
        <tt>/ftp/security.html</tt> page</A>
-  <dd> Why the <tt>ftp</tt> protocol was designed insecurely.
-  <dt> <A HREF="http://mail-abuse.org/tsi/ar-fix.html">MAPS TSI:
-       Anti-Relay: How Can I Fix the Problem?</A>
-  <dd> "How to secure your current mail system against third-party
-       relay."
-  <dt> <A HREF="http://www.onsight.com/ssh/faq/ssh-faq.html"> The
-       Secure Shell (SSH) FAQ - Frequently Asked Questions</A>
-  <dd> See also my <a href="ssh.html">SSH: Secure Shell</a> page.
+  </dt>
+  <dd> Why the <tt>ftp</tt> protocol was designed insecurely. </dd>
+  <dt> <a href="https://www.openssh.com/manual.html">OpenSSH Manual
+       Pages</a> </dt>
+  <dd> Plus links to other documents describing the relevant standards.
+       See also my <a href="ssh.html">SSH: Secure Shell</a> page.
+  </dd>
   <dt> <a href="http://www.seifried.org/lasg/">Linux Administrator's
        Security Guide</a>
+  </dt>
   <dt> <a href="http://www.tldp.org/HOWTO/Secure-Programs-HOWTO/">
        Secure Programming for Linux and Unix HOWTO</a>
-  <dd> The first two of these are required reading reading for Linux
-       system administrators.  The third should be very useful for Linux
+  </dt>
+  <dd> The first is required reading reading for Linux
+       system administrators.  The second should be very useful for Linux
        developers, especially for apps that go anywhere near the
        network.
+  </dd>
   <dt> <a href="http://www.schneier.com/yarrow.html">
        Yarrow: A secure pseudorandom number generator</a>
+  </dt>
   <dd> First-of-its-kind PRNG.
-  <dt> <A HREF="http://www.sans.org/top20.htm">The Twenty Most Critical
-       Internet Security Vulnerabilities (Updated)</a>
-</dl>
-
-<h2>Privacy links</h2>
-
-<p>[should have more in this vein.  -- rgr, 16-Aug-02.]
-
-<dl>
-  <dt> <a
-       href="http://www.nwfusion.com/columnists/2002/0422faceoffyes.html">
-       Security is poor because vendors are not held
-       responsible</a>
-  <dd> Interesting take on software liability from security
-       authority 
-       Bruce Schneier.
-  <dt> <a href="http://www.cyveillance.com/">cyveillance.com</a>
-  <dd> I first became aware of these folks when a robot
-       at&nbsp;63.148.99.229 scarfed all *.html pages on
-       18-Jun-2002, without checking robots.txt first.  See the
-       articles <a
-       href="http://www.internetwk.com/story/INW20010323S0001">
-       Cyveillance Switches From Dell Windows NT to IBM Unix</a>
-       at InternetWeek.com and <a
-       href="http://www.businessweek.com/1999/99_35/b3644126.htm">
-       Cyveillance: Helping to Keep the Web Honest</a> at the
-       Business Week online site.  -- rgr, 29-Jun-02.
-
-  <dt> Another <a href="http://www.robotstxt.org/wc/exclusion.html">
-       Robots Exclusion</a> standard violation.
-  <dd> A robot operating from 211.147.3.21 (in China) made a total of 31
-       hits to my site on 15/Aug/2002 at 13:16&nbsp;(EDT) without
-       fetching <tt>/robots.txt</tt> first.  Their spider was not smart
-       enough to understand an <tt>"FTP:"</tt> URL linked from the <a
-       href="../">Linux</a> page.
+  </dd>
 </dl>
 
 <p>
