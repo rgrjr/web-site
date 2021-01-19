@@ -1,29 +1,29 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
-<title>Bob Rogers: Local "howto" information: Burning CDs</title>
+<title>Bob Rogers: Local "howto" information: Burning DVDs and CDs</title>
 <link href="../site.css" title="Default" rel="stylesheet" type="text/css">
 </head>
 
 <body>
-<h2>Burning CDs</h2>
+<h2>Burning DVDs and CDs</h2>
 
 <p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
-resources</a> : <a href="howto.html">"Howto"</a> : Burning CDs
+resources</a> : <a href="howto.html">"Howto"</a> : Burning DVDs and CDs
 <hr>
 
 <h3>Table of contents</h3>
 
 <!-- hhmtoc start -->
 <ol>
-  <li> Burning CDs
+  <li> Burning DVDs and CDs
        <ol>
 	 <li> Table of contents
 	 <li> General notes
-	 <li> <a href="#options">Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options</a>
 	 <li> <a href="#howto">CD-R how-to</a>
 	 <li> <a href="#dvd">Additional magic for burning DVDs</a>
 	 <li> <a href="#cd-dump.pl">Burning CDs with <tt>cd-dump.pl</tt></a>
+	 <li> <a href="#options">Appendix:  Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options</a>
        </ol>
 </ol>
 <!-- hhmtoc end -->
@@ -32,121 +32,41 @@ resources</a> : <a href="howto.html">"Howto"</a> : Burning CDs
 
 <p>
 <ul>
-  <li> My current CD-RW/DVD-ROM is an <a href="http://www.lge.co.kr/">
-       LG&nbsp;Electronics</a> model <a
-       href="http://www.lgeus.com/Product/CD/gcc_4120b.asp"> GCC-4120
-       rev 2.01</a> combination CD-RW and DVD-ROM.  That is, it can read
-       and write CD, CD-R, and CD-RW media (audio and data), and read
-       DVD and DVD-ROM media (video and data).  This is an ATAPI drive,
-       which means (roughly) that it uses SCSI commands over IDE, and
-       plugs in using the regular IDE ribbon cable that is common for
-       hard drive and CD drives.
-  <li> [In case you're curious, it cost me $99 at <a
-       href="http://www.pcsforeveryone.com/">PCs for Everyone</a>, my
-       favorite hardware shop, located on Charles Street in Cambridge,
-       Massachusetts.  -- rgr, 7-Jul-02.]
-  <li> In order to get it to work properly as a CD-R drive with my
-       oddball Red Hat 6.0/kernel 2.2.19 GNU/Linux system, I needed to
-       put <tt>"modprobe&nbsp;ide-scsi"</tt> in
-       <tt>/etc/rc.d/rc.modules</tt> to get it to use the correct
-       driver.  This broke mounting for reading as <tt>/dev/cdrom</tt>,
-       a symbolic link to <tt>/dev/hdc</tt>, so I changed
-       <tt>/dev/cdrom</tt> to point to <tt>/dev/scd0</tt> instead.
-  <li> All of the software needed to write CDs of various sorts is
-       available in the <a
-       href="http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html">
-       cdrtools</a> package.  For writing data CDs, <tt>mkisofs</tt>
-       packages up the files into an ISO9660 CD image, and
-       <tt>cdrecord</tt> burns the image onto a blank CD.
-  <li> Still scoping out the DVD-player thing.  See the <a
-       href="http://www.linuxjournal.com/article.php?sid=5644&mode=thread&order=0">
-       GNU/Linux DVD Player Review</a> article for an overview of some
-       of the players now available for Linux.
-  <li> [for the record, the "KOnCD" utility that comes with KDE has
-       problems.  its help file is completely useless.  -- rgr, 3-Jul-01.]
+  <li> All of the software needed to write DVDs and CDs is available in
+       the <tt>cdrecord</tt> RPM on <a
+       href="https://www.opensuse.org">openSUSE</a>.  For formatting the
+       data, the <tt>mkisofs</tt> program (in the <tt>mkisofs</tt> RPM)
+       wraps up the files into an ISO9660 image, and <tt>cdrecord</tt>
+       burns the image onto a blank disk.
+  </li>
 </ul>
-
-<a name="options">
-<h3>Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options</h3>
-
-This list is far from complete, but a complete list makes a lousy quick
-reference.  Do <tt>"mkisofs --help"</tt> if you want to see all options.
-
-<a name="mkisofs-dash-C">
-<dl>
-  <dt> <b>-C <i>last_sess_start,next_sess_start</i></b><a href=""></a>
-  <dd> Used for the second or subsequent session of a multi-session
-       CD.  <tt><i>last_sess_start</i></tt> is the sector number of
-       the first sector in the last session of the CD to which you
-       wish to append, and <tt><i>next_sess_start</i></tt> is the
-       starting sector number of the new session.  These numbers may be
-       retrieved from the CD via
-       <tt>"cdrecord&nbsp;-msinfo&nbsp;..."</tt> [Not clear why this
-       needs to be specified if <tt>"-M&nbsp;<i>device</i>"</tt> is also
-       specified.  -- rgr, 20-Oct-02.]
-  <dt> <b>-f</b>
-  <dd> follow symbolic links.
-  <dt> <b>-hfs</b>
-  <dd> make a Mac filesystem.
-  <dt> <b>-l</b>
-  <dd> allows 31-char file names.
-       <a name="mkisofs-dash-M">
-  <dt> <b>-M ( <i>filename</i> | <i>device</i> )</b>
-  <dd> Specifies an existing ISO9660 image to be merged in second or
-       subsequent session of a multi-session CD, where
-       <tt><i>filename</i></tt> is the name of a file that contains an
-       ISO9660 image, and <tt><i>device</i></tt> is a <tt>cdrecord</tt>
-       "SCSI device specifier," e.g. <tt>"1,0,0"</tt>.  If you do not
-       specify this option, then all earlier sessions will seem to have
-       vanished from the augmented CD.
-  <dt> <b>-max-iso9660-filenames</b>
-  <dd> allows 37-char names (by flushing the widely-ignored version
-       number feature).
-  <dt> <b>--netatalk</b>
-  <dd> look for <tt>netatalk</tt>-style <tt>.AppleDouble</tt> directory
-       entries.
-  <dt> <b>-o</b>
-  <dd> specifies the output file.
-  <dt> <b>-P</b>
-  <dd> specifies the "publisher."
-  <dt> <b>-relaxed-filenames</b>
-  <dd> removes some file name charset limitations.
-  <dt> <b>-V</b>
-  <dd> specifies the volume name
-</dl>
-The rest of the line consists of at least one directory name.
-
-<p>Here is a useful subset of <tt>cdrecord</tt> options:
-<dl>
-  <dt> <b>-msinfo</b><a href=""></a>
-  <dd> Read the session addresses from an existing multisession CD;
-       the result is suitable for passing to the <a
-       href="#mkisofs-dash-C"><tt>cdrecord</tt> <tt>-C</tt> option</a>,
-       and should look something like <tt>"81114,123094"</tt>.  When the
-       second number approaches 700&nbsp;000, then the CD is getting
-       pretty full.  [Note that <tt>df</tt> seems to report the free
-       space for multi-session CDs incorrectly.  On the other hand,
-       I'm running the version that came with Red Hat 6.0, which is now
-       more than 2.5 years old.  -- rgr, 20-Oct-02.]
-  <dt> <b>-multi</b>
-  <dd> [finish.  -- rgr, 20-Oct-02.]
-  <dt> <b>-waiti</b>
-  <dd> This option is needed when piping <tt>mkisofs</tt> to
-       <tt>cdrecord</tt> for the second and subsequent track of a
-       multi-session CD.  <tt>mkisofs</tt> needs to read directory
-       information from the existing CD in order to merge it with the
-       new data, so <tt>cdrecord</tt> must be told to wait before trying
-       to access the drive.
-</dl>
 
 <a name="howto">
 <h3>CD-R how-to</h3>
 
 <dl class="howto">
-  <dt> Find out what <tt>-dev=X,Y,Z</tt> to use:<a href=""></a>
-  <dd> Do the following:
+  <dt> <a name="find-dev">
+       Find out what <tt>-dev=/dev/srX</tt> to use:</dt>
+  <dd> <a name="find-1">
+       If you have built-in SATA drive, it will probably be called
+       <tt>/dev/sr0</tt>.  If you have a USB drive, it will probably
+       become <tt>/dev/sr0</tt> (if you don't have a SATA drive) or
+       <tt>/dev/sr1</tt> (if you do).  Since this has been completely
+       predictable on my systems, I always add the following line to
+       <tt>/etc/fstab</tt> for my USB drive:
        <pre>
-       [root@rgrjr /root]# <font color=blue>cdrecord -scanbus</font>
+       /dev/sr1	/media/dvd	iso9660	noauto,users,ro 0 0
+</pre>
+       Be sure to create the <tt>/media/dvd</tt> directory if it does
+       not already exist.  Then, <tt>"mount /media/dvd"</tt> will put
+       the drive content there.
+  </dd>
+  <dt> <a name="find-scsi">
+       Find out what <tt>-dev=X,Y,Z</tt> to use:</dt>
+  <dd> <a name="find-1">
+       Do the following:
+       <pre>
+       [root@rgrjr /root]# <b>cdrecord -scanbus</b>
        Cdrecord 1.10 (i586-pc-linux-gnu) Copyright (C) 1995-2001 J&ouml;rg Schilling
        Linux sg driver version: 2.1.39
        Using libscg version 'schily-0.5'
@@ -174,27 +94,8 @@ The rest of the line consists of at least one directory name.
        which is the symptom of not having the <tt>ide-scsi</tt> driver
        installed for an ATAPI drive.
 
-  <dt> Get <tt>-scanbus</tt> to work in SuSE 9.0 Pro:
-  <dd> When I moved the CD-burner to my new SuSE 9.0 machine, which had
-       previously only had a CD-ROM drive on it, <tt>cdrecord</tt>
-       stopped working, and <tt>-scanbus</tt> could not even find the
-       bus.  The symptoms are described in detail in a <a
-       href="http://linux.derkeiler.com/Mailing-Lists/SuSE/"> SuSE Linux
-       English thread</a> from March 2004 titled "cdrecord stopped
-       working".  The solution (suggested by <a
-       href="http://linux.derkeiler.com/Mailing-Lists/SuSE/2004-03/0059.html">
-       this post</a>) is the following
-       <pre>
-       cdrecord -scanbus -dev=ATAPI:
-       </pre>
-       To one of the resulting list of
-       <tt>{<i>scsibus</i>,<i>target</i>,<i>lun</i>}</tt> triples, you
-       will need to prefix <tt>"ATAPI:"</tt> in order to tell
-       <tt>cdrecord</tt> to use the corresponding device, e.g. use
-       <tt>"-dev=ATAPI:0,0,0"</tt>.
-
   <dt> Get drive characteristics:
-  <dd> Once you have the proper
+  <dd> Once you have the proper device or
        <tt>{<i>scsibus</i>,<i>target</i>,<i>lun</i>}</tt> triple, do the
        following:
        <pre>
@@ -218,24 +119,24 @@ The rest of the line consists of at least one directory name.
        [The <tt>-inq</tt> flag gets a subset of this information, mostly
        the drive configuration part.  -- rgr, 7-Jul-02.]
 
-  <dt> Put a directory onto a CD (in two steps):
+  <dt> Put a directory onto a disk (in two steps):
   <dd> Use something like the following:
        <pre>
        mkisofs -f -max-iso9660-filenames -relaxed-filenames -P "Bob Rogers" -V 2003Q1a \
 	       -o foo.iso /scratch/backups/2003Q1a/cd/
        cdrecord -speed=8 -dev=1,0,0 -data foo.iso
 </pre>
-       The first command makes an ISO9660 CD image out of the contents
+       The first command makes an ISO9660 image out of the contents
        of an ordinary Linux directory; the second command writes this
        image to the drive.  It is split up this way into two operations
        because the writing must be done in real time; the CPU has to
        ensure that the data gets to the CD in time to be written.  The
        two operations can be pipelined (see the next item), which
        eliminates the temp hard drive space usage, but doing them separately
-       ensures that the CD image is burned correctly onto the blank
+       ensures that the image is burned correctly onto the blank
        medium.
 
-  <dt> Put a directory onto a CD (in one step):
+  <dt> Put a directory onto a disk (in one step):
   <dd> Use a pipeline that looks something like the following:
        <pre>
        mkisofs -max-iso9660-filenames -relaxed-filenames -V 2003Q1a /scratch/backups/cd/2003Q1a \
@@ -245,22 +146,7 @@ The rest of the line consists of at least one directory name.
        steps separately.  The reason is that I have only one hard drive, so
        making a ISO9660 image file from content on the same hard drive
        requires lots of seeks, which are time-consuming.
-
-       <p>The drive is capable of writing a CD-R disk at 4X, 8X, and
-       12X, but attempting to write at 12X on my old system results in
-       an unreadable CD -- <tt>mount</tt> complains about a bad
-       superblock, among other possibilities.  This is probably because
-       this machine can't shovel the data fast enough, and so the
-       pipeline stalls.  I notice that <tt>xload</tt> shows
-       significantly higher CPU demand when writing at 12X than at 8X or
-       4X, so perhaps the CPU (a 300MHz Athlon processor) is the
-       limiting factor.  My new machine (with a 1.8GHz AMD chip) has no
-       problems writing at full speed.
-
-       <p>[add <tt>-hfs --netatalk</tt> to make a Mac-readable CD.  --
-       rgr, 22-Sep-02.]
-
-  <dt> Append to a CD: 
+  <dt> Append to a disk: 
   <dd> This requires creating what is called a "multi-session CD."  Each
        session is implemented on what would be considered a "track" on
        an audio disk.  However, note that it is possible to append to a
@@ -310,25 +196,25 @@ The rest of the line consists of at least one directory name.
        To write a final session, use something based on the second
        session example but drop the <tt>"-multi"</tt> option.
 
-  <dt> Mount a CD image:
-  <dd> This is a useful trick for mounting the data from a CD without
-       hogging the drive.  What
-       you are mounting will still behave like a CD, though, so you
-       won't be able to change its contents.
+  <dt> Mount an ISO9660 image:
+  <dd> This is a useful trick for mounting the data from a data CD/DVD
+       without hogging the drive.  What you are mounting will still
+       behave like a CD/DVD drive, though, so you won't be able to
+       change its contents.
 
-       <p>First, you need to put the CD in the drive (but don't mount
-       it), and then copy the raw CD image onto a file on the hard
+       <p>First, you need to put the disk in the drive (but don't mount
+       it), and then copy the raw disk image onto a file on the hard
        drive:
        <pre>
-       dd if=/dev/cdrom of=/scratch/backups/cd-image.iso9660
+       dd if=/dev/sr0 of=/scratch/backups/cd-image.iso9660
 </pre>
-       You may need to substitute <tt>"/dev/cdrom"</tt> with whatever
-       the device is named on your system; see <tt>/etc/fstab</tt> for
-       hints.  (If you have a USB burner, it will only show up when
-       powered on and plugged in.)  Then, mount it wherever you like as
-       an ISO9660 file system via a "loop device:"
+       You may need to substitute <tt>"/dev/sr0"</tt> with whatever the
+       device is named on your system; <a href="#find-dev">see above</a>
+       for hints.  Then, mount it wherever you like as an ISO9660 file
+       system via a "loop device:"
        <pre>
-       mount cd-image.iso9660 /mnt/cdrom -t iso9660 -o loop
+       mkdir -p /mnt/cd-image
+       mount cd-image.iso9660 /mnt/cd-image -t iso9660 -o loop
 </pre>
        See the "THE LOOP DEVICE" section of the <tt>mount</tt>
        <tt>man</tt> page for more details.
@@ -343,9 +229,6 @@ any case, it doesn't handle track-at-once, which is why we need to
 specify <tt>-dao</tt> and <tt>-tsize</tt>.
 
 <dl class="howto">
-  <dt> Install <tt>cdrecord-ProDVD</tt>:<a href=""></a>
-  <dd> [finish.  -- rgr, 10-Jan-06.]
-
   <dt> Put a directory onto a DVD (in one step):
   <dd> The following recipe seems to work for me:
        <pre>
@@ -363,39 +246,93 @@ specify <tt>-dao</tt> and <tt>-tsize</tt>.
 </dl>
 
 <a name="cd-dump.pl">
-<h3>Burning CDs with <tt>cd-dump.pl</tt></h3>
+<h3>Burning CDs and DVDs with <tt>cd-dump.pl</tt></h3>
 
-<tt>cd-dump.pl</tt> is a utility that uses <code>mkisofs</code> and
-<code>cdrecord</code> to burn files and/or directories to CD.  (Despite
-the name, they need not be "dump" files.)  File integrity is verified
-after burning and, if the data on the CD is good, the input files are
-moved to "written" directory.
+<p><tt>cd-dump.pl</tt> is a utility that uses <code>mkisofs</code> and
+<code>cdrecord</code> to burn directories to CD or DVD.  (Despite the
+name, they need not be "dump" files.)  It is available from Github at
+the following link:
+</p>
 
-<p>Usage for this is
-<pre>
-    cd-dump.pl [--help] [--man] [--verbose] [--test] 
-               [--dev=x,y,z ] [--[no]mount] [--max-iso9660-filenames]
-               [--relaxed-filenames] [-V=&lt;volname&gt;] [--speed=n]
-               [--to-write-subdir=&lt;directory&gt;] [--written-subdir=&lt;directory&gt;] 
-</pre>
-See <a href="cd-dump.pl.html">the <tt>cd-dump.pl</tt> <tt>man</tt>
-page</a> for argument descriptions, and other details.
+<blockquote>
+<a href="https://github.com/rgrjr/scripts/blob/master/cd-dump.pl">
+<tt>cd-dump.pl</tt></a>
+</blockquote>
 
-<p><b>Downloading:</b>
+<p>The documentation is in the script, and it does not require any
+additional Perl code beyond what comes with a standard GNU/Linux
+installation.
+</p>
 
-<p>You will need two things:
-<ol>
-  <li> The <a href="cd-dump.pl"> <tt>cd-dump.pl</tt> Perl script</a>.
-       Download this into a <tt>$PATH</tt> directory
-       (e.g. <tt>/usr/local/bin</tt>) and make it executable.
-  <li> The <a href="rename-into-tree.pm"> <tt>rename-into-tree.pm</tt>
-       Perl module</a>.  Put this in a Perl <tt>@INC</tt> directory
-       (e.g. <tt>/usr/lib/perl5/site_perl</tt>).
-</ol>
-Both of these files contain free software; you may redistribute and/or
-modify them under the same terms as Perl itself.  If you only intend to
-run <tt>cd-dump.pl</tt> as root, you can put both files in the
-<tt>/root/bin</tt> directory.
+<a name="options">
+<h3>Appendix:  Selected <tt>mkisofs</tt> and <tt>cdrecord</tt> options</h3>
+
+This list is far from complete, but a complete list makes a lousy quick
+reference.  Do <tt>"mkisofs --help"</tt> if you want to see all options.
+
+<a name="mkisofs-dash-C">
+<dl>
+  <dt> <b>-C <i>last_sess_start,next_sess_start</i></b><a href=""></a>
+  <dd> Used for the second or subsequent session of a multi-session
+       CD.  <tt><i>last_sess_start</i></tt> is the sector number of
+       the first sector in the last session of the CD to which you
+       wish to append, and <tt><i>next_sess_start</i></tt> is the
+       starting sector number of the new session.  These numbers may be
+       retrieved from the CD via
+       <tt>"cdrecord&nbsp;-msinfo&nbsp;..."</tt> [Not clear why this
+       needs to be specified if <tt>"-M&nbsp;<i>device</i>"</tt> is also
+       specified.  -- rgr, 20-Oct-02.]
+  <dt> <b>-f</b>
+  <dd> follow symbolic links.
+  <dt> <b>-hfs</b>
+  <dd> make a Mac filesystem.
+  <dt> <b>-l</b>
+  <dd> allows 31-char file names.
+       <a name="mkisofs-dash-M">
+  <dt> <b>-M ( <i>filename</i> | <i>device</i> )</b>
+  <dd> Specifies an existing ISO9660 image to be merged in second or
+       subsequent session of a multi-session CD, where
+       <tt><i>filename</i></tt> is the name of a file that contains an
+       ISO9660 image, and <tt><i>device</i></tt> is a <tt>cdrecord</tt>
+       "SCSI device specifier," e.g. <tt>"1,0,0"</tt>.  If you do not
+       specify this option, then all earlier sessions will seem to have
+       vanished from the augmented CD.
+  <dt> <b>-max-iso9660-filenames</b>
+  <dd> allows 37-char names (by flushing the widely-ignored version
+       number feature).
+  <dt> <b>-o</b>
+  <dd> specifies the output file.
+  <dt> <b>-P</b>
+  <dd> specifies the "publisher."
+  <dt> <b>-relaxed-filenames</b>
+  <dd> removes some file name charset limitations.
+  <dt> <b>-V</b>
+  <dd> specifies the volume name
+</dl>
+The rest of the line consists of at least one directory name.
+
+<p>Here is a useful subset of <tt>cdrecord</tt> options:
+<dl>
+  <dt> <b>-msinfo</b><a href=""></a>
+  <dd> Read the session addresses from an existing multisession CD;
+       the result is suitable for passing to the <a
+       href="#mkisofs-dash-C"><tt>cdrecord</tt> <tt>-C</tt> option</a>,
+       and should look something like <tt>"81114,123094"</tt>.  When the
+       second number approaches 700&nbsp;000, then the CD is getting
+       pretty full.  [Note that <tt>df</tt> seems to report the free
+       space for multi-session CDs incorrectly.  On the other hand,
+       I'm running the version that came with Red Hat 6.0, which is now
+       more than 2.5 years old.  -- rgr, 20-Oct-02.]
+  <dt> <b>-multi</b>
+  <dd> [finish.  -- rgr, 20-Oct-02.]
+  <dt> <b>-waiti</b>
+  <dd> This option is needed when piping <tt>mkisofs</tt> to
+       <tt>cdrecord</tt> for the second and subsequent track of a
+       multi-session CD.  <tt>mkisofs</tt> needs to read directory
+       information from the existing CD in order to merge it with the
+       new data, so <tt>cdrecord</tt> must be told to wait before trying
+       to access the drive.
+</dl>
 
 <p>
 <hr>
