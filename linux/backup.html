@@ -12,14 +12,28 @@
 resources</a> : <a href="howto.html">"Howto"</a> : Backup
 <hr>
 
+<a name="abstract">
+<h2>Abstract</h2>
+
+<p>After describing <a href="#technologies">the difference between
+archival and mirroring backups</a> and some common backup tools used for
+each by Unix system administrators, I describe the general
+considerations that go into setting up an <a href="#archival">archival
+backup system</a>, and describe the <a href="#archival-tools">tools I
+use for archival backups</a>.  I conclude with a briefer section of <a
+href="#mirroring">notes on mirroring backup</a> -- briefer both because
+the technology is simpler, and because I use it less.
+</p>
+
 <h2>Table of contents</h2>
 
 <!-- hhmtoc start -->
 <ol>
   <li> System backup
        <ol>
+	 <li> <a href="#abstract">Abstract</a>
 	 <li> Table of contents
-	 <li> <a href="#dump-vs-tar">Backup technologies</a>
+	 <li> <a href="#technologies">Backup technologies</a>
 	 <li> <a href="#archival">Notes on archival backups</a>
 	      <ol>
 		<li> <a href="#inc-levels">Backup levels</a>
@@ -29,10 +43,14 @@ resources</a> : <a href="howto.html">"Howto"</a> : Backup
 	      </ol>
 	 <li> <a href="#archival-tools">Tools for archival backup dumps</a>
 	      <ol>
+		<li> <a href="#tar-backups">Archival backups with <tt>tar</tt></a>
 		<li> <a href="#dump-backups">Archival backups with <tt>dump</tt></a>
-		<li> <a href="#dar-backups">Archival backups with DAR</a>
+		<li> <a href="#dar-backups">Archival backups with <tt>dar</tt></a>
+		<li> <a href="#backup-scripts">Backup tools in the "scripts" project</a>
 		<li> <a href="#perl-script">The <tt>backup.pl</tt> Perl script</a>
+		<li> <a href="#show-backups.pl">Listing backups with <tt>show-backups.pl</tt></a>
 		<li> <a href="#vacuum.pl">Copying dump files with <tt>vacuum.pl</tt></a>
+		<li> <a href="#clean-backups.pl">Tidying up with <tt>clean-backups.pl</tt></a>
 	      </ol>
 	 <li> <a href="#mirroring">Notes on mirroring backup</a>
 	      <ol>
@@ -44,7 +62,9 @@ resources</a> : <a href="howto.html">"Howto"</a> : Backup
 </ol>
 <!-- hhmtoc end -->
 
-<a name="dump-vs-tar">
+<p>
+<hr>
+<a name="technologies">
 <h2>Backup technologies</h2>
 
 <p>The baseline motivation behind all backup systems is disaster
@@ -59,8 +79,8 @@ If you suddenly realize that an important file is missing, and you're
 not sure when it was deleted, then the ability to sift through a year of
 backup dumps looking for the missing file can be a life-saver.  In order
 to do this, however, you must keep a lot of data around, and that almost
-always means putting the backup dumps on some sort of offline storage,
-such as CD-R (or CD-RW), Zip, etc.
+always means putting the backup dumps on some sort of offline storage.
+</p>
 
 <p><b>Mirroring</b> backup gives you immediate access to the most recent
 copy of your data; if you deleted that important file just this morning,
@@ -69,10 +89,13 @@ searching.  On the other hand, if you deleted it before the last
 mirroring operation, you are completely out of luck.  At a minimum,
 mirroring only requires a spare disk of comparable size, and is easy to
 automate completely, as it requires no manipulation of offline media.
+</p>
 
-<p>The three "entry-level" backup options for Linux (and Unix systems
+<p>The "entry-level" backup options for Linux (and Unix systems
 generally) tend to provide either archival or mirroring, but not both.
 They are:
+</p>
+
 <ol>
   <li> <b>The standard Unix <tt>tar</tt> utility.</b> This is <a
        href="http://www.gnu.org/directory/GNU/tar.html"> GNU
@@ -81,37 +104,51 @@ They are:
        directories.  It has the distinct advantage of being supremely
        portable; "tar" format can be read by all other Unix systems, and
        even by DOS/Windows and Macintosh.
+       It is usually included in a default installation, but if not,
+       <tt>"zypper install tar"</tt> will get it on openSUSE.
+  </li>
   <li> <b>The traditional Unix <tt>dump</tt> and <tt>restore</tt>
        programs.</b> Most Linux systems come with the <a
        href="http://dump.sourceforge.net/"> <tt>dump/restore</tt>
        implementation for ext2/ext3</a>, but these are the traditional
        names for the archival backup programs in Unix, so
        <tt>"man&nbsp;dump"</tt> will almost always come up with
-       something on any Unix system.  <tt>dump</tt> can only operate on
-       a whole partition at a time, but it features incremental backup
-       capability, so you only need to back up what's changed.
-  <li> <b>The <tt>rsync</tt> program.</b> Unlike <tt>tar</tt> or
-       <tt>dump</tt>, <a href="http://rsync.samba.org/">
-       <tt>rsync</tt></a> is designed to mirror the content of directory
-       trees over the network, is quite clever about only transferring
-       data that have changed, and can also be set up to do local
-       disk-to-disk copying.
+       something on any Unix system (try <tt>"zypper install dump"</tt>
+       on openSUSE).
+  </li>
+  <li> <b>The <tt>dar</tt> program</b> is something between <tt>tar</tt>
+       and <tt>dump</tt>; it stands for "disk archiver," as in
+       disk-to-disk (do <tt>"zypper install dar"</tt> on openSUSE).
+  </li>
+  <li> <b>The <tt>rsync</tt> program.</b> Unlike the other three, <a
+       href="http://rsync.samba.org/"> <tt>rsync</tt></a> is designed to
+       mirror the content of directory trees over the network, is quite
+       clever about only transferring data that have changed, and can
+       also be set up to do local disk-to-disk copying.  (You guessed
+       it, <tt>"zypper install rsync"</tt> on openSUSE).
+  </li>
 </ol>
-Fortunately, it is possible to have both archival and mirroring backup,
+
+<p>Fortunately, it is possible to have both archival and mirroring backup,
 for those that need it.  For small to medium installations where high
 availability is important, you can install a hybrid system where
 archival dumps are created on a primary server, copied to a backup
 server for safe-keeping, and also restored onto the backup server's
 disks for quick access in the event that the primary server fails.
+</p>
 
 <p>And for many small installations, archival backups are sufficient.
 This is all I need at home, in fact.
+</p>
 
 <p>It is also possible to do mirroring without archival, though I myself
 would not recommend it.  But the low-maintenance of an <tt>rsync</tt>
 solution may make it the most appealing for some -- just be clear that
 you're giving up your "data history" when you pass on archival.
+</p>
 
+<p>
+<hr>
 <a name="archival">
 <h2>Notes on archival backups</h2>
 
@@ -125,8 +162,8 @@ same state as if it had been restored from a single full backup made on
 the last day.  This scheme still has two drawbacks:  The first is that
 the process of restoring the file system gets to be quite tedious after
 a few weeks, since there are quite a few of them at that point.  Worse
-yet, data will lost if any of those backups is somehow lost or
-corrupted.
+yet, data will be lost if any of those backups somehow gets lost or
+becomes corrupted.
 
 <a name="inc-levels">
 <h3>Backup levels</h3>
@@ -154,6 +191,7 @@ Level 0 is therefore the most comprehensive, and level 9 is the most
        certainly won't reach any farther.
 </ul>
 
+<a name='tower-of-hanoi'>
 <p>In order to reduce the number of incrementals required, one can use
 the "modified Tower of Hanoi algorithm" described in the <tt>dump</tt>
 manpage, which prescribes the following sequence of incremental dump
@@ -259,13 +297,26 @@ level of backup automation.
 <a name="timing">
 <h3>Backup timing</h3>
 
-Backup timing is also important, though often overlooked.  If the backup
+<p>Backup timing is also important, though often overlooked.  If the backup
 system makes its copy of a given file while an application is partway
 through updating it, the copy that winds up on the backup medium may be
 inconsistent, and would appear to be corrupted to the application if it
 were ever restored.  For this reason, it is best to make backups at
 times when the file system isn't changing.  The middle of the night is
 therefore ideal.
+</p>
+
+<p>Another solution to the "changing data during dump" problem is to
+remount the filesystem read-only before performing the backup.  This has
+never been practical for me; if the partition is exported via NFS (true
+for all partitions I need to back up), I would need to unmount it on all
+clients, possibly disrupting shell sessions or other long-running
+processes.  The closest I've come is to edit <tt>/etc/fstab</tt> to mark
+the partition as read-only temporarily and then reboot, but that doesn't
+work for automated nightly backups, so I've only done it when making
+extra just-in-case backups before server upgrades, when I am planning to
+reboot the system anyway.
+</p>
 
 <p>A particularly nasty case of backup-induced corruption can be caused
 by backing up the files used by a relational database management system
@@ -273,16 +324,20 @@ by backing up the files used by a relational database management system
 may be in different stages of being written to disk for each table, so
 the backup might be inconsistent even if it could be done
 instantaneously.  There are really only two choices for archival backup
-of a database:  Stop the RDBMS server completely
-(e.g. <tt>"/etc/init.d/mysql&nbsp;stop"</tt>) during the backup, or use
-a database client backup program (e.g. <tt>mysqldump</tt> for the <a
-http="http://www.mysql.com/">MySQL system</a>).
+of a database:  Stop the RDBMS server completely (e.g. <tt>"systemctl
+stop mariadb"</tt>) during the backup, or use a database client backup
+program (e.g. <tt>mysqldump</tt> for the <a
+href="http://www.mariadb.com/">MariaDB system</a>).  Doing the latter is
+more robust, since it makes it more likely that old database content can
+be restored into a much later version of the RDBMS system.
+</p>
 
 <p>For similar reasons, backing up more than once a day is probably not
 worth the bother.  The only predictable period during the day when the
 file system is highly unlikely to change is during the night when all
 users are asleep.  And, for just those reasons, doing more than one
 backup during this period would be pointless.
+</p>
 
 <a name='cron-backup'>
 <h3>Automated backups with <tt>cron</tt></h3>
@@ -290,266 +345,559 @@ backup during this period would be pointless.
 <p>A regular weekly schedule is easy to automate via cron jobs.  The
 <tt>crontab</tt> entries for the full schedule for my <tt>/home</tt>
 partition look like this:
+</p>
+
 <blockquote>
 <pre>
-# Backups.
-# at 15 minutes after midnight every night, do a /home backup.
-15 0 * * Mon	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 3
-15 0 * * Tue	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 2
-15 0 * * Wed	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 5
-15 0 * * Thu	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 4
-15 0 * * Fri	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 7
-15 0 * * Sat	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 6
-15 0 * * Sun	/usr/local/bin/backup.pl -cd-dir /scratch/backups/cd/to-write /dev/hda9 1
+# At 03:00 every night, do a /home backup.
+00 03 * * Mon	/usr/local/bin/home-backups /dev/mapper/boot-home 3
+00 03 * * Tue	/usr/local/bin/home-backups /dev/mapper/boot-home 2
+00 03 * * Wed	/usr/local/bin/home-backups /dev/mapper/boot-home 5
+00 03 * * Thu	/usr/local/bin/home-backups /dev/mapper/boot-home 4
+00 03 * * Fri	/usr/local/bin/home-backups /dev/mapper/boot-home 7
+00 03 * * Sat	/usr/local/bin/home-backups /dev/mapper/boot-home 6
+00 03 * * Sun	/usr/local/bin/home-backups /dev/mapper/boot-home 1
+# [full backup recipe.  -- rgr, 10-Apr-04.]
+# 00 01 * * Mon	/usr/local/bin/home-backups /dev/mapper/boot-home 0
 </pre>
 </blockquote>
-Backups of other partitions are usually done manually on Sundays.  Many
-partitions change only when upgraded, <tt>/boot</tt> and <tt>/usr</tt>
-in particular, so they don't always need to be backed up.  I usually
-skip a partition if the dump would be less than a megabyte.
 
-<p>Once I had the backup creation process fully automated, I tried doing
-them daily, but that got to be excessive; I don't generate as much stuff
-as an office full of people, and I still had to copy the backups to
-offline storage manually.  Consequently, I only did the level 1, 2, 4,
-and 6 dumps in the <a href="#cron-backup"> <tt>crontab</tt> schedule</a>
-above.  Then I got a new machine (in March 2004), which made it possible
-to copy all dumps automatically to the disk on the new machine.
+<p>When I first automated this process, I tried doing them daily, but
+that got to be too much work, because I didn't change that many files,
+and I still had to copy the backups to offline storage manually.  Making
+the backup was no help from the point of view of disaster recovery if I
+didn't copy it to another disk fairly promptly.  Consequently, I only
+did the level 1, 2, 4, and 6 dumps in the <tt>crontab</tt> schedule
+above.  Then I got a new desktop machine and set the old one up as a
+server, which made it possible to copy all dumps automatically from the
+server to the disk on the new machine.
+</p>
 
 <p>
 <hr>
 <a name="archival-tools">
 <h2>Tools for archival backup dumps</h2>
 
+<a name='tar-backups'>
+<h3>Archival backups with <tt>tar</tt></h3>
+
+<p>The traditional Unix <tt>tar</tt> program is not well suited to
+making backups because it is only capable of creating full dumps.
+However, the <a href="http://www.gnu.org/directory/GNU/tar.html"> GNU
+<tt>tar</tt> program</a> can do incremental backup dumps, and it's
+probably already installed on your GNU/Linux system, so it's worth
+mentioning along with the other possiblities.
+</p>
+
+<p>To keep track of what's been dumped so far, <tt>tar</tt> uses what it
+calls a "snapshot file," which is passed to the
+<tt>--listed-incremental</tt> option.  Every time <tt>tar</tt> is run
+with this option, it consults this file for the state of the filesystem
+at the last backup, and updates it with files that it writes to the new
+tarfile(s).  If a file is named that does not exist, then it is created,
+and the resulting tarfile contains a full dump.  To keep the original
+snapshot file from becoming modified (which makes subsequent
+consolidated dumps impossible), the original snapshot must be copied for
+each subsequent backup, so that each tarfile backup gets its own
+snapshot, at least until it is superceded by a subsequent backup.
+</p>
+
+<p>The resulting backup protocol looks like this:
+</p>
+
+<ul>
+  <li> For a full dump of <tt>/home</tt> made on 3-Jan-2021:
+       <pre>
+       # cd /home
+       # tar --create --listed-incremental=/scratch/backups/home-20210103-l0.snap \
+		--file=/scratch/backups/home-20210103-l0.tar.xz .
+       # tar --diff --file=/root/home-20210103-l0.tar.xz
+       #
+</pre>
+       This will create both files in <tt>/scratch/backups/</tt>.
+       Adding the <tt>.xz</tt> suffix to the tarfile name automatically
+       requests compression.
+  </li>
+  <li> For the next day's daily backup (note that 4-Jan-2021 was a
+       Monday):
+       <pre>
+       # cd /home
+       # cp home-20210103-l0.snap home-20210104-l3.snap
+       # cd /scratch/backups
+       # tar --create --listed-incremental=/scratch/backups/home-20210104-l3.snap \
+		--file=/scratch/backups/home-20210104-l3.tar .
+       # tar --diff --file=/root/home-20210104-l3.tar.xz
+       #
+</pre>
+       And so on through the rest of the week, however in order to
+       implement the <a href=#'tower-of-hanoi'>"modified tower of Hanoi"
+       backup algoritm</a> on (e.g.) Tuesday 5-Jan-2021 we'll also want
+       to copy Sunday's full-dump snapshot file.
+  </li>
+  <li> Finally, we get to Sunday's consolidated backup:
+       <pre>
+       # cd /home
+       # cp home-20210103-l0.snap home-20210110-l1.snap
+       # rm -f home-20210103-l{2|3|4|5|6|7}.snap
+       # cd /scratch/backups
+       # tar --create --listed-incremental=/scratch/backups/home-20210110-l1.snap \
+		--file=/scratch/backups/home-20210110-l1.tar .
+       # tar --diff --file=/root/home-20210110-l1.tar.xz
+       #
+</pre>
+       We have gone back to <tt>home-20210103-l0.snap</tt> to get our
+       consolidated dump, and we can get rid of the snapshots for the
+       dailies, since we won't be making incrementals from them -- and
+       likewise for previous consolidated dump snapshots, if there had
+       been any.
+</ul>
+
+<p><i>[I am considering extending the <a
+href="#perl-script"><tt>backup.pl</tt> Perl script</a> described below
+to support GNU <tt>tar</tt> backups.  However, because GNU <tt>tar</tt>
+requires keeping track of the additional snapshot file, it would require
+extensive changes to the backup code infrastructure, and seems harder to
+automate, so it's not clear that it's worth it.  -- rgr, 26-Jan-21.]</i>
+</p>
+
+
 <a name='dump-backups'>
 <h3>Archival backups with <tt>dump</tt></h3>
 
-<p>Historically, I used the standard, tried-and-true <tt>ext2</tt> file
-system, and its successor <tt>ext3</tt>, both of which are required for
-the <a href="http://dump.sourceforge.net/"> <tt>dump</tt> and
-<tt>restore</tt></a> programs, in large part because there was no good
-incremental backup solution for ReiserFS.  So, I used ReiserFS only for
-those partitions I don't plan to back up.  More recently I have used DAR
-for backups on all partitions; it has some advantages and disadvantages
-over <tt>dump</tt>; <a href="#dar-backups>see below</a> for details.
+<p>Historically, I used the standard, tried-and-true <a
+href="http://dump.sourceforge.net/"> <tt>dump</tt> and
+<tt>restore</tt></a> programs.  More recently I have used <tt>dar</tt>
+for backups; it has some advantages and disadvantages over
+<tt>dump</tt>; <a href="#dar-backups">see below</a> for details.
+</p>
 
 <p>An interesting characteristic of <tt>dump</tt> is that it accesses
-the raw device file (i.e. <tt>/dev/hda5</tt>) instead of going through
-the file system interface.  This can cause problems with freshly-written
-files that have been cached in RAM; <tt>dump</tt> will copy an older
-version of the file data to the backup medium, and verification with
-<tt>restore</tt> will duly report differences in these files (since
-<tt>restore</tt> <i>does</i> use the higher-level interface and sees the
-cached data).  Sometimes, the files reported as being different won't
-have been touched for hours.  The issue is brought up in the
-"<tt>dump/restore</tt>: Not Recommended!" section of the <a
-href="http://www.redhat.com/docs/manuals/linux/RHL-8.0-Manual/admin-primer/s1-disaster-backups.html">
-Chapter 8. Planning for Disaster</a> page of <a
-href="http://www.redhat.com/docs/manuals/linux/RHL-8.0-Manual/admin-primer/">
-The Official Red Hat Linux System Administration Primer</a> for Red Hat
-Linux 8.0, and rebutted on the <a
+the raw device file (i.e. <tt>/dev/hda5</tt>) of <tt>ext2</tt>,
+<tt>ext3</tt>, and <tt>ext4</tt> file systems, instead of going through
+the file system interface, which means that it can only work on whole
+partitions, and it can miss file data that
+is cached in in RAM and not yet written to disk.
+The pros and cons of this approach are discussed on the <a
 href="http://dump.sourceforge.net/isdumpdeprecated.html">"Is dump really
 deprecated?"</a> page of the <a
 href="http://dump.sourceforge.net/">Dump/restore utilities</a> project.
-My personal opionion is that it is buggy of Linux to leave file data
-cached in RAM for hours, especially on an idle system; there is no
-benefit to doing so, but there is risk of data lossage if the UPS dies
-(or the chip melts, or whatever), and this is independent of any backup
-system.  In any case, as discussed in the <a href="#timing">"Backup
-timing"</a> section, there is little you can do about data that is
-changing during the backup, so the Linux caching issue is a difference
-in magnitude, not in size.  If you really care, you can always remount
-the file system read-only before creating a backup.  (I've been meaning
-to experiment with this myself, but it hasn't been a high enough
-priority.)
+In a nutshell, it makes the "changing data during dump" problem worse,
+though there are ways around this, but has the unique advantage that
+partitions can be dumped without affecting any of the times recorded by
+the file system.  And (as also mentioned in the <a
+href="#timing">"Backup timing"</a> section) data that is changing during
+the backup is only one of the tradeoffs you need to consider when
+setting up a backup system.
+</p>
 
-The <a href="#perl-script"><tt>backup.pl</tt> Perl script</a> described
-below can be used to call <tt>dump</tt> to create backup files, and then
-verify them using <tt>restore</tt>.  Verification is not as essential as
-it was in the bad old days, when media were much less reliable, and
-hardware was much less clever about working around media failures.  In
-fact, I've never yet found a corrupted backup file during verification.
-However, I've heard enough horror stories of people not finding out that
-their backups were unreadable until they needed them, so I don't
-consider the backup complete until it's been verified in its final
-location.  This is why my scripts always verify.
+<p><i>Note that the <a href="#perl-script"><tt>backup.pl</tt> Perl
+script</a> described below used to support <tt>dump</tt> to create
+backup files, but I dropped that support in 2017.  -- rgr,
+25-Jan-21.]</i>
+</p>
 
-<p>Initially, I wrote a shell script version, then recoded it into Perl
-when I needed to add sufficient functionality that I found the shell
-syntax too confining.  The <tt>backup.pl</tt> Perl script has a number
-of extra features, plus changed defaults that make it more convenient to
-use for CD-R and DVD dumps (which is why the shell script is no longer
-published.)
+<p>To see how many bytes are likely to be written to a dump file, use
+the <tt>"-S"</tt> option to <tt>dump</tt>, e.g.
+</p>
 
-<p>To see how many bytes are likely to be dumped, use the <tt>"-S"</tt>
-option to <tt>dump</tt>, e.g.
 <pre>
     dump -S2 /dev/hda9
 </pre>
-for a level 2 dump of the <tt>/dev/hda9</tt> partition (mounted on my
-system as <tt>/home</tt>).
+
+<p>for a level 2 dump of the <tt>/dev/hda9</tt> partition.
+</p>
 
 <a name="dar-backups">
-<h3>Archival backups with dar</h3>
+<h3>Archival backups with <tt>dar</tt></h3>
 
 "dar" stands for <a href="http://dar.linux.free.fr/">Disk ARchive</a>,
 and has a number of advantages with respect to <tt>dump</tt>:
 
 <ul>
-  <li> dar can backup arbitrary directory trees, and not just ext2/3
-       partitions.
-  <li> dar's compression operates on individual files (like Zip), so an
-       unreadable media block will not prevent recovery of all later
-       files.
-  <li> dar manages volume naming by itself (it calls them "slices"),
-       rather than requiring all volumes to be explicitly named.  (This
-       is taken care of for <tt>dump</tt> by the <tt>backup.pl</tt>
-       script, so it doesn't make much practical difference.)
-  <li> dar can create a "catalog" file to help it go directly to the
-       right slice when restoring just a few files.  This is useful when
-       restoring files off of DVD (but you still have to keep the first
-       and last slice around).
+  <li> <tt>dar</tt> can backup arbitrary directory trees, and not just
+       ext* partitions.
+  </li>
+  <li> <tt>dar</tt>'s compression operates on individual files (like
+       Zip), so an unreadable media block will not prevent recovery of
+       all later files.
+  </li>
+  <li> <tt>dar</tt> manages multiple volumes (it calls them "slices")
+       by itself, rather than requiring all volumes to be explicitly
+       named.  (The <tt>backup.pl</tt> script used to take care of this,
+       but I dropped <tt>dump</tt> support in 2017.)
+  </li>
+  <li> <tt>dar</tt> can create a "catalog" file to help it go directly
+       to the right slice when restoring just a few files.  This is
+       useful when restoring files off of DVD (but you still have to
+       keep the first and last slice around).
+  </li>
 </ul>
 
 <p>Unfortunately, there are also a few disadvantages:
 
 <ul>
-  <li> dar doesn't have a concept of "backup level"; to get an
+  <li> <tt>dar</tt> puts two dots in the file name; <tt>mkisofs</tt>
+       turns the first one into an underscore when making an ISO9660
+       image (though you can use its <tt>-relaxed-filenames</tt> option
+       to get around that).
+  </li>
+  <li> <tt>dar</tt> doesn't have an equivalent to <tt>dump</tt>'s "-S"
+       option for estimating backup sizes (though this is less of a
+       problem now that disks have become ridiculously large).
+  </li>
+  <li> <tt>dar</tt> doesn't have a concept of "backup level"; to get an
        incremental dump, you must specify the previous dump set (or a
        catalog).  <tt>backup.pl</tt> handles this by finding the right
-       dump, but you must still keep all current dumps (or catalogs)
-       online.
-  <li> dar puts two dots in the file name; <tt>mkisofs</tt> (and
-       <tt>growisofs</tt>) turns the first one into an underscore when
-       burning a CD/DVD.  This makes it a pain to restore directly from
-       removable media.  (If somebody knows how to shut this off, please
-       let me know.)
-  <li> dar doesn't have an equivalent to <tt>dump</tt>'s "-S" option for
-       estimating backup sizes.
+       dump, but you must still keep those dumps/catalogs online (also
+       not a problem because of enormous disks).
+  </li>
 </ul>
+
+<p>All in all, I find the drawbacks minor, and have come to prefer
+<tt>dar</tt>; it has been my standard backup tool since 2008.
+</p>
+
+<a name='backup-scripts'>
+<h3>Backup tools in the "scripts" project</h3>
+
+<p>To assist in setting up a backup system, I have written a series of
+Perl scripts that help to automate the tedious parts.  These are part of
+the <a href="https://github.com/rgrjr/scripts/"> "scripts" project at
+Github</a> and are available under an open-source license.
+</p>
+
+<ul>
+  <li> The <a href="#perl-script"> <tt>backup.pl</tt></a> script creates
+       backups that follow a standard naming convention (though it
+       currently only supports <tt>dar</tt>).
+  </li>
+  <li> <a href="#show-backups.pl"><tt>show-backups.pl</tt></a> lists
+       available backups in chronological order and identifies which
+       ones are current.
+  </li>
+  <li> <a href="#vacuum.pl"><tt>vacuum.pl</tt></a> copies current
+       backups them over the network.
+  </li>
+  <li> <a href="cd-burning.html#cd-dump.pl"><tt>cd-dump.pl</tt></a>
+       writes them to DVD or CD media.
+  </li>
+  <li> <a href="#clean-backups.pl"><tt>clean-backups.pl</tt></a> removes
+       daily backups to free up space once they become sufficiently old.
+  </li>
+</ul>
+
+<p>With these tools, it is possible to automate the system backups of a
+small to medium office site (up to 20 daily users) to a high degree.  A
+<tt>cron</tt> job runs <tt>backup.pl</tt> to create backup files on the
+primary server in a scratch (non-backed-up) partition which are then
+copied by <tt>vacuum.pl</tt> in a second <tt>cron</tt> job to another
+scratch partition on secondary system for safe keeping.  Once on the
+secondary server, one can use <tt>cd-dump.pl</tt> to write the full and
+consolidated dumps to offline media without loading the primary server.
+Other <tt>cron</tt> jobs on each system can then run
+<tt>clean-backups.pl</tt> periodically to remove the oldest daily
+backups in order to preserve sufficient room for new backups.  Depending
+on the amount of scratch disk space available and the volume of daily
+file system churn, the sysadmin only needs to intervene a few times per
+month to write offline media and to remove excess full and consolidated
+dumps.
+</p>
+
+<a name="naming-convention">
+<p>These tools use a backup file naming convention in order to make it
+easier to keep track of what may amount to thousands of backup files
+collected from multiple systems over many years.  All such files match
+"<i>&lt;prefix&gt;</i>-<i>&lt;date&gt;</i>-l<i>&lt;level&gt;</i>.<i>&lt;slice&gt;</i>.dar"
+for <tt>dar</tt> backups or
+"<i>&lt;prefix&gt;</i>-<i>&lt;date&gt;</i>-<i>l&lt;level&gt;&lt;idx&gt;?</i>.dump"
+for <tt>dump</tt> backups, where
+</p>
+
+<ul>
+  <li> <i>&lt;prefix&gt;</i> is an alphanumeric prefix that identifies
+       the backup fileset;
+  </li>
+  <li> <i>&lt;date&gt;</i> is an 8-digit ISO date such as "20210104";
+  </li>
+  <li> <i>&lt;level&gt;</i> is a single digit <a
+       href="#inc-levels">backup level</a>; and
+  </li>
+  <li> the <i>&lt;slice&gt;</i> number or <i>&lt;idx&gt;</i> letter
+       (required for <tt>dar</tt> but optional for <tt>dump</tt>)
+       indicates the position in the series for multiple files that make
+       up a single backup.
+  </li>
+</ul>
+
+<p>To install "scripts" backup tools,
+</p>
+
+<pre>
+    # git clone https://github.com/rgrjr/scripts
+    # cd scripts
+    # make install-backup
+    ...
+    #
+</pre>
+
+<p>By default, this will put the above scripts into
+<tt>/usr/local/bin</tt> (along with <tt>backup-dbs.pl</tt> and
+<tt>svn-dump.pl</tt>, which are not discussed here, as they are more
+specialized), as well as intalling the classes they use where Perl can
+find them.
+</p>
 
 <a name='perl-script'>
 <h3>The <tt>backup.pl</tt> Perl script</h3>
 
-When <tt>backup.pl</tt> is run by root, it creates and verifies a set of
-backup files using either <a href="http://dump.sourceforge.net/">
-<tt>dump</tt> and <tt>restore</tt></a> or <a
-href="http://dar.linux.free.fr/"> the DAR program</a>.  Usage is
+<p>When <tt>backup.pl</tt> is run by root, it creates and verifies a set
+of backup files using <a href="#dar-backups"> the <tt>dar</tt>
+program</a>.  Usage is
+</p>
 
 <pre>
     backup.pl [--test] [--verbose] [--usage|-?] [--help]
-              [--date=&lt;string&gt;] [--name-prefix=&lt;string&gt;]
-              [--file-name=&lt;name&gt;]
-	      [--dump-program=&lt;dump-prog&gt;] [--[no]dar]
-	      [--restore-program=&lt;restore-prog&gt;]
-	      [--gzip | -z] [--bzip2 | -y]
-              [--cd-dir=&lt;mv-dir&gt;] [--dump-dir=&lt;dest-dir&gt;]
-	      [--dest-dir=&lt;destination-dir&gt;]
-              [--[no]cd] [--volsize=&lt;max-vol-size&gt;]
-	      [--partition=&lt;block-special-device&gt; | &lt;partition&gt; ]
-              [--level=&lt;digit&gt; | &lt;level&gt;]
+	      [--date=&lt;string&gt;] [--name-prefix=&lt;string&gt;]
+	      [--file-name=&lt;name&gt;]
+	      [--dump-program=&lt;dump-prog&gt;]
+	      [--gzip | -z] [--bzip2 | -y] [ --compression[=[algo:]level] ]
+	      [--dest-dir=&lt;destination-dir&gt;] [--dump-dir=&lt;dest-dir&gt;]
+	      [--volsize=&lt;max-vol-size&gt;]
+	      [--mount-point=&lt;dir&gt; | &lt;dir&gt; ]
+	      [--level=&lt;digit&gt; | &lt;level&gt;]
 </pre>
-See <a href="backup.pl.html">the <tt>backup.pl</tt> <tt>man</tt>
-page</a> for argument descriptions, known bugs, and other details.
 
-<p>Download <tt>backup.pl</tt> into <tt>/usr/local/bin/</tt>, make it
-executable, and you're ready to roll.
+<p>See the documentation in the script for argument descriptions, known
+bugs, and other details.
+</p>
 
-[wrong; also requires <tt>Backup::DumpSet</tt> in order to do
-incremental DAR dumps.  -- rgr, 4-Jul-08.]
+<a name="show-backups.pl">
+<h3>Listing backups with <tt>show-backups.pl</tt></h3>
 
-<ul>
-  <li> Download the backup script: <a
-       href="https://rgrjr.dyndns.org/svn/scripts/trunk/backup.pl">
-       <tt>backup.pl</tt></a> (Perl license)
-  <li> View detailed documentation: <a href="backup.pl.html">
-       <tt>backup.pl.html</tt></a>
-</ul>
+<p>The <tt>show-backups.pl</tt> script lists all backup files it can
+find under the search root(s) that follow <a
+href="#naming-convention">the naming convention described above</a>.
+The default search roots are any directories that match
+<tt>"/scratch*/backups"</tt> but that can be overridden by specifying
+directories on the command line.  Other options exist to constrain the
+search by level, date, and prefix, and to modify the output format.
+</p>
+
+<p>Usage is as follows:
+</p>
+
+<pre>
+    show-backups.pl [ --help ] [ --man ] [ --usage ] [ --prefix=&lt;pattern&gt; ... ]
+		    [ --[no]slices ] [ --[no]date | --sort=(date|prefix|dvd) ]
+		    [ --before=&lt;date&gt; ] [ --since=&lt;date&gt; ] [ --size-by-date ]
+		    [ --level=&lt;level&gt; | --level=&lt;min&gt;:&lt;max&gt; ]
+		    [ &lt;search-root&gt; ... ]
+
+where:
+
+    Parameter Name     Deflt  Explanation
+     --before                 If specified, only dumps on or before this date.
+     --help                   Print detailed help.
+     --level            all   If specified, only do dumps in this range.
+     --man                    Print man page.
+     --prefix                 Partition prefix on files; may be repeated.
+     --since                  If specified, only do dumps since this date.
+     --size-by-date      no   Print a table of total size by dump date.
+     --slices                 If specified, print only slice file names.
+     --sort           prefix  Sort by prefix, date, or dvd order.
+     --usage                  Print this synopsis.
+</pre>
+
+<p>Here is an example of the output:
+</p>
+
+<pre>
+    # show-backups.pl --since 2021-1-1
+     *    56890485 home-20210127-l5.1.dar [orion:/scratch/backups/]
+     *    64615879 home-20210126-l2.1.dar [orion:/scratch/backups/]
+	  57317283 home-20210125-l3.1.dar [orion:/scratch/backups/]
+     *   106608760 home-20210124-l1.1.dar [orion:/scratch/backups/]
+	  77181762 home-20210123-l6.1.dar [orion:/scratch/backups/]
+	  69923104 home-20210122-l7.1.dar [orion:/scratch/backups/]
+	  79237797 home-20210121-l4.1.dar [orion:/scratch/backups/]
+	  46002295 home-20210120-l5.1.dar [orion:/scratch/backups/]
+	  96332012 home-20210119-l2.1.dar [orion:/scratch/backups/]
+	  78037401 home-20210118-l3.1.dar [orion:/scratch/backups/]
+	  91735019 home-20210117-l1.1.dar [orion:/scratch/backups/]
+	  97052916 home-20210116-l6.1.dar [orion:/scratch/backups/]
+	  80359764 home-20210115-l7.1.dar [orion:/scratch/backups/]
+	  98385074 home-20210114-l4.1.dar [orion:/scratch/backups/]
+	  62601445 home-20210113-l5.1.dar [orion:/scratch/backups/]
+	  73749317 home-20210112-l2.1.dar [orion:/scratch/backups/]
+	  67564592 home-20210111-l3.1.dar [orion:/scratch/backups/]
+	  96643821 home-20210110-l1.1.dar [orion:/scratch/backups/]
+	 113825418 home-20210109-l6.1.dar [orion:/scratch/backups/]
+	  92711331 home-20210108-l7.1.dar [orion:/scratch/backups/]
+	 101974794 home-20210107-l4.1.dar [orion:/scratch/backups/]
+	  72500168 home-20210106-l5.1.dar [orion:/scratch/backups/]
+	  84543562 home-20210105-l2.1.dar [orion:/scratch/backups/]
+     *    11687025 home-20210104-l0-cat.1.dar [orion:/scratch/backups/]
+     *  1563907072 home-20210104-l0.1.dar [orion:/scratch/backups/]
+     *    60423634 home-20210104-l0.2.dar [orion:/scratch/backups/]
+	  73820512 home-20210102-l6.1.dar [orion:/scratch/backups/]
+	  72067136 home-20210101-l7.1.dar [orion:/scratch/backups/]
+    #
+</pre>
+
+<p>Note that the current backup files (the ones that would need to be
+restored in order to recreate the most recent state of the filesystem)
+are marked with a "*".
+</p>
 
 <a name="vacuum.pl">
 <h3>Copying dump files with <tt>vacuum.pl</tt></h3>
 
-<tt>vacuum.pl</tt> copies dump files from place to place, being careful
-to copy only current backups, and guarding against network corruption.
-Usage for this is
+<p><tt>vacuum.pl</tt> copies backup dump files from place to place,
+being careful to copy only current backups, and checks for good copies
+to guard against network corruption.  Usage for this is
+</p>
+
 <pre>
     vacuum.pl [--test] [--verbose] [--usage|-?] [--help]
-              [--from=&lt;source-dir&gt;] [--to=&lt;dest-dir&gt;]
-              [--mode=(mv|cp)] [--prefix=&lt;tag&gt;]
-              [--since=&lt;date-string&gt;] [--min-free-left=&lt;size&gt;]
+	      [--from=&lt;source-dir&gt;] [--to=&lt;dest-dir&gt;]
+	      [--mode=(mv|cp)] [--prefix=&lt;tag&gt; ... ]
+	      [--since=&lt;date-string&gt;] [--min-free-left=&lt;size&gt;]
 </pre>
-See <a href="vacuum.pl.html">the <tt>vacuum.pl</tt> <tt>man</tt>
-page</a> for argument descriptions, known bugs, and other details.
 
-<ul>
-  <li> Download the vacuum script: <a
-       href="https://rgrjr.dyndns.org/svn/scripts/trunk/vacuum.pl">
-       <tt>vacuum.pl</tt></a> (Perl license)
-  <li> View detailed documentation: <a href="vacuum.pl.html">
-       <tt>vacuum.pl.html</tt></a>
-</ul>
+<p>See the documentation in the script for argument descriptions, known
+bugs, and other details.
+</p>
 
-<p>For another useful tool for manipulating backups, see the <a
-href="cd-burning.html#cd-dump.pl">Burning CDs with
-<tt>cd-dump.pl</tt></a> section.
+<a name="clean-backups.pl">
+<h3>Tidying up with <tt>clean-backups.pl</tt></h3>
+
+<p>When following the <a href="#inc-levels">modified Tower of Hanoi
+backup level scheme described above</a>, daily backups (those with a
+backup level of 2 or greater) contain only one or two days worth of
+data.  Odd dailies (3, 5, 7, and 9) have only one day, and even dailies
+(2, 4, 6, and 8) have two days -- that day plus that of the previous odd
+daily.  Consequently, it is less important to keep dailies around for
+extended periods of time, so they can be deleted automatically when they
+are no longer useful.  This is what <tt>clean-backups.pl</tt> does:
+Maintains a specified minimum amount of free space on the filesystem
+partition that is used for backups by removing first odd dailies that
+are older than a specified threshold, starting with the oldest, and if
+that does not restore enough space, it then removes even dailies.  No
+output is generated except when <tt>clean-backups.pl</tt> fails to make
+its quota, which makes it work well as a <tt>cron</tt> job; the sysadmin
+gets an email when it's time to think about removing consolidated dumps.
+</p>
+
+<p>Full and consolidated backups cover much longer time periods, and are
+usually kept around for much longer.  For this reason,
+<tt>clean-backups.pl</tt> never deletes full or consolidated backups.
+</p>
+
+<p>Usage is as follows:
+</p>
+
+<pre>
+            clean-backups.pl [ --conf=&lt;config-file> ]
+                             [ --[no]test ] [ --verbose ... ]
+
+            clean-backups.pl [ --usage | --help ]
+</pre>
+
+<p>The default configuration file is <tt>/etc/backup.conf</tt>, which
+tells which partitions to clean, and how thoroughly to clean them.  Here
+is an example:
+</p>
+
+<pre>
+    # Backup configuration.
+
+    [scorpio:/scratch]
+    min-free-space = 10
+    min-odd-retention = 60
+    min-even-retention = 120
+    clean = home
+
+    [orion:/scratch]
+    min-free-space = 0.5
+    min-odd-retention = 60
+    min-even-retention = 120
+    clean = home
+</pre>
+
+<p>Notice that the same configuration file is shared between two
+systems.  Minimum retention is specified as a number of days, and the
+even and odd retention values are specified separately.  The
+<tt>min-free-space</tt> is specified in GiB, and the <tt>clean</tt>
+tells which prefixes should be cleaned. in the event that multiple
+backup sets are stored on that partition.
+</p>
 
 <p>
 <hr>
 <a name="mirroring">
 <h2>Notes on mirroring backup</h2>
 
-The weakness of mirroring backup is that it only gives you a single
+<p>The weakness of mirroring backup is that it only gives you a single
 archival time point from which to recover.  Of course, this assumes that
 you only make a single mirrored copy; multiple copies could get quite
 expensive, so it's not surprising that I've never heard of anyone who
 has actually done multiple mirrored copies, except possibly for Web
 content.
+</p>
 
 <p>The key parameter for mirroring backup is therefore the backup
 frequency, which involves a tradeoff in the two different kinds of
-recovery capability <a href="#dump-vs-tar">discussed above</a>.  If you
+recovery capability <a href="#technologies">discussed above</a>.  If you
 back up more frequently, then you will lose less in the event of a
 catastrophic failure (i.e. a disk crash), but you will also have less
 time in which to recover from file corruption or accidental deletion.
-The extremum of frequent backup is provided by RAID 0, in which backup
+The extremum of frequent backup is provided by
+<a href="https://en.wikipedia.org/wiki/Standard_RAID_levels">
+RAID 0</a>, in which backup
 is transparent and so frequent as to be effectively instantaneous, and
 recovery from single-disk failure is likewise transparent, but there is
 no archival history whatsoever.  Having RAID is not the same as having a
 backup!
+</p>
 
-<p>Another example of continuous mirroring backup is database
-replication.  A full discussion of replication is beyond the scope of
-this page, but note that the same caution applies:  Just because your
-database is replicated doesn't mean that it's backed up!
+<p>Another example of continuous mirroring backup is
+<a href="https://en.wikipedia.org/wiki/Replication_(computing)#DATABASE"> 
+database replication</a>.  In master-slave setup, a master database
+server pushes changes to one or more slave servers; each server keeps a
+copy of the data on its local disk(s), so that if the master server
+fails, any of the slaves can be reconfigured to take over as the
+replacement master.  However, the same caution applies:  Just because
+your database is replicated doesn't mean that it's backed up!
+</p>
 
 <a name="web-mirror">
 <h3>Mirroring case history 1:  Web server content</h3>
 
-<p>At work, I use <a href="http://rsync.samba.org/"> <tt>rsync</tt></a> to
-mirror the intranet Web server content.  The primary server runs the
-following <tt>cron</tt> job every morning at 01:55:
-<pre>
-    rsync -e ssh -a /srv/www/htdocs /srv/www/cgi-bin rome:/srv/www
-</pre>
-The <tt>-a</tt> switch requests archival copying; according to the
-manual page, the <tt>-a</tt> option "... is a quick way of saying you
-want recursion and want to preserve almost everything."  This command
-copies the contents of the <tt>/srv/www/htdocs</tt> and
-<tt>/srv/www/cgi-bin</tt> directory trees on the primary server into the
-same locations on <tt>rome</tt>, the standby server.  That way, I only
-need to update the primary server; the standby server is always ready to
-take over, with content that is at most a day out of date.
+<p><a href="http://www.rgrjr.com">This Web server</a> uses <a
+href="http://rsync.samba.org/"> <tt>rsync</tt></a> to mirror the <a
+href="https://www.cons.org/cmucl/">CMU Common Lisp</a> download content
+from <a href="https://common-lisp.net/">common-lisp.net</a>.  The server
+runs the following <tt>cron</tt> job once a day as root:
+</p>
 
-<p>Note the <tt>"-e&nbsp;ssh"</tt> on the command line; that tells
-<tt>rsync</tt> to use <a href="security/ssh.html"> <tt>ssh</tt></a> to
-establish the remote connection.  In order for this cron job (not to
-mention others) to work unattended, it was necessary to configure
-<tt>ssh</tt> to use "public key authentication," creating a
-public/private key pair and installing the private key on the main
-server and the public key on the standby server.  As a result, no
-password is needed, and the strong encryption techniques used by
-<tt>ssh</tt> are robust enough to permit mirroring to be done securely
-over the public Internet.
+<pre>
+    cd /scratch/mirror
+    rsync -avz common-lisp.net::project/cmucl/ cmucl > /root/cmucl-mirror-log.text
+</pre>
+
+<p>The <tt>-a</tt> switch requests archival copying; according to the
+manual page, the <tt>-a</tt> option "... is a quick way of saying you
+want recursion and want to preserve almost everything."  The <tt>-v</tt>
+switch makes it verbose (which is low-cost, as the content has few but
+very large files, and doesn't change often), and <tt>-z</tt> means to
+use compression in transit.  This command contacts the
+<tt>common-lisp.net</tt> <tt>rsync</tt> server and updates the contents
+of the <tt>cmucl</tt> tree under <tt>/scratch/mirror/cmucl/</tt> on my
+server -- without bothering to copy anything that hasn't been changed.
+You can browse the content at <a
+href="http://www.rgrjr.com/cmucl/downloads/">
+<tt>http://www.rgrjr.com/cmucl/downloads/</tt></a>.
+</p>
 
 <a name="disk-mirror">
 <h3>Mirroring case history 2:  Full disk copy</h3>
