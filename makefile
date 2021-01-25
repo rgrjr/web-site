@@ -44,7 +44,7 @@ linux-pages = linux/index.html linux/tux-small.png \
 	linux/ether.html linux/striped-blue.png linux/striped-green.png \
 	linux/striped-brown.png linux/striped-orange.png \
 	linux/cd-burning.html \
-	linux/howto.html linux/nis.html \
+	linux/howto.html \
 	linux/ntp.html linux/ntpd.sh \
 	linux/subversion.html linux/xml.html
 security-pages = linux/security/index.html \
