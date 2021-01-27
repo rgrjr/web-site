@@ -19,7 +19,7 @@ cgi-bin = ${server-root}/cgi-bin
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${climbing-pages}
 serious-pages = ${emacs-pages} ${lisp-pages} \
-		${linux-pages} ${generated-pages} \
+		${linux-pages} \
 		${security-pages} ${perl-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
 		web-site.html site-map.html change-history.html \
@@ -37,7 +37,6 @@ emacs-pages = emacs/index.html emacs/advanced.html emacs/custom.html \
 	emacs/sun4u.xmodmaprc emacs/i586.xmodmaprc \
 	emacs/overlap.html emacs/rgr-hacks.html emacs/self-doc.html \
 	emacs/tutorial.html
-generated-pages = linux/svn-dump.html linux/backup.pl.html linux/vacuum.pl.html
 linux-pages = linux/index.html linux/tux-small.png \
 	linux/backup.html \
 	linux/disk-upgrade.html \
@@ -53,17 +52,10 @@ security-pages = linux/security/index.html \
 perl-pages = perl/index.html perl/perl6-objects.html
 lisp-pages = lisp/index.html
 
-all:	change-history.html ${generated-pages}
+all:	change-history.html
 
 change-history.html:	.
 	./htmlize-log.pl 365 change-history-template.html > $@
-
-linux/svn-dump.html:	linux
-	pod2html ../scripts/svn-dump.pl > $@
-linux/backup.pl.html:	linux
-	pod2html ../scripts/backup.pl > $@
-linux/vacuum.pl.html:	linux
-	pod2html ../scripts/vacuum.pl > $@
 
 # /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
 current-hits.html:	/var/log/apache2/access_log-20081201.bz2 \
