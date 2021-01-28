@@ -57,36 +57,6 @@ all:	change-history.html
 change-history.html:	.
 	./htmlize-log.pl 365 change-history-template.html > $@
 
-# /usr/local/aolserver/servers/rgrjr/modules/nslog/access.200405.log
-current-hits.html:	/var/log/apache2/access_log-20081201.bz2 \
-			/var/log/apache2/access_log-20081101.bz2 \
-			/var/log/apache2/access_log-20081001.bz2 \
-			/var/log/apache2/access_log-20080901.bz2 \
-			/var/log/apache2/access_log-20080801.bz2 \
-			/var/log/apache2/access_log-20080701.bz2
-	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
-Q12-hits.html:	/var/log/apache2/access_log.200506.log \
-		/var/log/apache2/access_log.200505.log \
-		/var/log/apache2/access_log.200504.log \
-		/var/log/apache2/access_log.200503.log \
-		/var/log/apache2/access_log.200502.log \
-		/var/log/apache2/access_log.200501.log
-	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
-Q41-hits.html:	/var/log/apache2/access_log.200503.log \
-		/var/log/apache2/access_log.200502.log \
-		/var/log/apache2/access_log.200501.log \
-		/var/log/apache2/access_log.200412.log \
-		/var/log/apache2/access_log.200411.log \
-		/var/log/apache2/access_log.200410.log
-	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
-Q34-hits.html:	/var/log/apache2/access_log.200412.log \
-		/var/log/apache2/access_log.200411.log \
-		/var/log/apache2/access_log.200410.log \
-		/var/log/apache2/access_log.200409.log \
-		/var/log/apache2/access_log.200408.log \
-		/var/log/apache2/access_log.200407.log
-	../system/scripts/page-rankings.pl --top 20 --nosquid $^ > $@
-
 compare:
 	@for file in ${all-pages}; do \
 	    if ! cmp $$file ${web-page-root}/$$file; then \
