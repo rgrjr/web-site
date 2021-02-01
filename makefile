@@ -19,8 +19,7 @@ cgi-bin = ${server-root}/cgi-bin
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${climbing-pages}
 serious-pages = ${emacs-pages} ${lisp-pages} \
-		${linux-pages} \
-		${security-pages} ${perl-pages}
+		${linux-pages} ${security-pages}
 top-pages = index.html site.css hits.html visitors.html robots.txt \
 		web-site.html site-map.html change-history.html \
 		random/doubleclick.png
@@ -49,7 +48,6 @@ linux-pages = linux/index.html linux/tux-small.png \
 security-pages = linux/security/index.html \
 	linux/security/firewall.html \
 	linux/security/ssh.html linux/security/xauth.html
-perl-pages = perl/index.html perl/perl6-objects.html
 lisp-pages = lisp/index.html
 
 all:	change-history.html
