@@ -421,9 +421,9 @@ snapshot, at least until it is superceded by a subsequent backup.
   <li> For the next day's daily backup (note that 4-Jan-2021 was a
        Monday):
        <pre>
-       # cd /home
-       # cp home-20210103-l0.snap home-20210104-l3.snap
        # cd /scratch/backups
+       # cp home-20210103-l0.snap home-20210104-l3.snap
+       # cd /home
        # tar --create --file=/scratch/backups/home-20210104-l3.tar \
 		--listed-incremental=/scratch/backups/home-20210104-l3.snap .
        # tar --diff --file=/scratch/backups/home-20210104-l3.tar
@@ -434,20 +434,30 @@ snapshot, at least until it is superceded by a subsequent backup.
        to the new backup file.  (We've omitted the compression here
        because it's less necessary to compress the dailies; they are
        usually much smaller and are don't hang around as long.)
+  </li>
+  <li> For the level 2 dump on Tuesday 5-Jan-2021, we'll also want to
+       copy Sunday's full-dump snapshot file in order to implement the
+       <a href=#'tower-of-hanoi'>"modified tower of Hanoi" backup
+       algorithm</a>:
+       <pre>
+       # cd /scratch/backups
+       # cp home-20210103-l0.snap home-20210105-l2.snap
+       # cd /home
+       # tar --create --file=/scratch/backups/home-20210105-l2.tar \
+         	       --listed-incremental=/scratch/backups/home-20210105-l2.snap .
+       # tar --diff --file=/scratch/backups/home-20210105-l2.tar
+       #
+</pre>
 
-       <p>And so on through the rest of the week.  However, in order to
-       implement the <a href=#'tower-of-hanoi'>"modified tower of Hanoi"
-       backup algorithm</a> for (e.g.) a level 2 dump on Tuesday
-       5-Jan-2021, we'll also want to copy Sunday's full-dump snapshot
-       file.
+       <p>And so on through the rest of the week.
        </p>
   </li>
   <li> Finally, we get to Sunday's consolidated backup:
        <pre>
-       # cd /home
-       # cp home-20210103-l0.snap home-20210110-l1.snap
-       # rm -f home-20210103-l{2|3|4|5|6|7}.snap
        # cd /scratch/backups
+       # cp home-20210103-l0.snap home-20210110-l1.snap
+       # rm -f home-20210103-l[234567].snap
+       # cd /home
        # tar --create --xz --file=/scratch/backups/home-20210110-l1.tar.xz \
 	     --listed-incremental=/scratch/backups/home-20210110-l1.snap .
        # tar --diff --file=/scratch/backups/home-20210110-l1.tar.xz
