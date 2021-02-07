@@ -8,14 +8,12 @@
 <body>
 <h1>Local "howto" information</h1>
 
-<p>[still in the process of updating this.  -- rgr, 19-Dec-04.]
-
 <p><a href="/"><tt>Home</tt></a> : <a href="index.html">Linux
 resources</a> : "Howto"
 <hr>
 
 <p>This page contains "howto" information for random bits of hardware
-and software.  Some of it is general, but some is very specific to my
+and software.  Some of it is general, but much is very specific to my
 configuration, so it may break for yours; use caution when trying any of
 this stuff.
 </p>
@@ -43,19 +41,13 @@ Related pages:
 	      <ol>
 		<li> <a href="#ether">Ethernet</a>
 		<li> <a href="#net-gen">General IP networking</a>
-		<li> <a href="#boot-recovery">If the network doesn't come up after booting</a>
 		<li> <a href="#perl-dns">DNS tricks using <tt>perl</tt></a>
-	      </ol>
-	 <li> <a href="#servers">Servers</a>
-	      <ol>
-		<li> <a href="#logs">Server logs</a>
-		<li> <a href="#samba">Samba</a>
 	      </ol>
 	 <li> <a href="#linux">Linux guts</a>
 	      <ol>
+		<li> <a href="#logs">Server logs</a>
 		<li> <a href="#mem">Memory management</a>
-		<li> <a href="#rpm"><tt>rpm</tt> and <tt>rpmfind</tt></a>
-		<li> <a href="#xfree86">XFree86</a>
+		<li> <a href="#rpm"><tt>rpm</tt></a>
 	      </ol>
 	 <li> <a href="#hardware">Hardware</a>
 	      <ol>
@@ -69,18 +61,24 @@ Related pages:
 <a name=glossary>
 <h3>Terminology</h3>
 
-In what follows, I've tried to use the following words consistently:
+<p>In what follows, I've tried to use the following words consistently:
+</p>
+
 <ul class="facts">
   <li> <b>Hard drive</b> means just that, though I have a tendency to
        say "disk" instead.  Back when I was introduced to magnetic
        storage, floppies were quite new, so "disk" without qualification
        always meant a rigid disk.  (Probably one with removable media;
        you don't see those anymore, because they can't be made very
-       dense.)
+       dense, only up to a few hundred megabytes.  Tiny by modern
+       standards.)
+  </li>
   <li> <b>Disk</b> therefore means <a href="#floppy">floppy disk</a> or
-       <a href="#zip">zip disk</a>.
-  <li> <b>CD</b> covers the fourth kind of disk, though I will sometimes
-       use "CD-R disk" when trying to be more specific.
+       (rarely) <a href="#zip">zip disk</a>.
+  </li>
+  <li> <b>DVD</b> covers the fourth kind of disk, which also includes
+       CDs.
+  </li>
 </ul>
 
 <p>
@@ -92,17 +90,10 @@ In what follows, I've tried to use the following words consistently:
 <a name = ether>
 <h3>Ethernet</h3>
 
-See my <a href="ether.html">Ethernet Cheat Sheet</a> for Ethernet
+<p>See my <a href="ether.html">Ethernet Cheat Sheet</a> for Ethernet
 pinouts and wire color code conventions.  (This is on a page of its own
 for easy printing.)
-
-<p>See also <tt>/usr/doc/HOWTO/Ethernet-HOWTO</tt>, <a
-href="http://www.NetworkUptime.com/faqs/ethernet/">
-<tt>comp.dcom.lans.ethernet_FAQ</tt></a> and <a
-href="http://www.scyld.com/network/eepro100.html">
-<tt>http://www.scyld.com/network/eepro100.html</tt></a>.  The
-<tt>/sbin/mii-diag</tt> and <tt>/sbin/eepro-diag</tt> commands
-(downloaded from the latter) report on detailed Ethernet NIC status.
+</p>
 
 <a name = net-gen>
 <h3>General IP networking</h3>
@@ -117,92 +108,41 @@ href="http://www.scyld.com/network/eepro100.html">
   </li>
 </ul>
 
-<a name="boot-recovery">
-<h3>If the network doesn't come up after booting</h3>
-
-Sometimes the external network configuration fails when booting,
-possibly due to slow DHCP server response.  When that happens, there is
-no connectivity to the outside world, and a number of bad consequences
-follow:
-<ol>
-  <li> The host IP address is unknown, so the firewall script can't
-       configure itself.
-  <li> DNS name resolution is unavailable.
-  <li> Because the world is unreachable (not to mention DNS), <a
-       href="ntp.html"><tt>ntpd</tt></a> can't so much as ask anyone for
-       the time of day.
-</ol>
-
-So to fix all of this, the following things must be done, in this order:
-
-<ol>
-  <li> <b>Bring up the interface.</b>  Do this via
-       <pre>
-       # ifup eth0
-       </pre>
-       as <tt>root</tt>, of course.  This may take a while, and it may
-       fail again, especially if a power outage just ended and the DHCP
-       server is swamped with requests (and may still be booting up
-       itself).  Do <tt>"ifconfig eth0"</tt> to verify that
-       <tt>eth0</tt> really has an IP address.
-
-       <p>
-  <li> <b>Bring up the firewall.</b>  You will want to do this before
-       starting other services.
-       <pre>
-       # /etc/init.d/firewall
-       </pre>
-
-       <p>
-  <li> <b>Start the time daemon manually.</b>
-       <pre>
-       # /etc/init.d/xntpd restart
-       </pre>
-       The system clock will get reset almost immediately, which may
-       make the screen go blank, if it moves further ahead than your
-       screen saver delay interval (mine is 10 minutes).
-
-       <p>
-  <li> <b>Start the remaining services manually.</b>
-       <pre>
-       # /etc/init.d/apache2 start
-       </pre>
-</ol>
-
 <a name=perl-dns>
 <h3>DNS tricks using <tt>perl</tt></h3>
 
 <p>Reverse DNS in <tt>perl</tt>:
 <pre>
     rgr&gt; perl -e 'use Socket; $iaddr = inet_aton("128.197.54.20"); print join(" ", gethostbyaddr($iaddr, AF_INET)), "\n";'
-    DARWIN.BU.EDU  2 4 \200&Aring;6^T
+    darwin.bu.edu  2 4 \200\3056^T
     rgr&gt; 
 </pre>
 
 Reverse DNS from a shell (using perl to trim just the host name out of
 the nslookup output):
 <pre>
-    % nslookup -q=PTR 19.200.128.24.in-addr.arpa | perl -ne 'print "$1\n" if /in-addr.arpa\s+name = (.*)$/;'
-    h0050da615e79.ne.mediaone.net
+    % nslookup -q=PTR 20.54.197.128.in-addr.arpa | perl -ne 'print "$1\n" if /in-addr.arpa\s+name = (.*)$/;'
+    darwin.bu.edu.
     % 
 </pre>
 
 <p>
 <hr>
 <p>
-<a name=servers>
-<h2>Servers</h2>
-
-Use the links in the next section for server-specific pages.
+<a name=linux>
+<h2>Linux guts</h2>
 
 <a name = logs>
 <h3>Server logs</h3>
 
 <p>[this does not cover the "modern" <tt>logrotate</tt> package.  --
-rgr, 7-Jul-13.]</p>
+rgr, 7-Jul-13.]  [or systemd-logger.  -- rgr, 7-Feb-21.]
+</p>
 
 <p>The various servers I run keep their log files in the following
 places:
+</p>
+
 <blockquote>
 <table>
   <tr> <th>What</th> <th>Where</th> </tr>
@@ -211,76 +151,31 @@ places:
     <td> Uses syslog (<tt>/var/log/messages</tt>).</td>
   </tr>
   <tr>
-    <td> <a href="ntp.html"><tt>xntpd</tt></a></td>
+    <td> <a href="ntp.html"><tt>ntpd</tt></a></td>
     <td> Writes to <tt>/var/log/ntp</tt> via syslog in the default
-	 configuration supplied by SuSE, but this is controlled by the
+	 configuration, but this is controlled by the
 	 "logfile" directive in <tt>/etc/ntpd.conf</tt>.  (The default
 	 tarball installation uses <tt>/var/log/messages</tt>).
     </td> 
   </tr>
   <tr>
     <td> Apache </td>
-    <td> Under SuSE, the Apache log files are under
-	 <tt>/var/log/apache2</tt> (or <tt>/var/log/httpd</tt> if you
-	 are running Apache 1.3).  These are called <tt>access_log</tt>
+    <td> Under openSUSE, the Apache log files are under
+	 <tt>/var/log/apache2</tt>.  These are called <tt>access_log</tt>
 	 and <tt>error_log</tt>.  If you run an HTTPS server, there will
 	 also be an <tt>ssl_request_log</tt> file.
+	 [The current log files are sometimes dated; I'm not sure why
+	 this happens.  -- rgr, 7-Feb-21.]
     </td>
   </tr>
   <tr>
-    <td> <a href="subversion.html">Subversion</a> </td>
+    <td> Subversion </td>
     <td> Subversion runs within Apache, so will need to look in your
 	 Apache logs (particularly <tt>ssl_request_log</tt>).
     </td>
   </tr>
-  <tr>
-    <td> <a href="#samba">Samba</a></td>
-    <td> <tt>/var/log/samba/log.nmb</tt> and
-	 <tt>/var/log/samba/log.smbd</tt>.  Note that by default, SuSE
-	 configures Samba to keep a separate log file for each client
-	 machine.
-    </td>
-  </tr>
 </table>
 </blockquote>
-
-<a name = samba>
-<h3>Samba</h3>
-
-<a href="http://www.samba.org/">Samba</a> is configured on this machine,
-but not started by default, since I don't often use my Windows machine
-(at least not for Windows; it also runs <a
-href="http://www.suse.com/">SuSE Linux</a>).  To start it, I must do
-<tt>"/etc/init.d/samba&nbsp;start"</tt> as root.
-
-<p>In order to get Samba up and running at my site, I found the
-following resources helpful:
-<ol>
-  <li> <a href="http://us3.samba.org/samba/samba.html">SAMBA - opening
-       windows to a wider world</a> (a US mirror of the <a
-       href="http://www.samba.org/">Samba</a> home site).
-  <li> <a href="http://www.linuxdoc.org/HOWTO/SMB-HOWTO.html">SMB
-       HOWTO</a>
-  <li> <a
-       href="http://de.samba.org/samba/ftp/docs/htmldocs/using_samba/">
-       Using Samba</a> (online version of the <a
-       href="http://www.oreilly.com/catalog/samba/">O'Reilly <b>Using
-       Samba</b> book</a>, November 1999).
-  <li> <a
-       HREF="http://www.netspace.net.au/~bmiller/linux/NT-SAMBA-problem.html">
-       Windows NT SP3 and 98 Client SAMBA Problem Page</a> 
-  <li> <a
-       href="file:/usr/local/src/samba-2.2.0/docs/htmldocs/ENCRYPTION.html">
-       LanMan and NT Password Encryption in Samba 2.x</a> [part of the
-       source distribution; I can't seem to find an online version right
-       now.  -- rgr, 1-Dec-01.]
-</ol>
-
-<p>
-<hr>
-<p>
-<a name=linux>
-<h2>Linux guts</h2>
 
 <a name=mem>
 <h3>Memory management</h3>
@@ -289,8 +184,8 @@ Doing <tt>"cat&nbsp;/proc/meminfo"</tt> generates a report of current
 usage.  See <tt>"man&nbsp;vmstat"</tt> for a tool to keep an eye on
 memory usage.
 
-<a name=rpm>
-<h3><tt>rpm</tt> and <tt>rpmfind</tt></h3>
+<a name='rpm'>
+<h3><tt>rpm</tt></h3>
 
 <dl class="howto">
   <dt> Installing
@@ -303,35 +198,22 @@ memory usage.
   <dd> <tt>rpm&nbsp;-qa&nbsp;--last&nbsp;|&nbsp;head</tt>
 </dl>
 
-<p>RPM links:
-
-<UL>
-  <li> <a href="http://docs.fedoraproject.org/drafts/rpm-guide-en/">RPM
-       Guide</a> by Eric Foster-Johnson
-  <li> <a href="http://fr.rpmfind.net/">Rpmfind.Net</a>
-  <li> <a
-       href="http://susewiki.org/index.php?title=Finding_RPMs">Finding
-       RPMs</a> (SuSE Wiki)
-</ul>
-
-<a name = xfree86>
-<h3>XFree86</h3>
-
-<p>The <tt>"DontZap"</tt> option in the <tt>"ServerFlags"</tt> section
-of the <a href="file:/etc/X11/XF86Config">
-<tt>/etc/X11/XF86Config</tt></a> file disables the
-<tt>Crtl-Alt-Backspace</tt> server abort sequence, letting it through to
-clients.  This option is essential for keeping us Zmacs alumni (who
-expect <tt>C-M-DEL</tt> to be bound to <tt>backward-kill-sexp</tt>) from
-going postal.  -- rgr, 19-Mar-00.
-
 <p>
 <hr>
 <p>
-<a name = hardware>
+<a name='hardware'>
 <h2>Hardware</h2>
 
-See also the <a href="cd-burning.html">Burning CD-R disks</a> page.
+<p>Yes, this is about hardware that is pretty thorougly obsolete, but
+all the more reason to keep the "how-to" information around, in case
+some day I find old media lying around that I really, really want to
+read.  Use a large grain of salt when trying these recipes out, since I
+haven't tested them in a while.
+</p>
+
+<p>See also the <a href="cd-burning.html">Burning DVDs and CDs</a> page
+(which is about hardware that is not so obsolete).
+</p>
 
 <a name="zip">
 <h3>Zip drive</h3>
@@ -418,15 +300,20 @@ See also the <a href="cd-burning.html">Burning CD-R disks</a> page.
        <pre>
        badblocks -w /dev/sda4 98288
 </pre>
-       This takes a while, as it writes a number of patterns across the
+       <p>This takes a while, as it writes a number of patterns across the
        whole disk, and then rereads them.  Each read/write pass takes
        about nine minutes; the whole process is more than half an hour.
+       </p>
+       <p>[Note that the <tt>shred</tt> program does this exactly this
+       job, but more thorougly.  -- rgr, 7-Feb-21.]
+       </p>
 </dl>
 
 <p>Note the existence of the <tt>mzip</tt> command.
 
 <p>[The "Zip drive backup" section that was here has been renamed and
 given <a href="backup.html">its own page.</a> -- rgr, 7-Aug-01.]
+</p>
 
 <a name=floppy>
 <h3>Floppy disk</h3>
