@@ -89,10 +89,6 @@ In what follows, I've tried to use the following words consistently:
 <a name = network>
 <h2>Networking</h2>
 
-See also the <a href="security/ssh.html"><b>SSH: Secure Shell</b></a>
-and <a href="security/firewall.html"><b>Linux firewall script</b></a>
-pages.
-
 <a name = ether>
 <h3>Ethernet</h3>
 
@@ -113,18 +109,12 @@ href="http://www.scyld.com/network/eepro100.html">
 
 <ul>
   <li> The <a href="file:/etc/services"> <tt>/etc/services</tt></a> file
-       has the port/protocol to service name mapping.
-  <li> "netstat -t" reports on open TCP connections.
+       has the protocol/port to service name mapping.
+  </li>
+  <li> "netstat -t" reports on open TCP connections. </li>
   <li> Use <tt>"cat /proc/net/dev"</tt> to get a tabular version of
-       <tt>ifconfig</tt> output.
-  <li> At boot time, the <tt>/etc/init.d/paranoid</tt> script is started
-       from <tt>/etc/init.d/boot.local</tt>, then
-       <tt>/etc/init.d/network</tt> does the boot-time
-       <tt>/sbin/ifup</tt> calls, and finally
-       <tt>/etc/init.d/firewall</tt> is called (both of the latter using
-       proper SysV style from <tt>/etc/init.d/rc[2345].d/</tt> links).
-       See also the <a href="security/firewall.html">
-       <b><tt>ipchains</tt> firewall script</b></a> page.
+       interface statistics.
+  </li>
 </ul>
 
 <a name="boot-recovery">
@@ -216,10 +206,6 @@ places:
 <blockquote>
 <table>
   <tr> <th>What</th> <th>Where</th> </tr>
-  <tr>
-    <td> <a href="security/ssh.html">SSH</a> </td>
-    <td> Uses syslog (<tt>/var/log/messages</tt>).</td>
-  </tr>
   <tr>
     <td> <tt>dhcpd</tt> </td>
     <td> Uses syslog (<tt>/var/log/messages</tt>).</td>
