@@ -19,7 +19,7 @@ cgi-bin = ${server-root}/cgi-bin
 all-pages = ${top-pages} ${home-site-pages} ${serious-pages}
 home-site-pages = ${bob-pages} ${climbing-pages}
 serious-pages = ${emacs-pages} ${lisp-pages} ${linux-pages} 
-top-pages = index.html site.css hits.html visitors.html robots.txt \
+top-pages = index.html site.css hits.html robots.txt \
 		web-site.html site-map.html change-history.html \
 		random/doubleclick.png
 bob-pages = bob/index.html bob/contact.html bob/resume-extra.html \
