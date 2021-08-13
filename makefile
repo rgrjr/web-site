@@ -25,7 +25,7 @@ top-pages = index.html site.css hits.html robots.txt \
 bob-pages = bob/index.html bob/contact.html bob/resume-extra.html \
 		bob/resume.html
 climbing-pages = climbing/index.html climbing/directions.html \
-	climbing/gym-to-crag-faq.html
+	climbing/gym-to-crag-faq.html \
 	climbing/tuesday-night.html climbing/tuesday-night-2000.html \
 	climbing/tuesday-night-2001.html climbing/tuesday-night-2002.html \
 	climbing/tuesday-night-2003.html climbing/tuesday-night-2004.html
